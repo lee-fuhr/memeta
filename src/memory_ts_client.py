@@ -1,0 +1,345 @@
+"""
+Memory-ts client - Direct file operations for memory-ts integration
+
+Memory-ts uses markdown files with YAML frontmatter stored at:
+/Users/lee/.local/share/memory/LFI/memories/
+
+Each memory is a file: {id}.md with YAML frontmatter + markdown content
+"""
+
+import re
+import hashlib
+from dataclasses import dataclass, field
+from datetime import datetime
+from pathlib import Path
+from typing import List, Optional, Dict, Any
+import time
+
+
+# Default memory directory
+DEFAULT_MEMORY_DIR = Path.home() / ".local/share/memory/LFI/memories"
+
+
+class MemoryTSError(Exception):
+    """Base exception for memory-ts client errors"""
+    pass
+
+
+class MemoryNotFoundError(MemoryTSError):
+    """Raised when memory doesn't exist"""
+    pass
+
+
+@dataclass
+class Memory:
+    """Memory data model matching memory-ts schema v2"""
+    id: str
+    content: str
+    importance: float
+    tags: List[str]
+    project_id: str
+    scope: str = "project"  # project or global
+    session_id: Optional[str] = None  # Track which session created this memory
+    created: str = field(default_factory=lambda: datetime.now().isoformat())
+    updated: str = field(default_factory=lambda: datetime.now().isoformat())
+    reasoning: str = ""
+    confidence_score: float = 0.9
+    context_type: str = "knowledge"
+    temporal_relevance: str = "persistent"
+    knowledge_domain: str = "learnings"
+    status: str = "active"
+    retrieval_weight: Optional[float] = None
+    schema_version: int = 2
+
+    def __post_init__(self):
+        """Set retrieval_weight to match importance if not specified"""
+        if self.retrieval_weight is None:
+            self.retrieval_weight = self.importance
+
+
+class MemoryTSClient:
+    """
+    Client for memory-ts file-based storage
+
+    Memory-ts stores memories as markdown files with YAML frontmatter.
+    This client provides CRUD operations on those files.
+    """
+
+    def __init__(self, memory_dir: Optional[Path] = None):
+        """
+        Initialize client
+
+        Args:
+            memory_dir: Path to memory storage (defaults to ~/.local/share/memory/LFI/memories)
+        """
+        self.memory_dir = Path(memory_dir) if memory_dir else DEFAULT_MEMORY_DIR
+        self.memory_dir.mkdir(parents=True, exist_ok=True)
+
+    def create(
+        self,
+        content: str,
+        project_id: str,
+        tags: List[str],
+        importance: Optional[float] = None,
+        scope: str = "project",
+        **kwargs
+    ) -> Memory:
+        """
+        Create new memory
+
+        Args:
+            content: Memory content (markdown)
+            project_id: Project identifier
+            tags: List of tags (e.g. ["#learning", "#important"])
+            importance: Importance score (0.0-1.0), auto-calculated if None
+            scope: "project" or "global"
+            **kwargs: Additional memory fields
+
+        Returns:
+            Created Memory object
+        """
+        # Generate unique ID (timestamp-hash format)
+        timestamp = str(int(time.time() * 1000))  # milliseconds
+        hash_input = f"{content}{project_id}{datetime.now().isoformat()}"
+        hash_val = hashlib.md5(hash_input.encode()).hexdigest()[:6]
+        memory_id = f"{timestamp}-{hash_val}"
+
+        # Calculate importance if not provided
+        if importance is None:
+            from .importance_engine import calculate_importance
+            importance = calculate_importance(content)
+
+        # Create memory object
+        memory = Memory(
+            id=memory_id,
+            content=content,
+            project_id=project_id,
+            tags=tags,
+            importance=importance,
+            scope=scope,
+            **kwargs
+        )
+
+        # Write to file
+        self._write_memory(memory)
+
+        return memory
+
+    def get(self, memory_id: str) -> Memory:
+        """
+        Get memory by ID
+
+        Args:
+            memory_id: Memory identifier
+
+        Returns:
+            Memory object
+
+        Raises:
+            MemoryNotFoundError: If memory doesn't exist
+        """
+        memory_file = self.memory_dir / f"{memory_id}.md"
+        if not memory_file.exists():
+            raise MemoryNotFoundError(f"Memory {memory_id} not found")
+
+        return self._read_memory(memory_file)
+
+    def search(
+        self,
+        tags: Optional[List[str]] = None,
+        content: Optional[str] = None,
+        scope: Optional[str] = None,
+        project_id: Optional[str] = None
+    ) -> List[Memory]:
+        """
+        Search memories by various criteria
+
+        Args:
+            tags: Filter by tags (any match)
+            content: Filter by content substring
+            scope: Filter by scope (project/global)
+            project_id: Filter by project
+
+        Returns:
+            List of matching Memory objects
+        """
+        results = []
+
+        for memory_file in self.memory_dir.glob("*.md"):
+            try:
+                memory = self._read_memory(memory_file)
+
+                # Apply filters
+                if tags and not any(tag in memory.tags for tag in tags):
+                    continue
+                if content and content.lower() not in memory.content.lower():
+                    continue
+                if scope and memory.scope != scope:
+                    continue
+                if project_id and memory.project_id != project_id:
+                    continue
+
+                results.append(memory)
+            except Exception:
+                # Skip files that can't be parsed
+                continue
+
+        return results
+
+    def update(
+        self,
+        memory_id: str,
+        content: Optional[str] = None,
+        importance: Optional[float] = None,
+        tags: Optional[List[str]] = None,
+        scope: Optional[str] = None,
+        **kwargs
+    ) -> Memory:
+        """
+        Update existing memory
+
+        Args:
+            memory_id: Memory to update
+            content: New content (optional)
+            importance: New importance (optional)
+            tags: New tags (optional)
+            scope: New scope (optional)
+            **kwargs: Additional fields to update
+
+        Returns:
+            Updated Memory object
+
+        Raises:
+            MemoryNotFoundError: If memory doesn't exist
+        """
+        memory = self.get(memory_id)
+
+        # Update fields
+        if content is not None:
+            memory.content = content
+        if importance is not None:
+            memory.importance = importance
+        if tags is not None:
+            memory.tags = tags
+        if scope is not None:
+            memory.scope = scope
+
+        # Update additional fields from kwargs
+        for key, value in kwargs.items():
+            if hasattr(memory, key):
+                setattr(memory, key, value)
+
+        # Update timestamp
+        memory.updated = datetime.now().isoformat()
+
+        # Write updated memory
+        self._write_memory(memory)
+
+        return memory
+
+    def _write_memory(self, memory: Memory) -> None:
+        """Write memory to disk as markdown with YAML frontmatter"""
+        memory_file = self.memory_dir / f"{memory.id}.md"
+
+        # Build YAML frontmatter
+        frontmatter = f"""---
+id: {memory.id}
+created: {memory.created}
+updated: {memory.updated}
+reasoning: {memory.reasoning}
+importance_weight: {memory.importance}
+confidence_score: {memory.confidence_score}
+context_type: {memory.context_type}
+temporal_relevance: {memory.temporal_relevance}
+knowledge_domain: {memory.knowledge_domain}
+emotional_resonance: null
+action_required: false
+problem_solution_pair: true
+semantic_tags: {memory.tags}
+trigger_phrases: []
+question_types: []
+session_id: {memory.session_id or "unknown"}
+project_id: {memory.project_id}
+status: {memory.status}
+scope: {memory.scope}
+temporal_class: long_term
+fade_rate: 0.03
+expires_after_sessions: 0
+domain: learnings
+feature: null
+component: null
+supersedes: null
+superseded_by: null
+related_to: []
+resolves: []
+resolved_by: null
+parent_id: null
+child_ids: []
+awaiting_implementation: false
+awaiting_decision: false
+blocked_by: null
+blocks: []
+related_files: []
+retrieval_weight: {memory.retrieval_weight or memory.importance}
+exclude_from_retrieval: false
+schema_version: {memory.schema_version}
+---
+
+{memory.content}
+"""
+
+        memory_file.write_text(frontmatter)
+
+    def _read_memory(self, memory_file: Path) -> Memory:
+        """Read memory from markdown file with YAML frontmatter"""
+        content = memory_file.read_text()
+
+        # Split frontmatter and content
+        parts = content.split("---", 2)
+        if len(parts) < 3:
+            raise MemoryTSError(f"Invalid memory file format: {memory_file}")
+
+        frontmatter_text = parts[1]
+        memory_content = parts[2].strip()
+
+        # Parse YAML frontmatter (simple key: value parsing)
+        metadata = {}
+        for line in frontmatter_text.split("\n"):
+            line = line.strip()
+            if not line or ":" not in line:
+                continue
+
+            key, value = line.split(":", 1)
+            key = key.strip()
+            value = value.strip()
+
+            # Parse specific types
+            if key == "semantic_tags":
+                # Parse list format: ["tag1", "tag2"]
+                value = eval(value) if value.startswith("[") else []
+            elif key in ("importance_weight", "confidence_score", "retrieval_weight"):
+                value = float(value) if value != "null" else 0.0
+            elif key == "schema_version":
+                value = int(value) if value.isdigit() else 2
+
+            metadata[key] = value
+
+        # Build Memory object
+        return Memory(
+            id=metadata.get("id", memory_file.stem),
+            content=memory_content,
+            importance=metadata.get("importance_weight", 0.5),
+            tags=metadata.get("semantic_tags", []),
+            project_id=metadata.get("project_id", "LFI"),
+            scope=metadata.get("scope", "project"),
+            created=metadata.get("created", ""),
+            updated=metadata.get("updated", ""),
+            reasoning=metadata.get("reasoning", ""),
+            confidence_score=metadata.get("confidence_score", 0.9),
+            context_type=metadata.get("context_type", "knowledge"),
+            temporal_relevance=metadata.get("temporal_relevance", "persistent"),
+            knowledge_domain=metadata.get("knowledge_domain", "learnings"),
+            status=metadata.get("status", "active"),
+            retrieval_weight=metadata.get("retrieval_weight"),
+            schema_version=metadata.get("schema_version", 2)
+        )
