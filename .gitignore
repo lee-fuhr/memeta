@@ -29,3 +29,13 @@ Thumbs.db
 # Temporary files
 *.tmp
 *.bak
+
+# Runtime databases (created at runtime, not shipped)
+fsrs.db
+clusters.db
+
+# Working/internal docs
+_working/
+
+# Synthesis output
+synthesis/
