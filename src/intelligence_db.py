@@ -206,6 +206,36 @@ class IntelligenceDB:
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_decisions_project ON decision_journal(project_id)")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_decisions_outcome ON decision_journal(outcome_success)")
 
+        # F25: Memory clustering
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS memory_clusters (
+                id TEXT PRIMARY KEY,
+                name TEXT NOT NULL,
+                description TEXT,
+                memory_ids TEXT NOT NULL,
+                centroid_embedding BLOB,
+                cohesion_score REAL,
+                member_count INTEGER NOT NULL,
+                project_id TEXT,
+                created_at INTEGER NOT NULL,
+                updated_at INTEGER NOT NULL
+            )
+        """)
+
+        # F26: Memory summarization
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS memory_summaries (
+                id TEXT PRIMARY KEY,
+                summary_type TEXT NOT NULL,
+                target_id TEXT,
+                period_start INTEGER,
+                period_end INTEGER,
+                summary TEXT NOT NULL,
+                memory_count INTEGER,
+                created_at INTEGER NOT NULL
+            )
+        """)
+
         # F51: Temporal patterns
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_temporal_pattern_type ON temporal_patterns(pattern_type)")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_temporal_trigger ON temporal_patterns(trigger_condition)")
@@ -213,6 +243,16 @@ class IntelligenceDB:
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_access_memory ON memory_access_log(memory_id, accessed_at DESC)")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_access_temporal ON memory_access_log(day_of_week, hour_of_day)")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_access_session ON memory_access_log(session_id)")
+
+        # F25: Clustering indexes
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_cluster_project ON memory_clusters(project_id)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_cluster_cohesion ON memory_clusters(cohesion_score DESC)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_cluster_size ON memory_clusters(member_count DESC)")
+
+        # F26: Summarization indexes
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_summary_type ON memory_summaries(summary_type)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_summary_target ON memory_summaries(target_id)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_summary_period ON memory_summaries(period_start, period_end)")
 
         self.conn.commit()
 

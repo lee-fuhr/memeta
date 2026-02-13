@@ -6,6 +6,13 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ---
 
+## [0.4.0] - 2026-02-13
+
+### Added
+- **F26: Memory Summarization** - LLM-powered summarization of memories with three types: cluster summaries (theme + key points), project summaries (30-day progress reports), and period summaries (weekly/monthly digests). Generates 2-3 paragraph summaries via Sonnet 4.5 with fallback to generic summaries on timeout. 17 comprehensive tests covering initialization, cluster/project/period summarization, filtering, regeneration, statistics, and LLM fallback.
+
+---
+
 ## [0.3.1] - 2026-02-13
 
 ### Fixed
