@@ -463,15 +463,31 @@ def test_get_pattern_stats(predictor):
 # HOOK INTEGRATION TESTS
 # ========================================
 
+def _load_hook_module():
+    """Load topic_resumption_detector with clean imports."""
+    import sys
+    import importlib
+    from pathlib import Path
+    src_path = str(Path(__file__).parent.parent.parent / 'src')
+    hook_path = str(Path(__file__).parent.parent.parent / 'hooks')
+    # Ensure src is at front of path so memory_ts_client resolves correctly
+    if src_path not in sys.path:
+        sys.path.insert(0, src_path)
+    if hook_path not in sys.path:
+        sys.path.insert(0, hook_path)
+    # Force reload to pick up correct memory_ts_client
+    if 'memory_ts_client' in sys.modules:
+        importlib.reload(sys.modules['memory_ts_client'])
+    if 'topic_resumption_detector' in sys.modules:
+        importlib.reload(sys.modules['topic_resumption_detector'])
+    else:
+        import topic_resumption_detector
+    return sys.modules['topic_resumption_detector']
+
+
 def test_hook_phrase_detection():
     """Test hook detects all trigger phrases"""
-    # Import hook functions by loading the module
-    import sys
-    from pathlib import Path
-    hook_path = Path(__file__).parent.parent.parent / 'hooks'
-    sys.path.insert(0, str(hook_path))
-
-    import topic_resumption_detector
+    topic_resumption_detector = _load_hook_module()
     detect_topic_resumption = topic_resumption_detector.detect_topic_resumption
 
     test_cases = [
@@ -490,12 +506,7 @@ def test_hook_phrase_detection():
 
 def test_hook_ignores_non_trigger_messages():
     """Test hook ignores non-trigger messages"""
-    import sys
-    from pathlib import Path
-    hook_path = Path(__file__).parent.parent.parent / 'hooks'
-    sys.path.insert(0, str(hook_path))
-
-    import topic_resumption_detector
+    topic_resumption_detector = _load_hook_module()
     detect_topic_resumption = topic_resumption_detector.detect_topic_resumption
 
     test_cases = [
@@ -511,12 +522,7 @@ def test_hook_ignores_non_trigger_messages():
 
 def test_hook_keyword_extraction():
     """Test hook extracts relevant topic words"""
-    import sys
-    from pathlib import Path
-    hook_path = Path(__file__).parent.parent.parent / 'hooks'
-    sys.path.insert(0, str(hook_path))
-
-    import topic_resumption_detector
+    topic_resumption_detector = _load_hook_module()
     detect_topic_resumption = topic_resumption_detector.detect_topic_resumption
 
     message = "We discussed this before - the messaging framework for Connection Lab"
@@ -533,12 +539,7 @@ def test_hook_keyword_extraction():
 
 def test_hook_removes_stopwords():
     """Test hook removes stopwords from keywords"""
-    import sys
-    from pathlib import Path
-    hook_path = Path(__file__).parent.parent.parent / 'hooks'
-    sys.path.insert(0, str(hook_path))
-
-    import topic_resumption_detector
+    topic_resumption_detector = _load_hook_module()
     detect_topic_resumption = topic_resumption_detector.detect_topic_resumption
 
     message = "We discussed this before about the authentication system"

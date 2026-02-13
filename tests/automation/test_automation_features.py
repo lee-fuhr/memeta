@@ -30,43 +30,41 @@ def temp_db():
 def test_f29_create_alert(temp_db):
     """Test creating an alert."""
     alerts = SmartAlerts(db_path=temp_db)
-    
+
     alert = alerts.create_alert(
         alert_type="contradiction",
+        severity="high",
         title="Test Alert",
         message="Test message",
-        memory_ids=["mem_001"],
-        priority=2
+        memory_ids=["mem_001"]
     )
-    
+
     assert alert.alert_id > 0
     assert alert.title == "Test Alert"
-    assert alert.priority == 2
+    assert alert.severity == "high"
 
 
 def test_f29_get_pending_alerts(temp_db):
     """Test getting pending alerts."""
     alerts = SmartAlerts(db_path=temp_db)
-    
-    alerts.create_alert("test", "Alert 1", "msg", ["mem_001"], 2)
-    alerts.create_alert("test", "Alert 2", "msg", ["mem_002"], 1)
-    
-    pending = alerts.get_pending_alerts()
-    
+
+    alerts.create_alert("test", "high", "Alert 1", "msg", ["mem_001"])
+    alerts.create_alert("test", "low", "Alert 2", "msg", ["mem_002"])
+
+    pending = alerts.get_unread_alerts()
+
     assert len(pending) == 2
-    # Should be sorted by priority desc
-    assert pending[0].priority == 2
 
 
 def test_f29_mark_delivered(temp_db):
     """Test marking alert as delivered."""
     alerts = SmartAlerts(db_path=temp_db)
     
-    alert = alerts.create_alert("test", "Test", "msg", ["mem_001"])
+    alert = alerts.create_alert("test", "medium", "Test", "msg", ["mem_001"])
     
-    alerts.mark_delivered(alert.alert_id)
-    
-    pending = alerts.get_pending_alerts()
+    alerts.dismiss_alert(alert.alert_id)
+
+    pending = alerts.get_unread_alerts()
     assert len(pending) == 0
 
 
@@ -111,13 +109,16 @@ def test_f31_summarize_empty_memories():
 def test_f31_topic_summary_dataclass():
     """Test TopicSummary dataclass."""
     summary = TopicSummary(
+        summary_id=None,
         topic="test",
         narrative="Test narrative",
         timeline=[],
         key_insights=["insight 1"],
-        memory_count=5
+        memory_count=5,
+        created_at=datetime.now(),
+        memory_ids=["mem_001"]
     )
-    
+
     assert summary.topic == "test"
     assert len(summary.key_insights) == 1
 
