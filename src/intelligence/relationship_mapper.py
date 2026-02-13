@@ -175,13 +175,15 @@ class RelationshipMapper:
             params.append(memory_id)
 
         if direction in ["to", "both"]:
-            if conditions:
-                conditions.append("OR to_memory_id = ?")
-            else:
-                conditions.append("to_memory_id = ?")
+            conditions.append("to_memory_id = ?")
             params.append(memory_id)
 
-        where_clause = " OR ".join(conditions)
+        # Build WHERE clause with proper precedence
+        if len(conditions) > 1:
+            # Multiple conditions - wrap in parentheses
+            where_clause = "(" + " OR ".join(conditions) + ")"
+        else:
+            where_clause = conditions[0]
 
         if relationship_type:
             where_clause += " AND relationship_type = ?"
@@ -283,6 +285,48 @@ class RelationshipMapper:
             direction="both"
         )
 
+    def remove_relationship(self, rel_id: str) -> bool:
+        """
+        Remove relationship.
+
+        Args:
+            rel_id: Relationship ID to remove
+
+        Returns:
+            True if relationship existed and was removed, False if didn't exist
+        """
+        with get_connection(self.db_path) as conn:
+            cursor = conn.execute(
+                "DELETE FROM memory_relationships WHERE id = ?",
+                (rel_id,)
+            )
+            conn.commit()
+            return cursor.rowcount > 0
+
+    def update_strength(self, rel_id: str, new_strength: float):
+        """
+        Update relationship confidence.
+
+        Args:
+            rel_id: Relationship ID
+            new_strength: New strength value (0.0-1.0)
+
+        Raises:
+            ValueError: If strength out of range or relationship doesn't exist
+        """
+        if not 0.0 <= new_strength <= 1.0:
+            raise ValueError(f"Strength must be 0.0-1.0, got {new_strength}")
+
+        with get_connection(self.db_path) as conn:
+            cursor = conn.execute(
+                "UPDATE memory_relationships SET strength = ? WHERE id = ?",
+                (new_strength, rel_id)
+            )
+            conn.commit()
+
+            if cursor.rowcount == 0:
+                raise ValueError(f"Relationship {rel_id} not found")
+
     def get_relationship_stats(self) -> dict:
         """Get relationship graph statistics"""
         with get_connection(self.db_path) as conn:
@@ -306,8 +350,66 @@ class RelationshipMapper:
                 "SELECT AVG(strength) FROM memory_relationships"
             ).fetchone()[0] or 0.0
 
+            # Most connected memories
+            cursor = conn.execute("""
+                SELECT memory_id, COUNT(*) as conn_count
+                FROM (
+                    SELECT from_memory_id as memory_id FROM memory_relationships
+                    UNION ALL
+                    SELECT to_memory_id as memory_id FROM memory_relationships
+                )
+                GROUP BY memory_id
+                ORDER BY conn_count DESC
+                LIMIT 10
+            """)
+            most_connected = [(row[0], row[1]) for row in cursor.fetchall()]
+
             return {
                 'total_relationships': total,
                 'by_type': by_type,
-                'average_strength': avg_strength
+                'average_strength': avg_strength,
+                'most_connected_memories': most_connected
+            }
+
+    def get_memory_graph_stats(self, memory_id: str) -> dict:
+        """
+        Get graph statistics for a specific memory.
+
+        Args:
+            memory_id: Memory to analyze
+
+        Returns:
+            dict with outgoing/incoming counts, contradiction count, centrality
+        """
+        with get_connection(self.db_path) as conn:
+            # Outgoing relationships
+            outgoing = conn.execute(
+                "SELECT COUNT(*) FROM memory_relationships WHERE from_memory_id = ?",
+                (memory_id,)
+            ).fetchone()[0]
+
+            # Incoming relationships
+            incoming = conn.execute(
+                "SELECT COUNT(*) FROM memory_relationships WHERE to_memory_id = ?",
+                (memory_id,)
+            ).fetchone()[0]
+
+            # Contradictions
+            contradictions = conn.execute("""
+                SELECT COUNT(*) FROM memory_relationships
+                WHERE (from_memory_id = ? OR to_memory_id = ?)
+                AND relationship_type = 'contradicts'
+            """, (memory_id, memory_id)).fetchone()[0]
+
+            # Centrality: (outgoing + incoming) / max_possible
+            # Rough estimate - assumes ~1000 memories
+            total_connections = outgoing + incoming
+            centrality_score = min(total_connections / 100.0, 1.0)
+
+            return {
+                'outgoing_count': outgoing,
+                'incoming_count': incoming,
+                'contradiction_count': contradictions,
+                'total_connections': total_connections,
+                'centrality_score': centrality_score
             }
