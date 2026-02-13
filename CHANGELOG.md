@@ -6,6 +6,11 @@ All notable changes to the Memory System v1 project.
 
 ## [Unreleased]
 
+### Fixed
+- **IntelligenceDB initialization bug** (src/intelligence_db.py:45) - Fixed AttributeError where `self.conn.row_factory` was accessed before `self.conn` was initialized. Now properly initializes connection from pool before setting row_factory.
+- **PooledConnection attribute proxy** (src/db_pool.py) - Added `__setattr__` method to properly proxy attribute writes (like `row_factory`) to the underlying sqlite3.Connection object.
+- **Test coverage improvement** - Fixed 12 intelligence_db tests that were failing due to initialization bug (0/12 → 12/12 passing)
+
 ### Added
 - embedding_manager.py: Persistent embedding storage with SHA-256 content hashing
 - async_consolidation.py: Queue-based async consolidation system

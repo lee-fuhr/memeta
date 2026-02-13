@@ -46,6 +46,15 @@ class PooledConnection:
         """Proxy all other methods to the real connection."""
         return getattr(self._conn, name)
 
+    def __setattr__(self, name, value):
+        """Proxy attribute writes to the real connection."""
+        if name.startswith('_'):
+            # Private attributes go to wrapper
+            super().__setattr__(name, value)
+        else:
+            # Public attributes go to underlying connection
+            setattr(self._conn, name, value)
+
     def close(self):
         """Return connection to pool instead of closing."""
         if not self._closed:

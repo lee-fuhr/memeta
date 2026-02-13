@@ -41,7 +41,10 @@ class IntelligenceDB:
             db_path = Path(__file__).parent.parent / "intelligence.db"
 
         self.db_path = Path(db_path)
-        # Connection pooling handled via get_connection() in methods
+        # Initialize connection from pool (not context manager)
+        from db_pool import get_pool
+        pool = get_pool(str(self.db_path))
+        self.conn = pool.get_connection()
         self.conn.row_factory = sqlite3.Row
         self._init_schema()
 

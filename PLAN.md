@@ -18,6 +18,12 @@
 - Added `_archive/` to `.gitignore`
 - Verification: 11 active .md files (down from 17)
 
+### 2026-02-13 08:45 - Step 1: Fix IntelligenceDB Initialization Bug ✅
+- **Root cause:** `self.conn` was being accessed before initialization at line 45
+- **Fix:** Initialize connection from pool before setting `row_factory`
+- **Additional fix:** Added `__setattr__` to `PooledConnection` to properly proxy attribute writes to underlying sqlite3 connection
+- **Verification:** All 12 `test_intelligence_db.py` tests now passing (was 0/12)
+
 ---
 
 ## Current State
