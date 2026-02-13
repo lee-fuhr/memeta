@@ -9,6 +9,10 @@ import json
 import sqlite3
 from datetime import datetime
 from pathlib import Path
+import sys
+from pathlib import Path as _Path
+sys.path.insert(0, str(_Path(__file__).parent))
+from db_pool import get_connection
 
 
 def export_dashboard_data(
@@ -42,7 +46,7 @@ def export_dashboard_data(
 
     # --- Read FSRS database ---
     if fsrs_db.exists():
-        conn = sqlite3.connect(str(fsrs_db))
+        with get_connection(str(fsrs_db)) as conn:
         conn.row_factory = sqlite3.Row
         try:
             rows = conn.execute(

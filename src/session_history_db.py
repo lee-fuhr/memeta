@@ -28,6 +28,11 @@ from pathlib import Path
 from typing import Dict, List, Optional
 from datetime import datetime
 
+import sys
+from pathlib import Path as _Path
+sys.path.insert(0, str(_Path(__file__).parent))
+from db_pool import get_connection
+
 
 SESSION_DB_PATH = Path.home() / ".local/share/memory/LFI/session-history.db"
 
@@ -36,9 +41,8 @@ def init_session_db():
     """Initialize session history database."""
     os.makedirs(SESSION_DB_PATH.parent, exist_ok=True)
 
-    conn = sqlite3.connect(SESSION_DB_PATH)
-
-    conn.execute("""
+    with get_connection(SESSION_DB_PATH) as conn:
+        conn.execute(""""
         CREATE TABLE IF NOT EXISTS sessions (
             id TEXT PRIMARY KEY,
             timestamp INTEGER NOT NULL,
@@ -76,8 +80,7 @@ def init_session_db():
         USING fts5(id, name, transcript_text, content=sessions)
     """)
 
-    conn.commit()
-    conn.close()
+        conn.commit()
 
 
 def save_session(
@@ -320,7 +323,7 @@ def get_session_stats() -> Dict:
 
     conn.close()
 
-    return {
+        return {
         'total_sessions': total,
         'avg_quality': avg_quality,
         'total_messages': total_messages,

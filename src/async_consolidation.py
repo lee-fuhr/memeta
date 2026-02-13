@@ -25,6 +25,11 @@ from datetime import datetime
 from typing import Optional, Dict
 import time
 
+import sys
+from pathlib import Path as _Path
+sys.path.insert(0, str(_Path(__file__).parent))
+from db_pool import get_connection
+
 
 class ConsolidationQueue:
     """
@@ -46,7 +51,7 @@ class ConsolidationQueue:
 
     def _init_db(self):
         """Create queue table"""
-        with sqlite3.connect(self.db_path) as conn:
+        with get_connection(self.db_path) as conn:
             conn.execute("""
                 CREATE TABLE IF NOT EXISTS consolidation_queue (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -78,7 +83,7 @@ class ConsolidationQueue:
             True if added, False if already queued
         """
         try:
-            with sqlite3.connect(self.db_path) as conn:
+            with get_connection(self.db_path) as conn:
                 conn.execute("""
                     INSERT INTO consolidation_queue
                     (session_id, session_path, status, added_at)
@@ -97,7 +102,7 @@ class ConsolidationQueue:
         Returns:
             Dict with session details or None if queue empty
         """
-        with sqlite3.connect(self.db_path) as conn:
+        with get_connection(self.db_path) as conn:
             conn.row_factory = sqlite3.Row
 
             # Get pending sessions or failed sessions ready for retry
@@ -127,7 +132,7 @@ class ConsolidationQueue:
 
     def mark_completed(self, session_id: str):
         """Mark session as successfully processed"""
-        with sqlite3.connect(self.db_path) as conn:
+        with get_connection(self.db_path) as conn:
             conn.execute("""
                 UPDATE consolidation_queue
                 SET status = 'completed', completed_at = ?
@@ -147,7 +152,7 @@ class ConsolidationQueue:
         next_retry = datetime.now().timestamp() + retry_in_seconds
         next_retry_iso = datetime.fromtimestamp(next_retry).isoformat()
 
-        with sqlite3.connect(self.db_path) as conn:
+        with get_connection(self.db_path) as conn:
             # Increment retry count
             conn.execute("""
                 UPDATE consolidation_queue
@@ -161,7 +166,7 @@ class ConsolidationQueue:
 
     def get_stats(self) -> Dict:
         """Get queue statistics"""
-        with sqlite3.connect(self.db_path) as conn:
+        with get_connection(self.db_path) as conn:
             pending = conn.execute("SELECT COUNT(*) FROM consolidation_queue WHERE status = 'pending'").fetchone()[0]
             processing = conn.execute("SELECT COUNT(*) FROM consolidation_queue WHERE status = 'processing'").fetchone()[0]
             completed = conn.execute("SELECT COUNT(*) FROM consolidation_queue WHERE status = 'completed'").fetchone()[0]
@@ -188,7 +193,7 @@ class ConsolidationQueue:
         cutoff = (datetime.now().timestamp() - (days * 86400))
         cutoff_iso = datetime.fromtimestamp(cutoff).isoformat()
 
-        with sqlite3.connect(self.db_path) as conn:
+        with get_connection(self.db_path) as conn:
             deleted = conn.execute("""
                 DELETE FROM consolidation_queue
                 WHERE status IN ('completed', 'failed')

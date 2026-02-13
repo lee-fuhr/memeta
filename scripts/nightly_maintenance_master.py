@@ -26,6 +26,9 @@ from pathlib import Path
 from datetime import datetime
 import sqlite3
 import shutil
+import sys
+sys.path.insert(0, str(SCRIPTS_DIR.parent / "src"))
+from db_pool import get_connection
 
 
 SCRIPTS_DIR = Path(__file__).parent
@@ -156,19 +159,15 @@ def optimize_databases():
             # Get size before
             size_before = db_path.stat().st_size / 1024 / 1024
 
-            conn = sqlite3.connect(str(db_path))
-
-            # VACUUM (defragment, reclaim space)
+            with get_connection(str(db_path)) as conn:
+                # VACUUM (defragment, reclaim space)
             print(f"🔄 VACUUM {db_path.name}...")
             conn.execute("VACUUM")
 
             # ANALYZE (update query planner statistics)
             print(f"🔄 ANALYZE {db_path.name}...")
             conn.execute("ANALYZE")
-
-            conn.close()
-
-            # Get size after
+                    # Get size after
             size_after = db_path.stat().st_size / 1024 / 1024
             saved_mb = size_before - size_after
 

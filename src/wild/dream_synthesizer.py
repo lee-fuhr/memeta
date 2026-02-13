@@ -27,6 +27,9 @@ import sqlite3
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from pathlib import Path
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from db_pool import get_connection
 from typing import List, Dict, Optional, Set, Tuple
 from collections import defaultdict, Counter
 import re
@@ -100,7 +103,7 @@ class DreamSynthesizer:
 
     def _init_db(self):
         """Create tables for synthesis tracking"""
-        with sqlite3.connect(self.db_path) as conn:
+        with get_connection(self.db_path) as conn:
             conn.execute("""
                 CREATE TABLE IF NOT EXISTS dream_connections (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -488,7 +491,7 @@ class DreamSynthesizer:
 
     def get_morning_briefing(self, limit: int = 5) -> List[Synthesis]:
         """Get top syntheses for morning review"""
-        with sqlite3.connect(self.db_path) as conn:
+        with get_connection(self.db_path) as conn:
             rows = conn.execute("""
                 SELECT s.id, s.title, s.insight, s.supporting_memories,
                        s.connection_ids, s.novelty_score, s.confidence,
@@ -517,7 +520,7 @@ class DreamSynthesizer:
 
     def mark_presented(self, synthesis_id: str):
         """Mark synthesis as presented to user"""
-        with sqlite3.connect(self.db_path) as conn:
+        with get_connection(self.db_path) as conn:
             conn.execute("""
                 UPDATE synthesis_queue
                 SET presented = 1, presented_at = ?
@@ -528,7 +531,7 @@ class DreamSynthesizer:
         """Save connection to database"""
         import json
 
-        with sqlite3.connect(self.db_path) as conn:
+        with get_connection(self.db_path) as conn:
             conn.execute("""
                 INSERT INTO dream_connections
                 (memory_ids, connection_type, strength, evidence, insight, discovered_at)
@@ -546,7 +549,7 @@ class DreamSynthesizer:
         """Save synthesis to database"""
         import json
 
-        with sqlite3.connect(self.db_path) as conn:
+        with get_connection(self.db_path) as conn:
             conn.execute("""
                 INSERT INTO dream_syntheses
                 (id, title, insight, supporting_memories, connection_ids,
@@ -566,7 +569,7 @@ class DreamSynthesizer:
         """Add synthesis to morning review queue"""
         priority = synthesis.novelty_score * synthesis.confidence
 
-        with sqlite3.connect(self.db_path) as conn:
+        with get_connection(self.db_path) as conn:
             conn.execute("""
                 INSERT INTO synthesis_queue
                 (synthesis_id, priority, queued_at)

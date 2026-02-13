@@ -9,11 +9,17 @@ Storage: SQLite database (fsrs.db)
 
 import json
 import sqlite3
+import sys
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from enum import IntEnum
 from pathlib import Path
 from typing import List, Optional
+
+# Add src to path for db_pool import
+sys.path.insert(0, str(Path(__file__).parent))
+from db_pool import get_connection
+
 
 
 class ReviewGrade(IntEnum):
@@ -82,10 +88,14 @@ class FSRSScheduler:
         self._init_db()
 
     def _connect(self) -> sqlite3.Connection:
-        """Create database connection with WAL mode and timeout"""
-        conn = sqlite3.connect(self.db_path, timeout=30.0)
-        conn.execute("PRAGMA journal_mode=WAL")
-        return conn
+        """Get pooled database connection
+
+        Note: Returns connection from pool. Caller must close() when done.
+        TODO: Refactor to use context manager pattern for auto-return to pool.
+        """
+        from db_pool import get_pool
+        pool = get_pool(self.db_path)
+        return pool.get_connection()
 
     def _init_db(self):
         """Create database tables if they don't exist"""

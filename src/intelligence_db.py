@@ -6,9 +6,14 @@ Enables cross-feature queries and unified storage.
 """
 
 import sqlite3
+import sys
 from pathlib import Path
 from typing import Optional
 from datetime import datetime
+
+# Add src to path for imports
+sys.path.insert(0, str(Path(__file__).parent))
+from db_pool import get_connection
 
 
 class IntelligenceDB:
@@ -36,7 +41,7 @@ class IntelligenceDB:
             db_path = Path(__file__).parent.parent / "intelligence.db"
 
         self.db_path = Path(db_path)
-        self.conn = sqlite3.connect(str(self.db_path))
+        # Connection pooling handled via get_connection() in methods
         self.conn.row_factory = sqlite3.Row
         self._init_schema()
 
