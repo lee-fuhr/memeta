@@ -6,6 +6,16 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ---
 
+## [0.5.0] - 2026-02-13
+
+### Added
+- **F29: Smart Alerts** - Proactive notification system for memory events with 5 alert types (expiring_memory, contradiction, pattern_detected, stale_memory, quality_issue) and 4 severity levels (low, medium, high, critical). Features daily digest generation, alert dismissal/action tracking, statistics, and automatic cleanup of old dismissed alerts. 16 comprehensive tests covering initialization, alert creation, filtering, dismissal, action tracking, daily digest, statistics, and cleanup.
+- **F30: Memory-Aware Search** - Multi-dimensional search with semantic content matching, temporal filtering (absolute and relative dates), project/tag filtering, and natural language query parsing. Extracts temporal references (last week, yesterday, January), importance indicators, project mentions, and tags from queries. Includes search history tracking and relevance scoring with three ordering modes (importance, recency, relevance). 16 tests covering initialization, content search, natural language parsing (temporal, importance, project, tags), history tracking, and relevance calculation.
+- **F31: Auto-Summarization** - LLM-powered topic summarization with narrative generation, timeline building, key insights extraction, and database persistence. Generates 2-3 paragraph summaries via Sonnet 4.5 with fallback to structured summaries on timeout. Supports topic-based summarization, summary retrieval/filtering, and regeneration from saved memory IDs. 14 tests covering initialization, empty/populated summarization, timeline generation, database persistence, retrieval, filtering, regeneration, and metadata tracking.
+- **F32: Quality Scoring** - Automated quality assessment for memories checking 5 dimensions: length (min 10, optimal 30-200, max 500 chars), vague language detection (12 vague word triggers), actionability (verb presence), sentence completion, and capitalization. Provides scored assessments (0.0-1.0) with specific issues and improvement suggestions. Supports batch assessment and low-quality filtering with custom thresholds. 13 tests covering high-quality detection, length checks, vague language, verbs, sentence structure, capitalization, batch processing, filtering, and suggestion provision.
+
+---
+
 ## [0.4.0] - 2026-02-13
 
 ### Added
