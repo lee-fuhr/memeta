@@ -562,8 +562,7 @@ Answer with ONE WORD ONLY."""
 
                 # Check for contradictions with existing memories
                 existing = self.memory_client.search(
-                    query=memory.content,
-                    limit=20,
+                    content=memory.content,
                     project_id=self.project_id
                 )
 

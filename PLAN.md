@@ -24,6 +24,11 @@
 - **Additional fix:** Added `__setattr__` to `PooledConnection` to properly proxy attribute writes to underlying sqlite3 connection
 - **Verification:** All 12 `test_intelligence_db.py` tests now passing (was 0/12)
 
+### 2026-02-13 08:50 - Step 2: Fix MemoryTSClient API Mismatch ✅
+- **Root cause:** `session_consolidator.py` line 564 called `search(query=..., limit=...)` but `MemoryTSClient.search()` only accepts `content`, `tags`, `scope`, `project_id`
+- **Fix:** Changed `query=` to `content=`, removed non-existent `limit` parameter
+- **Verification:** `test_session_consolidator.py` 25/26 passing (was 14/26). Remaining failure is deduplication LLM timeout (Step 5)
+
 ---
 
 ## Current State

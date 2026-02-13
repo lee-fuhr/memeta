@@ -9,7 +9,8 @@ All notable changes to the Memory System v1 project.
 ### Fixed
 - **IntelligenceDB initialization bug** (src/intelligence_db.py:45) - Fixed AttributeError where `self.conn.row_factory` was accessed before `self.conn` was initialized. Now properly initializes connection from pool before setting row_factory.
 - **PooledConnection attribute proxy** (src/db_pool.py) - Added `__setattr__` method to properly proxy attribute writes (like `row_factory`) to the underlying sqlite3.Connection object.
-- **Test coverage improvement** - Fixed 12 intelligence_db tests that were failing due to initialization bug (0/12 → 12/12 passing)
+- **MemoryTSClient API mismatch** (src/session_consolidator.py:564) - Fixed incorrect `search()` call using non-existent `query=` and `limit=` parameters. Now correctly uses `content=` parameter as defined in MemoryTSClient API.
+- **Test coverage improvement** - Fixed 12 intelligence_db tests (0/12 → 12/12) and 11 session_consolidator tests (14/26 → 25/26)
 
 ### Added
 - embedding_manager.py: Persistent embedding storage with SHA-256 content hashing
