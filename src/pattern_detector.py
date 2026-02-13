@@ -19,7 +19,7 @@ from .fsrs_scheduler import FSRSScheduler, ReviewGrade
 from .memory_ts_client import MemoryTSClient, Memory
 
 
-DEFAULT_SIMILARITY_THRESHOLD = 0.5
+DEFAULT_SIMILARITY_THRESHOLD = 0.35
 
 
 def normalize_text(text: str) -> set:
@@ -128,6 +128,9 @@ class PatternDetector:
         if not existing_memories:
             return []
 
+        # Batch-load promoted IDs to avoid O(n*m) SQLite queries
+        promoted_ids = self.scheduler.get_promoted_ids()
+
         signals = []
 
         for new_mem in new_memories:
@@ -142,9 +145,13 @@ class PatternDetector:
             best_score: float = 0.0
 
             for existing in existing_memories:
-                # Skip already-promoted memories
-                fsrs_state = self.scheduler.get_state(existing.id)
-                if fsrs_state and fsrs_state.promoted:
+                # Skip already-promoted memories (batch lookup, no DB query)
+                if existing.id in promoted_ids:
+                    continue
+
+                # Skip self-match (memory just saved to store this session)
+                new_id = new_mem.get("id")
+                if new_id and new_id == existing.id:
                     continue
 
                 score = word_overlap_score(new_content, existing.content)

@@ -124,7 +124,7 @@ def parse_llm_response(response: str, project_id: str = "LFI") -> List[SessionMe
 def extract_with_llm(
     conversation: str,
     project_id: str = "LFI",
-    timeout: int = 120
+    timeout: int = 30
 ) -> List[SessionMemory]:
     """
     Extract memories using Claude Code CLI
@@ -161,6 +161,40 @@ def extract_with_llm(
         return []
     except Exception:
         return []
+
+
+def ask_claude(prompt: str, timeout: int = 30) -> str:
+    """
+    Simple helper to ask Claude CLI a question and get a text response.
+
+    Used for daily summaries, synthesis, ad-hoc LLM queries.
+
+    Args:
+        prompt: Question or task for Claude
+        timeout: CLI timeout in seconds
+
+    Returns:
+        Claude's response text (empty string on failure)
+    """
+    try:
+        result = subprocess.run(
+            ["claude", "-p", prompt],
+            capture_output=True,
+            text=True,
+            timeout=timeout
+        )
+
+        if result.returncode != 0:
+            return ""
+
+        return result.stdout.strip()
+
+    except subprocess.TimeoutExpired:
+        return ""
+    except FileNotFoundError:
+        return ""
+    except Exception:
+        return ""
 
 
 def combine_extractions(

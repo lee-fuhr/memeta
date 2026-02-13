@@ -288,3 +288,55 @@ class TestBatchPromotion:
 
         result = executor.promote_single(mem_id)
         assert result is None
+
+
+class TestImportanceBoost:
+    """Test that promotion boosts importance for retrieval"""
+
+    def test_importance_boosted_by_point_one(self, executor, memory_client, scheduler):
+        """Should boost importance by 0.1 on promotion"""
+        mem_id = create_promotable_memory(memory_client, scheduler)
+
+        memory_before = memory_client.get(mem_id)
+        old_importance = memory_before.importance
+
+        executor.execute_promotions()
+
+        memory_after = memory_client.get(mem_id)
+        assert memory_after.importance == pytest.approx(
+            min(1.0, old_importance + 0.1), abs=0.01
+        )
+
+    def test_importance_capped_at_one(self, executor, memory_client, scheduler):
+        """Should cap importance at 1.0"""
+        # Create memory with importance 0.95
+        memory_client.create(
+            content="Nearly maxed importance memory for testing cap",
+            project_id="LFI",
+            tags=["#learning"],
+            importance=0.95,
+            scope="project",
+        )
+        memories = memory_client.search(content="Nearly maxed")
+        mem_id = memories[-1].id
+
+        scheduler.register_memory(mem_id, project_id="LFI")
+        scheduler.record_review(mem_id, ReviewGrade.GOOD, project_id="LFI")
+        scheduler.record_review(mem_id, ReviewGrade.EASY, project_id="ClientA")
+        scheduler.record_review(mem_id, ReviewGrade.EASY, project_id="ClientB")
+
+        executor.execute_promotions()
+
+        memory_after = memory_client.get(mem_id)
+        assert memory_after.importance <= 1.0
+
+    def test_promotion_result_includes_importance(self, executor, memory_client, scheduler):
+        """PromotionResult should include old and new importance"""
+        mem_id = create_promotable_memory(memory_client, scheduler)
+
+        results = executor.execute_promotions()
+        result = [r for r in results if r.memory_id == mem_id][0]
+
+        assert hasattr(result, 'old_importance')
+        assert hasattr(result, 'new_importance')
+        assert result.new_importance > result.old_importance

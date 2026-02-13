@@ -16,6 +16,7 @@ sys.path.insert(0, str(project_root))
 from src.weekly_synthesis import WeeklySynthesis
 from src.fsrs_scheduler import FSRSScheduler
 from src.memory_ts_client import MemoryTSClient
+from src.promotion_executor import PromotionExecutor
 
 
 def main():
@@ -23,18 +24,32 @@ def main():
     fsrs_db = project_root / "fsrs.db"
     cluster_db = project_root / "clusters.db"
     output_dir = project_root / "synthesis"
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    # Run promotions before synthesis
+    scheduler = FSRSScheduler(db_path=fsrs_db)
+    memory_client = MemoryTSClient(memory_dir=memory_dir)
+    executor = PromotionExecutor(
+        scheduler=scheduler,
+        memory_client=memory_client,
+    )
+    promotions = executor.execute_promotions()
+    if promotions:
+        print(f"Promoted {len(promotions)} memories to global scope")
 
     synthesis = WeeklySynthesis(
         memory_dir=memory_dir,
         fsrs_db_path=fsrs_db,
         cluster_db_path=cluster_db,
         output_dir=output_dir,
+        scheduler=scheduler,
+        memory_client=memory_client,
     )
 
     report = synthesis.generate()
 
     if report.promoted_count > 0:
-        print(f"Promoted {report.promoted_count} memories")
+        print(f"{report.promoted_count} promoted memories in synthesis")
         print(f"Draft written to: {report.output_path}")
         synthesis.notify(report)
     else:

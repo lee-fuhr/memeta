@@ -18,6 +18,7 @@ from src.session_consolidator import (
     SessionConsolidator,
     SessionMemory,
     SessionQualityScore,
+    ConsolidationResult,
     extract_memories_from_session,
     deduplicate_memories,
     calculate_session_quality
@@ -278,6 +279,85 @@ class TestSessionMemoryModel:
         )
 
         assert "#learning" in memory.tags
+
+
+class TestSavedMemoriesInResult:
+    """Test that ConsolidationResult includes saved memory objects"""
+
+    def test_consolidation_result_includes_saved_memories(self, consolidator, sample_session_file):
+        """ConsolidationResult.saved_memories is populated after consolidation"""
+        result = consolidator.consolidate_session(sample_session_file, use_llm=False)
+
+        assert hasattr(result, 'saved_memories')
+        assert isinstance(result.saved_memories, list)
+        if result.memories_saved > 0:
+            assert len(result.saved_memories) > 0
+            assert isinstance(result.saved_memories[0], SessionMemory)
+
+    def test_saved_memories_have_ids(self, consolidator, sample_session_file):
+        """Saved memories have IDs captured from memory-ts create"""
+        result = consolidator.consolidate_session(sample_session_file, use_llm=False)
+
+        for memory in result.saved_memories:
+            assert memory.id is not None
+            assert len(memory.id) > 0
+
+    def test_saved_memories_match_count(self, consolidator, sample_session_file):
+        """len(saved_memories) == memories_saved"""
+        result = consolidator.consolidate_session(sample_session_file, use_llm=False)
+
+        assert len(result.saved_memories) == result.memories_saved
+
+    def test_saved_memories_have_content(self, consolidator, sample_session_file):
+        """Saved memories retain content and project_id"""
+        result = consolidator.consolidate_session(sample_session_file, use_llm=False)
+
+        for memory in result.saved_memories:
+            assert len(memory.content) > 0
+            assert memory.project_id == "LFI"
+
+    def test_consolidation_result_default_empty(self):
+        """ConsolidationResult defaults saved_memories to empty list"""
+        result = ConsolidationResult(
+            memories_extracted=0,
+            memories_saved=0,
+            memories_deduplicated=0,
+            session_quality=SessionQualityScore(
+                total_memories=0, high_value_count=0, quality_score=0.0
+            ),
+        )
+        assert result.saved_memories == []
+
+
+class TestAllExtractedField:
+    """Test that ConsolidationResult includes all_extracted (pre-dedup) memories"""
+
+    def test_all_extracted_populated(self, consolidator, sample_session_file):
+        """all_extracted should contain all memories before dedup"""
+        result = consolidator.consolidate_session(sample_session_file, use_llm=False)
+
+        assert hasattr(result, 'all_extracted')
+        assert isinstance(result.all_extracted, list)
+        # all_extracted should be >= saved (includes deduped ones)
+        assert len(result.all_extracted) >= len(result.saved_memories)
+
+    def test_all_extracted_includes_deduped(self, consolidator, sample_session_file):
+        """all_extracted count should equal memories_extracted"""
+        result = consolidator.consolidate_session(sample_session_file, use_llm=False)
+
+        assert len(result.all_extracted) == result.memories_extracted
+
+    def test_all_extracted_default_empty(self):
+        """ConsolidationResult defaults all_extracted to empty list"""
+        result = ConsolidationResult(
+            memories_extracted=0,
+            memories_saved=0,
+            memories_deduplicated=0,
+            session_quality=SessionQualityScore(
+                total_memories=0, high_value_count=0, quality_score=0.0
+            ),
+        )
+        assert result.all_extracted == []
 
 
 class TestImportanceIntegration:

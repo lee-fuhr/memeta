@@ -28,6 +28,8 @@ class PromotionResult:
     stability: float
     review_count: int
     projects_validated: List[str]
+    old_importance: float = 0.0
+    new_importance: float = 0.0
     promoted_date: str = field(default_factory=lambda: datetime.now().isoformat())
 
 
@@ -112,16 +114,20 @@ class PromotionExecutor:
             return None
 
         old_scope = memory.scope
+        old_importance = memory.importance
 
-        # Update scope to global
+        # Update scope to global and boost importance
         new_tags = list(memory.tags)
         if "#promoted" not in new_tags:
             new_tags.append("#promoted")
+
+        new_importance = min(1.0, old_importance + 0.1)
 
         self.memory_client.update(
             memory_id=memory_id,
             scope="global",
             tags=new_tags,
+            importance=new_importance,
         )
 
         # Mark promoted in FSRS
@@ -136,4 +142,6 @@ class PromotionExecutor:
             stability=fsrs_state.stability,
             review_count=fsrs_state.review_count,
             projects_validated=projects,
+            old_importance=old_importance,
+            new_importance=new_importance,
         )

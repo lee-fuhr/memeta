@@ -51,10 +51,14 @@ STABILITY_MULTIPLIERS = {
     ReviewGrade.EASY: 2.2,    # Strong increase (cross-project)
 }
 
-# Promotion thresholds
-MIN_STABILITY_FOR_PROMOTION = 3.0
-MIN_REVIEWS_FOR_PROMOTION = 3
+# Promotion thresholds — Path A: cross-project
+MIN_STABILITY_FOR_PROMOTION = 2.0
+MIN_REVIEWS_FOR_PROMOTION = 2
 MIN_PROJECTS_FOR_PROMOTION = 2
+
+# Promotion thresholds — Path B: deep reinforcement (single project OK)
+DEEP_STABILITY_FOR_PROMOTION = 4.0
+DEEP_REVIEWS_FOR_PROMOTION = 5
 
 
 class FSRSScheduler:
@@ -77,9 +81,15 @@ class FSRSScheduler:
         self.db_path = Path(db_path)
         self._init_db()
 
+    def _connect(self) -> sqlite3.Connection:
+        """Create database connection with WAL mode and timeout"""
+        conn = sqlite3.connect(self.db_path, timeout=30.0)
+        conn.execute("PRAGMA journal_mode=WAL")
+        return conn
+
     def _init_db(self):
         """Create database tables if they don't exist"""
-        conn = sqlite3.connect(self.db_path)
+        conn = self._connect()
         conn.execute("""
             CREATE TABLE IF NOT EXISTS memory_reviews (
                 memory_id TEXT PRIMARY KEY,
@@ -105,6 +115,19 @@ class FSRSScheduler:
                 source_project TEXT
             )
         """)
+        # Indexes for common query patterns
+        conn.execute("""
+            CREATE INDEX IF NOT EXISTS idx_reviews_due
+            ON memory_reviews(due_date, promoted)
+        """)
+        conn.execute("""
+            CREATE INDEX IF NOT EXISTS idx_reviews_promotion
+            ON memory_reviews(promoted, stability, review_count)
+        """)
+        conn.execute("""
+            CREATE INDEX IF NOT EXISTS idx_review_log_memory
+            ON review_log(memory_id, review_date)
+        """)
         conn.commit()
         conn.close()
 
@@ -118,21 +141,12 @@ class FSRSScheduler:
             memory_id: Memory identifier
             project_id: Source project
         """
-        conn = sqlite3.connect(self.db_path)
-        # Check if already exists
-        cursor = conn.execute(
-            "SELECT memory_id FROM memory_reviews WHERE memory_id = ?",
-            (memory_id,)
-        )
-        if cursor.fetchone() is not None:
-            conn.close()
-            return
-
         due_date = (datetime.now() + timedelta(days=INITIAL_INTERVAL_DAYS)).isoformat()
         projects = json.dumps([project_id])
 
+        conn = self._connect()
         conn.execute(
-            """INSERT INTO memory_reviews
+            """INSERT OR IGNORE INTO memory_reviews
             (memory_id, stability, difficulty, due_date, review_count,
              projects_validated, promoted)
             VALUES (?, ?, ?, ?, 0, ?, FALSE)""",
@@ -151,7 +165,7 @@ class FSRSScheduler:
         Returns:
             MemoryReviewState or None if not registered
         """
-        conn = sqlite3.connect(self.db_path)
+        conn = self._connect()
         cursor = conn.execute(
             """SELECT memory_id, stability, difficulty, due_date,
                       review_count, last_review, projects_validated,
@@ -216,43 +230,45 @@ class FSRSScheduler:
         if project_id not in projects:
             projects.append(project_id)
 
-        # Update database
-        conn = sqlite3.connect(self.db_path)
-        conn.execute(
-            """UPDATE memory_reviews SET
-                stability = ?,
-                difficulty = ?,
-                due_date = ?,
-                review_count = review_count + 1,
-                last_review = ?,
-                projects_validated = ?
-            WHERE memory_id = ?""",
-            (new_stability, new_difficulty, new_due_date,
-             datetime.now().isoformat(), json.dumps(projects), memory_id)
-        )
+        # Update database (transactional - both succeed or both rollback)
+        conn = self._connect()
+        try:
+            conn.execute(
+                """UPDATE memory_reviews SET
+                    stability = ?,
+                    difficulty = ?,
+                    due_date = ?,
+                    review_count = review_count + 1,
+                    last_review = ?,
+                    projects_validated = ?
+                WHERE memory_id = ?""",
+                (new_stability, new_difficulty, new_due_date,
+                 datetime.now().isoformat(), json.dumps(projects), memory_id)
+            )
 
-        # Log the review event
-        conn.execute(
-            """INSERT INTO review_log
-            (memory_id, review_date, grade, new_stability,
-             new_interval_days, source_session, source_project)
-            VALUES (?, ?, ?, ?, ?, ?, ?)""",
-            (memory_id, datetime.now().isoformat(), int(grade),
-             new_stability, interval_days, session_id, project_id)
-        )
+            # Log the review event
+            conn.execute(
+                """INSERT INTO review_log
+                (memory_id, review_date, grade, new_stability,
+                 new_interval_days, source_session, source_project)
+                VALUES (?, ?, ?, ?, ?, ?, ?)""",
+                (memory_id, datetime.now().isoformat(), int(grade),
+                 new_stability, interval_days, session_id, project_id)
+            )
 
-        conn.commit()
-        conn.close()
+            conn.commit()
+        except Exception:
+            conn.rollback()
+            raise
+        finally:
+            conn.close()
 
     def is_promotion_ready(self, memory_id: str) -> bool:
         """
-        Check if a memory meets promotion criteria
+        Check if a memory meets promotion criteria via either path.
 
-        Criteria:
-        - stability >= 3.0
-        - review_count >= 3
-        - validated in 2+ different projects
-        - not already promoted
+        Path A (cross-project): stability >= 2.0, reviews >= 2, projects >= 2
+        Path B (deep reinforcement): stability >= 4.0, reviews >= 5 (single project OK)
 
         Args:
             memory_id: Memory identifier
@@ -267,26 +283,33 @@ class FSRSScheduler:
         if state.promoted:
             return False
 
-        if state.stability < MIN_STABILITY_FOR_PROMOTION:
-            return False
-
-        if state.review_count < MIN_REVIEWS_FOR_PROMOTION:
-            return False
-
         projects = json.loads(state.projects_validated)
-        if len(projects) < MIN_PROJECTS_FOR_PROMOTION:
-            return False
 
-        return True
+        # Path A: cross-project validation
+        if (state.stability >= MIN_STABILITY_FOR_PROMOTION
+                and state.review_count >= MIN_REVIEWS_FOR_PROMOTION
+                and len(projects) >= MIN_PROJECTS_FOR_PROMOTION):
+            return True
+
+        # Path B: deep reinforcement (single project OK)
+        if (state.stability >= DEEP_STABILITY_FOR_PROMOTION
+                and state.review_count >= DEEP_REVIEWS_FOR_PROMOTION):
+            return True
+
+        return False
 
     def get_promotion_candidates(self) -> List[MemoryReviewState]:
         """
-        Get all memories ready for promotion
+        Get all memories ready for promotion via either path.
+
+        Path A: stability >= 2.0, reviews >= 2, projects >= 2
+        Path B: stability >= 4.0, reviews >= 5
 
         Returns:
             List of MemoryReviewState objects that meet promotion criteria
         """
-        conn = sqlite3.connect(self.db_path)
+        conn = self._connect()
+        # Broad SQL filter — catches both paths, then refine in Python
         cursor = conn.execute(
             """SELECT memory_id, stability, difficulty, due_date,
                       review_count, last_review, projects_validated,
@@ -311,9 +334,18 @@ class FSRSScheduler:
                 promoted=bool(row[7]),
                 promoted_date=row[8],
             )
-            # Additional project check (can't do in SQL easily)
             projects = json.loads(state.projects_validated)
-            if len(projects) >= MIN_PROJECTS_FOR_PROMOTION:
+
+            # Path A: cross-project
+            if (state.stability >= MIN_STABILITY_FOR_PROMOTION
+                    and state.review_count >= MIN_REVIEWS_FOR_PROMOTION
+                    and len(projects) >= MIN_PROJECTS_FOR_PROMOTION):
+                candidates.append(state)
+                continue
+
+            # Path B: deep reinforcement
+            if (state.stability >= DEEP_STABILITY_FOR_PROMOTION
+                    and state.review_count >= DEEP_REVIEWS_FOR_PROMOTION):
                 candidates.append(state)
 
         conn.close()
@@ -326,7 +358,7 @@ class FSRSScheduler:
         Args:
             memory_id: Memory identifier
         """
-        conn = sqlite3.connect(self.db_path)
+        conn = self._connect()
         conn.execute(
             """UPDATE memory_reviews SET
                 promoted = TRUE,
@@ -337,6 +369,21 @@ class FSRSScheduler:
         conn.commit()
         conn.close()
 
+    def get_promoted_ids(self) -> set:
+        """
+        Get set of all promoted memory IDs (for batch filtering).
+
+        Returns:
+            Set of memory_id strings that are promoted
+        """
+        conn = self._connect()
+        cursor = conn.execute(
+            "SELECT memory_id FROM memory_reviews WHERE promoted = TRUE"
+        )
+        promoted = {row[0] for row in cursor.fetchall()}
+        conn.close()
+        return promoted
+
     def get_due_reviews(self) -> List[MemoryReviewState]:
         """
         Get memories whose review is due (due_date <= now)
@@ -344,7 +391,7 @@ class FSRSScheduler:
         Returns:
             List of memories due for review
         """
-        conn = sqlite3.connect(self.db_path)
+        conn = self._connect()
         now = datetime.now().isoformat()
         cursor = conn.execute(
             """SELECT memory_id, stability, difficulty, due_date,

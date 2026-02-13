@@ -7,6 +7,7 @@ and batch detection across memories.
 
 import json
 import pytest
+import tempfile
 from pathlib import Path
 from datetime import datetime
 from unittest.mock import MagicMock, patch
@@ -21,6 +22,7 @@ from src.pattern_detector import (
     normalize_text,
     word_overlap_score,
 )
+from src.session_consolidator import SessionConsolidator
 
 
 @pytest.fixture
@@ -414,6 +416,30 @@ class TestPatternDetector:
         projects = json.loads(state.projects_validated)
         assert "ClientA" in projects
 
+    def test_skips_self_match(self, memory_dir, scheduler):
+        """Should skip self-match when new memory ID matches existing memory ID"""
+        mem_id = "self-match-001"
+        create_memory_file(memory_dir, mem_id,
+                          "Always validate user input at system boundaries",
+                          project_id="LFI")
+
+        detector = PatternDetector(
+            memory_dir=memory_dir,
+            scheduler=scheduler,
+        )
+
+        signals = detector.detect_reinforcements(
+            new_memories=[{
+                "content": "Always validate user input at system boundaries",
+                "project_id": "LFI",
+                "importance": 0.7,
+                "id": mem_id,  # Same ID as existing — should be skipped
+            }],
+            session_id="session-001",
+        )
+
+        assert len(signals) == 0
+
     def test_skip_already_promoted(self, memory_dir, scheduler):
         """Should skip memories that are already promoted"""
         create_memory_file(memory_dir, "existing-001",
@@ -498,3 +524,63 @@ class TestDetectFromSession:
         )
 
         assert signals == []
+
+
+class TestConsolidationToFSRSPipeline:
+    """Integration test: consolidation → saved_memories → pattern detection → FSRS"""
+
+    def test_consolidation_to_fsrs_pipeline(self, memory_dir, scheduler):
+        """Full pipeline: consolidate session → pass saved_memories → detect → FSRS records"""
+        # Pre-seed an existing memory that will match session content
+        create_memory_file(memory_dir, "existing-001",
+                          "When clients object to pricing, acknowledge concern and reframe around value",
+                          project_id="LFI")
+
+        # Create a session file with content that should produce memories
+        session_dir = tempfile.mkdtemp()
+        session_file = Path(session_dir) / "integration-test.jsonl"
+        messages = [
+            {"role": "user", "content": "How do I handle client objections?"},
+            {"role": "assistant", "content": "When clients object to pricing, I've found it's better to acknowledge their concern directly rather than defending the price. Say 'I hear you' and then reframe around value."},
+            {"role": "user", "content": "That's helpful. What about timeline objections?"},
+            {"role": "assistant", "content": "Timeline objections often hide scope confusion. Ask 'what needs to happen by that date?' to surface the real constraint."}
+        ]
+        with open(session_file, 'w') as f:
+            for msg in messages:
+                f.write(json.dumps(msg) + '\n')
+
+        # Run consolidation with a separate memory dir (so dedup doesn't filter everything)
+        consolidation_memory_dir = tempfile.mkdtemp()
+        consolidator = SessionConsolidator(
+            session_dir=session_dir,
+            memory_dir=consolidation_memory_dir,
+            project_id="LFI",
+        )
+        result = consolidator.consolidate_session(session_file, use_llm=False)
+
+        # Verify saved_memories is populated
+        assert len(result.saved_memories) == result.memories_saved
+
+        # Now feed saved_memories into pattern detection against the pre-seeded memory
+        if result.memories_saved > 0:
+            new_memories = [
+                {"content": m.content, "project_id": m.project_id,
+                 "importance": m.importance, "id": m.id or ""}
+                for m in result.saved_memories
+            ]
+
+            detector = PatternDetector(
+                memory_dir=memory_dir,
+                scheduler=scheduler,
+            )
+
+            signals = detector.detect_reinforcements(
+                new_memories=new_memories,
+                session_id="integration-test",
+            )
+
+            # If any new memories are similar to existing-001, we should get FSRS records
+            if len(signals) > 0:
+                state = scheduler.get_state("existing-001")
+                assert state is not None
+                assert state.review_count >= 1

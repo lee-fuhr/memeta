@@ -17,6 +17,49 @@ from datetime import datetime
 from .memory_ts_client import MemoryTSClient
 from .importance_engine import calculate_importance, get_importance_score
 
+# Pre-compiled regex patterns for memory extraction
+_LEARNING_PATTERNS = [
+    re.compile(r"(?:learned|discovered|realized|found out|noticed) that ([^.!?]+[.!?])", re.IGNORECASE),
+    re.compile(r"(?:key insight|important to note|worth remembering):? ([^.!?]+[.!?])", re.IGNORECASE),
+    re.compile(r"(?:pattern|trend) (?:I noticed|observed|saw):? ([^.!?]+[.!?])", re.IGNORECASE),
+]
+_CORRECTION_PATTERNS = [
+    re.compile(r"user:.*?(?:actually|correction|no,|wrong|mistake|should be|meant to say) ([^.!?]+[.!?])", re.IGNORECASE | re.DOTALL),
+    re.compile(r"user:.*?(?:better way|instead try|prefer) ([^.!?]+[.!?])", re.IGNORECASE | re.DOTALL),
+]
+_PROBLEM_SOLUTION_PATTERN = re.compile(
+    r"(?:problem|issue|challenge):.*?([^.!?]+[.!?]).*?(?:solution|fix|approach):.*?([^.!?]+[.!?])",
+    re.IGNORECASE | re.DOTALL,
+)
+_ASSISTANT_INSIGHT_PATTERN = re.compile(r"assistant:.*?([A-Z][^.!?]{30,}[.!?])", re.DOTALL)
+_NORMALIZE_PATTERN = re.compile(r'[^\w\s]')
+
+# Garbage detection patterns
+_TOOL_CALL_MARKERS = ('toolu_', 'tool_use', 'tool_result', "'input': {", '"input": {', "'name': '")
+_LINE_NUMBER_PATTERN = re.compile(r'\d+[→\t].*\d+[→\t].*\d+[→\t]')
+_JSON_CHARS = set('{}[]\'"')
+
+
+def _is_garbage_content(text: str) -> bool:
+    """Check if extracted content is garbage (tool calls, JSON, line numbers)."""
+    if not text:
+        return True
+    stripped = text.strip()
+    if len(stripped) < 30:
+        return True
+    # Tool call artifacts
+    for marker in _TOOL_CALL_MARKERS:
+        if marker in stripped:
+            return True
+    # Line number dumps (3+ consecutive)
+    if _LINE_NUMBER_PATTERN.search(stripped):
+        return True
+    # High ratio of JSON-like characters (>20%)
+    json_count = sum(1 for c in stripped if c in _JSON_CHARS)
+    if json_count / len(stripped) > 0.20:
+        return True
+    return False
+
 
 @dataclass
 class SessionMemory:
@@ -26,6 +69,7 @@ class SessionMemory:
     project_id: str
     tags: List[str] = field(default_factory=lambda: ["#learning"])
     session_id: Optional[str] = None
+    id: Optional[str] = None  # Set after memory-ts create
 
 
 @dataclass
@@ -43,6 +87,10 @@ class ConsolidationResult:
     memories_saved: int
     memories_deduplicated: int
     session_quality: SessionQualityScore
+    saved_memories: List[SessionMemory] = field(default_factory=list)
+    all_extracted: List[SessionMemory] = field(default_factory=list)
+    extracted_memories: List[SessionMemory] = field(default_factory=list)  # Alias for compatibility
+    contradictions_resolved: int = 0  # Number of contradictions auto-resolved
 
 
 class SessionConsolidator:
@@ -106,7 +154,8 @@ class SessionConsolidator:
         Extract plain text from session messages
 
         Handles both old format (role/content at top level)
-        and new format (role/content nested in 'message' field)
+        and new format (role/content nested in 'message' field).
+        Filters out tool_use/tool_result content blocks.
 
         Args:
             messages: List of message dicts
@@ -125,9 +174,27 @@ class SessionConsolidator:
                 role = msg.get('role', '')
                 content = msg.get('content', '')
 
-            # Only include user and assistant messages with actual content
-            if content and role in ('user', 'assistant'):
-                parts.append(f"{role}: {content}")
+            # Only include user and assistant messages
+            if not content or role not in ('user', 'assistant'):
+                continue
+
+            # Content can be a string or a list of content blocks
+            if isinstance(content, list):
+                # Only keep text blocks, skip tool_use/tool_result
+                text_parts = []
+                for block in content:
+                    if isinstance(block, dict) and block.get('type') == 'text':
+                        text = block.get('text', '')
+                        if text and not _is_garbage_content(text):
+                            text_parts.append(text)
+                    elif isinstance(block, str):
+                        if not _is_garbage_content(block):
+                            text_parts.append(block)
+                if text_parts:
+                    parts.append(f"{role}: {' '.join(text_parts)}")
+            elif isinstance(content, str):
+                if not _is_garbage_content(content):
+                    parts.append(f"{role}: {content}")
 
         return "\n\n".join(parts)
 
@@ -231,18 +298,12 @@ If no significant learnings, return empty array []."""
         """
         memories = []
 
-        # Pattern 1: Explicit learning statements
-        learning_patterns = [
-            r"(?:learned|discovered|realized|found out|noticed) that ([^.!?]+[.!?])",
-            r"(?:key insight|important to note|worth remembering):? ([^.!?]+[.!?])",
-            r"(?:pattern|trend) (?:I noticed|observed|saw):? ([^.!?]+[.!?])"
-        ]
-
-        for pattern in learning_patterns:
-            matches = re.finditer(pattern, conversation, re.IGNORECASE)
+        # Pattern 1: Explicit learning statements (pre-compiled)
+        for pattern in _LEARNING_PATTERNS:
+            matches = pattern.finditer(conversation)
             for match in matches:
                 learning_content = match.group(1).strip()
-                if len(learning_content) > 20:  # Substantial content
+                if len(learning_content) > 50 and len(learning_content) < 2000 and not _is_garbage_content(learning_content):
                     importance = calculate_importance(learning_content)
                     if importance >= 0.5:  # Threshold for saving
                         memories.append(SessionMemory(
@@ -251,17 +312,12 @@ If no significant learnings, return empty array []."""
                             project_id=self.project_id
                         ))
 
-        # Pattern 2: User corrections (important signals)
-        correction_patterns = [
-            r"user:.*?(?:actually|correction|no,|wrong|mistake|should be|meant to say) ([^.!?]+[.!?])",
-            r"user:.*?(?:better way|instead try|prefer) ([^.!?]+[.!?])"
-        ]
-
-        for pattern in correction_patterns:
-            matches = re.finditer(pattern, conversation, re.IGNORECASE | re.DOTALL)
+        # Pattern 2: User corrections (important signals, pre-compiled)
+        for pattern in _CORRECTION_PATTERNS:
+            matches = pattern.finditer(conversation)
             for match in matches:
                 correction_content = match.group(1).strip()
-                if len(correction_content) > 15:
+                if len(correction_content) > 50 and len(correction_content) < 2000 and not _is_garbage_content(correction_content):
                     # Corrections get boosted importance
                     base_importance = calculate_importance(correction_content)
                     boosted_importance = min(0.95, base_importance * 1.2)
@@ -271,13 +327,12 @@ If no significant learnings, return empty array []."""
                         project_id=self.project_id
                     ))
 
-        # Pattern 3: Problem-solution pairs
-        problem_solution_pattern = r"(?:problem|issue|challenge):.*?([^.!?]+[.!?]).*?(?:solution|fix|approach):.*?([^.!?]+[.!?])"
-        matches = re.finditer(problem_solution_pattern, conversation, re.IGNORECASE | re.DOTALL)
+        # Pattern 3: Problem-solution pairs (pre-compiled)
+        matches = _PROBLEM_SOLUTION_PATTERN.finditer(conversation)
         for match in matches:
             problem = match.group(1).strip()
             solution = match.group(2).strip()
-            if len(problem) > 10 and len(solution) > 10:
+            if len(problem) > 20 and len(solution) > 20 and not _is_garbage_content(problem) and not _is_garbage_content(solution):
                 content = f"Problem: {problem} Solution: {solution}"
                 importance = calculate_importance(content)
                 if importance >= 0.6:
@@ -287,13 +342,8 @@ If no significant learnings, return empty array []."""
                         project_id=self.project_id
                     ))
 
-        # Pattern 4: Assistant insights in response to questions
-        # Look for substantial assistant responses that provide guidance
-        assistant_insights = re.finditer(
-            r"assistant:.*?([A-Z][^.!?]{30,}[.!?])",
-            conversation,
-            re.DOTALL
-        )
+        # Pattern 4: Assistant insights in response to questions (pre-compiled)
+        assistant_insights = _ASSISTANT_INSIGHT_PATTERN.finditer(conversation)
 
         insight_count = 0
         for match in assistant_insights:
@@ -302,7 +352,11 @@ If no significant learnings, return empty array []."""
 
             insight = match.group(1).strip()
 
-            # Filter out trivial responses
+            # Filter out trivial responses and garbage
+            if _is_garbage_content(insight):
+                continue
+            if len(insight) > 2000:
+                continue
             if any(phrase in insight.lower() for phrase in [
                 "let me", "i'll", "here's", "sure", "okay", "got it"
             ]):
@@ -326,55 +380,126 @@ If no significant learnings, return empty array []."""
 
         return memories
 
-    def deduplicate(self, new_memories: List[SessionMemory]) -> List[SessionMemory]:
+    def _smart_dedup_decision(
+        self,
+        new_content: str,
+        existing_content: str,
+        similarity: float
+    ) -> str:
+        """
+        LLM-powered dedup decision for gray area (50-90% similarity).
+
+        Args:
+            new_content: New memory content
+            existing_content: Existing memory content
+            similarity: Word overlap similarity (0.0-1.0)
+
+        Returns:
+            "DUPLICATE" | "UPDATE" | "NEW"
+        """
+        # Fast path: obvious cases
+        if similarity < 0.5:
+            return "NEW"
+        if similarity > 0.9:
+            return "DUPLICATE"
+
+        # Gray area (50-90%) - ask LLM
+        from .llm_extractor import ask_claude
+
+        prompt = f"""Compare these two memories:
+
+New: {new_content}
+Existing: {existing_content}
+
+Is the new memory:
+- DUPLICATE (same fact, skip it)
+- UPDATE (refinement or replacement of existing)
+- NEW (genuinely new information)
+
+Answer with ONE WORD ONLY."""
+
+        decision = ask_claude(prompt, timeout=10).strip().upper()
+
+        if "DUPLICATE" in decision:
+            return "DUPLICATE"
+        elif "UPDATE" in decision:
+            return "UPDATE"
+        else:
+            return "NEW"
+
+    def deduplicate(
+        self,
+        new_memories: List[SessionMemory],
+        use_llm_dedup: bool = True
+    ) -> List[SessionMemory]:
         """
         Remove memories that duplicate existing ones
 
-        Uses fuzzy matching - if >80% of words overlap, consider duplicate
+        Enhanced with LLM-powered decisions for gray area (50-90% similarity).
 
         Args:
             new_memories: List of newly extracted memories
+            use_llm_dedup: If True, use LLM for smarter dedup decisions
 
         Returns:
             Deduplicated list
         """
         existing_memories = self.memory_client.search(project_id=self.project_id)
 
-        def normalize_text(text: str) -> set:
-            """Normalize text for comparison - strip punctuation, lowercase"""
-            # Remove punctuation
-            text_clean = re.sub(r'[^\w\s]', ' ', text.lower())
-            # Split and remove empty strings
-            words = [w for w in text_clean.split() if w]
-            return set(words)
+        # Pre-compute normalized word sets and content mapping
+        existing_data = []
+        for existing in existing_memories:
+            text_clean = _NORMALIZE_PATTERN.sub(' ', existing.content.lower())
+            words = frozenset(w for w in text_clean.split() if w)
+            if words:
+                existing_data.append({
+                    'words': words,
+                    'content': existing.content,
+                    'id': existing.id
+                })
 
         unique_memories = []
 
         for new_mem in new_memories:
-            is_duplicate = False
-            new_words = normalize_text(new_mem.content)
+            text_clean = _NORMALIZE_PATTERN.sub(' ', new_mem.content.lower())
+            new_words = frozenset(w for w in text_clean.split() if w)
 
             # Skip empty memories
-            if len(new_words) == 0:
+            if not new_words:
                 continue
 
-            for existing in existing_memories:
-                existing_words = normalize_text(existing.content)
+            is_duplicate = False
+            new_len = len(new_words)
+            best_match_similarity = 0.0
+            best_match_content = None
 
-                if len(existing_words) == 0:
-                    continue
-
+            for existing in existing_data:
                 # Calculate bidirectional similarity
-                overlap = len(new_words & existing_words)
-                new_similarity = overlap / len(new_words) if len(new_words) > 0 else 0
-                existing_similarity = overlap / len(existing_words) if len(existing_words) > 0 else 0
+                overlap = len(new_words & existing['words'])
+                new_similarity = overlap / new_len
+                existing_similarity = overlap / len(existing['words'])
+                max_similarity = max(new_similarity, existing_similarity)
 
-                # Consider duplicate if either direction is >70% similar
-                # This catches "short version of existing" and "existing is short version of new"
-                if new_similarity >= 0.7 or existing_similarity >= 0.7:
-                    # Too similar - likely duplicate
+                # Track best match for LLM decision
+                if max_similarity > best_match_similarity:
+                    best_match_similarity = max_similarity
+                    best_match_content = existing['content']
+
+                # Definite duplicate if >90% similar
+                if max_similarity >= 0.9:
                     is_duplicate = True
                     break
+
+            # Gray area (50-90%) - use LLM if enabled
+            if not is_duplicate and use_llm_dedup and best_match_similarity >= 0.5:
+                decision = self._smart_dedup_decision(
+                    new_mem.content,
+                    best_match_content,
+                    best_match_similarity
+                )
+
+                if decision == "DUPLICATE":
+                    is_duplicate = True
 
             if not is_duplicate:
                 unique_memories.append(new_mem)
@@ -384,7 +509,8 @@ If no significant learnings, return empty array []."""
     def consolidate_session(
         self,
         session_file: Path,
-        use_llm: bool = True
+        use_llm: bool = True,
+        skip_save: bool = False
     ) -> ConsolidationResult:
         """
         Complete consolidation pipeline for a session
@@ -394,6 +520,7 @@ If no significant learnings, return empty array []."""
         Args:
             session_file: Path to session JSONL file
             use_llm: If True, also run LLM extraction via Claude CLI
+            skip_save: If True, extract memories but don't save to memory-ts (for daily summaries)
 
         Returns:
             ConsolidationResult with stats
@@ -420,21 +547,59 @@ If no significant learnings, return empty array []."""
         # Deduplicate against existing memories
         unique_memories = self.deduplicate(extracted_memories)
 
-        # Save to memory-ts
+        # Save to memory-ts (unless skip_save=True)
         session_id = session_file.stem
         saved_count = 0
+        saved_list = []
+        replaced_count = 0
 
-        for memory in unique_memories:
-            memory.session_id = session_id
-            self.memory_client.create(
-                content=memory.content,
-                project_id=memory.project_id,
-                tags=memory.tags,
-                importance=memory.importance,
-                scope="project",  # New memories start as project-scope
-                session_id=session_id  # Track provenance
-            )
-            saved_count += 1
+        if not skip_save:
+            # Import contradiction detector
+            from .contradiction_detector import check_contradictions
+
+            for memory in unique_memories:
+                memory.session_id = session_id
+
+                # Check for contradictions with existing memories
+                existing = self.memory_client.search(
+                    query=memory.content,
+                    limit=20,
+                    project_id=self.project_id
+                )
+
+                # Convert Memory objects to dicts for contradiction checker
+                existing_dicts = [
+                    {'id': m.id, 'content': m.content}
+                    for m in existing
+                ]
+
+                contradiction = check_contradictions(memory.content, existing_dicts)
+
+                if contradiction.action == "replace":
+                    # Archive old memory and save new one
+                    old_mem = contradiction.contradicted_memory
+                    try:
+                        # Update old memory to archived scope
+                        self.memory_client.update(
+                            old_mem['id'],
+                            scope="archived"
+                        )
+                        replaced_count += 1
+                    except Exception:
+                        pass  # Continue even if archive fails
+
+                # Save new memory (whether replacing or not)
+                created_memory = self.memory_client.create(
+                    content=memory.content,
+                    project_id=memory.project_id,
+                    tags=memory.tags,
+                    importance=memory.importance,
+                    scope="project",  # New memories start as project-scope
+                    session_id=session_id  # Track provenance
+                )
+                memory.id = created_memory.id
+                saved_list.append(memory)
+                saved_count += 1
 
         # Calculate session quality
         quality = calculate_session_quality(extracted_memories)
@@ -443,7 +608,11 @@ If no significant learnings, return empty array []."""
             memories_extracted=len(extracted_memories),
             memories_saved=saved_count,
             memories_deduplicated=len(extracted_memories) - len(unique_memories),
-            session_quality=quality
+            session_quality=quality,
+            saved_memories=saved_list,
+            all_extracted=extracted_memories,
+            extracted_memories=extracted_memories,  # Populate alias for compatibility
+            contradictions_resolved=replaced_count if not skip_save else 0,
         )
 
 

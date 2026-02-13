@@ -280,3 +280,65 @@ class TestMemoryModel:
         )
 
         assert 0.3 <= memory.importance <= 1.0
+
+
+class TestPathTraversal:
+    """Test path traversal protection in memory operations"""
+
+    def test_get_sanitizes_path_traversal(self, client):
+        """Memory ID with path traversal is sanitized, not executed"""
+        # ../../etc/passwd → etcpasswd (safe, just not found)
+        with pytest.raises(MemoryNotFoundError):
+            client.get("../../etc/passwd")
+
+    def test_get_sanitizes_slashes(self, client):
+        """Memory ID with slashes gets sanitized"""
+        with pytest.raises(MemoryNotFoundError):
+            client.get("foo/bar")
+
+    def test_get_rejects_empty_after_sanitization(self, client):
+        """Memory ID that's empty after sanitization should be rejected"""
+        with pytest.raises(ValueError, match="Invalid memory_id"):
+            client.get("/../..")
+
+    def test_safe_path_stays_under_memory_dir(self, client):
+        """Resolved path should always be under the memory directory"""
+        path = client._safe_memory_path("normal-id-123")
+        assert str(path).startswith(str(client.memory_dir.resolve()))
+
+
+class TestFileCorruption:
+    """Test handling of corrupted memory files"""
+
+    def test_read_memory_no_frontmatter(self, temp_memory_dir):
+        """Should raise error for file without YAML frontmatter"""
+        client = MemoryTSClient(memory_dir=temp_memory_dir)
+        bad_file = Path(temp_memory_dir) / "bad.md"
+        bad_file.write_text("Just plain content, no frontmatter")
+
+        with pytest.raises(MemoryTSError, match="Invalid memory file format"):
+            client._read_memory(bad_file)
+
+    def test_read_memory_empty_frontmatter(self, temp_memory_dir):
+        """Should handle file with empty frontmatter"""
+        client = MemoryTSClient(memory_dir=temp_memory_dir)
+        empty_fm = Path(temp_memory_dir) / "empty-fm.md"
+        empty_fm.write_text("---\n---\nSome content")
+
+        memory = client._read_memory(empty_fm)
+        assert memory.content == "Some content"
+
+    def test_search_skips_corrupt_files(self, temp_memory_dir):
+        """Search should skip files that can't be parsed"""
+        client = MemoryTSClient(memory_dir=temp_memory_dir)
+
+        # Create one good memory
+        client.create(content="Valid memory", project_id="LFI", tags=["#test"])
+
+        # Create one corrupt file
+        bad_file = Path(temp_memory_dir) / "corrupt.md"
+        bad_file.write_text("Not a valid memory file")
+
+        # Search should still return the good one
+        results = client.search()
+        assert len(results) >= 1

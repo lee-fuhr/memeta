@@ -1,0 +1,5272 @@
+{
+  "exported_at": "2026-02-12T19:02:15.189457",
+  "pipeline": [
+    {
+      "memory_id": "1770105263904-30e25d",
+      "stability": 2.25,
+      "review_count": 2,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770108145630-06832a",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770108252535-c3e7e7",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770109115221-c89d31",
+      "stability": 10.0,
+      "review_count": 5,
+      "projects": [
+        "LFI",
+        "worktrees-branch-a"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 1.0
+    },
+    {
+      "memory_id": "1770109115223-d1a8fe",
+      "stability": 5.06,
+      "review_count": 4,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.8
+    },
+    {
+      "memory_id": "1770110413826-1a538c",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770133447568-3da3c3",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770133447569-8c1472",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770133447570-67170c",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770133447571-f447da",
+      "stability": 3.3,
+      "review_count": 2,
+      "projects": [
+        "LFI",
+        "worktrees-main"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770133447572-331c28",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770133447573-957b47",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770133447574-96bce3",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770133447575-ec2b18",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770133447577-e9bbfd",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770133447578-02a18d",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770133447578-c84c5e",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770133447579-5330f6",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770133447579-a7d59e",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770133447580-beb7ca",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770133447580-308814",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770133447581-04e33a",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770136229112-e0efc6",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770136229114-9f351c",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770136229115-8e7d28",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770136229122-b1ae39",
+      "stability": 7.59,
+      "review_count": 5,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": true,
+      "path_a_progress": 0.5,
+      "path_b_progress": 1.0
+    },
+    {
+      "memory_id": "1770095099935-1aaf1e",
+      "stability": 2.25,
+      "review_count": 2,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770095105667-5a4b06",
+      "stability": 2.25,
+      "review_count": 2,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770095105764-861cca",
+      "stability": 4.95,
+      "review_count": 3,
+      "projects": [
+        "LFI",
+        "worktrees-branch-a"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1770095105833-e3e926",
+      "stability": 3.38,
+      "review_count": 3,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1770095105980-ad1c1c",
+      "stability": 2.25,
+      "review_count": 2,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770095106013-014fe2",
+      "stability": 2.25,
+      "review_count": 2,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770095106037-147430",
+      "stability": 4.95,
+      "review_count": 3,
+      "projects": [
+        "LFI",
+        "Personal"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1770095106083-46c05c",
+      "stability": 2.25,
+      "review_count": 2,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770095106151-3811b4",
+      "stability": 2.25,
+      "review_count": 2,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770095106272-5069e8",
+      "stability": 2.25,
+      "review_count": 2,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770139323601-b8263e",
+      "stability": 2.25,
+      "review_count": 2,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1768946837895-f06ofa",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770138126649-c6048a",
+      "stability": 2.25,
+      "review_count": 2,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1768932567067-wecnyt",
+      "stability": 4.95,
+      "review_count": 3,
+      "projects": [
+        "LFI",
+        "Personal-terra-office-explainer"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1769713305029-lpwh5r",
+      "stability": 10.0,
+      "review_count": 5,
+      "projects": [
+        "LFI",
+        "worktrees-main"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 1.0
+    },
+    {
+      "memory_id": "1770145979009-9a2182",
+      "stability": 7.59,
+      "review_count": 5,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": true,
+      "path_a_progress": 0.5,
+      "path_b_progress": 1.0
+    },
+    {
+      "memory_id": "1770145978958-84be9b",
+      "stability": 7.59,
+      "review_count": 5,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": true,
+      "path_a_progress": 0.5,
+      "path_b_progress": 1.0
+    },
+    {
+      "memory_id": "1770145978842-544616",
+      "stability": 2.25,
+      "review_count": 2,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770145978949-8e7eb9",
+      "stability": 7.59,
+      "review_count": 5,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": true,
+      "path_a_progress": 0.5,
+      "path_b_progress": 1.0
+    },
+    {
+      "memory_id": "1770071697309-7f28d4",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770088719430-3d3166",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770071697337-721c4d",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770071697339-7e1f67",
+      "stability": 5.06,
+      "review_count": 4,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.8
+    },
+    {
+      "memory_id": "1768531158138-6t9jsq",
+      "stability": 7.59,
+      "review_count": 5,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": true,
+      "path_a_progress": 0.5,
+      "path_b_progress": 1.0
+    },
+    {
+      "memory_id": "1768441391376-8yzgco",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770054170570-4f217a",
+      "stability": 3.3,
+      "review_count": 2,
+      "projects": [
+        "LFI",
+        "worktrees-main"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770136229121-1f4eef",
+      "stability": 10.0,
+      "review_count": 6,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": true,
+      "path_a_progress": 0.5,
+      "path_b_progress": 1.0
+    },
+    {
+      "memory_id": "1770151920724-a2c8d3",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770083951850-r1s3qi",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1769413774910-f2aqqc",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770168507750-07d3d0",
+      "stability": 3.38,
+      "review_count": 3,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1768762597748-infzvf",
+      "stability": 3.3,
+      "review_count": 2,
+      "projects": [
+        "LFI",
+        "worktrees-branch-a"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1768490749217-yht2ry",
+      "stability": 3.3,
+      "review_count": 2,
+      "projects": [
+        "LFI",
+        "worktrees-branch-c"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770094803348-45470b",
+      "stability": 2.25,
+      "review_count": 2,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1768711965337-bajo1f",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770136229121-d6abe8",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770094802855-f79067",
+      "stability": 3.3,
+      "review_count": 2,
+      "projects": [
+        "LFI",
+        "Personal"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770179350524-b72547",
+      "stability": 7.59,
+      "review_count": 5,
+      "projects": [
+        "Personal"
+      ],
+      "promoted": true,
+      "path_a_progress": 0.5,
+      "path_b_progress": 1.0
+    },
+    {
+      "memory_id": "1770179350521-56ed0d",
+      "stability": 7.59,
+      "review_count": 5,
+      "projects": [
+        "Personal"
+      ],
+      "promoted": true,
+      "path_a_progress": 0.5,
+      "path_b_progress": 1.0
+    },
+    {
+      "memory_id": "1770054170634-0244c3",
+      "stability": 3.38,
+      "review_count": 3,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1770181523331-1344a6",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770183764926-6dde4c",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770183764874-cd167a",
+      "stability": 3.38,
+      "review_count": 3,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1768338739648-nnblbs",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770054170608-8b11f8",
+      "stability": 7.43,
+      "review_count": 4,
+      "projects": [
+        "LFI",
+        "worktrees-main"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 0.8
+    },
+    {
+      "memory_id": "1770183764894-3ecefd",
+      "stability": 3.38,
+      "review_count": 3,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1770183764898-1dedf8",
+      "stability": 10.0,
+      "review_count": 5,
+      "projects": [
+        "LFI",
+        "worktrees-branch-a"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 1.0
+    },
+    {
+      "memory_id": "1770183764896-8580f3",
+      "stability": 7.59,
+      "review_count": 5,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": true,
+      "path_a_progress": 0.5,
+      "path_b_progress": 1.0
+    },
+    {
+      "memory_id": "1770183764887-d46b85",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770183764885-02b1e4",
+      "stability": 7.43,
+      "review_count": 4,
+      "projects": [
+        "LFI",
+        "worktrees-main"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 0.8
+    },
+    {
+      "memory_id": "1770183764855-3db2c6",
+      "stability": 5.06,
+      "review_count": 4,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.8
+    },
+    {
+      "memory_id": "1770183764806-bf9728",
+      "stability": 7.59,
+      "review_count": 5,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": true,
+      "path_a_progress": 0.5,
+      "path_b_progress": 1.0
+    },
+    {
+      "memory_id": "1768884019911-6t8e3h",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1768336473549-dcsv00",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770183764946-4c721f",
+      "stability": 10.0,
+      "review_count": 6,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": true,
+      "path_a_progress": 0.5,
+      "path_b_progress": 1.0
+    },
+    {
+      "memory_id": "1770054170573-1b1c3f",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770183764980-376969",
+      "stability": 5.06,
+      "review_count": 4,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.8
+    },
+    {
+      "memory_id": "1770183764979-910950",
+      "stability": 7.59,
+      "review_count": 5,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": true,
+      "path_a_progress": 0.5,
+      "path_b_progress": 1.0
+    },
+    {
+      "memory_id": "1770094802888-0caade",
+      "stability": 3.3,
+      "review_count": 2,
+      "projects": [
+        "LFI",
+        "Personal"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770183764981-222494",
+      "stability": 5.06,
+      "review_count": 4,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.8
+    },
+    {
+      "memory_id": "1768357162120-ufrv79",
+      "stability": 3.3,
+      "review_count": 2,
+      "projects": [
+        "LFI",
+        "worktrees-main"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1769824109777-mrsemd",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770176635054-74c925",
+      "stability": 3.38,
+      "review_count": 3,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1770176636429-7cd38e",
+      "stability": 10.0,
+      "review_count": 6,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": true,
+      "path_a_progress": 0.5,
+      "path_b_progress": 1.0
+    },
+    {
+      "memory_id": "1770176637421-7f70ac",
+      "stability": 2.25,
+      "review_count": 2,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770054170610-559a47",
+      "stability": 10.0,
+      "review_count": 5,
+      "projects": [
+        "LFI",
+        "Personal"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 1.0
+    },
+    {
+      "memory_id": "1770176638107-f19db3",
+      "stability": 4.95,
+      "review_count": 3,
+      "projects": [
+        "LFI",
+        "worktrees-branch-c"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1770176638108-9be1fb",
+      "stability": 4.95,
+      "review_count": 3,
+      "projects": [
+        "LFI",
+        "Personal"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1770183764981-e99028",
+      "stability": 5.06,
+      "review_count": 4,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.8
+    },
+    {
+      "memory_id": "1770216486455-055e77",
+      "stability": 10.0,
+      "review_count": 6,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": true,
+      "path_a_progress": 0.5,
+      "path_b_progress": 1.0
+    },
+    {
+      "memory_id": "1770216486459-201f91",
+      "stability": 3.3,
+      "review_count": 2,
+      "projects": [
+        "LFI",
+        "worktrees-main"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770185260454-124520",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770179349743-e8de01",
+      "stability": 4.95,
+      "review_count": 3,
+      "projects": [
+        "Personal",
+        "worktrees-main"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1770179350519-c96016",
+      "stability": 3.38,
+      "review_count": 3,
+      "projects": [
+        "Personal"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1769722868495-lcm424",
+      "stability": 3.3,
+      "review_count": 2,
+      "projects": [
+        "LFI",
+        "Personal"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770219052122-5dc213",
+      "stability": 7.59,
+      "review_count": 5,
+      "projects": [
+        "Personal"
+      ],
+      "promoted": true,
+      "path_a_progress": 0.5,
+      "path_b_progress": 1.0
+    },
+    {
+      "memory_id": "1770219618029-3633aa",
+      "stability": 2.2,
+      "review_count": 1,
+      "projects": [
+        "Personal",
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770181969104-6617df",
+      "stability": 3.38,
+      "review_count": 3,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1768352665851-95u0al",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770054170684-51ae7a",
+      "stability": 7.43,
+      "review_count": 4,
+      "projects": [
+        "LFI",
+        "worktrees-branch-c"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 0.8
+    },
+    {
+      "memory_id": "1767659000580-viohh9",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1768334762168-favo5g",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1768334269863-hq90uz",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770224989311-53812a",
+      "stability": 3.3,
+      "review_count": 2,
+      "projects": [
+        "LFI",
+        "worktrees-branch-a"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770224989316-c23937",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770224989317-9642c5",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770224989317-0d38f3",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770224989318-395faa",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770181541325-cfabef",
+      "stability": 2.25,
+      "review_count": 2,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770226377734-a023d4",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770226377760-75e802",
+      "stability": 3.3,
+      "review_count": 2,
+      "projects": [
+        "LFI",
+        "worktrees-main"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770226377768-41ac68",
+      "stability": 2.25,
+      "review_count": 2,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770183764822-45157c",
+      "stability": 3.38,
+      "review_count": 3,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1770183764828-62e3a6",
+      "stability": 2.25,
+      "review_count": 2,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770183764837-1bb281",
+      "stability": 4.95,
+      "review_count": 3,
+      "projects": [
+        "LFI",
+        "worktrees-main"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1770183764850-d96704",
+      "stability": 4.95,
+      "review_count": 3,
+      "projects": [
+        "LFI",
+        "worktrees-branch-a"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1770183764883-a1208d",
+      "stability": 2.25,
+      "review_count": 2,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770183764919-bcf8f9",
+      "stability": 2.25,
+      "review_count": 2,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770183764921-80ca80",
+      "stability": 2.25,
+      "review_count": 2,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770183764933-7928e9",
+      "stability": 4.95,
+      "review_count": 3,
+      "projects": [
+        "LFI",
+        "worktrees-branch-c"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1770183764942-8df414",
+      "stability": 4.95,
+      "review_count": 3,
+      "projects": [
+        "LFI",
+        "worktrees-main"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1770183764943-1c9a7d",
+      "stability": 2.25,
+      "review_count": 2,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770183764943-08bb45",
+      "stability": 2.25,
+      "review_count": 2,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770183764945-2040aa",
+      "stability": 4.95,
+      "review_count": 3,
+      "projects": [
+        "LFI",
+        "worktrees-main"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1770183764948-0d5428",
+      "stability": 4.95,
+      "review_count": 3,
+      "projects": [
+        "LFI",
+        "worktrees-main"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1770183764949-0bfc0d",
+      "stability": 2.25,
+      "review_count": 2,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770183764963-4c6354",
+      "stability": 2.25,
+      "review_count": 2,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770183764970-638120",
+      "stability": 4.95,
+      "review_count": 3,
+      "projects": [
+        "LFI",
+        "worktrees-branch-a"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1770094790445-9dc31c",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770183764983-d3799f",
+      "stability": 2.25,
+      "review_count": 2,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770229307882-c5a05c",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770229307918-eb6794",
+      "stability": 3.38,
+      "review_count": 3,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1770229307923-720970",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770237638106-867881",
+      "stability": 10.0,
+      "review_count": 6,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": true,
+      "path_a_progress": 0.5,
+      "path_b_progress": 1.0
+    },
+    {
+      "memory_id": "1770237636613-185a2d",
+      "stability": 7.59,
+      "review_count": 5,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": true,
+      "path_a_progress": 0.5,
+      "path_b_progress": 1.0
+    },
+    {
+      "memory_id": "1770237639048-cfe9ae",
+      "stability": 7.59,
+      "review_count": 5,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": true,
+      "path_a_progress": 0.5,
+      "path_b_progress": 1.0
+    },
+    {
+      "memory_id": "1770237638520-2da68b",
+      "stability": 7.59,
+      "review_count": 5,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": true,
+      "path_a_progress": 0.5,
+      "path_b_progress": 1.0
+    },
+    {
+      "memory_id": "1770185260329-9ef869",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770237638085-af6c23",
+      "stability": 10.0,
+      "review_count": 7,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": true,
+      "path_a_progress": 0.5,
+      "path_b_progress": 1.0
+    },
+    {
+      "memory_id": "1770237639036-cc2f11",
+      "stability": 7.59,
+      "review_count": 5,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": true,
+      "path_a_progress": 0.5,
+      "path_b_progress": 1.0
+    },
+    {
+      "memory_id": "1770238232116-034f57",
+      "stability": 7.59,
+      "review_count": 5,
+      "projects": [
+        "Personal"
+      ],
+      "promoted": true,
+      "path_a_progress": 0.5,
+      "path_b_progress": 1.0
+    },
+    {
+      "memory_id": "1770153127651-244chr",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770246897288-757fa4",
+      "stability": 10.0,
+      "review_count": 3,
+      "projects": [
+        "Personal",
+        "LFI"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1770247456509-319405",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770247456549-734863",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770247456554-a29469",
+      "stability": 7.59,
+      "review_count": 5,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": true,
+      "path_a_progress": 0.5,
+      "path_b_progress": 1.0
+    },
+    {
+      "memory_id": "1770247456563-d3c840",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770248392218-633a71",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770246273193-42196e",
+      "stability": 10.0,
+      "review_count": 7,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": true,
+      "path_a_progress": 0.5,
+      "path_b_progress": 1.0
+    },
+    {
+      "memory_id": "1768762598023-csty21",
+      "stability": 7.59,
+      "review_count": 5,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": true,
+      "path_a_progress": 0.5,
+      "path_b_progress": 1.0
+    },
+    {
+      "memory_id": "1770254428379-10bd94",
+      "stability": 10.0,
+      "review_count": 5,
+      "projects": [
+        "LFI",
+        "worktrees-main"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 1.0
+    },
+    {
+      "memory_id": "1770261933941-38be79",
+      "stability": 3.38,
+      "review_count": 3,
+      "projects": [
+        "Personal"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1770261933197-a9b7b0",
+      "stability": 3.38,
+      "review_count": 3,
+      "projects": [
+        "Personal"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1770249055920-03zmhb",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770266672370-4a68e4",
+      "stability": 7.59,
+      "review_count": 5,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": true,
+      "path_a_progress": 0.5,
+      "path_b_progress": 1.0
+    },
+    {
+      "memory_id": "1770266672373-273028",
+      "stability": 7.59,
+      "review_count": 5,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": true,
+      "path_a_progress": 0.5,
+      "path_b_progress": 1.0
+    },
+    {
+      "memory_id": "1770266672368-282dc0",
+      "stability": 7.59,
+      "review_count": 5,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": true,
+      "path_a_progress": 0.5,
+      "path_b_progress": 1.0
+    },
+    {
+      "memory_id": "1770054170649-f8f916",
+      "stability": 5.06,
+      "review_count": 4,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.8
+    },
+    {
+      "memory_id": "1770266672372-7191ca",
+      "stability": 7.59,
+      "review_count": 5,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": true,
+      "path_a_progress": 0.5,
+      "path_b_progress": 1.0
+    },
+    {
+      "memory_id": "1770265068045-a1c995",
+      "stability": 7.59,
+      "review_count": 5,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": true,
+      "path_a_progress": 0.5,
+      "path_b_progress": 1.0
+    },
+    {
+      "memory_id": "1770054170674-d61b13",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1769722869240-hhpdc6",
+      "stability": 10.0,
+      "review_count": 6,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": true,
+      "path_a_progress": 0.5,
+      "path_b_progress": 1.0
+    },
+    {
+      "memory_id": "1770261932281-2dc8f3",
+      "stability": 2.25,
+      "review_count": 2,
+      "projects": [
+        "Personal"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1768452780346-ilgkp6",
+      "stability": 2.2,
+      "review_count": 1,
+      "projects": [
+        "LFI",
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770153118033-ez52so",
+      "stability": 2.2,
+      "review_count": 1,
+      "projects": [
+        "LFI",
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1768608933307-qxmfny",
+      "stability": 2.2,
+      "review_count": 1,
+      "projects": [
+        "LFI",
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770278096242-b25674",
+      "stability": 5.06,
+      "review_count": 4,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.8
+    },
+    {
+      "memory_id": "1770278096263-1c11ca",
+      "stability": 5.06,
+      "review_count": 4,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.8
+    },
+    {
+      "memory_id": "1770278096311-18d92e",
+      "stability": 5.06,
+      "review_count": 4,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.8
+    },
+    {
+      "memory_id": "1770278096346-0f8db8",
+      "stability": 5.06,
+      "review_count": 4,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.8
+    },
+    {
+      "memory_id": "1770278096523-750c7a",
+      "stability": 5.06,
+      "review_count": 4,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.8
+    },
+    {
+      "memory_id": "1769822289299-hsvfpv",
+      "stability": 2.2,
+      "review_count": 1,
+      "projects": [
+        "LFI",
+        "Personal"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1768255739207-ce86s3",
+      "stability": 2.2,
+      "review_count": 1,
+      "projects": [
+        "LFI",
+        "Personal"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770054170705-d10ead",
+      "stability": 10.0,
+      "review_count": 5,
+      "projects": [
+        "LFI",
+        "worktrees-main"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 1.0
+    },
+    {
+      "memory_id": "1770275091623-65c276",
+      "stability": 7.59,
+      "review_count": 5,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": true,
+      "path_a_progress": 0.5,
+      "path_b_progress": 1.0
+    },
+    {
+      "memory_id": "1770275091890-d7c6c2",
+      "stability": 5.06,
+      "review_count": 4,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.8
+    },
+    {
+      "memory_id": "1770278295045-437004",
+      "stability": 2.2,
+      "review_count": 1,
+      "projects": [
+        "Personal",
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770278295212-5d24a7",
+      "stability": 2.2,
+      "review_count": 1,
+      "projects": [
+        "Personal",
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1767744548305-0lx9xd",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770266672360-4c9484",
+      "stability": 5.06,
+      "review_count": 4,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.8
+    },
+    {
+      "memory_id": "1770266672367-cad349",
+      "stability": 5.06,
+      "review_count": 4,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.8
+    },
+    {
+      "memory_id": "1770266672369-af7b0a",
+      "stability": 5.06,
+      "review_count": 4,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.8
+    },
+    {
+      "memory_id": "1770266672370-f98fa8",
+      "stability": 5.06,
+      "review_count": 4,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.8
+    },
+    {
+      "memory_id": "1770332483522-1261f2",
+      "stability": 7.59,
+      "review_count": 5,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": true,
+      "path_a_progress": 0.5,
+      "path_b_progress": 1.0
+    },
+    {
+      "memory_id": "1770054170690-2f1efc",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770266672374-82bf93",
+      "stability": 5.06,
+      "review_count": 4,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.8
+    },
+    {
+      "memory_id": "1770266672375-2f9556",
+      "stability": 5.06,
+      "review_count": 4,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.8
+    },
+    {
+      "memory_id": "1770332483910-98147a",
+      "stability": 3.38,
+      "review_count": 3,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1770332483912-558913",
+      "stability": 3.38,
+      "review_count": 3,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1769722954844-s889k8",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770335353075-0d6d90",
+      "stability": 2.25,
+      "review_count": 2,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770337097123-cdfb3b",
+      "stability": 3.3,
+      "review_count": 2,
+      "projects": [
+        "worktrees-main",
+        "LFI"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770220633277-c7662e",
+      "stability": 2.2,
+      "review_count": 1,
+      "projects": [
+        "LFI",
+        "Personal-terra-office-explainer"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1767648473579-lc881i",
+      "stability": 4.84,
+      "review_count": 2,
+      "projects": [
+        "LFI",
+        "Personal-terra-office-explainer",
+        "worktrees-branch-a"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1768357162077-k9qxje",
+      "stability": 2.2,
+      "review_count": 1,
+      "projects": [
+        "LFI",
+        "Personal-terra-office-explainer"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770279638378-3kwguq",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770249067312-esiapw",
+      "stability": 3.38,
+      "review_count": 3,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1770341233576-e1f7e9",
+      "stability": 3.38,
+      "review_count": 3,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1770341233556-ebd706",
+      "stability": 10.0,
+      "review_count": 8,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": true,
+      "path_a_progress": 0.5,
+      "path_b_progress": 1.0
+    },
+    {
+      "memory_id": "1770340966763-f34fc1",
+      "stability": 4.84,
+      "review_count": 2,
+      "projects": [
+        "Personal-terra-office-explainer",
+        "LFI",
+        "worktrees-main"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770341233718-c7cc58",
+      "stability": 3.3,
+      "review_count": 2,
+      "projects": [
+        "LFI",
+        "worktrees-main"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770341233458-06da99",
+      "stability": 3.38,
+      "review_count": 3,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1770341233930-5ce709",
+      "stability": 3.38,
+      "review_count": 3,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1770341233866-5c9457",
+      "stability": 3.38,
+      "review_count": 3,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1770341233825-c7db83",
+      "stability": 3.38,
+      "review_count": 3,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1770341233751-db5d1b",
+      "stability": 3.38,
+      "review_count": 3,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1770278577456-62e0d1",
+      "stability": 3.38,
+      "review_count": 3,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1770341233219-d09259",
+      "stability": 3.38,
+      "review_count": 3,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1770279647679-jcxj5k",
+      "stability": 2.25,
+      "review_count": 2,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770341233358-c45d9d",
+      "stability": 4.95,
+      "review_count": 3,
+      "projects": [
+        "LFI",
+        "worktrees-branch-a"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1770341233488-7eb587",
+      "stability": 2.25,
+      "review_count": 2,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770341233525-b95385",
+      "stability": 2.25,
+      "review_count": 2,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770054170704-62a9c8",
+      "stability": 7.59,
+      "review_count": 5,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": true,
+      "path_a_progress": 0.5,
+      "path_b_progress": 1.0
+    },
+    {
+      "memory_id": "1770279642864-rdk1h5",
+      "stability": 3.3,
+      "review_count": 2,
+      "projects": [
+        "LFI",
+        "worktrees-main"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770353720354-b2c2d8",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770353906311-jwhuep",
+      "stability": 5.06,
+      "review_count": 4,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.8
+    },
+    {
+      "memory_id": "1770353906519-inrht3",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770401239806-007b90",
+      "stability": 4.95,
+      "review_count": 3,
+      "projects": [
+        "worktrees-branch-a",
+        "LFI"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1770401239790-4fd4fe",
+      "stability": 4.95,
+      "review_count": 3,
+      "projects": [
+        "worktrees-branch-a",
+        "LFI"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1770401239814-3a3e17",
+      "stability": 2.25,
+      "review_count": 2,
+      "projects": [
+        "worktrees-branch-a"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770401239810-262c21",
+      "stability": 2.25,
+      "review_count": 2,
+      "projects": [
+        "worktrees-branch-a"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770094803085-0ecd6f",
+      "stability": 2.2,
+      "review_count": 1,
+      "projects": [
+        "LFI",
+        "worktrees-branch-a"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770403488847-5695ae",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "worktrees-branch-c"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770405458757-2aa5a4",
+      "stability": 5.06,
+      "review_count": 4,
+      "projects": [
+        "worktrees-branch-c"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.8
+    },
+    {
+      "memory_id": "1770405458771-7e7ffa",
+      "stability": 3.38,
+      "review_count": 3,
+      "projects": [
+        "worktrees-branch-c"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1770405775071-92f442",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "worktrees-branch-c"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770416220581-8a0e2b",
+      "stability": 7.59,
+      "review_count": 5,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": true,
+      "path_a_progress": 0.5,
+      "path_b_progress": 1.0
+    },
+    {
+      "memory_id": "1770416220568-be6e40",
+      "stability": 7.59,
+      "review_count": 5,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": true,
+      "path_a_progress": 0.5,
+      "path_b_progress": 1.0
+    },
+    {
+      "memory_id": "1770416220548-49b09c",
+      "stability": 3.3,
+      "review_count": 2,
+      "projects": [
+        "worktrees-main",
+        "LFI"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770655920129-d29d18",
+      "stability": 3.3,
+      "review_count": 2,
+      "projects": [
+        "worktrees-branch-c",
+        "worktrees-main"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770655920174-5b1c6b",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "worktrees-branch-c"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770416220533-2724ed",
+      "stability": 5.06,
+      "review_count": 4,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.8
+    },
+    {
+      "memory_id": "1770416220578-c17491",
+      "stability": 5.06,
+      "review_count": 4,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.8
+    },
+    {
+      "memory_id": "1770416587463-2a4e6f",
+      "stability": 4.84,
+      "review_count": 2,
+      "projects": [
+        "LFI",
+        "worktrees-main"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770658544593-e7be1f",
+      "stability": 3.38,
+      "review_count": 3,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1770671339766-2b0d94",
+      "stability": 5.06,
+      "review_count": 4,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.8
+    },
+    {
+      "memory_id": "1770405795837-bcab1f",
+      "stability": 2.2,
+      "review_count": 1,
+      "projects": [
+        "worktrees-branch-c",
+        "worktrees-branch-a"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770673811959-677c42",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "worktrees-branch-a"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770673811962-1197e6",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "worktrees-branch-a"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770673811965-444835",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "worktrees-branch-a"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770675313262-9f2f0f",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "worktrees-branch-c"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770675313264-069d3a",
+      "stability": 3.3,
+      "review_count": 2,
+      "projects": [
+        "worktrees-branch-c",
+        "worktrees-main"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770671339764-d6576f",
+      "stability": 2.25,
+      "review_count": 2,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770280700454-60315e",
+      "stability": 3.3,
+      "review_count": 2,
+      "projects": [
+        "LFI",
+        "worktrees-main"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770671339767-641f7e",
+      "stability": 2.25,
+      "review_count": 2,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770676294475-f6eb06",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770676294477-f689f2",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770685020391-e9faed",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "worktrees-branch-c"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770677591583-ee4739",
+      "stability": 4.84,
+      "review_count": 2,
+      "projects": [
+        "worktrees-main",
+        "worktrees-branch-a"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770685157115-c5f4e2",
+      "stability": 3.3,
+      "review_count": 2,
+      "projects": [
+        "worktrees-branch-a",
+        "worktrees-main"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770244825368-74ff2c",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770687868495-169ea4",
+      "stability": 3.38,
+      "review_count": 3,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1770401243655-f64008",
+      "stability": 2.2,
+      "review_count": 1,
+      "projects": [
+        "LFI",
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770054170676-a9bf47",
+      "stability": 2.2,
+      "review_count": 1,
+      "projects": [
+        "LFI",
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1768711985479-v4ab28",
+      "stability": 4.84,
+      "review_count": 2,
+      "projects": [
+        "LFI",
+        "worktrees-main"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770687298148-e8d2c1",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "worktrees-branch-a"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770687298151-759c8b",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "worktrees-branch-a"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770687868478-33746b",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770687868491-a2413f",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770687868492-49bf38",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770687868496-165d1c",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770687868498-3eb980",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770687868499-240425",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770687868500-92fbcb",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770687868501-d9f309",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770687868502-063264",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770689423665-2e7de3",
+      "stability": 7.59,
+      "review_count": 5,
+      "projects": [
+        "worktrees-branch-a"
+      ],
+      "promoted": true,
+      "path_a_progress": 0.5,
+      "path_b_progress": 1.0
+    },
+    {
+      "memory_id": "1770689423665-450a00",
+      "stability": 4.95,
+      "review_count": 3,
+      "projects": [
+        "worktrees-branch-a",
+        "LFI"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1770689423650-c0d8a7",
+      "stability": 3.38,
+      "review_count": 3,
+      "projects": [
+        "worktrees-branch-a"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1770689423664-c5055b",
+      "stability": 4.95,
+      "review_count": 3,
+      "projects": [
+        "worktrees-branch-a",
+        "worktrees-main"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1770688881818-6e5593",
+      "stability": 2.2,
+      "review_count": 1,
+      "projects": [
+        "worktrees-main",
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1768837671691-e54gtg",
+      "stability": 2.2,
+      "review_count": 1,
+      "projects": [
+        "LFI",
+        "worktrees-branch-a"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770054170560-17bdf1",
+      "stability": 2.2,
+      "review_count": 1,
+      "projects": [
+        "LFI",
+        "worktrees-branch-a"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770695875170-f19cb8",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "worktrees-branch-a"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770695875171-26e5ec",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "worktrees-branch-a"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770695875171-6a01cb",
+      "stability": 3.3,
+      "review_count": 2,
+      "projects": [
+        "worktrees-branch-a",
+        "worktrees-main"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1768109103079-zfh91r",
+      "stability": 2.2,
+      "review_count": 1,
+      "projects": [
+        "LFI",
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770400083166-b2d55d",
+      "stability": 2.2,
+      "review_count": 1,
+      "projects": [
+        "LFI",
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770354085068-a63b13",
+      "stability": 3.3,
+      "review_count": 2,
+      "projects": [
+        "LFI",
+        "worktrees-branch-a"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770711851288-fdb5c0",
+      "stability": 3.38,
+      "review_count": 3,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1770711852545-666c57",
+      "stability": 3.38,
+      "review_count": 3,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1770711852658-5e9024",
+      "stability": 7.59,
+      "review_count": 5,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": true,
+      "path_a_progress": 0.5,
+      "path_b_progress": 1.0
+    },
+    {
+      "memory_id": "1770711848867-8c0f42",
+      "stability": 7.59,
+      "review_count": 5,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": true,
+      "path_a_progress": 0.5,
+      "path_b_progress": 1.0
+    },
+    {
+      "memory_id": "1770711848892-dc5c2b",
+      "stability": 7.59,
+      "review_count": 5,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": true,
+      "path_a_progress": 0.5,
+      "path_b_progress": 1.0
+    },
+    {
+      "memory_id": "1770711848902-5a5a74",
+      "stability": 3.38,
+      "review_count": 3,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1770705657807-75313f",
+      "stability": 2.2,
+      "review_count": 1,
+      "projects": [
+        "worktrees-main",
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770403779507-3904e1",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "worktrees-branch-a"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770742002508-1c5c34",
+      "stability": 3.38,
+      "review_count": 3,
+      "projects": [
+        "worktrees-branch-a"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1770705656952-f6f19b",
+      "stability": 2.25,
+      "review_count": 2,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770717123519-a15422",
+      "stability": 4.84,
+      "review_count": 2,
+      "projects": [
+        "LFI",
+        "worktrees-main"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770705657809-97c70e",
+      "stability": 2.25,
+      "review_count": 2,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770705657811-163122",
+      "stability": 2.25,
+      "review_count": 2,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770705657812-7c0ca9",
+      "stability": 2.25,
+      "review_count": 2,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770738855656-58135a",
+      "stability": 2.25,
+      "review_count": 2,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770748048030-156ce7",
+      "stability": 3.3,
+      "review_count": 2,
+      "projects": [
+        "worktrees-branch-a",
+        "worktrees-main"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770742920457-5bc523",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770742920548-e1061d",
+      "stability": 3.3,
+      "review_count": 2,
+      "projects": [
+        "worktrees-main",
+        "LFI"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770742920550-0db6dd",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770742920604-8d2df5",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770743880991-9ad6ea",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "worktrees-branch-a"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770766581710-a8e2c4",
+      "stability": 7.59,
+      "review_count": 5,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": true,
+      "path_a_progress": 0.5,
+      "path_b_progress": 1.0
+    },
+    {
+      "memory_id": "1770766580911-e68976",
+      "stability": 10.0,
+      "review_count": 6,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": true,
+      "path_a_progress": 0.5,
+      "path_b_progress": 1.0
+    },
+    {
+      "memory_id": "1768452780196-ex0x9y",
+      "stability": 2.2,
+      "review_count": 1,
+      "projects": [
+        "LFI",
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770054170715-8e3aa2",
+      "stability": 2.2,
+      "review_count": 1,
+      "projects": [
+        "LFI",
+        "worktrees-branch-a"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770766581883-36f188",
+      "stability": 5.06,
+      "review_count": 4,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.8
+    },
+    {
+      "memory_id": "1770756249805-cc6c89",
+      "stability": 2.25,
+      "review_count": 2,
+      "projects": [
+        "worktrees-branch-a"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770054170576-42f128",
+      "stability": 2.2,
+      "review_count": 1,
+      "projects": [
+        "LFI",
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1768716196873-ir9s71",
+      "stability": 2.2,
+      "review_count": 1,
+      "projects": [
+        "LFI",
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770798960908-f3ce6b",
+      "stability": 2.25,
+      "review_count": 2,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770798960913-226d10",
+      "stability": 2.25,
+      "review_count": 2,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770798960913-1523be",
+      "stability": 2.25,
+      "review_count": 2,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770798960913-35ca7a",
+      "stability": 2.25,
+      "review_count": 2,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770798960914-4d9d12",
+      "stability": 2.25,
+      "review_count": 2,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770798960914-891d37",
+      "stability": 2.25,
+      "review_count": 2,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770772755711-cd9d15",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "worktrees-branch-a"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770772755728-cc6e9c",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "worktrees-branch-a"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770772755734-a10b59",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "worktrees-branch-a"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770772755739-6f5432",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "worktrees-branch-a"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770772755803-839fdd",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "worktrees-branch-a"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770772780192-c8f282",
+      "stability": 3.38,
+      "review_count": 3,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1770772780245-ac8b56",
+      "stability": 3.38,
+      "review_count": 3,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1768716197422-rzyvhk",
+      "stability": 3.38,
+      "review_count": 3,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1770824713651-db4be4",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770824862302-57168a",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770824760727-6fbcd2",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770824885732-6cb281",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770814435155-f8cddc",
+      "stability": 2.25,
+      "review_count": 2,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770824760822-cea977",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770824885808-a785a7",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770827038524-79d20f",
+      "stability": 4.95,
+      "review_count": 3,
+      "projects": [
+        "LFI",
+        "worktrees-main"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1768059676835-co75hq",
+      "stability": 2.2,
+      "review_count": 1,
+      "projects": [
+        "LFI",
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1767720560758-dr4sla",
+      "stability": 2.2,
+      "review_count": 1,
+      "projects": [
+        "LFI",
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770829752007-5ea119",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770829752009-5383f1",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770829752011-67c8a6",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770265242935-ddu3up",
+      "stability": 2.2,
+      "review_count": 1,
+      "projects": [
+        "LFI",
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770829752012-6e28d4",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770829985881-f58cf3",
+      "stability": 2.2,
+      "review_count": 1,
+      "projects": [
+        "worktrees-main",
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770829163801-24cbe7",
+      "stability": 3.38,
+      "review_count": 3,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1770070381429-f3fd53",
+      "stability": 2.25,
+      "review_count": 2,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770829163801-11150c",
+      "stability": 3.3,
+      "review_count": 2,
+      "projects": [
+        "LFI",
+        "worktrees-main"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770829163802-938abd",
+      "stability": 3.38,
+      "review_count": 3,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1770054170696-85c271",
+      "stability": 2.2,
+      "review_count": 1,
+      "projects": [
+        "LFI",
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770834535857-9619af",
+      "stability": 2.25,
+      "review_count": 2,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770825112662-dcc80c",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770834535855-314438",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770834535856-2cae5f",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770834535857-9c6feb",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770776727024-41bc71",
+      "stability": 4.84,
+      "review_count": 2,
+      "projects": [
+        "worktrees-main",
+        "LFI"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770832616346-1972cc",
+      "stability": 3.38,
+      "review_count": 3,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1769414322511-z6z9bn",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770837160575-dfa787",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770837160569-a25110",
+      "stability": 5.06,
+      "review_count": 4,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.8
+    },
+    {
+      "memory_id": "1770832616348-379b14",
+      "stability": 2.25,
+      "review_count": 2,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770837160567-e6d686",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770837923504-16fe95",
+      "stability": 2.25,
+      "review_count": 2,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1768255531514-apehbu",
+      "stability": 2.2,
+      "review_count": 1,
+      "projects": [
+        "LFI",
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770837923501-baad47",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770835774344-68cc4a",
+      "stability": 3.38,
+      "review_count": 3,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1770835774347-f6f712",
+      "stability": 3.38,
+      "review_count": 3,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1770840577874-471aa9",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770719323997-3c7319",
+      "stability": 2.25,
+      "review_count": 2,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1769722955180-cy93hc",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770840577857-5ceaef",
+      "stability": 7.59,
+      "review_count": 5,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": true,
+      "path_a_progress": 0.5,
+      "path_b_progress": 1.0
+    },
+    {
+      "memory_id": "1770691062114-3ca842",
+      "stability": 3.3,
+      "review_count": 2,
+      "projects": [
+        "LFI",
+        "Personal"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770838588318-6d7b7c",
+      "stability": 4.84,
+      "review_count": 2,
+      "projects": [
+        "worktrees-main",
+        "LFI"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770840873691-0479c5",
+      "stability": 2.25,
+      "review_count": 2,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770845747272-3facfd",
+      "stability": 3.38,
+      "review_count": 3,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1770845747273-8ad0f5",
+      "stability": 2.25,
+      "review_count": 2,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770846564263-3c5edb",
+      "stability": 7.59,
+      "review_count": 5,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": true,
+      "path_a_progress": 0.5,
+      "path_b_progress": 1.0
+    },
+    {
+      "memory_id": "1770846564260-661a54",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770154399373-768a75",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770840577862-d1200a",
+      "stability": 2.25,
+      "review_count": 2,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770840577871-5dd2c1",
+      "stability": 3.38,
+      "review_count": 3,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1770840577872-4a5835",
+      "stability": 2.25,
+      "review_count": 2,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770840577873-fd5a9c",
+      "stability": 2.25,
+      "review_count": 2,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770840577881-694616",
+      "stability": 2.25,
+      "review_count": 2,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770054170675-8238ea",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770840577882-8748b0",
+      "stability": 2.25,
+      "review_count": 2,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770840577883-5c1e7d",
+      "stability": 2.25,
+      "review_count": 2,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770840577884-f74c3b",
+      "stability": 2.25,
+      "review_count": 2,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770847177303-f9454e",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770846564271-027da8",
+      "stability": 2.25,
+      "review_count": 2,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770850980693-7117ac",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770850980691-1cac7f",
+      "stability": 3.38,
+      "review_count": 3,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1770850980696-cf9409",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770850980695-d83977",
+      "stability": 3.38,
+      "review_count": 3,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1770850980694-165936",
+      "stability": 2.25,
+      "review_count": 2,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770859811616-af776d",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770859811614-ccdc9b",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770860500882-bacf32",
+      "stability": 7.59,
+      "review_count": 5,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": true,
+      "path_a_progress": 0.5,
+      "path_b_progress": 1.0
+    },
+    {
+      "memory_id": "1770860500882-9b3c2f",
+      "stability": 7.59,
+      "review_count": 5,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": true,
+      "path_a_progress": 0.5,
+      "path_b_progress": 1.0
+    },
+    {
+      "memory_id": "1770860500883-cfc015",
+      "stability": 3.38,
+      "review_count": 3,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1770860500884-742a46",
+      "stability": 3.38,
+      "review_count": 3,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1770860500884-db5b68",
+      "stability": 3.38,
+      "review_count": 3,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1770860500885-63d324",
+      "stability": 3.38,
+      "review_count": 3,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1770860500886-166db6",
+      "stability": 7.59,
+      "review_count": 5,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": true,
+      "path_a_progress": 0.5,
+      "path_b_progress": 1.0
+    },
+    {
+      "memory_id": "1770860500872-24e0cc",
+      "stability": 3.38,
+      "review_count": 3,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1770860500877-499f4c",
+      "stability": 3.38,
+      "review_count": 3,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1770860500877-6ca800",
+      "stability": 10.0,
+      "review_count": 6,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": true,
+      "path_a_progress": 0.5,
+      "path_b_progress": 1.0
+    },
+    {
+      "memory_id": "1770860500878-7d3151",
+      "stability": 7.59,
+      "review_count": 5,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": true,
+      "path_a_progress": 0.5,
+      "path_b_progress": 1.0
+    },
+    {
+      "memory_id": "1770860500879-10bcbd",
+      "stability": 7.59,
+      "review_count": 5,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": true,
+      "path_a_progress": 0.5,
+      "path_b_progress": 1.0
+    },
+    {
+      "memory_id": "1770860500880-8c4c6f",
+      "stability": 7.59,
+      "review_count": 5,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": true,
+      "path_a_progress": 0.5,
+      "path_b_progress": 1.0
+    },
+    {
+      "memory_id": "1770860500881-a4a0e6",
+      "stability": 3.38,
+      "review_count": 3,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1770860500888-4863db",
+      "stability": 3.38,
+      "review_count": 3,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1770860500888-5e99c1",
+      "stability": 7.59,
+      "review_count": 5,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": true,
+      "path_a_progress": 0.5,
+      "path_b_progress": 1.0
+    },
+    {
+      "memory_id": "1770860500887-2e5fbe",
+      "stability": 5.06,
+      "review_count": 4,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.8
+    },
+    {
+      "memory_id": "1770862472687-f0e7db",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "Personal"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770862472685-ff7f6a",
+      "stability": 2.25,
+      "review_count": 2,
+      "projects": [
+        "Personal"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1768449060107-5hpc1t",
+      "stability": 2.2,
+      "review_count": 1,
+      "projects": [
+        "LFI",
+        "Personal"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770862472688-734f36",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "Personal"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770845747251-4c1396",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770845747262-887fa5",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770845747263-1db8e6",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770685777945-25f106",
+      "stability": 4.84,
+      "review_count": 2,
+      "projects": [
+        "worktrees-branch-a",
+        "worktrees-main",
+        "LFI"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770845747267-e70531",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "worktrees-main"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1768449060335-kfbz7q",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770917670551-40e539",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770917670553-2b211e",
+      "stability": 4.95,
+      "review_count": 3,
+      "projects": [
+        "LFI",
+        "LFI-Ops"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1770938314258-5dfec7",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770938562454-6bc5a5",
+      "stability": 4.95,
+      "review_count": 3,
+      "projects": [
+        "LFI",
+        "LFI-Ops"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1770938603589-258d03",
+      "stability": 3.3,
+      "review_count": 2,
+      "projects": [
+        "LFI",
+        "LFI-Ops"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1769824109491-ys88sq",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770687107307-8da9f1",
+      "stability": 2.2,
+      "review_count": 1,
+      "projects": [
+        "LFI",
+        "LFI-Ops"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770943679406-8abbfe",
+      "stability": 3.38,
+      "review_count": 3,
+      "projects": [
+        "LFI-Ops"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.6
+    },
+    {
+      "memory_id": "1770943741442-fb2090",
+      "stability": 7.59,
+      "review_count": 5,
+      "projects": [
+        "LFI-Ops"
+      ],
+      "promoted": true,
+      "path_a_progress": 0.5,
+      "path_b_progress": 1.0
+    },
+    {
+      "memory_id": "1770943741443-55178e",
+      "stability": 7.59,
+      "review_count": 5,
+      "projects": [
+        "LFI-Ops"
+      ],
+      "promoted": true,
+      "path_a_progress": 0.5,
+      "path_b_progress": 1.0
+    },
+    {
+      "memory_id": "1770943839690-815896",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI-Ops"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770711083232-3ef73a",
+      "stability": 4.84,
+      "review_count": 2,
+      "projects": [
+        "LFI",
+        "LFI-Ops"
+      ],
+      "promoted": true,
+      "path_a_progress": 1.0,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770943839713-c21eba",
+      "stability": 2.25,
+      "review_count": 2,
+      "projects": [
+        "LFI-Ops"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770911042400-a1b40d",
+      "stability": 2.25,
+      "review_count": 2,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.4
+    },
+    {
+      "memory_id": "1770834892926-f3b70b",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770945709619-e4823c",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770945709326-707989",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    },
+    {
+      "memory_id": "1770945072016-ef84e6",
+      "stability": 1.5,
+      "review_count": 1,
+      "projects": [
+        "LFI"
+      ],
+      "promoted": false,
+      "path_a_progress": 0.5,
+      "path_b_progress": 0.2
+    }
+  ],
+  "projects": {
+    "LFI": 315,
+    "worktrees-branch-a": 44,
+    "worktrees-main": 129,
+    "Personal": 26,
+    "Personal-terra-office-explainer": 5,
+    "worktrees-branch-c": 14,
+    "LFI-Ops": 10
+  },
+  "promoted_ids": [
+    "1770109115221-c89d31",
+    "1770133447571-f447da",
+    "1770136229122-b1ae39",
+    "1770095105764-861cca",
+    "1770095106037-147430",
+    "1768932567067-wecnyt",
+    "1769713305029-lpwh5r",
+    "1770145979009-9a2182",
+    "1770145978958-84be9b",
+    "1770145978949-8e7eb9",
+    "1768531158138-6t9jsq",
+    "1770054170570-4f217a",
+    "1770136229121-1f4eef",
+    "1768762597748-infzvf",
+    "1768490749217-yht2ry",
+    "1770094802855-f79067",
+    "1770179350524-b72547",
+    "1770179350521-56ed0d",
+    "1770054170608-8b11f8",
+    "1770183764898-1dedf8",
+    "1770183764896-8580f3",
+    "1770183764885-02b1e4",
+    "1770183764806-bf9728",
+    "1770183764946-4c721f",
+    "1770183764979-910950",
+    "1770094802888-0caade",
+    "1768357162120-ufrv79",
+    "1770176636429-7cd38e",
+    "1770054170610-559a47",
+    "1770176638107-f19db3",
+    "1770176638108-9be1fb",
+    "1770216486455-055e77",
+    "1770216486459-201f91",
+    "1770179349743-e8de01",
+    "1769722868495-lcm424",
+    "1770219052122-5dc213",
+    "1770054170684-51ae7a",
+    "1770224989311-53812a",
+    "1770226377760-75e802",
+    "1770183764837-1bb281",
+    "1770183764850-d96704",
+    "1770183764933-7928e9",
+    "1770183764942-8df414",
+    "1770183764945-2040aa",
+    "1770183764948-0d5428",
+    "1770183764970-638120",
+    "1770237638106-867881",
+    "1770237636613-185a2d",
+    "1770237639048-cfe9ae",
+    "1770237638520-2da68b",
+    "1770237638085-af6c23",
+    "1770237639036-cc2f11",
+    "1770238232116-034f57",
+    "1770246897288-757fa4",
+    "1770247456554-a29469",
+    "1770246273193-42196e",
+    "1768762598023-csty21",
+    "1770254428379-10bd94",
+    "1770266672370-4a68e4",
+    "1770266672373-273028",
+    "1770266672368-282dc0",
+    "1770266672372-7191ca",
+    "1770265068045-a1c995",
+    "1769722869240-hhpdc6",
+    "1770054170705-d10ead",
+    "1770275091623-65c276",
+    "1770332483522-1261f2",
+    "1770337097123-cdfb3b",
+    "1767648473579-lc881i",
+    "1770341233556-ebd706",
+    "1770340966763-f34fc1",
+    "1770341233718-c7cc58",
+    "1770341233358-c45d9d",
+    "1770054170704-62a9c8",
+    "1770279642864-rdk1h5",
+    "1770401239806-007b90",
+    "1770401239790-4fd4fe",
+    "1770416220581-8a0e2b",
+    "1770416220568-be6e40",
+    "1770416220548-49b09c",
+    "1770655920129-d29d18",
+    "1770416587463-2a4e6f",
+    "1770675313264-069d3a",
+    "1770280700454-60315e",
+    "1770677591583-ee4739",
+    "1770685157115-c5f4e2",
+    "1768711985479-v4ab28",
+    "1770689423665-2e7de3",
+    "1770689423665-450a00",
+    "1770689423664-c5055b",
+    "1770695875171-6a01cb",
+    "1770354085068-a63b13",
+    "1770711852658-5e9024",
+    "1770711848867-8c0f42",
+    "1770711848892-dc5c2b",
+    "1770717123519-a15422",
+    "1770748048030-156ce7",
+    "1770742920548-e1061d",
+    "1770766581710-a8e2c4",
+    "1770766580911-e68976",
+    "1770827038524-79d20f",
+    "1770829163801-11150c",
+    "1770776727024-41bc71",
+    "1770840577857-5ceaef",
+    "1770691062114-3ca842",
+    "1770838588318-6d7b7c",
+    "1770846564263-3c5edb",
+    "1770860500882-bacf32",
+    "1770860500882-9b3c2f",
+    "1770860500886-166db6",
+    "1770860500877-6ca800",
+    "1770860500878-7d3151",
+    "1770860500879-10bcbd",
+    "1770860500880-8c4c6f",
+    "1770860500888-5e99c1",
+    "1770685777945-25f106",
+    "1770917670553-2b211e",
+    "1770938562454-6bc5a5",
+    "1770938603589-258d03",
+    "1770943741442-fb2090",
+    "1770943741443-55178e",
+    "1770711083232-3ef73a"
+  ],
+  "memory_projects": [
+    {
+      "id": "CC",
+      "count": 716
+    },
+    {
+      "id": "Downloads",
+      "count": 15
+    },
+    {
+      "id": "LFI",
+      "count": 1209
+    },
+    {
+      "id": "Passive Income",
+      "count": 255
+    },
+    {
+      "id": "Personal",
+      "count": 154
+    },
+    {
+      "id": "branch-a",
+      "count": 53
+    },
+    {
+      "id": "branch-c",
+      "count": 7
+    },
+    {
+      "id": "global",
+      "count": 2
+    },
+    {
+      "id": "lee",
+      "count": 4
+    },
+    {
+      "id": "main",
+      "count": 110
+    },
+    {
+      "id": "memory-system-v1",
+      "count": 13
+    },
+    {
+      "id": "tally",
+      "count": 55
+    },
+    {
+      "id": "tmp",
+      "count": 2
+    }
+  ],
+  "recent_reinforcements": [
+    {
+      "timestamp": "2026-02-12T17:51:14.667310",
+      "session_id": "a00c0e05-a13d-443d-b5cb-f5cfd319cc9e",
+      "reinforcements": 19,
+      "promotions": 0
+    },
+    {
+      "timestamp": "2026-02-12T17:21:55.701969",
+      "session_id": "2409ceb1-5f6a-47c8-8773-fdd958e1faca",
+      "reinforcements": 2,
+      "promotions": 0
+    },
+    {
+      "timestamp": "2026-02-12T17:20:51.179190",
+      "session_id": "b2a0ac96-b98e-4de4-bf2f-1674c9d99fee",
+      "reinforcements": 1,
+      "promotions": 0
+    },
+    {
+      "timestamp": "2026-02-12T17:17:32.771849",
+      "session_id": "002eff8a-7259-494e-ae78-309e975f0d0f",
+      "reinforcements": 1,
+      "promotions": 0
+    },
+    {
+      "timestamp": "2026-02-12T17:11:42.699099",
+      "session_id": "a00c0e05-a13d-443d-b5cb-f5cfd319cc9e",
+      "reinforcements": 18,
+      "promotions": 8
+    },
+    {
+      "timestamp": "2026-02-12T17:03:06.661811",
+      "session_id": "79211f94-e2fc-4106-babe-7174de65b993",
+      "reinforcements": 1,
+      "promotions": 0
+    },
+    {
+      "timestamp": "2026-02-12T16:59:42.314021",
+      "session_id": "f44136a1-b8cf-4a23-885a-c1dabc882bbb",
+      "reinforcements": 1,
+      "promotions": 0
+    },
+    {
+      "timestamp": "2026-02-12T16:58:30.263395",
+      "session_id": "53469d28-4291-433e-969c-7577063537e0",
+      "reinforcements": 1,
+      "promotions": 1
+    },
+    {
+      "timestamp": "2026-02-12T16:57:50.725081",
+      "session_id": "79211f94-e2fc-4106-babe-7174de65b993",
+      "reinforcements": 1,
+      "promotions": 0
+    },
+    {
+      "timestamp": "2026-02-12T16:54:28.786625",
+      "session_id": "37db9150-6fc8-4fc5-ba46-fa2d26044adb",
+      "reinforcements": 1,
+      "promotions": 1
+    },
+    {
+      "timestamp": "2026-02-12T16:54:20.318978",
+      "session_id": "53469d28-4291-433e-969c-7577063537e0",
+      "reinforcements": 2,
+      "promotions": 1
+    },
+    {
+      "timestamp": "2026-02-12T16:53:21.823143",
+      "session_id": "f44136a1-b8cf-4a23-885a-c1dabc882bbb",
+      "reinforcements": 2,
+      "promotions": 1
+    },
+    {
+      "timestamp": "2026-02-12T16:53:19.623525",
+      "session_id": "b9cb5d1f-fb3f-4567-affb-50b1539bb623",
+      "reinforcements": 1,
+      "promotions": 0
+    },
+    {
+      "timestamp": "2026-02-12T16:52:02.559999",
+      "session_id": "19a70c2b-227d-49dc-91e9-6a8397d114cf",
+      "reinforcements": 2,
+      "promotions": 0
+    },
+    {
+      "timestamp": "2026-02-12T16:51:13.213839",
+      "session_id": "b9cb5d1f-fb3f-4567-affb-50b1539bb623",
+      "reinforcements": 1,
+      "promotions": 0
+    },
+    {
+      "timestamp": "2026-02-12T16:51:04.601063",
+      "session_id": "84a27fab-e3d3-4880-b91d-b3f493e9f513",
+      "reinforcements": 2,
+      "promotions": 0
+    },
+    {
+      "timestamp": "2026-02-12T16:51:04.507465",
+      "session_id": "3a6a613b-4b65-464c-b1b1-13204aa80bb2",
+      "reinforcements": 1,
+      "promotions": 0
+    },
+    {
+      "timestamp": "2026-02-12T16:49:48.335303",
+      "session_id": "19a70c2b-227d-49dc-91e9-6a8397d114cf",
+      "reinforcements": 2,
+      "promotions": 0
+    },
+    {
+      "timestamp": "2026-02-12T16:49:01.817413",
+      "session_id": "37db9150-6fc8-4fc5-ba46-fa2d26044adb",
+      "reinforcements": 2,
+      "promotions": 2
+    },
+    {
+      "timestamp": "2026-02-12T16:48:28.369208",
+      "session_id": "3a6a613b-4b65-464c-b1b1-13204aa80bb2",
+      "reinforcements": 1,
+      "promotions": 0
+    }
+  ],
+  "totals": {
+    "tracked": 441,
+    "promoted": 122,
+    "pending_promotion": 27
+  }
+}

@@ -215,7 +215,7 @@ class TestPromotionReadiness:
         scheduler.record_review("mem-001", ReviewGrade.GOOD, project_id="LFI")
 
         state = scheduler.get_state("mem-001")
-        # Should have: review_count >= 3, 3 projects, stability > 3.0
+        # Should have: review_count >= 2, 2+ projects, stability >= 2.0
         assert scheduler.is_promotion_ready("mem-001") is True
 
     def test_not_ready_single_project(self, scheduler):
@@ -293,3 +293,154 @@ class TestGetDueReviews:
         due = scheduler.get_due_reviews()
         due_ids = [d.memory_id for d in due]
         assert "mem-001" not in due_ids
+
+
+class TestBoundaryConditions:
+    """Test stability/difficulty floor and ceiling enforcement"""
+
+    def test_stability_floor_after_repeated_fails(self, scheduler):
+        """Repeated FAILs should never push stability below 0.1"""
+        scheduler.register_memory("mem-floor", project_id="LFI")
+        for _ in range(20):
+            scheduler.record_review("mem-floor", ReviewGrade.FAIL, "LFI")
+
+        state = scheduler.get_state("mem-floor")
+        assert state.stability >= 0.1
+
+    def test_stability_ceiling_after_repeated_easy(self, scheduler):
+        """Repeated EASY reviews should never push stability above 10.0"""
+        scheduler.register_memory("mem-ceil", project_id="LFI")
+        for _ in range(20):
+            scheduler.record_review("mem-ceil", ReviewGrade.EASY, "LFI")
+
+        state = scheduler.get_state("mem-ceil")
+        assert state.stability <= 10.0
+
+    def test_difficulty_stays_in_range(self, scheduler):
+        """Difficulty should always be between 0.0 and 1.0"""
+        scheduler.register_memory("mem-diff", project_id="LFI")
+        # Push difficulty down with EASY reviews
+        for _ in range(15):
+            scheduler.record_review("mem-diff", ReviewGrade.EASY, "LFI")
+        state = scheduler.get_state("mem-diff")
+        assert 0.0 <= state.difficulty <= 1.0
+
+        # Push difficulty up with FAIL reviews
+        for _ in range(15):
+            scheduler.record_review("mem-diff", ReviewGrade.FAIL, "LFI")
+        state = scheduler.get_state("mem-diff")
+        assert 0.0 <= state.difficulty <= 1.0
+
+    def test_concurrent_registration_idempotent(self, scheduler):
+        """Concurrent registration of same memory should be safe"""
+        import threading
+        errors = []
+
+        def register():
+            try:
+                scheduler.register_memory("mem-concurrent", "LFI")
+            except Exception as e:
+                errors.append(str(e))
+
+        threads = [threading.Thread(target=register) for _ in range(5)]
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
+
+        assert len(errors) == 0
+        assert scheduler.get_state("mem-concurrent") is not None
+
+    def test_get_promoted_ids_empty(self, scheduler):
+        """Should return empty set when no promoted memories"""
+        ids = scheduler.get_promoted_ids()
+        assert ids == set()
+
+    def test_get_promoted_ids_returns_promoted(self, scheduler):
+        """Should return set of promoted memory IDs"""
+        scheduler.register_memory("mem-p1", project_id="LFI")
+        scheduler.register_memory("mem-p2", project_id="LFI")
+        scheduler.mark_promoted("mem-p1")
+
+        ids = scheduler.get_promoted_ids()
+        assert "mem-p1" in ids
+        assert "mem-p2" not in ids
+
+
+class TestDualPathPromotion:
+    """Test dual-path promotion criteria (Path A: cross-project, Path B: deep reinforcement)"""
+
+    def test_path_a_promotes_cross_project(self, scheduler):
+        """Path A: cross-project with sufficient stability and reviews"""
+        scheduler.register_memory("mem-a", project_id="LFI")
+        scheduler.record_review("mem-a", ReviewGrade.GOOD, project_id="LFI")
+        scheduler.record_review("mem-a", ReviewGrade.EASY, project_id="ClientA")
+
+        assert scheduler.is_promotion_ready("mem-a") is True
+
+    def test_path_b_promotes_deep_reinforcement(self, scheduler):
+        """Path B: deep reinforcement from single project should promote"""
+        scheduler.register_memory("mem-b", project_id="LFI")
+        # 5 EASY reviews from same project = stability ~ 1.0 * 2.2^5 = 51.5 (capped at 10)
+        # and review_count = 5
+        for _ in range(5):
+            scheduler.record_review("mem-b", ReviewGrade.EASY, project_id="LFI")
+
+        state = scheduler.get_state("mem-b")
+        assert state.stability >= 4.0
+        assert state.review_count >= 5
+        assert scheduler.is_promotion_ready("mem-b") is True
+
+    def test_path_b_rejects_insufficient_stability(self, scheduler):
+        """Path B should reject when stability is below 4.0"""
+        scheduler.register_memory("mem-c", project_id="LFI")
+        # 5 GOOD reviews: stability = 1.0 * 1.5^5 = 7.59 — wait, that's above 4.0
+        # Use HARD reviews to keep stability low: 1.0 * 0.8^5 = 0.328
+        # Then add GOODs to get reviews to 5 but stability low
+        scheduler.record_review("mem-c", ReviewGrade.HARD, project_id="LFI")
+        scheduler.record_review("mem-c", ReviewGrade.HARD, project_id="LFI")
+        scheduler.record_review("mem-c", ReviewGrade.HARD, project_id="LFI")
+        scheduler.record_review("mem-c", ReviewGrade.GOOD, project_id="LFI")
+        scheduler.record_review("mem-c", ReviewGrade.GOOD, project_id="LFI")
+
+        state = scheduler.get_state("mem-c")
+        # stability = 1.0 * 0.8 * 0.8 * 0.8 * 1.5 * 1.5 = 1.152 — below 4.0
+        assert state.stability < 4.0
+        assert state.review_count == 5
+        # Only 1 project, so Path A fails. Path B fails on stability.
+        assert scheduler.is_promotion_ready("mem-c") is False
+
+    def test_path_b_rejects_insufficient_reviews(self, scheduler):
+        """Path B should reject when review count is below 5"""
+        scheduler.register_memory("mem-d", project_id="LFI")
+        # 3 EASY reviews: stability = 1.0 * 2.2^3 = 10.648 (capped at 10) but only 3 reviews
+        for _ in range(3):
+            scheduler.record_review("mem-d", ReviewGrade.EASY, project_id="LFI")
+
+        state = scheduler.get_state("mem-d")
+        assert state.stability >= 4.0
+        assert state.review_count < 5
+        # Only 1 project, so Path A fails. Path B fails on review count.
+        assert scheduler.is_promotion_ready("mem-d") is False
+
+    def test_existing_single_project_test_still_passes(self, scheduler):
+        """Original test: 3 GOOD reviews from single project should NOT promote"""
+        scheduler.register_memory("mem-001", project_id="LFI")
+        scheduler.record_review("mem-001", ReviewGrade.GOOD, project_id="LFI")
+        scheduler.record_review("mem-001", ReviewGrade.GOOD, project_id="LFI")
+        scheduler.record_review("mem-001", ReviewGrade.GOOD, project_id="LFI")
+
+        # stability = 1.0 * 1.5^3 = 3.375, reviews = 3, projects = 1
+        # Path A: fails (1 project < 2)
+        # Path B: fails (3.375 < 4.0 and 3 < 5)
+        assert scheduler.is_promotion_ready("mem-001") is False
+
+    def test_path_b_in_get_promotion_candidates(self, scheduler):
+        """get_promotion_candidates should return Path B candidates"""
+        scheduler.register_memory("mem-deep", project_id="LFI")
+        for _ in range(5):
+            scheduler.record_review("mem-deep", ReviewGrade.EASY, project_id="LFI")
+
+        candidates = scheduler.get_promotion_candidates()
+        candidate_ids = [c.memory_id for c in candidates]
+        assert "mem-deep" in candidate_ids

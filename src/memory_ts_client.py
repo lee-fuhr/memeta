@@ -7,6 +7,8 @@ Memory-ts uses markdown files with YAML frontmatter stored at:
 Each memory is a file: {id}.md with YAML frontmatter + markdown content
 """
 
+import ast
+import json
 import re
 import hashlib
 from dataclasses import dataclass, field
@@ -75,6 +77,18 @@ class MemoryTSClient:
         self.memory_dir = Path(memory_dir) if memory_dir else DEFAULT_MEMORY_DIR
         self.memory_dir.mkdir(parents=True, exist_ok=True)
 
+    def _safe_memory_path(self, memory_id: str) -> Path:
+        """Build memory file path with path traversal protection"""
+        # Strip path separators and traversal sequences
+        safe_id = re.sub(r'[/\\]', '', memory_id).replace('..', '')
+        if not safe_id:
+            raise ValueError(f"Invalid memory_id: {memory_id}")
+        path = (self.memory_dir / f"{safe_id}.md").resolve()
+        # Ensure resolved path is still under memory_dir
+        if not str(path).startswith(str(self.memory_dir.resolve())):
+            raise ValueError(f"Path traversal detected in memory_id: {memory_id}")
+        return path
+
     def create(
         self,
         content: str,
@@ -138,7 +152,7 @@ class MemoryTSClient:
         Raises:
             MemoryNotFoundError: If memory doesn't exist
         """
-        memory_file = self.memory_dir / f"{memory_id}.md"
+        memory_file = self._safe_memory_path(memory_id)
         if not memory_file.exists():
             raise MemoryNotFoundError(f"Memory {memory_id} not found")
 
@@ -239,7 +253,7 @@ class MemoryTSClient:
 
     def _write_memory(self, memory: Memory) -> None:
         """Write memory to disk as markdown with YAML frontmatter"""
-        memory_file = self.memory_dir / f"{memory.id}.md"
+        memory_file = self._safe_memory_path(memory.id)
 
         # Build YAML frontmatter
         frontmatter = f"""---
@@ -316,7 +330,7 @@ schema_version: {memory.schema_version}
             # Parse specific types
             if key == "semantic_tags":
                 # Parse list format: ["tag1", "tag2"]
-                value = eval(value) if value.startswith("[") else []
+                value = ast.literal_eval(value) if value.startswith("[") else []
             elif key in ("importance_weight", "confidence_score", "retrieval_weight"):
                 value = float(value) if value != "null" else 0.0
             elif key == "schema_version":
