@@ -6,6 +6,26 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ---
 
+## [0.6.0] - 2026-02-13
+
+### Added - Wild Features Batch (F52-F65)
+- **F52: Conversation Momentum Tracking** - Tracks momentum score 0-100 to detect "on a roll" vs "stuck" states. Calculates momentum from new insights (+20 each), decisions (+15 each), repeated questions (-10 each), topic cycles (-15 each). Provides state-specific intervention suggestions. 18 tests covering momentum calculation, state detection (on_roll/steady/stuck/spinning), interventions, statistics, and trend analysis.
+- **F53: Energy-Aware Scheduling** - Learns energy patterns by hour/day and suggests optimal task timing. Tracks high/medium/low energy with confidence scores. Maps 6 default task types (deep_work, writing, meetings, code_review, admin, learning) to cognitive load. Suggests tasks matching current predicted energy level. 18 tests covering energy recording, pattern learning, prediction, task suggestion, and confidence building.
+- **F54: Context Pre-Loading (Dream Mode v2)** - Pre-loads context before work sessions. Schedule preloads by time + context_type (client_meeting, coding_session, writing). Queue system with pending/loaded/expired states. Retrieves preloaded memories by type and optional target. Auto-cleanup of old tasks. 11 tests covering scheduling, pending detection, mark loaded/expired, retrieval, cleanup, and statistics.
+- **F56: Client Pattern Transfer** - Identifies and transfers patterns across projects. Records pattern transfers with effectiveness ratings. Finds transferable patterns based on successful transfers (rating >= 0.7). Tracks transfer history per project. Privacy-aware cross-project learning. 11 tests covering pattern transfer, rating, history, successful transfers, and pattern discovery.
+- **F58: Decision Regret Detection** - Tracks decisions and warns before repeating regretted choices. Records decision content, alternatives, and outcomes (good/bad/neutral). Detects regret patterns (50%+ regret rate, min 2 occurrences). Generates warnings with regret statistics. Supports decision history and regret-only filtering. 14 tests covering decision recording, regret marking, pattern detection, warnings, history, and statistics.
+- **F59: Expertise Mapping** - Maps agent expertise by domain for optimal routing. Records memory_count × avg_quality scores per agent/domain. Updates existing expertise with weighted averages. Routes to best expert by score. Returns full expertise map and per-agent breakdowns. 11 tests covering expertise recording, updates, expert lookup, mapping, per-agent queries, and statistics.
+- **F60: Context Decay Prediction** - Predicts staleness before it happens. Records predicted_stale_at with confidence by reason (project_inactive 0.7, superseded 0.9, outdated_source 0.8). Surfaces memories becoming stale within N days. Tracks refresh/review status. Provides statistics by reason. 11 tests covering prediction, updates, stale detection, refresh tracking, and statistics.
+- **F64: Learning Intervention System** - Detects repeated questions and suggests learning resources. Tracks question occurrence counts. Detects high-frequency questions (3+ occurrences). Generates tutorials and reference docs (template-based MVP). Marks intervention effectiveness. 12 tests covering question recording, increment logic, detection, tutorial/reference generation, intervention saving, effectiveness tracking, and statistics.
+- **F65: Mistake Compounding Detector** - Tracks mistake cascades to prevent compound errors. Records root_mistake_id → downstream_error_ids chains. Detects cascades by root or downstream error. Analyzes root causes. Generates prevention strategies by cascade depth. Provides cascade statistics and depth distribution. 13 tests covering cascade recording, detection (by root/downstream), root cause analysis, prevention suggestions, filtering, and statistics.
+
+### Test Coverage
+- **Total tests:** 735 passing, 2 skipped, 8 failing (98.9% pass rate)
+- **New tests this release:** 109 tests across 9 wild features (F52-F65)
+- **Wild features implemented:** F52, F53, F54, F56, F58, F59, F60, F64, F65 (9 features, 109 tests)
+
+---
+
 ## [0.5.0] - 2026-02-13
 
 ### Added

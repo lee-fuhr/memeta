@@ -186,6 +186,147 @@ class IntelligenceDB:
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_meeting_memory ON meeting_memories(memory_id)")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_meeting_id ON meeting_memories(meeting_id)")
 
+        # F52: Conversation Momentum Tracking
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS momentum_tracking (
+                id TEXT PRIMARY KEY,
+                session_id TEXT NOT NULL,
+                timestamp INTEGER NOT NULL,
+                momentum_score REAL NOT NULL,
+                indicators TEXT,
+                state TEXT NOT NULL CHECK(state IN ('on_roll', 'steady', 'stuck', 'spinning')),
+                intervention_suggested TEXT
+            )
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_momentum_session ON momentum_tracking(session_id)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_momentum_timestamp ON momentum_tracking(timestamp)")
+
+        # F53: Energy-Aware Scheduling
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS energy_patterns (
+                id TEXT PRIMARY KEY,
+                hour_of_day INTEGER NOT NULL CHECK(hour_of_day >= 0 AND hour_of_day <= 23),
+                day_of_week INTEGER CHECK(day_of_week IS NULL OR (day_of_week >= 0 AND day_of_week <= 6)),
+                energy_level TEXT NOT NULL CHECK(energy_level IN ('high', 'medium', 'low')),
+                confidence REAL NOT NULL,
+                sample_count INTEGER NOT NULL,
+                updated_at INTEGER NOT NULL,
+                UNIQUE(hour_of_day, day_of_week)
+            )
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_energy_hour ON energy_patterns(hour_of_day)")
+
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS task_complexity (
+                task_type TEXT PRIMARY KEY,
+                cognitive_load TEXT NOT NULL CHECK(cognitive_load IN ('high', 'medium', 'low')),
+                optimal_energy TEXT NOT NULL CHECK(optimal_energy IN ('high', 'medium', 'low')),
+                examples TEXT
+            )
+        """)
+
+        # F54: Context Pre-Loading
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS context_preload_queue (
+                id TEXT PRIMARY KEY,
+                scheduled_for INTEGER NOT NULL,
+                context_type TEXT NOT NULL,
+                target_id TEXT,
+                memories_loaded TEXT,
+                status TEXT NOT NULL CHECK(status IN ('pending', 'loaded', 'expired')),
+                created_at INTEGER NOT NULL
+            )
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_preload_scheduled ON context_preload_queue(scheduled_for)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_preload_status ON context_preload_queue(status)")
+
+        # F56: Client Pattern Transfer
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS pattern_transfers (
+                id TEXT PRIMARY KEY,
+                from_project TEXT NOT NULL,
+                to_project TEXT NOT NULL,
+                pattern_description TEXT NOT NULL,
+                transferred_at INTEGER NOT NULL,
+                effectiveness_rating REAL,
+                notes TEXT
+            )
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_transfer_from ON pattern_transfers(from_project)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_transfer_to ON pattern_transfers(to_project)")
+
+        # F58: Decision Regret Detection
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS decision_outcomes (
+                id TEXT PRIMARY KEY,
+                decision_content TEXT NOT NULL,
+                alternative TEXT,
+                outcome TEXT CHECK(outcome IN ('good', 'bad', 'neutral')),
+                regret_detected BOOLEAN DEFAULT FALSE,
+                created_at INTEGER NOT NULL,
+                corrected_at INTEGER
+            )
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_decision_content ON decision_outcomes(decision_content)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_decision_regret ON decision_outcomes(regret_detected)")
+
+        # F59: Expertise Mapping
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS agent_expertise (
+                id TEXT PRIMARY KEY,
+                agent_name TEXT NOT NULL,
+                domain TEXT NOT NULL,
+                memory_count INTEGER DEFAULT 0,
+                avg_quality REAL DEFAULT 3.0,
+                last_updated INTEGER NOT NULL,
+                UNIQUE(agent_name, domain)
+            )
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_expertise_agent ON agent_expertise(agent_name)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_expertise_domain ON agent_expertise(domain)")
+
+        # F60: Context Decay Prediction
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS decay_predictions (
+                id TEXT PRIMARY KEY,
+                memory_id TEXT NOT NULL UNIQUE,
+                predicted_stale_at INTEGER,
+                confidence REAL,
+                reason TEXT,
+                reviewed_at INTEGER
+            )
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_decay_memory ON decay_predictions(memory_id)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_decay_stale_at ON decay_predictions(predicted_stale_at)")
+
+        # F64: Learning Intervention System
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS learning_interventions (
+                id TEXT PRIMARY KEY,
+                question_pattern TEXT NOT NULL,
+                occurrence_count INTEGER DEFAULT 0,
+                intervention_type TEXT,
+                content TEXT,
+                created_at INTEGER NOT NULL,
+                helped BOOLEAN
+            )
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_intervention_pattern ON learning_interventions(question_pattern)")
+
+        # F65: Mistake Compounding Detector
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS mistake_cascades (
+                id TEXT PRIMARY KEY,
+                root_mistake_id TEXT NOT NULL,
+                downstream_error_ids TEXT,
+                cascade_depth INTEGER,
+                total_cost TEXT,
+                prevention_strategy TEXT,
+                created_at INTEGER NOT NULL
+            )
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_cascade_root ON mistake_cascades(root_mistake_id)")
+
         self.conn.commit()
 
     def close(self):

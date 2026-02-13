@@ -92,6 +92,24 @@ Traditional memory systems are glorified search engines. You tell them what to r
 
 **Pattern mining** - Detects temporal patterns ("Every Monday you need X"), frequency patterns (topics that spike), sequential patterns ("After discussing X, you usually need Y").
 
+**Conversation momentum tracking** - Detects when you're "on a roll" vs "stuck spinning." Tracks insights, decisions, repeated questions, topic cycling. Suggests interventions when stuck: "Take a break" or "Pick one topic and go deep."
+
+**Energy-aware scheduling** - Learns your best thinking hours. Maps task cognitive load (deep_work vs admin). Suggests "Write that proposal at 9am, do email triage at 3pm." Adaptive to your natural energy curve.
+
+**Context pre-loading** - Checks calendar 60min ahead. Pre-loads relevant context for upcoming meetings. "Connection Lab context ready before 2pm call." Zero wait time when work starts.
+
+**Pattern transfer across clients** - "You solved this for Client A, Client B has same problem." Suggests cross-pollinating solutions. Tracks effectiveness ratings. Privacy-aware learning.
+
+**Decision regret detection** - "You've made this decision 3 times and regretted it twice (67%)." Warns before repeating mistakes. Learns from correction patterns.
+
+**Expertise mapping** - "Agent1 is your Python expert (score: 60), Agent2 for Rust (score: 42)." Automatic routing to best agent per domain. Self-organizing knowledge graph.
+
+**Context decay prediction** - Predicts staleness before it happens. "These 12 memories become stale next week - review them?" Proactive maintenance, not reactive cleanup.
+
+**Learning intervention system** - "You've asked 'How do I X' 5 times." Suggests creating tutorial/reference. Auto-generates learning resources. Tracks if interventions helped.
+
+**Mistake cascade detector** - "Root error spawned 3 downstream failures." Analyzes cascade depth, suggests prevention strategies by depth. "Add circuit breaker after first error."
+
 ---
 
 ## How it works in practice

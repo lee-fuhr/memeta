@@ -116,12 +116,12 @@
 
 ## Current State
 
-- **Features Shipped:** 44 (F1-22 + F23-24, F26-32, F33-35, F44-50, F51, F55, F62-63)
-- **Features Coded:** 5 (F57, F61, F75 - basic tests exist)
-- **Features Planned:** 26 (F25 uses K-means not DBSCAN, F36-43, F52-54, F56, F58-60, F64-74)
-- **Test Status:** 611/615 passing (99.3%), 4 skipped
+- **Features Shipped:** 53 (F1-22 + F23-24, F26-32, F33-35, F44-50, F51-54, F56, F58-60, F55, F62-65)
+- **Features Coded:** 3 (F57, F61, F75 - basic tests exist)
+- **Features Planned:** 17 (F25 uses K-means not DBSCAN, F36-43 deferred, F66-74 integration deferred)
+- **Test Status:** 735/745 passing (98.9%), 2 skipped, 8 failing
 - **GitHub:** lee-fuhr/memory-system-v1
-- **Session progress:** F24, F26, F27, F28, F29-32, F51 complete
+- **Session progress:** F24, F26, F27, F28, F29-32, F51, F52-54, F56, F58-60, F64-65 complete
 
 ---
 
