@@ -9,15 +9,18 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 ## [0.3.0] - 2026-02-13
 
 ### Added
+- **F24: Memory Relationship Mapping** - Graph-based relationship system with 5 types (causal, contradicts, supports, requires, related), BFS causal chain discovery, bidirectional queries, contradiction detection, and global/per-memory statistics. 28 comprehensive tests covering initialization, link creation, retrieval, causal chains, contradictions, updates/deletions, and statistics.
 - **Test files for F61 and F75** - Created `tests/wild/test_ab_tester.py` (4 tests) and `tests/wild/test_dream_synthesizer.py` (4 tests) for basic module initialization and data structure validation
 - **Progressive timeout increases in ask_claude** - LLM retry logic now increases timeout on each attempt: initial → +10s → +20s (e.g., 30s → 40s → 50s). Gives Claude more time on retries.
+- **Planning documentation** - Created comprehensive implementation plans for F24 (relationship mapping), F27 (reinforcement scheduler), F28 (search optimization), plus feature specs for F24-32 (intelligence enhancement), F36-43 (integrations - deferred), and F51-75 (wild features with tier prioritization).
 
 ### Fixed
 - **IntelligenceDB initialization bug** (src/intelligence_db.py:45) - Fixed AttributeError where `self.conn.row_factory` was accessed before `self.conn` was initialized. Now properly initializes connection from pool before setting row_factory.
 - **PooledConnection attribute proxy** (src/db_pool.py) - Added `__setattr__` method to properly proxy attribute writes (like `row_factory`) to the underlying sqlite3.Connection object.
 - **MemoryTSClient API mismatch** (src/session_consolidator.py:564) - Fixed incorrect `search()` call using non-existent `query=` and `limit=` parameters. Now correctly uses `content=` parameter as defined in MemoryTSClient API.
 - **Deduplication LLM timeout** (src/session_consolidator.py:421) - Fixed timeout in `_smart_dedup_decision` by increasing from 10s to 30s, reducing retries from 3 to 2, and adding fallback to similarity-based decision (>0.75 = duplicate) when LLM times out.
-- **Test coverage improvement** - Fixed 12 intelligence_db tests (0/12 → 12/12), 12 session_consolidator tests (14/26 → 26/26), and added 8 new wild feature tests
+- **SQL WHERE clause precedence** (src/intelligence/relationship_mapper.py) - Fixed operator precedence issue when combining OR and AND conditions by wrapping OR conditions in parentheses: `(from_memory_id = ? OR to_memory_id = ?) AND relationship_type = ?`
+- **Test coverage improvement** - Fixed 12 intelligence_db tests (0/12 → 12/12), 12 session_consolidator tests (14/26 → 26/26), added 8 new wild feature tests, and added 28 relationship mapping tests
 
 ### Changed
 - Repository cleanup: Archived obsolete documentation (PHASE-*.md, old QA passes, _working/) to _archive/
