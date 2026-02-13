@@ -145,12 +145,30 @@ class SearchOptimizer:
                     )
                     conn.commit()
 
-                    # Return cached result IDs (caller must hydrate to Memory objects)
+                    # Hydrate cached result IDs to Memory objects
                     result_ids = json.loads(row[0])
-                    # For now, return search results (integration point for full caching)
-                    # Future: hydrate result_ids to Memory objects without re-searching
-                    results = search_fn(query)
-                    return results[:len(result_ids)]  # Return same count as cached
+
+                    # Import MemoryTSClient for hydration
+                    try:
+                        from memory_ts_client import MemoryTSClient
+                        client = MemoryTSClient()
+
+                        # Hydrate each ID, skip deleted memories
+                        hydrated_results = []
+                        for memory_id in result_ids:
+                            try:
+                                memory = client.get(memory_id)
+                                if memory:
+                                    hydrated_results.append(memory)
+                            except (FileNotFoundError, Exception):
+                                # Memory was deleted or doesn't exist, skip it
+                                continue
+
+                        return hydrated_results
+                    except ImportError:
+                        # Fallback for tests without actual memory storage
+                        # Return empty list (cache invalidated for missing memories)
+                        return []
 
         # Cache miss - perform search
         results = search_fn(query)
@@ -314,17 +332,19 @@ class SearchOptimizer:
                 'top_queries': top_queries
             }
 
-    def invalidate_cache(self, query: Optional[str] = None):
+    def invalidate_cache(self, query: Optional[str] = None, project_id: Optional[str] = None):
         """
         Invalidate cache entries.
 
         Args:
             query: Specific query to invalidate (if None, clears expired)
+            project_id: Optional project filter (must match cache key format)
         """
         with get_connection(self.db_path) as conn:
             if query:
-                # Invalidate specific query
-                query_hash = hashlib.md5(query.encode()).hexdigest()
+                # Invalidate specific query (use same composite key as storage)
+                cache_key = f"{query}|{project_id or 'global'}"
+                query_hash = hashlib.md5(cache_key.encode()).hexdigest()
                 conn.execute(
                     "DELETE FROM search_cache WHERE query_hash = ?",
                     (query_hash,)

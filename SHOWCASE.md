@@ -1,6 +1,6 @@
 # Memory Intelligence System
 
-**Status:** v0.3.0 | 552/554 tests passing (99.6%) | 39 features shipped
+**Status:** v0.3.1 | 549/555 tests passing (99.0%) | 39 features shipped
 **Updated:** 2026-02-13
 
 ---

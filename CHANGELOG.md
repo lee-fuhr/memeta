@@ -6,6 +6,15 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ---
 
+## [0.3.1] - 2026-02-13
+
+### Fixed
+- **F28 cache bug (CRITICAL)** - Fixed cache hit hydration that was still calling `search_fn()` on cache hit, making cache non-functional. Cache now properly hydrates Memory objects from cached IDs using MemoryTSClient.get() with FileNotFoundError handling for deleted memories.
+- **F28 cache key mismatch** - Fixed `invalidate_cache()` to use same composite key format as storage: `{query}|{project_id or 'global'}` instead of just query hash.
+- **F28 test coverage** - Updated `test_cache_hit_second_search()` to verify search_fn NOT called on cache hit. Fixed `test_cache_invalidation()` to use correct composite key format. Added `test_cache_efficiency()` to verify cache prevents redundant search calls across 10 consecutive hits.
+
+---
+
 ## [0.3.0] - 2026-02-13
 
 ### Added

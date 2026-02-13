@@ -81,26 +81,51 @@ def test_cache_miss_first_search(optimizer):
     assert call_count[0] == 1  # Search function called
 
 
-def test_cache_hit_second_search(optimizer):
-    """Test cache hit tracking (cache stores metadata, not full objects)"""
+def test_cache_hit_second_search(optimizer, monkeypatch):
+    """Test cache hit - search_fn should NOT be called on cache hit"""
+    call_count = [0]
+    stored_memories = []
+
     def mock_search(query):
-        return [
+        call_count[0] += 1
+        mems = [
             MockMemory("mem1", "test", datetime.now().isoformat()),
             MockMemory("mem2", "test", datetime.now().isoformat()),
             MockMemory("mem3", "test", datetime.now().isoformat())
         ]
+        stored_memories.clear()
+        stored_memories.extend(mems)
+        return mems
 
-    # First search
+    # Mock the MemoryTSClient to return our stored memories
+    class MockClient:
+        def get(self, memory_id):
+            for m in stored_memories:
+                if m.id == memory_id:
+                    return m
+            raise FileNotFoundError(f"Memory {memory_id} not found")
+
+    # Patch the import
+    import sys
+    sys.modules['memory_ts_client'] = type(sys)('memory_ts_client')
+    sys.modules['memory_ts_client'].MemoryTSClient = MockClient
+
+    # First search - cache miss
     results1 = optimizer.search_with_cache("test query", mock_search)
     assert len(results1) == 3
+    assert call_count[0] == 1  # Search function called
 
     # Check cache was created
     with sqlite3.connect(optimizer.db_path) as conn:
         row = conn.execute("SELECT hits FROM search_cache").fetchone()
         assert row[0] == 1  # First hit
 
-    # Second search - cache hit tracking
+    # Second search - cache hit (search_fn should NOT be called)
     results2 = optimizer.search_with_cache("test query", mock_search)
+
+    # CRITICAL: search_fn should NOT be called on cache hit
+    assert call_count[0] == 1  # Still 1 - search function NOT called again
+    assert len(results2) == 3  # Should get 3 results from cache
 
     # Verify cache hit count increased
     with sqlite3.connect(optimizer.db_path) as conn:
@@ -195,7 +220,7 @@ def test_cache_expiry(optimizer):
 
 
 def test_cache_invalidation(optimizer):
-    """Test cache invalidation"""
+    """Test cache invalidation with correct composite key"""
     def mock_search(query):
         return [MockMemory(f"m{i}", "test", datetime.now().isoformat()) for i in range(5)]
 
@@ -207,13 +232,55 @@ def test_cache_invalidation(optimizer):
         count = conn.execute("SELECT COUNT(*) FROM search_cache").fetchone()[0]
         assert count == 1
 
-    # Invalidate
-    optimizer.invalidate_cache("test|global")
+    # Invalidate using correct format (query + project_id)
+    optimizer.invalidate_cache("test", project_id=None)  # project_id=None → "global"
 
     # Verify removed
     with sqlite3.connect(optimizer.db_path) as conn:
         count = conn.execute("SELECT COUNT(*) FROM search_cache").fetchone()[0]
         assert count == 0
+
+
+def test_cache_efficiency(optimizer):
+    """Test cache prevents redundant search_fn calls"""
+    call_count = [0]
+    stored_memories = []
+
+    def mock_search(query):
+        call_count[0] += 1
+        mems = [MockMemory(f"m{i}", "test", datetime.now().isoformat()) for i in range(5)]
+        stored_memories.clear()
+        stored_memories.extend(mems)
+        return mems
+
+    # Mock the MemoryTSClient to return our stored memories
+    class MockClient:
+        def get(self, memory_id):
+            for m in stored_memories:
+                if m.id == memory_id:
+                    return m
+            raise FileNotFoundError(f"Memory {memory_id} not found")
+
+    # Patch the import
+    import sys
+    sys.modules['memory_ts_client'] = type(sys)('memory_ts_client')
+    sys.modules['memory_ts_client'].MemoryTSClient = MockClient
+
+    # First search - cache miss
+    optimizer.search_with_cache("test", mock_search)
+    assert call_count[0] == 1
+
+    # Next 10 searches - all cache hits (should NOT call search_fn)
+    for _ in range(10):
+        optimizer.search_with_cache("test", mock_search)
+
+    # Verify search_fn only called once (cache working)
+    assert call_count[0] == 1
+
+    # Verify cache hit count
+    with sqlite3.connect(optimizer.db_path) as conn:
+        row = conn.execute("SELECT hits FROM search_cache").fetchone()
+        assert row[0] == 11  # 1 initial + 10 cache hits
 
 
 # === Ranking Tests ===
@@ -292,8 +359,26 @@ def test_get_search_analytics(optimizer):
 
 def test_get_cache_stats(optimizer):
     """Test cache statistics"""
+    stored_memories = []
+
     def mock_search(query):
-        return [MockMemory(f"m{i}", "test", datetime.now().isoformat()) for i in range(5)]
+        mems = [MockMemory(f"m{i}-{query}", "test", datetime.now().isoformat()) for i in range(5)]
+        stored_memories.clear()
+        stored_memories.extend(mems)
+        return mems
+
+    # Mock the MemoryTSClient to return our stored memories
+    class MockClient:
+        def get(self, memory_id):
+            for m in stored_memories:
+                if m.id == memory_id:
+                    return m
+            raise FileNotFoundError(f"Memory {memory_id} not found")
+
+    # Patch the import
+    import sys
+    sys.modules['memory_ts_client'] = type(sys)('memory_ts_client')
+    sys.modules['memory_ts_client'].MemoryTSClient = MockClient
 
     # Create some cache entries
     optimizer.search_with_cache("test1", mock_search)
