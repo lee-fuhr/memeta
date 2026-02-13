@@ -12,10 +12,12 @@ from typing import List, Dict, Optional
 import json
 import os
 from pathlib import Path
+from collections import OrderedDict
 
 # Lazy import - only load if semantic search is used
 _model = None
-_embeddings_cache = {}
+_embeddings_cache = OrderedDict()  # LRU-bounded cache
+_CACHE_MAX_SIZE = 1000
 
 
 def get_model():
@@ -90,13 +92,18 @@ def semantic_search(
         if not content:
             continue
 
-        # Cache embeddings to avoid re-computing
+        # Cache embeddings to avoid re-computing (LRU-bounded)
         cache_key = content[:100]  # Use first 100 chars as cache key
         if cache_key in _embeddings_cache:
+            # Move to end (mark as recently used)
+            _embeddings_cache.move_to_end(cache_key)
             mem_embedding = _embeddings_cache[cache_key]
         else:
             mem_embedding = embed_text(content)
             _embeddings_cache[cache_key] = mem_embedding
+            # Evict oldest if over limit
+            if len(_embeddings_cache) > _CACHE_MAX_SIZE:
+                _embeddings_cache.popitem(last=False)
 
         # Calculate similarity
         similarity = cosine_similarity(query_embedding, mem_embedding)
@@ -116,7 +123,7 @@ def semantic_search(
 def clear_embedding_cache():
     """Clear embedding cache (useful for testing or memory management)."""
     global _embeddings_cache
-    _embeddings_cache = {}
+    _embeddings_cache = OrderedDict()
 
 
 def precompute_embeddings(memories: List[Dict]) -> Dict[str, np.ndarray]:

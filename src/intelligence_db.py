@@ -205,6 +205,7 @@ class IntelligenceDB:
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_code_project ON code_memories(project_id)")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_decisions_project ON decision_journal(project_id)")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_decisions_outcome ON decision_journal(outcome_success)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_decisions_date ON decision_journal(decided_at)")
 
         # F25: Memory clustering
         cursor.execute("""

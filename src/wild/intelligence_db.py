@@ -61,6 +61,7 @@ class IntelligenceDB:
         """)
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_sentiment_session ON sentiment_patterns(session_id)")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_sentiment_timestamp ON sentiment_patterns(timestamp)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_sentiment_type ON sentiment_patterns(sentiment)")
 
         # Feature 34: Learning velocity
         cursor.execute("""
@@ -109,6 +110,7 @@ class IntelligenceDB:
             )
         """)
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_conflict_hash ON conflict_predictions(new_memory_hash)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_conflict_confidence ON conflict_predictions(confidence_score DESC)")
 
         # Feature 38: Obsidian sync state
         cursor.execute("""
@@ -437,6 +439,16 @@ class IntelligenceDB:
     # Feature 38-40: Sync state helpers
     def update_sync_state(self, table: str, memory_id: str, **kwargs):
         """Generic sync state updater"""
+        # Whitelist of valid sync state tables
+        valid_tables = {
+            'obsidian_sync_state',
+            'notion_sync_state',
+            'roam_sync_state'
+        }
+
+        if table not in valid_tables:
+            raise ValueError(f"Invalid table name: {table}. Must be one of {valid_tables}")
+
         cursor = self.conn.cursor()
         fields = ', '.join(f"{k} = ?" for k in kwargs.keys())
         values = list(kwargs.values()) + [memory_id]

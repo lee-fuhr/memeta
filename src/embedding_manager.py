@@ -20,6 +20,7 @@ from pathlib import Path
 import json
 import hashlib
 from datetime import datetime
+from collections import OrderedDict
 
 
 class EmbeddingManager:
@@ -32,13 +33,15 @@ class EmbeddingManager:
     - Cache in-memory for session lifetime
     """
 
+    _CACHE_MAX_SIZE = 1000  # LRU cache size limit
+
     def __init__(self, db_path: str = None):
         """Initialize embedding manager"""
         if db_path is None:
             db_path = Path(__file__).parent.parent / "intelligence.db"
         self.db_path = str(db_path)
         self._model = None
-        self._session_cache = {}  # In-memory cache for this session
+        self._session_cache = OrderedDict()  # LRU-bounded in-memory cache
         self._init_db()
 
     def _init_db(self):
@@ -89,8 +92,10 @@ class EmbeddingManager:
         """
         content_hash = self._hash_content(content)
 
-        # Check session cache
+        # Check session cache (LRU-bounded)
         if use_cache and content_hash in self._session_cache:
+            # Move to end (mark as recently used)
+            self._session_cache.move_to_end(content_hash)
             return self._session_cache[content_hash]
 
         # Check database
@@ -111,7 +116,10 @@ class EmbeddingManager:
 
                     # Deserialize embedding
                     embedding = np.frombuffer(row[0], dtype=np.float32)
+                    # Add to cache with LRU eviction
                     self._session_cache[content_hash] = embedding
+                    if len(self._session_cache) > self._CACHE_MAX_SIZE:
+                        self._session_cache.popitem(last=False)
                     return embedding
 
         # Compute embedding
@@ -135,8 +143,10 @@ class EmbeddingManager:
             ))
             conn.commit()
 
-        # Cache in session
+        # Cache in session with LRU eviction
         self._session_cache[content_hash] = embedding
+        if len(self._session_cache) > self._CACHE_MAX_SIZE:
+            self._session_cache.popitem(last=False)
         return embedding
 
     def batch_compute_embeddings(
@@ -213,7 +223,10 @@ class EmbeddingManager:
         result = {}
         for (_, hash_val), embedding in zip(to_compute, embeddings):
             result[hash_val] = embedding
+            # Add to cache with LRU eviction
             self._session_cache[hash_val] = embedding
+            if len(self._session_cache) > self._CACHE_MAX_SIZE:
+                self._session_cache.popitem(last=False)
 
         print(f"✅ Computed and saved {len(result)} embeddings")
         return result
@@ -286,6 +299,10 @@ class EmbeddingManager:
         scored.sort(key=lambda x: x[1], reverse=True)
 
         return scored[:top_k]
+
+    def clear_session_cache(self):
+        """Clear the in-memory session cache (useful for testing or memory management)."""
+        self._session_cache = OrderedDict()
 
     def cleanup_old_embeddings(self, days: int = 90):
         """

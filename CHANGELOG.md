@@ -6,6 +6,24 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ---
 
+## [0.7.0] - 2026-02-13
+
+### Fixed - Test Suite Cleanup
+- **All failures resolved** - 8 failing tests → 0 failing (765 passing, 2 skipped)
+- **F29 Smart Alerts test API mismatch** - Tests used `priority` parameter but implementation uses `severity`. Fixed `get_pending_alerts()` → `get_unread_alerts()`, `mark_delivered()` → `dismiss_alert()`.
+- **F31 TopicSummary dataclass** - Tests omitted required fields `summary_id`, `created_at`, `memory_ids`.
+- **F51 Temporal Predictor hook import contamination** - Fixed with `_load_hook_module()` helper that forces clean reload.
+
+### Added - Test Coverage Expansion
+- **F61 A/B Testing** - 4 → 14 tests (experiment lifecycle, variant assignment, statistical significance, auto-adoption, history)
+- **F75 Dream Synthesis** - 4 → 16 tests (connection discovery, synthesis generation, queue priority, morning briefing)
+
+### Status
+- **Features shipped:** 57 | **Deferred:** 17 (F36-43, F66-74 integrations)
+- **Test suite:** 765 passing, 0 failing, 2 skipped (99.7%)
+
+---
+
 ## [0.6.0] - 2026-02-13
 
 ### Added - Wild Features Batch (F52-F65)
