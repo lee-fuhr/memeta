@@ -36,6 +36,23 @@
 - **Verification:** All 8 new tests passing
 - **Note:** Full integration tests deferred until implementation matures - current tests ensure modules load and initialize correctly
 
+### 2026-02-13 09:30 - SHOWCASE.md Updated with VBF Framework ✅
+- **Action:** Rewrote SHOWCASE.md using Emma Stratton VBF framework (Values → Benefits → Features)
+- **Structure:** Lead with problem/pain, show how world improves, ground features in benefits
+- **Changes:**
+  - Problem section: "The problem with memory systems" (what breaks, the gap)
+  - Benefits section: "What this system does differently" (learns from behavior, works while you sleep, catches mistakes, predicts needs)
+  - Capabilities section: Organized by benefit categories (intelligence you don't maintain, learning that compounds, multimodal capture, self-improvement)
+- **Verification:** SHOWCASE.md now ~420 lines, proper VBF sequence throughout
+
+### 2026-02-13 09:45 - Step 5: Fix Deduplication LLM Timeout ✅
+- **Root cause:** `ask_claude()` called with 10s timeout in `_smart_dedup_decision`, too short for LLM with 3 retry attempts (3 × 10s = 30s total wait)
+- **Fix 1:** Added fallback to similarity-based decision (>0.75 = duplicate) when LLM times out
+- **Fix 2:** Implemented progressive timeout increases: initial timeout, then +10s, then +20s on retries (e.g., 30s → 40s → 50s)
+- **Fix 3:** Changed dedup timeout from 10s to 30s initial, reduced max_retries from 3 to 2
+- **Verification:** `test_deduplicate_against_existing` now passing (27s runtime)
+- **Result:** test_session_consolidator.py 26/26 passing (was 25/26)
+
 ---
 
 ## Current State

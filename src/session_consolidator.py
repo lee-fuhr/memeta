@@ -389,6 +389,8 @@ If no significant learnings, return empty array []."""
         """
         LLM-powered dedup decision for gray area (50-90% similarity).
 
+        With fallback: If LLM times out, use stricter similarity threshold (>0.75 = duplicate).
+
         Args:
             new_content: New memory content
             existing_content: Existing memory content
@@ -403,7 +405,7 @@ If no significant learnings, return empty array []."""
         if similarity > 0.9:
             return "DUPLICATE"
 
-        # Gray area (50-90%) - ask LLM
+        # Gray area (50-90%) - ask LLM with fallback
         from .llm_extractor import ask_claude
 
         prompt = f"""Compare these two memories:
@@ -418,7 +420,15 @@ Is the new memory:
 
 Answer with ONE WORD ONLY."""
 
-        decision = ask_claude(prompt, timeout=10).strip().upper()
+        decision = ask_claude(prompt, timeout=30, max_retries=2).strip().upper()
+
+        # LLM fallback: Use stricter similarity threshold when LLM fails
+        if not decision:
+            # Timeout or failure - use conservative similarity-based decision
+            if similarity > 0.75:
+                return "DUPLICATE"
+            else:
+                return "NEW"
 
         if "DUPLICATE" in decision:
             return "DUPLICATE"

@@ -169,14 +169,15 @@ def ask_claude(prompt: str, timeout: int = 30, max_retries: int = 3) -> str:
 
     RELIABILITY FIX: Adds retry logic with exponential backoff.
     - Prevents silent data loss from transient failures
-    - Exponential backoff: 2s, 4s, 8s between retries
+    - Retry delays: 2s, 4s, 8s
+    - Timeout increases with each retry: initial timeout, then +10s, then +20s
     - Circuit breaker: Fails fast after max_retries
 
     Used for daily summaries, synthesis, ad-hoc LLM queries.
 
     Args:
         prompt: Question or task for Claude
-        timeout: CLI timeout in seconds
+        timeout: Initial CLI timeout in seconds (increases with retries)
         max_retries: Maximum retry attempts (default: 3)
 
     Returns:
@@ -184,15 +185,18 @@ def ask_claude(prompt: str, timeout: int = 30, max_retries: int = 3) -> str:
     """
     import time
 
-    retry_delays = [2, 4, 8]  # Exponential backoff: 2s, 4s, 8s
+    retry_delays = [2, 4, 8]  # Exponential backoff between retries
+    timeout_increases = [0, 10, 20]  # Increase timeout on each retry
 
     for attempt in range(max_retries):
+        current_timeout = timeout + timeout_increases[min(attempt, len(timeout_increases) - 1)]
+
         try:
             result = subprocess.run(
                 ["claude", "-p", prompt],
                 capture_output=True,
                 text=True,
-                timeout=timeout
+                timeout=current_timeout
             )
 
             if result.returncode == 0:
@@ -201,7 +205,7 @@ def ask_claude(prompt: str, timeout: int = 30, max_retries: int = 3) -> str:
             # Non-zero return code
             if attempt < max_retries - 1:
                 delay = retry_delays[min(attempt, len(retry_delays) - 1)]
-                print(f"⚠️  LLM call failed (attempt {attempt + 1}/{max_retries}), retrying in {delay}s...")
+                print(f"⚠️  LLM call failed (attempt {attempt + 1}/{max_retries}), retrying in {delay}s with {current_timeout + timeout_increases[attempt + 1]}s timeout...")
                 time.sleep(delay)
                 continue
             else:
@@ -211,11 +215,12 @@ def ask_claude(prompt: str, timeout: int = 30, max_retries: int = 3) -> str:
         except subprocess.TimeoutExpired:
             if attempt < max_retries - 1:
                 delay = retry_delays[min(attempt, len(retry_delays) - 1)]
-                print(f"⚠️  LLM timeout (attempt {attempt + 1}/{max_retries}), retrying in {delay}s...")
+                next_timeout = timeout + timeout_increases[min(attempt + 1, len(timeout_increases) - 1)]
+                print(f"⚠️  LLM timeout after {current_timeout}s (attempt {attempt + 1}/{max_retries}), retrying in {delay}s with {next_timeout}s timeout...")
                 time.sleep(delay)
                 continue
             else:
-                print(f"❌ LLM timeout after {max_retries} attempts")
+                print(f"❌ LLM timeout after {max_retries} attempts (final timeout: {current_timeout}s)")
                 return ""
 
         except FileNotFoundError:
