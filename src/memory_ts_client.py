@@ -11,6 +11,7 @@ import ast
 import json
 import re
 import hashlib
+import os
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
@@ -76,6 +77,40 @@ class MemoryTSClient:
         """
         self.memory_dir = Path(memory_dir) if memory_dir else DEFAULT_MEMORY_DIR
         self.memory_dir.mkdir(parents=True, exist_ok=True)
+
+        # Initialize temporal predictor for access logging
+        self._predictor = None
+        self._enable_access_logging = os.getenv('ENABLE_TEMPORAL_LOGGING', '1') == '1'
+
+    def _get_predictor(self):
+        """Lazy-load predictor to avoid circular imports"""
+        if self._predictor is None and self._enable_access_logging:
+            try:
+                from wild.temporal_predictor import TemporalPatternPredictor
+                self._predictor = TemporalPatternPredictor()
+            except Exception:
+                # Fail silently - logging is optional
+                self._enable_access_logging = False
+        return self._predictor
+
+    def _log_access(self, memory_id: str, access_type: str, context_keywords: Optional[List[str]] = None):
+        """Log memory access for temporal pattern learning"""
+        if not self._enable_access_logging:
+            return
+
+        predictor = self._get_predictor()
+        if predictor:
+            try:
+                session_id = os.getenv('CLAUDE_SESSION_ID')
+                predictor.log_memory_access(
+                    memory_id=memory_id,
+                    access_type=access_type,
+                    context_keywords=context_keywords,
+                    session_id=session_id
+                )
+            except Exception:
+                # Fail silently - logging is optional
+                pass
 
     def _safe_memory_path(self, memory_id: str) -> Path:
         """Build memory file path with path traversal protection"""
@@ -156,7 +191,12 @@ class MemoryTSClient:
         if not memory_file.exists():
             raise MemoryNotFoundError(f"Memory {memory_id} not found")
 
-        return self._read_memory(memory_file)
+        memory = self._read_memory(memory_file)
+
+        # Log access for temporal pattern learning
+        self._log_access(memory_id, 'direct')
+
+        return memory
 
     def search(
         self,
@@ -197,6 +237,14 @@ class MemoryTSClient:
             except Exception:
                 # Skip files that can't be parsed
                 continue
+
+        # Log all accessed memories for temporal pattern learning
+        context_keywords = []
+        if content:
+            context_keywords = content.split()
+
+        for memory in results:
+            self._log_access(memory.id, 'search', context_keywords)
 
         return results
 

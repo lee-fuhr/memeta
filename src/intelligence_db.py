@@ -166,6 +166,38 @@ class IntelligenceDB:
             )
         """)
 
+        # Feature 51: Temporal pattern prediction
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS temporal_patterns (
+                id TEXT PRIMARY KEY,
+                pattern_type TEXT NOT NULL,
+                trigger_condition TEXT NOT NULL,
+                predicted_need TEXT NOT NULL,
+                memory_ids TEXT,
+                confidence REAL DEFAULT 0.5,
+                occurrence_count INTEGER DEFAULT 0,
+                dismissed_count INTEGER DEFAULT 0,
+                last_confirmed INTEGER,
+                last_dismissed INTEGER,
+                created_at INTEGER NOT NULL,
+                updated_at INTEGER NOT NULL
+            )
+        """)
+
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS memory_access_log (
+                id TEXT PRIMARY KEY,
+                memory_id TEXT NOT NULL,
+                accessed_at INTEGER NOT NULL,
+                access_type TEXT NOT NULL,
+                day_of_week INTEGER,
+                hour_of_day INTEGER,
+                session_id TEXT,
+                context_keywords TEXT,
+                created_at INTEGER NOT NULL
+            )
+        """)
+
         # Indexes for common queries
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_voice_project ON voice_memories(project_id)")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_image_project ON image_memories(project_id)")
@@ -173,6 +205,14 @@ class IntelligenceDB:
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_code_project ON code_memories(project_id)")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_decisions_project ON decision_journal(project_id)")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_decisions_outcome ON decision_journal(outcome_success)")
+
+        # F51: Temporal patterns
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_temporal_pattern_type ON temporal_patterns(pattern_type)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_temporal_trigger ON temporal_patterns(trigger_condition)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_temporal_confidence ON temporal_patterns(confidence DESC)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_access_memory ON memory_access_log(memory_id, accessed_at DESC)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_access_temporal ON memory_access_log(day_of_week, hour_of_day)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_access_session ON memory_access_log(session_id)")
 
         self.conn.commit()
 
