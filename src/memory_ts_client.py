@@ -302,7 +302,37 @@ schema_version: {memory.schema_version}
 {memory.content}
 """
 
-        memory_file.write_text(frontmatter)
+        # RELIABILITY FIX: Atomic write using temp file + rename pattern
+        # Prevents corruption from concurrent writes or interrupted writes
+        import tempfile
+        import os
+
+        # Write to temp file first
+        temp_fd, temp_path = tempfile.mkstemp(
+            dir=memory_file.parent,
+            prefix=f".{memory_file.name}.",
+            suffix=".tmp"
+        )
+
+        try:
+            # Write content to temp file
+            os.write(temp_fd, frontmatter.encode('utf-8'))
+            os.close(temp_fd)
+
+            # Atomic rename (POSIX guarantees atomicity)
+            os.replace(temp_path, memory_file)
+
+        except Exception:
+            # Clean up temp file on error
+            try:
+                os.close(temp_fd)
+            except Exception:
+                pass
+            try:
+                os.unlink(temp_path)
+            except Exception:
+                pass
+            raise
 
     def _read_memory(self, memory_file: Path) -> Memory:
         """Read memory from markdown file with YAML frontmatter"""

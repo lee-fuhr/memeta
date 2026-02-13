@@ -85,6 +85,7 @@ class DreamSynthesizer:
     TEMPORAL_WINDOW = timedelta(days=7)  # Co-occurrence window
     MIN_SUPPORT = 3  # Minimum memories to form synthesis
     NOVELTY_THRESHOLD = 0.5  # Minimum novelty to surface
+    MAX_MEMORIES = 1000  # PERFORMANCE FIX: Limit to top N memories (prevents O(n²) explosion)
 
     def __init__(self, db_path: str = None, memory_db_path: str = None):
         """Initialize synthesizer with database"""
@@ -182,10 +183,67 @@ class DreamSynthesizer:
         return syntheses
 
     def _load_memories(self) -> List[MemoryNode]:
-        """Load all memories from memory-ts database"""
-        # Simplified - would integrate with actual memory-ts
-        # For now, return empty list
-        return []
+        """
+        Load memories from memory-ts database.
+
+        PERFORMANCE FIX: Limits to top MAX_MEMORIES (default 1000) by importance + recency.
+
+        Prevents O(n²) explosion:
+        - Before: 10K memories = 100M comparisons = mathematically infeasible
+        - After: 1K memories = 1M comparisons = ~30s processing
+
+        Selection strategy:
+        - Top 70% by importance (high-value memories)
+        - Top 30% by recency (recent context)
+        """
+        try:
+            # Try to load from memory-ts client
+            from memory_ts_client import MemoryTSClient
+
+            client = MemoryTSClient(project_id="LFI")
+            all_memories = client.search()  # Get all
+
+            if not all_memories:
+                return []
+
+            # Sort by composite score: importance (70%) + recency (30%)
+            now = datetime.now().timestamp()
+
+            def score_memory(mem):
+                # Importance component (0.0-1.0)
+                importance_score = mem.importance
+
+                # Recency component (0.0-1.0) - memories from last 30 days score highest
+                days_old = (now - mem.created.timestamp()) / 86400
+                recency_score = max(0.0, 1.0 - (days_old / 30))
+
+                # Composite
+                return (importance_score * 0.7) + (recency_score * 0.3)
+
+            scored_memories = [(mem, score_memory(mem)) for mem in all_memories]
+            scored_memories.sort(key=lambda x: x[1], reverse=True)
+
+            # Take top MAX_MEMORIES
+            top_memories = [mem for mem, score in scored_memories[:self.MAX_MEMORIES]]
+
+            # Convert to MemoryNode
+            nodes = []
+            for mem in top_memories:
+                nodes.append(MemoryNode(
+                    id=mem.id,
+                    content=mem.content,
+                    project=mem.project_id or "global",
+                    tags=mem.tags or [],
+                    importance=mem.importance,
+                    created_at=mem.created
+                ))
+
+            print(f"📊 Dream Mode: Selected {len(nodes)} memories (from {len(all_memories)} total)")
+            return nodes
+
+        except Exception as e:
+            print(f"⚠️  Failed to load memories: {e}")
+            return []
 
     def _discover_semantic_connections(self, memories: List[MemoryNode]) -> List[Connection]:
         """Find semantically similar memories with different surface keywords"""

@@ -163,38 +163,77 @@ def extract_with_llm(
         return []
 
 
-def ask_claude(prompt: str, timeout: int = 30) -> str:
+def ask_claude(prompt: str, timeout: int = 30, max_retries: int = 3) -> str:
     """
     Simple helper to ask Claude CLI a question and get a text response.
+
+    RELIABILITY FIX: Adds retry logic with exponential backoff.
+    - Prevents silent data loss from transient failures
+    - Exponential backoff: 2s, 4s, 8s between retries
+    - Circuit breaker: Fails fast after max_retries
 
     Used for daily summaries, synthesis, ad-hoc LLM queries.
 
     Args:
         prompt: Question or task for Claude
         timeout: CLI timeout in seconds
+        max_retries: Maximum retry attempts (default: 3)
 
     Returns:
-        Claude's response text (empty string on failure)
+        Claude's response text (empty string on all failures)
     """
-    try:
-        result = subprocess.run(
-            ["claude", "-p", prompt],
-            capture_output=True,
-            text=True,
-            timeout=timeout
-        )
+    import time
 
-        if result.returncode != 0:
+    retry_delays = [2, 4, 8]  # Exponential backoff: 2s, 4s, 8s
+
+    for attempt in range(max_retries):
+        try:
+            result = subprocess.run(
+                ["claude", "-p", prompt],
+                capture_output=True,
+                text=True,
+                timeout=timeout
+            )
+
+            if result.returncode == 0:
+                return result.stdout.strip()
+
+            # Non-zero return code
+            if attempt < max_retries - 1:
+                delay = retry_delays[min(attempt, len(retry_delays) - 1)]
+                print(f"⚠️  LLM call failed (attempt {attempt + 1}/{max_retries}), retrying in {delay}s...")
+                time.sleep(delay)
+                continue
+            else:
+                print(f"❌ LLM call failed after {max_retries} attempts")
+                return ""
+
+        except subprocess.TimeoutExpired:
+            if attempt < max_retries - 1:
+                delay = retry_delays[min(attempt, len(retry_delays) - 1)]
+                print(f"⚠️  LLM timeout (attempt {attempt + 1}/{max_retries}), retrying in {delay}s...")
+                time.sleep(delay)
+                continue
+            else:
+                print(f"❌ LLM timeout after {max_retries} attempts")
+                return ""
+
+        except FileNotFoundError:
+            # Claude CLI not found - don't retry
+            print(f"❌ Claude CLI not found (is it installed?)")
             return ""
 
-        return result.stdout.strip()
+        except Exception as e:
+            if attempt < max_retries - 1:
+                delay = retry_delays[min(attempt, len(retry_delays) - 1)]
+                print(f"⚠️  LLM error: {e} (attempt {attempt + 1}/{max_retries}), retrying in {delay}s...")
+                time.sleep(delay)
+                continue
+            else:
+                print(f"❌ LLM error after {max_retries} attempts: {e}")
+                return ""
 
-    except subprocess.TimeoutExpired:
-        return ""
-    except FileNotFoundError:
-        return ""
-    except Exception:
-        return ""
+    return ""
 
 
 def combine_extractions(
