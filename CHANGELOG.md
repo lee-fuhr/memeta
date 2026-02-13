@@ -2,15 +2,24 @@
 
 All notable changes to the Memory System v1 project.
 
+Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
+
 ---
 
-## [Unreleased]
+## [0.3.0] - 2026-02-13
 
 ### Fixed
 - **IntelligenceDB initialization bug** (src/intelligence_db.py:45) - Fixed AttributeError where `self.conn.row_factory` was accessed before `self.conn` was initialized. Now properly initializes connection from pool before setting row_factory.
 - **PooledConnection attribute proxy** (src/db_pool.py) - Added `__setattr__` method to properly proxy attribute writes (like `row_factory`) to the underlying sqlite3.Connection object.
 - **MemoryTSClient API mismatch** (src/session_consolidator.py:564) - Fixed incorrect `search()` call using non-existent `query=` and `limit=` parameters. Now correctly uses `content=` parameter as defined in MemoryTSClient API.
 - **Test coverage improvement** - Fixed 12 intelligence_db tests (0/12 → 12/12) and 11 session_consolidator tests (14/26 → 25/26)
+
+### Changed
+- Repository cleanup: Archived obsolete documentation (PHASE-*.md, old QA passes, _working/) to _archive/
+
+---
+
+## [0.2.0] - 2026-02-12
 
 ### Added
 - embedding_manager.py: Persistent embedding storage with SHA-256 content hashing
@@ -42,7 +51,7 @@ All notable changes to the Memory System v1 project.
 
 ---
 
-## [2026-02-12] - Build Sprint
+## [0.1.0] - 2026-02-12
 
 ### Added
 - 35 features shipped (F1-22 + F23, F33-35, F44-50, F55, F62-63)
@@ -53,6 +62,7 @@ All notable changes to the Memory System v1 project.
 - Session history DB: 779 sessions, 177K messages indexed
 
 ### Features Implemented
+- F1-22: Core memory intelligence features
 - F23: Memory Versioning
 - F33-35: Wild features (Sentiment, Velocity, Personality Drift)
 - F44-50: Multimodal + Meta-learning
@@ -60,12 +70,7 @@ All notable changes to the Memory System v1 project.
 - F62: Quality Auto-Grading
 - F63: Prompt Evolution
 
----
-
-## [Earlier] - Foundation
-
-### Added
-- F1-22: Core memory intelligence features
+### Infrastructure
 - memory-ts integration
 - FSRS-6 spaced repetition
 - Pattern detection and mining
