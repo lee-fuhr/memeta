@@ -1,13 +1,13 @@
 # Memory System v1 - Final delivery
 
 **Session:** 2026-02-13
-**Status:** Complete (v0.7.0)
+**Status:** Complete (v0.8.0)
 
 ---
 
 ## Delivered
 
-- **57 features shipped** (F1-22, F23-32, F33-35, F44-50, F51-54, F55-61, F62-65, F75)
+- **58 features shipped** (F1-22, F23-32, F33-35, F44-50, F51-54, F55-65, F75)
 - **17 features deferred** (F36-43, F66-74 — external integrations, intentionally skipped)
 - **765 tests passing**, 2 skipped, 0 failing (99.7%)
 - **QA pass complete** — 4-agent swarm, critical fixes applied

@@ -1,6 +1,6 @@
 # Memory Intelligence System
 
-**Status:** v0.7.0 | 765/767 tests passing (99.7%) | 57 features shipped
+**Status:** v0.8.0 | 765/767 tests passing (99.7%) | 58 features shipped
 **Updated:** 2026-02-13
 
 ---
@@ -203,7 +203,7 @@ Action: Updated extraction prompt to ask for examples.
 
 ---
 
-## Complete feature roadmap (57 shipped, 1 remaining, 17 deferred)
+## Complete feature roadmap (58 shipped, 17 deferred)
 
 ### Features 1-22: Foundation ✅ SHIPPED
 
@@ -249,7 +249,7 @@ Overnight consolidation + synthesis. Finds hidden connections. Morning briefing 
 **F36-43: External integrations** 🚫 DEFERRED
 *Deferred: External integration features. Core system complete without them.*
 
-### Features 51-75: Autonomous intelligence (15 shipped, 1 remaining, 9 deferred)
+### Features 51-75: Autonomous intelligence (16 shipped, 9 deferred)
 
 **F51: Temporal pattern prediction** ✅ (12 tests)
 Predict needs before asking. Temporal pattern detection across memories.
@@ -287,8 +287,8 @@ Automated experimentation on memory extraction and retrieval approaches.
 **F62: Memory quality auto-grading** ✅ (15 tests)
 Grades every memory A/B/C/D. Learns from behavior. Auto-improves extraction quality.
 
-**F63: Prompt evolution** ⏳ (not yet implemented)
-Genetic algorithm for extraction prompts. Population evolves based on quality grades.
+**F63: Prompt evolution** ✅ (15 tests)
+Genetic algorithm for extraction prompts. Population of 10 variants evolves weekly based on quality grades. 9 mutation operators, crossover breeding, auto-adoption at 95% confidence.
 
 **F64: Learning intervention system** ✅ (14 tests)
 "You've asked 'How do I X' 5 times." Suggests creating tutorial/reference. Tracks if interventions helped.
@@ -316,9 +316,8 @@ Advanced overnight consolidation. Cross-domain insights across ALL memories.
 
 ## Status summary
 
-**57 features shipped** - Production-ready with code + tests + docs
+**58 features shipped** - Production-ready with code + tests + docs
 **17 features deferred** - External integrations, intentionally skipped
-**1 feature remaining** - F63 prompt evolution
 
 **Test coverage:** 765/767 passing (99.7%), 2 skipped, 0 failures
 **Production code:** ~12,000 lines of Python
@@ -467,5 +466,5 @@ velocity = db.get_learning_velocity(domain="client-work", days=30)
 
 *Last updated: 2026-02-13*
 *Version: 0.7.0*
-*Status: 57 features production-ready, 765/767 tests passing (99.7%)*
+*Status: 58 features production-ready, 765/767 tests passing (99.7%)*
 *Vision: Autonomous memory that thinks alongside you*

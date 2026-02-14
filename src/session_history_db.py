@@ -42,7 +42,7 @@ def init_session_db():
     os.makedirs(SESSION_DB_PATH.parent, exist_ok=True)
 
     with get_connection(SESSION_DB_PATH) as conn:
-        conn.execute(""""
+        conn.execute("""
         CREATE TABLE IF NOT EXISTS sessions (
             id TEXT PRIMARY KEY,
             timestamp INTEGER NOT NULL,
@@ -77,10 +77,10 @@ def init_session_db():
     # Full-text search on transcript
     conn.execute("""
         CREATE VIRTUAL TABLE IF NOT EXISTS sessions_fts
-        USING fts5(id, name, transcript_text, content=sessions)
+        USING fts5(id, name, transcript_text)
     """)
 
-        conn.commit()
+    conn.commit()
 
 
 def save_session(
@@ -323,7 +323,7 @@ def get_session_stats() -> Dict:
 
     conn.close()
 
-        return {
+    return {
         'total_sessions': total,
         'avg_quality': avg_quality,
         'total_messages': total_messages,

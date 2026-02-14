@@ -1,6 +1,6 @@
 # Memory System v1 - Implementation plan
 
-**Status:** v0.7.0 - Complete
+**Status:** v0.8.0 - Complete
 **Started:** 2026-02-13
 **Last updated:** 2026-02-13
 
@@ -8,7 +8,7 @@
 
 ## Current state
 
-- **Features shipped:** 57 (F1-22 + F23-32, F33-35, F44-50, F51-54, F55-61, F62-65, F75)
+- **Features shipped:** 58 (F1-22 + F23-32, F33-35, F44-50, F51-54, F55-65, F75)
 - **Features deferred:** 17 (F36-43 integrations, F66-74 integrations — external API maintenance burden)
 - **Test status:** 765/767 passing (99.7%), 2 skipped, 0 failing
 - **QA status:** Complete (4-agent swarm, critical fixes applied)
