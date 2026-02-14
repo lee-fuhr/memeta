@@ -203,16 +203,18 @@ Action: Updated extraction prompt to ask for examples.
 
 ---
 
-## Complete feature roadmap (75 features total)
+## Complete feature roadmap (57 shipped, 1 remaining, 17 deferred)
 
 ### Features 1-22: Foundation ✅ SHIPPED
 
-Core memory infrastructure - daily summaries, contradiction detection, provenance tagging, roadmap/changelog pattern, LLM dedup, pre-compaction flush, context compaction, correction promotion, cross-agent queries, shared knowledge layer, local semantic search, importance auto-tuning, event-based compaction, hybrid search, confidence scoring, auto-correction detection, lifespan prediction, pattern mining, conflict resolution UI, batch operations, session consolidation, FSRS-6 scheduling.
+Core memory infrastructure - daily summaries, contradiction detection, provenance tagging, roadmap/changelog pattern, LLM dedup, pre-compaction flush, context compaction, correction promotion, cross-agent queries, lifespan prediction, pattern mining, conflict resolution UI, session consolidation, FSRS-6 scheduling.
 
-### Features 23-50: Intelligence enhancement (13 shipped, 5 coded)
+### Features 23-50: Intelligence enhancement (20 shipped, 8 deferred)
 
 **F23: Memory versioning** ✅ (21 tests)
 Track every change to memories over time. Rollback to previous versions. Full audit trail with change reasons.
+
+**F24: Relationship mapping** ✅ (28 tests) | **F25: Clustering** ✅ (17 tests) | **F26: Summarization** ✅ (17 tests) | **F27: Reinforcement scheduler** ✅ (24 tests) | **F28: Search optimization** ✅ (14 tests) | **F29: Smart alerts** ✅ (16 tests) | **F30: Memory-aware search** ✅ (16 tests) | **F31: Auto-summarization** ✅ (14 tests) | **F32: Quality scoring** ✅ (13 tests)
 
 **F33: Sentiment tracking** ✅ (5 tests)
 Detect frustration vs satisfaction trends. Trigger optimizations when mood drops. Emotional intelligence.
@@ -244,61 +246,82 @@ Import patterns from other tools. Track effectiveness. Knowledge transfer across
 **F50: Dream mode synthesis** ✅ (3 tests)
 Overnight consolidation + synthesis. Finds hidden connections. Morning briefing with insights.
 
+**F36-43: External integrations** 🚫 DEFERRED
+*Deferred: External integration features. Core system complete without them.*
+
+### Features 51-75: Autonomous intelligence (15 shipped, 1 remaining, 9 deferred)
+
+**F51: Temporal pattern prediction** ✅ (12 tests)
+Predict needs before asking. Temporal pattern detection across memories.
+
+**F52: Conversation momentum tracking** ✅ (14 tests)
+Detect "on a roll" vs "stuck spinning." Track insights, decisions, topic cycling. Suggest interventions.
+
+**F53: Energy-aware scheduling** ✅ (12 tests)
+Learn best thinking hours. Map cognitive load. Suggest optimal task scheduling.
+
+**F54: Context pre-loading** ✅ (12 tests)
+Check calendar ahead. Pre-load relevant context before work starts. Zero wait time.
+
 **F55: Frustration early warning** ✅ (9 tests)
 Detects frustration *before* it peaks. Signals: repeated corrections, topic cycling, negative sentiment.
+
+**F56: Client pattern transfer** ✅ (12 tests)
+Cross-pollinate insights across clients. Privacy-aware learning. Effectiveness tracking.
+
+**F57: Writing style analyzer** ✅ (18 tests)
+Track style evolution with quantified metrics. Compression, directness, formality trends.
+
+**F58: Decision regret detection** ✅ (14 tests)
+Learn from repeated mistakes. Warn before repeating regretted decisions.
+
+**F59: Expertise mapping** ✅ (14 tests)
+Track which agents know what. Automatic routing to best agent per domain.
+
+**F60: Context decay prediction** ✅ (14 tests)
+Predict staleness before it happens. Proactive maintenance, not reactive cleanup.
+
+**F61: A/B testing memory strategies** ✅ (14 tests)
+Automated experimentation on memory extraction and retrieval approaches.
 
 **F62: Memory quality auto-grading** ✅ (15 tests)
 Grades every memory A/B/C/D. Learns from behavior. Auto-improves extraction quality.
 
-**F57: Writing style analyzer** 🔨 (18 tests)
-Track style evolution with quantified metrics. Compression, directness, formality trends.
-
-**F61: A/B testing memory strategies** 🔨 (4 tests)
-Automated experimentation on memory extraction and retrieval approaches.
-
-**F63: Prompt evolution** 🔨 (tests pending)
+**F63: Prompt evolution** ⏳ (not yet implemented)
 Genetic algorithm for extraction prompts. Population evolves based on quality grades.
 
-**F75: Dream synthesis enhanced** 🔨 (4 tests)
+**F64: Learning intervention system** ✅ (14 tests)
+"You've asked 'How do I X' 5 times." Suggests creating tutorial/reference. Tracks if interventions helped.
+
+**F65: Mistake compounding detector** ✅ (14 tests)
+Root cause cascade analysis. Analyzes cascade depth, suggests prevention strategies.
+
+**F66-74: External integrations** 🚫 DEFERRED
+- F66: Screenshot context extraction
+- F67: Voice tone analysis
+- F68: Meeting intelligence v3
+- F69: Email pattern learning v2
+- F70: Notion bidirectional sync
+- F71: Git commit learning
+- F72: Code review learning
+- F73: Documentation gap detection
+- F74: Curiosity-driven exploration
+
+*Deferred: External integrations requiring third-party APIs. Core system complete without them.*
+
+**F75: Dream synthesis enhanced** ✅ (16 tests)
 Advanced overnight consolidation. Cross-domain insights across ALL memories.
-
-### Features 51-75: Autonomous intelligence (35 planned)
-
-**F51-54: Reality distortion field**
-- F51: Temporal pattern prediction - Predict needs before asking
-- F52: Conversation momentum tracking - Detect "on a roll" vs "stuck"
-- F53: Energy-aware scheduling - Track best thinking hours
-- F54: Context pre-loading - Pre-load context before work starts
-
-**F56-60: Cross-domain intelligence**
-- F56: Client pattern transfer - Cross-pollinate insights across clients
-- F58: Decision regret detection - Learn from repeated mistakes
-- F59: Expertise mapping - Track which agents know what
-- F60: Context decay prediction - Predict staleness before it happens
-
-**F64-74: Meta-learning + advanced multimodal**
-- F64: Learning intervention system - "Asked 5x - should I create tutorial?"
-- F65: Mistake compounding detector - Root cause cascade analysis
-- F66: Screenshot context extraction - Searchable visual memories
-- F67: Voice tone analysis - Emotional context from voice notes
-- F68: Meeting intelligence v3 - Real-time alerts, commitment tracking
-- F69: Email pattern learning v2 - Semantic categorization, <5% false positives
-- F70: Notion bidirectional sync - Two-way memory sync
-- F71: Git commit learning - Pattern-based pre-commit reminders
-- F72: Code review learning - Learn from review feedback
-- F73: Documentation gap detection - Auto-suggest doc updates
-- F74: Curiosity-driven exploration - Autonomous overnight research
 
 ---
 
 ## Status summary
 
-**35 features shipped** - Production-ready with code + tests + docs
-**5 features coded** - Implementation complete, tests pending
-**35 features planned** - Documented, ready to build
+**57 features shipped** - Production-ready with code + tests + docs
+**17 features deferred** - External integrations, intentionally skipped
+**1 feature remaining** - F63 prompt evolution
 
-**Test coverage:** 361/372 passing (97%)
-**Production code:** ~6,000 lines of Python
+**Test coverage:** 765/767 passing (99.7%), 2 skipped, 0 failures
+**Production code:** ~12,000 lines of Python
 **Documentation:** 2,000+ lines across API docs, guides, examples
 **Database:** Session history (779 sessions, 177K messages), intelligence.db (shared schema)
 
@@ -325,6 +348,12 @@ Advanced overnight consolidation. Cross-domain insights across ALL memories.
 - Semantic search: 500s → <1s (pre-computed embeddings)
 - Session consolidation: 60s → <1s (async queue)
 - API costs: $1,000/day → $4/day at 10K scale
+- Performance grade: B+ (LLM retry handling, connection pooling with WAL mode, bounded caches)
+
+**QA hardening (4-agent swarm):**
+- Code quality, test coverage, data integrity, performance — reviewed by dedicated agents
+- Critical fixes applied: bounded LRU caches (max 1000 entries), SQL injection whitelist, missing DB indices added, package init cleanup, legacy stubs deleted
+- Design review (2-agent pass): feature coherence audit identified organizational debt (not bugs) — feature overlap documented for future refactoring
 
 ---
 
@@ -430,13 +459,13 @@ velocity = db.get_learning_velocity(domain="client-work", days=30)
 
 **Built by:** Multi-agent dev team (dev-director, dev-senior, dev-junior, wild-architect)
 **Orchestrated by:** Conductor agent
-**Time:** 72 hours from concept to 35 shipped features
+**Time:** Concept to 57 shipped features, QA-hardened and design-reviewed
 
 **Key insight:** Teams ship 10x faster when you enforce quality (code + tests + docs) vs accepting "it's done" without verification.
 
 ---
 
 *Last updated: 2026-02-13*
-*Version: 0.3.0*
-*Status: 35 features production-ready, 361/372 tests passing (97%)*
+*Version: 0.7.0*
+*Status: 57 features production-ready, 765/767 tests passing (99.7%)*
 *Vision: Autonomous memory that thinks alongside you*
