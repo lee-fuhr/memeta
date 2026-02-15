@@ -14,20 +14,17 @@ Covers:
 10. Backward-compatible convenience function
 """
 
-import sys
-from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent.parent / 'src'))
-
 import pytest
 import tempfile
 import sqlite3
 import numpy as np
 import hashlib
+from pathlib import Path
 from datetime import datetime, timedelta
 from unittest.mock import patch, MagicMock
 from collections import OrderedDict
 
-from embedding_manager import EmbeddingManager
+from memory_system.embedding_manager import EmbeddingManager
 
 
 # ---------------------------------------------------------------------------
@@ -667,7 +664,7 @@ class TestConvenienceFunction:
 
     def test_semantic_search_function_returns_list_of_dicts(self, temp_db):
         """Module-level semantic_search returns list of dicts with 'similarity' key."""
-        with patch('embedding_manager.EmbeddingManager') as MockManager:
+        with patch('memory_system.embedding_manager.EmbeddingManager') as MockManager:
             mock_instance = MagicMock()
             MockManager.return_value = mock_instance
             mock_instance.semantic_search.return_value = [
@@ -675,7 +672,7 @@ class TestConvenienceFunction:
                 ({"content": "world", "id": 2}, 0.8),
             ]
 
-            from embedding_manager import semantic_search
+            from memory_system.embedding_manager import semantic_search
             results = semantic_search("query", [{"content": "hello"}, {"content": "world"}], top_k=5)
 
             assert isinstance(results, list)

@@ -11,18 +11,15 @@ Covers:
 7. Module-level convenience functions (get_pool, get_connection, close_all_pools)
 """
 
-import sys
-from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent.parent / 'src'))
-
 import pytest
 import tempfile
 import threading
 import time
 import sqlite3
 import os
+from pathlib import Path
 
-from db_pool import ConnectionPool, PooledConnection, get_pool, get_connection, close_all_pools, _pools, _pools_lock
+from memory_system.db_pool import ConnectionPool, PooledConnection, get_pool, get_connection, close_all_pools, _pools, _pools_lock
 
 
 @pytest.fixture

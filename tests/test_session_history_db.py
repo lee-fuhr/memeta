@@ -12,18 +12,15 @@ Covers:
 8. Error handling (save failures, missing sessions)
 """
 
-import sys
-from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent.parent / 'src'))
-
 import pytest
 import tempfile
 import sqlite3
 import json
 import time
 import os
+from pathlib import Path
 
-import session_history_db as shdb
+from memory_system import session_history_db as shdb
 
 
 @pytest.fixture
@@ -740,7 +737,7 @@ class TestErrorHandling:
 
         shdb.init_session_db()
 
-        with patch('session_history_db.sqlite3') as mock_sqlite:
+        with patch('memory_system.session_history_db.sqlite3') as mock_sqlite:
             mock_sqlite.connect.side_effect = sqlite3.OperationalError("cannot open database")
             result = shdb.save_session("err-001", _make_transcript())
             assert result is False

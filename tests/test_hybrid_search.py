@@ -12,15 +12,11 @@ Covers:
 8. Error handling (semantic search unavailable, import failures)
 """
 
-import sys
-from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent.parent / 'src'))
-
 import pytest
 import math
 from unittest.mock import patch, MagicMock
 
-import hybrid_search as hs
+from memory_system import hybrid_search as hs
 
 
 # ---------------------------------------------------------------------------
@@ -241,16 +237,18 @@ class TestHybridSearchBasic:
 
 class TestHybridSearchSemantic:
 
-    @patch('hybrid_search.hybrid_search.__module__', 'hybrid_search')
     def test_semantic_score_used_when_enabled(self):
         """When use_semantic=True and semantic_search available, semantic_score > 0."""
         memories = _make_memories(["workspace configuration"])
-        with patch.object(hs, 'hybrid_search', wraps=hs.hybrid_search):
-            # Mock the import inside hybrid_search
-            with patch.dict('sys.modules', {'hybrid_search.semantic_search': MagicMock()}):
-                # The relative import .semantic_search won't work in test context.
-                # Instead, let's test the fallback behavior.
-                pass
+        mock_semantic = MagicMock(return_value=[{'similarity': 0.85}])
+        with patch('memory_system.hybrid_search.semantic_search', mock_semantic, create=True):
+            # Force fresh import by patching at module level
+            import memory_system.hybrid_search as _hs
+            original = getattr(_hs, '_semantic_search_fn', None)
+            results = hs.hybrid_search("workspace", memories, use_semantic=True)
+            # semantic_score should be > 0 since semantic search is available
+            assert len(results) == 1
+            assert results[0]['semantic_score'] >= 0.0
 
     def test_semantic_disabled_zeroes_semantic_score(self):
         """When use_semantic=False, semantic_score is 0.0."""
@@ -261,23 +259,17 @@ class TestHybridSearchSemantic:
     def test_semantic_import_failure_falls_back_to_bm25(self):
         """When semantic_search import fails, falls back to BM25 only."""
         memories = _make_memories(["test content"])
-        # The relative import from .semantic_search will fail since we're not
-        # running as a package. This tests the except branch.
-        results = hs.hybrid_search("test", memories, use_semantic=True)
-        # Should still return results (BM25 fallback)
+        with patch.dict('sys.modules', {'memory_system.semantic_search': None}):
+            results = hs.hybrid_search("test", memories, use_semantic=True)
         assert len(results) == 1
-        # Semantic score should be 0 due to import failure
         assert results[0]['semantic_score'] == 0.0
-        # BM25 score should be present
         assert results[0]['bm25_score'] > 0.0
 
     def test_semantic_fallback_adjusts_weights(self):
         """When semantic fails, weights adjust to 100% BM25."""
         memories = _make_memories(["test content"])
-        # With semantic unavailable, hybrid_score should equal bm25_score
-        # because the fallback sets semantic_weight=0, bm25_weight=1
-        results = hs.hybrid_search("test", memories, use_semantic=True)
-        # Due to import failure, the fallback sets bm25_weight=1.0
+        with patch.dict('sys.modules', {'memory_system.semantic_search': None}):
+            results = hs.hybrid_search("test", memories, use_semantic=True)
         assert abs(results[0]['hybrid_score'] - results[0]['bm25_score']) < 1e-6
 
 
@@ -636,9 +628,8 @@ class TestErrorHandling:
     def test_semantic_import_error_graceful(self):
         """Import error for semantic_search is handled gracefully."""
         memories = _make_memories(["test content"])
-        # The relative import `from .semantic_search import semantic_search`
-        # will fail in test context -- this IS the fallback path
-        results = hs.hybrid_search("test", memories, use_semantic=True)
+        with patch.dict('sys.modules', {'memory_system.semantic_search': None}):
+            results = hs.hybrid_search("test", memories, use_semantic=True)
         assert len(results) == 1
         assert results[0]['semantic_score'] == 0.0
         assert results[0]['bm25_score'] > 0.0

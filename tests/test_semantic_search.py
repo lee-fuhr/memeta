@@ -13,17 +13,13 @@ Covers:
 9. Error handling (model import failure)
 """
 
-import sys
-from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent.parent / 'src'))
-
 import pytest
 import numpy as np
 import hashlib
 from collections import OrderedDict
 from unittest.mock import patch, MagicMock
 
-import semantic_search as ss
+from memory_system import semantic_search as ss
 
 
 # ---------------------------------------------------------------------------
