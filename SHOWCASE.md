@@ -1,7 +1,7 @@
 # Memory Intelligence System
 
-**Status:** v0.8.0 | 765/767 tests passing (99.7%) | 58 features shipped
-**Updated:** 2026-02-13
+**Status:** v0.10.0 | 1085/1089 tests passing (99.6%) | 58 features shipped
+**Updated:** 2026-02-15
 
 ---
 
@@ -474,6 +474,12 @@ velocity = db.get_learning_velocity(domain="client-work", days=30)
 ## Progress log
 
 What's been done, most recent first.
+
+**2026-02-15 — v0.10.0: Config centralization**
+- Created `src/config.py` — `MemorySystemConfig` frozen dataclass, module singleton `cfg`
+- All hardcoded paths now overridable via `MEMORY_SYSTEM_*` env vars
+- Updated 5 source files to use `cfg` instead of inline `Path.home()` / relative `Path(__file__)` constructs
+- Fixed sys.modules mock in test_search_optimizer.py (old module name → new package name)
 
 **2026-02-15 — v0.9.0: Package infrastructure + import cleanup**
 - Created `pyproject.toml` — package now installable via `pip install -e .`
