@@ -6,6 +6,73 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ---
 
+## [0.10.0] - 2026-02-15
+
+### Added — Config centralization
+- **`src/config.py`** — `MemorySystemConfig` frozen dataclass, module singleton `cfg`. All paths and constants overridable via `MEMORY_SYSTEM_*` env vars.
+- Centralized: `memory_dir`, `session_dir`, `project_id`, `session_db_path`, `shared_db_path`, `fsrs_db_path`, `intelligence_db_path`, `cluster_db_path`, `max_pre_compaction_facts`, `cache_ttl_seconds`
+
+### Changed
+- `session_history_db.py` — `SESSION_DB_PATH` now reads from `cfg`
+- `shared_knowledge.py` — `SHARED_DB_PATH` now reads from `cfg`
+- `session_consolidator.py` — hardcoded `~/.claude/projects` → `cfg.session_dir`
+- `fsrs_scheduler.py` — relative `Path(__file__)` → `cfg.fsrs_db_path`
+- `intelligence/search_optimizer.py` — relative `Path(__file__)` → `cfg.intelligence_db_path`
+
+### Fixed
+- `test_search_optimizer.py` — `sys.modules` mock patched wrong key (`memory_ts_client` → `memory_system.memory_ts_client`) after import migration
+
+### Status
+- **Test suite:** 1085 passing, 2 flaky (LLM timeout — pre-existing), 2 skipped (99.6%)
+
+---
+
+## [0.9.0] - 2026-02-15
+
+### Changed — Package infrastructure + import cleanup
+- **`pyproject.toml`** — package now installable via `pip install -e .`. Maps `memory_system` → `src/` via `[tool.setuptools.package-dir]`.
+- **`conftest.py`** — minimal root conftest enables pytest discovery without sys.path tricks
+- **Venv** — at `~/.local/venvs/memory-system/` (project is in Google Drive, can't create venv inside)
+- **All imports standardized** — `from memory_system.X import ...` everywhere. Removed 71 sys.path hacks across tests, src, hooks, and scripts.
+
+### Fixed
+- Pre-existing ordering bug in `scripts/nightly_maintenance_master.py` — `SCRIPTS_DIR` used before definition
+
+### Status
+- **sys.path hacks remaining:** 2 (intentional — `decision_journal.py` optional ea_brain integration, `update_fsrs_manual.py` code generator)
+- **Test suite:** 1085 passing (was 1086 before fix noted above)
+
+---
+
+## [0.8.1] - 2026-02-15
+
+### Added — Critical infrastructure tests
+- **db_pool.py** — 50 new tests (connection pooling, thread safety, context managers)
+- **embedding_manager.py** — 62 new tests (storage, SHA-256 deduplication, batch ops)
+- **semantic_search.py** — 72 new tests (vector similarity, ranking, filters)
+- **hybrid_search.py** — 73 new tests (combined scoring, query parsing, project scoping)
+- **session_history_db.py** — 65 new tests (transcript storage, search, stats)
+- **Total added:** 322 tests
+
+### Fixed
+- 3 bugs in `session_history_db.py` found during test writing: docstring syntax error, indentation error, FTS5 bad column reference
+
+### Status
+- **Test suite:** 1086 passing, 2 skipped (was 765 before this release)
+
+---
+
+## [0.8.0] - 2026-02-13
+
+### Changed
+- **F63 (Prompt Evolution)** — discovered already built and shipped; updated all docs to correctly reflect 58 features
+- SHOWCASE.md, HANDOFF.md, PLAN.md updated to v0.7.0 final state
+
+### Status
+- **Features shipped:** 58 | **Test suite:** 765 passing, 2 skipped
+
+---
+
 ## [0.7.0] - 2026-02-13
 
 ### Fixed - Test Suite Cleanup
