@@ -1,12 +1,30 @@
 # Memory System v1 — Handoff
 
 **Session:** current
-**Date:** 2026-02-15
-**Version:** v0.11.0 (all remaining tasks complete)
+**Date:** 2026-02-16
+**Version:** v0.12.0 (dashboard shipped)
 
 ---
 
 ## What was done this session
+
+### Mnemora dashboard shipped ✅
+- `dashboard/server.py`: Flask server with `/api/stats`, `/api/memories`, `/api/sessions`
+  - Parses `---` bounded YAML frontmatter from 1,255 `.md` memory files
+  - Quality grades A/B/C/D by importance_weight (≥0.8 = A, ≥0.6 = B, etc.)
+  - 500 sessions from `session-history.db`, activity-by-day for heatmap
+  - Text search, domain/tag filters, sort by importance or recency
+  - Run: `python3 dashboard/server.py --port 7860 --project LFI`
+  - Opens at: http://localhost:7860
+- `dashboard/index.html`: Full-stack UI
+  - Obsidian + amber design (Fraunces + IBM Plex Mono/Sans)
+  - Overview: stat cards, grade bar, domain bars, 26-week activity heatmap
+  - Memories: searchable/filterable cards with grade indicators, load-more
+  - Sessions: table with date, name, messages, tools, memories extracted
+  - Knowledge map: tag cloud (frequency-scaled) + domain breakdown
+  - Sidebar nav with domain quick-filters
+
+### Previous session (v0.11.0)
 
 ### Task #7: F30 delegates to F28 search backend ✅
 - `src/automation/search.py`: added `SearchOptimizer` import + `self.optimizer` in `__init__`
@@ -42,9 +60,16 @@ Known flaky (not bugs):
 
 ---
 
-## Remaining tasks
+## Remaining tasks / ideas
 
-**None.** All tasks from the previous HANDOFF are complete.
+**Core dashboard:** Done. Running at http://localhost:7860
+
+**Potential next steps:**
+- Rename project from "memory-system-v1" to "Mnemora" throughout (package name, README title, pyproject.toml)
+- Backlog: compile Reddit ideas + 20 futuristic features into prioritized list
+- LaunchAgent to auto-start dashboard on login
+- Memory detail modal (click a card → full content view)
+- Export memories as JSON/CSV from dashboard
 
 ---
 
