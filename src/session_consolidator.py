@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional
 from datetime import datetime
 
+from .config import cfg
 from .memory_ts_client import MemoryTSClient
 from .importance_engine import calculate_importance, get_importance_score
 
@@ -115,7 +116,7 @@ class SessionConsolidator:
             memory_dir: Directory for memory-ts storage
             project_id: Default project identifier
         """
-        self.session_dir = Path(session_dir) if session_dir else Path.home() / ".claude/projects"
+        self.session_dir = Path(session_dir) if session_dir else cfg.session_dir
         self.memory_dir = memory_dir
         self.project_id = project_id
         self.memory_client = MemoryTSClient(memory_dir=memory_dir)

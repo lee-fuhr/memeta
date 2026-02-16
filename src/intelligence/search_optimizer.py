@@ -26,6 +26,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import List, Optional, Dict
 
+from memory_system.config import cfg
 from memory_system.db_pool import get_connection
 
 
@@ -43,7 +44,7 @@ class SearchOptimizer:
     def __init__(self, db_path: str = None):
         """Initialize optimizer with database"""
         if db_path is None:
-            db_path = Path(__file__).parent.parent.parent / "intelligence.db"
+            db_path = cfg.intelligence_db_path
 
         self.db_path = str(db_path)
         self._init_schema()

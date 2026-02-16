@@ -15,6 +15,7 @@ from enum import IntEnum
 from pathlib import Path
 from typing import List, Optional
 
+from memory_system.config import cfg
 from memory_system.db_pool import get_connection
 
 
@@ -80,7 +81,7 @@ class FSRSScheduler:
             db_path: Path to SQLite database (default: fsrs.db in module dir)
         """
         if db_path is None:
-            db_path = Path(__file__).parent.parent / "fsrs.db"
+            db_path = cfg.fsrs_db_path
         self.db_path = Path(db_path)
         self._init_db()
 

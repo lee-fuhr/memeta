@@ -28,10 +28,11 @@ from pathlib import Path
 from typing import Dict, List, Optional
 from datetime import datetime
 
+from memory_system.config import cfg
 from memory_system.db_pool import get_connection
 
 
-SESSION_DB_PATH = Path.home() / ".local/share/memory/LFI/session-history.db"
+SESSION_DB_PATH = cfg.session_db_path
 
 
 def init_session_db():
