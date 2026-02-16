@@ -3,7 +3,7 @@ Tests for contradiction_detector.py
 """
 
 import pytest
-from src.contradiction_detector import (
+from memory_system.contradiction_detector import (
     check_contradictions,
     find_similar_memories,
     check_contradiction,

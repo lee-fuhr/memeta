@@ -7,7 +7,7 @@ import json
 import tempfile
 from pathlib import Path
 from unittest.mock import Mock, patch, MagicMock
-from src.multimodal.voice_capture import VoiceCapture, VoiceMemory
+from memory_system.multimodal.voice_capture import VoiceCapture, VoiceMemory
 
 
 @pytest.fixture
@@ -125,7 +125,7 @@ class TestTranscription:
 class TestMemoryExtraction:
     """Test memory extraction from transcripts"""
 
-    @patch('src.multimodal.voice_capture.extract_with_llm')
+    @patch('memory_system.multimodal.voice_capture.extract_with_llm')
     def test_extract_memories_with_llm(self, mock_llm, voice_capture):
         """Extract memories using LLM"""
         transcript = "I learned that voice memos are great for capturing ideas quickly."
@@ -158,8 +158,8 @@ class TestMemoryExtraction:
 class TestProcessingPipeline:
     """Test complete voice memo processing"""
 
-    @patch('src.multimodal.voice_capture.VoiceCapture.transcribe_audio')
-    @patch('src.multimodal.voice_capture.VoiceCapture.extract_memories_from_transcript')
+    @patch('memory_system.multimodal.voice_capture.VoiceCapture.transcribe_audio')
+    @patch('memory_system.multimodal.voice_capture.VoiceCapture.extract_memories_from_transcript')
     def test_process_voice_memo(self, mock_extract, mock_transcribe, voice_capture, temp_audio):
         """Complete processing pipeline"""
         # Mock transcription

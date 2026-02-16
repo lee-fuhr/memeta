@@ -10,14 +10,12 @@ Auto-detect low-quality memories:
 Suggest improvements or archival.
 """
 
-import sys
 from pathlib import Path
 from typing import List, Tuple
 from dataclasses import dataclass
 import re
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
-from memory_ts_client import Memory
+from memory_system.memory_ts_client import Memory
 
 
 @dataclass

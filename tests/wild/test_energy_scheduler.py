@@ -5,7 +5,7 @@ import tempfile
 import os
 from datetime import datetime
 
-from src.wild.energy_scheduler import EnergyScheduler, EnergyPattern, TaskComplexity
+from memory_system.wild.energy_scheduler import EnergyScheduler, EnergyPattern, TaskComplexity
 
 
 @pytest.fixture

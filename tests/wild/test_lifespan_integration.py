@@ -9,11 +9,11 @@ import pytest
 import tempfile
 from pathlib import Path
 
-from src.wild.lifespan_integration import (
+from memory_system.wild.lifespan_integration import (
     analyze_memory_lifespans,
     flag_expiring_memories
 )
-from src.memory_ts_client import Memory
+from memory_system.memory_ts_client import Memory
 from datetime import datetime, timedelta
 import json
 

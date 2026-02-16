@@ -8,12 +8,9 @@ Lower correction rate = better system performance.
 from typing import Dict, List, Optional
 from datetime import datetime, timedelta
 from pathlib import Path
-import sys
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
-from wild.intelligence_db import IntelligenceDB
-from memory_ts_client import MemoryTSClient
+from memory_system.wild.intelligence_db import IntelligenceDB
+from memory_system.memory_ts_client import MemoryTSClient
 
 
 def calculate_velocity_metrics(window_days: int = 30,

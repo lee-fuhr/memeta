@@ -15,16 +15,13 @@ Integration: Used by topic-resumption-detector hook and can be queried for predi
 import sqlite3
 import json
 import hashlib
-import sys
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import List, Dict, Optional
 from collections import defaultdict
 
-# Add src to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
-from db_pool import get_connection
+from memory_system.db_pool import get_connection
 
 
 @dataclass

@@ -10,7 +10,7 @@ import tempfile
 from pathlib import Path
 from datetime import datetime
 
-from src.wild.learning_velocity import (
+from memory_system.wild.learning_velocity import (
     calculate_velocity_metrics,
     get_velocity_trend,
     get_correction_breakdown,
@@ -18,7 +18,7 @@ from src.wild.learning_velocity import (
     _is_correction
 )
 
-from src.memory_ts_client import Memory
+from memory_system.memory_ts_client import Memory
 
 
 class TestCorrectionDetection:

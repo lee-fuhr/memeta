@@ -13,18 +13,14 @@ import sys
 import json
 import os
 import re
-from pathlib import Path
 from typing import Optional, Dict, List
 
 # Skip hook if disabled
 if os.getenv('SKIP_HOOK_TOPIC_RESUMPTION'):
     sys.exit(0)
 
-# Add src to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent / 'src'))
-
-from memory_ts_client import MemoryTSClient, Memory
-from wild.temporal_predictor import TemporalPatternPredictor
+from memory_system.memory_ts_client import MemoryTSClient, Memory
+from memory_system.wild.temporal_predictor import TemporalPatternPredictor
 
 
 # Trigger phrases

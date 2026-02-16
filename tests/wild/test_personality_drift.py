@@ -9,7 +9,7 @@ import pytest
 import tempfile
 from pathlib import Path
 
-from src.wild.personality_drift import (
+from memory_system.wild.personality_drift import (
     analyze_communication_style,
     record_personality_snapshot,
     detect_drift,
@@ -18,7 +18,7 @@ from src.wild.personality_drift import (
     _calculate_formality
 )
 
-from src.memory_ts_client import Memory
+from memory_system.memory_ts_client import Memory
 
 
 class TestDirectnessScoring:

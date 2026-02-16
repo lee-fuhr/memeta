@@ -5,7 +5,7 @@ import tempfile
 import os
 from datetime import datetime
 
-from src.wild.decay_predictor import DecayPredictor, DecayPrediction
+from memory_system.wild.decay_predictor import DecayPredictor, DecayPrediction
 
 
 @pytest.fixture

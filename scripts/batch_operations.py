@@ -11,16 +11,11 @@ Usage:
   python batch_operations.py archive --older-than 365
 """
 
-import sys
 import json
 import argparse
-from pathlib import Path
 from datetime import datetime, timedelta
 
-# Add parent directory to path
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
-from src.memory_ts_client import MemoryTSClient
+from memory_system.memory_ts_client import MemoryTSClient
 
 
 def export_memories(output_file: str, project_id: str = "LFI"):

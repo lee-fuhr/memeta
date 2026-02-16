@@ -48,22 +48,21 @@ class IntelligenceDB:
 
     def _init_db(self):
         """Create all feature tables if they don't exist"""
-        conn = self._connect()
-
-        # F23: Memory versioning
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS memory_versions (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                memory_id TEXT NOT NULL,
-                version INTEGER NOT NULL,
-                content TEXT NOT NULL,
-                importance REAL NOT NULL,
-                changed_by TEXT DEFAULT 'user',
-                change_reason TEXT,
-                timestamp INTEGER NOT NULL,
-                UNIQUE(memory_id, version)
-            )
-        """)
+        with self._connect() as conn:
+            # F23: Memory versioning
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS memory_versions (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    memory_id TEXT NOT NULL,
+                    version INTEGER NOT NULL,
+                    content TEXT NOT NULL,
+                    importance REAL NOT NULL,
+                    changed_by TEXT DEFAULT 'user',
+                    change_reason TEXT,
+                    timestamp INTEGER NOT NULL,
+                    UNIQUE(memory_id, version)
+                )
+            """)
         conn.execute("""
             CREATE INDEX IF NOT EXISTS idx_versions_memory
             ON memory_versions(memory_id, timestamp DESC)

@@ -18,9 +18,7 @@ from datetime import datetime, timedelta
 from dataclasses import dataclass
 import sys
 
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
-
-from intelligence.search_optimizer import SearchOptimizer
+from memory_system.intelligence.search_optimizer import SearchOptimizer
 
 
 @dataclass
@@ -107,8 +105,8 @@ def test_cache_hit_second_search(optimizer, monkeypatch):
 
     # Patch the import
     import sys
-    sys.modules['memory_ts_client'] = type(sys)('memory_ts_client')
-    sys.modules['memory_ts_client'].MemoryTSClient = MockClient
+    sys.modules['memory_system.memory_ts_client'] = type(sys)('memory_system.memory_ts_client')
+    sys.modules['memory_system.memory_ts_client'].MemoryTSClient = MockClient
 
     # First search - cache miss
     results1 = optimizer.search_with_cache("test query", mock_search)
@@ -263,8 +261,8 @@ def test_cache_efficiency(optimizer):
 
     # Patch the import
     import sys
-    sys.modules['memory_ts_client'] = type(sys)('memory_ts_client')
-    sys.modules['memory_ts_client'].MemoryTSClient = MockClient
+    sys.modules['memory_system.memory_ts_client'] = type(sys)('memory_system.memory_ts_client')
+    sys.modules['memory_system.memory_ts_client'].MemoryTSClient = MockClient
 
     # First search - cache miss
     optimizer.search_with_cache("test", mock_search)
@@ -377,8 +375,8 @@ def test_get_cache_stats(optimizer):
 
     # Patch the import
     import sys
-    sys.modules['memory_ts_client'] = type(sys)('memory_ts_client')
-    sys.modules['memory_ts_client'].MemoryTSClient = MockClient
+    sys.modules['memory_system.memory_ts_client'] = type(sys)('memory_system.memory_ts_client')
+    sys.modules['memory_system.memory_ts_client'].MemoryTSClient = MockClient
 
     # Create some cache entries
     optimizer.search_with_cache("test1", mock_search)

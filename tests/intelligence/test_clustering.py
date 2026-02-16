@@ -8,11 +8,8 @@ import numpy as np
 from pathlib import Path
 from datetime import datetime
 
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
-
-from intelligence.clustering import MemoryClustering, Cluster, ClusterMembership
-from memory_ts_client import MemoryTSClient
+from memory_system.intelligence.clustering import MemoryClustering, Cluster, ClusterMembership
+from memory_system.memory_ts_client import MemoryTSClient
 
 
 @pytest.fixture
@@ -51,7 +48,7 @@ def sample_memories():
 
 def test_init_creates_tables(clustering, temp_db):
     """Test that initialization creates required tables."""
-    from db_pool import get_connection
+    from memory_system.db_pool import get_connection
 
     with get_connection(temp_db) as conn:
         cursor = conn.execute("""

@@ -8,7 +8,7 @@ import pytest
 import tempfile
 from pathlib import Path
 
-from src.wild.integrations import (
+from memory_system.wild.integrations import (
     export_to_roam,
     format_memory_as_roam
 )
@@ -33,7 +33,7 @@ class TestRoamFormatting:
 
     def test_format_includes_backlinks(self):
         """Formatted memories include proper backlinks"""
-        from src.memory_ts_client import Memory
+        from memory_system.memory_ts_client import Memory
         mem = Memory(
             id="test1",
             content="Test memory",

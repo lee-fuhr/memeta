@@ -20,15 +20,13 @@ from datetime import datetime, timedelta
 from typing import List, Optional, Dict
 from dataclasses import dataclass, asdict
 
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent))
-from db_pool import get_connection
-from memory_ts_client import Memory
+from memory_system.db_pool import get_connection
+from memory_system.memory_ts_client import Memory
 
 
 def _ask_claude(prompt: str, timeout: int = 30) -> str:
     """Wrapper for LLM calls."""
-    import llm_extractor
+    from memory_system import llm_extractor
     return llm_extractor.ask_claude(prompt, timeout)
 
 
@@ -275,7 +273,7 @@ Format as JSON:
             return None
 
         # Get original memories
-        from memory_ts_client import MemoryTSClient
+        from memory_system.memory_ts_client import MemoryTSClient
         client = MemoryTSClient()
 
         memories = []

@@ -7,10 +7,7 @@ import json
 import tempfile
 from pathlib import Path
 
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
-
-from automation.triggers import MemoryTriggers, Trigger
+from memory_system.automation.triggers import MemoryTriggers, Trigger
 
 
 @pytest.fixture
@@ -30,7 +27,7 @@ def triggers(temp_db):
 
 def test_init_creates_tables(triggers, temp_db):
     """Test initialization creates tables."""
-    from db_pool import get_connection
+    from memory_system.db_pool import get_connection
 
     with get_connection(temp_db) as conn:
         cursor = conn.execute("""

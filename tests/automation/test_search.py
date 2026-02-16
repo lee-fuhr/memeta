@@ -7,11 +7,8 @@ import tempfile
 from pathlib import Path
 from datetime import datetime, timedelta
 
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
-
-from automation.search import MemoryAwareSearch, SearchQuery, SearchResult
-from memory_ts_client import MemoryTSClient, Memory
+from memory_system.automation.search import MemoryAwareSearch, SearchQuery, SearchResult
+from memory_system.memory_ts_client import MemoryTSClient, Memory
 
 
 @pytest.fixture
@@ -72,7 +69,7 @@ def mock_memories():
 
 def test_init_creates_tables(search, temp_db):
     """Test initialization creates search history table."""
-    from db_pool import get_connection
+    from memory_system.db_pool import get_connection
 
     with get_connection(temp_db) as conn:
         cursor = conn.execute("""

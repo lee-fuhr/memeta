@@ -6,12 +6,8 @@ Enables queries like: "What did we learn in session abc123?"
 """
 
 import sys
-from pathlib import Path
 
-# Add parent directory to path
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
-from src.memory_ts_client import MemoryTSClient
+from memory_system.memory_ts_client import MemoryTSClient
 
 
 def search_by_session(session_id: str, project_id: str = "LFI"):

@@ -4,7 +4,7 @@ import pytest
 import tempfile
 import os
 
-from src.wild.mistake_cascade import MistakeCascadeDetector, MistakeCascade
+from memory_system.wild.mistake_cascade import MistakeCascadeDetector, MistakeCascade
 
 
 @pytest.fixture

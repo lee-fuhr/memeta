@@ -9,7 +9,6 @@ Database: intelligence.db (memory_clusters, cluster_memberships tables)
 
 import json
 import sqlite3
-import sys
 from pathlib import Path
 from datetime import datetime
 from typing import List, Dict, Optional, Tuple
@@ -19,15 +18,13 @@ import numpy as np
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
 
-# Add parent to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
-from db_pool import get_connection
-import semantic_search
+from memory_system.db_pool import get_connection
+from memory_system import semantic_search
 
 # Import ask_claude dynamically to avoid relative import issues
 def _ask_claude(prompt: str, timeout: int = 30) -> str:
     """Wrapper for ask_claude import."""
-    import llm_extractor
+    from memory_system import llm_extractor
     return llm_extractor.ask_claude(prompt, timeout)
 
 
@@ -349,7 +346,7 @@ class MemoryClustering:
         """
         # Use semantic search to get embeddings
         # This leverages the existing embedding manager
-        from memory_ts_client import MemoryTSClient
+        from memory_system.memory_ts_client import MemoryTSClient
 
         client = MemoryTSClient()
         all_memories = client.search()  # Get all memories

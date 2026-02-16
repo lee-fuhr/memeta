@@ -25,10 +25,7 @@ from datetime import datetime
 from typing import Optional, Dict
 import time
 
-import sys
-from pathlib import Path as _Path
-sys.path.insert(0, str(_Path(__file__).parent))
-from db_pool import get_connection
+from memory_system.db_pool import get_connection
 
 
 class ConsolidationQueue:
@@ -215,7 +212,7 @@ def process_consolidation_queue(max_sessions: int = 10, timeout_per_session: int
     Returns:
         Number of sessions processed
     """
-    from session_consolidator import SessionConsolidator
+    from memory_system.session_consolidator import SessionConsolidator
 
     queue = ConsolidationQueue()
     consolidator = SessionConsolidator(project_id="LFI")

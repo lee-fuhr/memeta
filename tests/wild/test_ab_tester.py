@@ -12,7 +12,7 @@ import sqlite3
 import time
 import random
 
-from src.wild.ab_tester import (
+from memory_system.wild.ab_tester import (
     MemoryStrategyTester,
     Strategy,
     Experiment,

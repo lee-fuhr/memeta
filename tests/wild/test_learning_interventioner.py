@@ -4,7 +4,7 @@ import pytest
 import tempfile
 import os
 
-from src.wild.learning_interventioner import LearningInterventioner, LearningIntervention
+from memory_system.wild.learning_interventioner import LearningInterventioner, LearningIntervention
 
 
 @pytest.fixture

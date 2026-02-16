@@ -9,10 +9,7 @@ import json
 import sqlite3
 from datetime import datetime
 from pathlib import Path
-import sys
-from pathlib import Path as _Path
-sys.path.insert(0, str(_Path(__file__).parent))
-from db_pool import get_connection
+from memory_system.db_pool import get_connection
 
 
 def export_dashboard_data(

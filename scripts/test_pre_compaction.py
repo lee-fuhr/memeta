@@ -6,13 +6,9 @@ Usage: python test_pre_compaction.py <session_id>
 """
 
 import sys
-from pathlib import Path
 
-# Add parent directory to path
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
-from src.pre_compaction_flush import extract_before_compaction
-from src.memory_ts_client import MemoryTSClient
+from memory_system.pre_compaction_flush import extract_before_compaction
+from memory_system.memory_ts_client import MemoryTSClient
 
 
 def main():

@@ -27,9 +27,7 @@ import sqlite3
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from pathlib import Path
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent))
-from db_pool import get_connection
+from memory_system.db_pool import get_connection
 from typing import List, Dict, Optional, Set, Tuple
 from collections import defaultdict, Counter
 import re
@@ -201,7 +199,7 @@ class DreamSynthesizer:
         """
         try:
             # Try to load from memory-ts client
-            from memory_ts_client import MemoryTSClient
+            from memory_system.memory_ts_client import MemoryTSClient
 
             client = MemoryTSClient(project_id="LFI")
             all_memories = client.search()  # Get all

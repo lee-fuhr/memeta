@@ -14,7 +14,7 @@ import tempfile
 import shutil
 from pathlib import Path
 from datetime import datetime, timedelta
-from src.daily_memory_maintenance import (
+from memory_system.daily_memory_maintenance import (
     MaintenanceRunner,
     apply_decay_to_all,
     archive_low_importance,
@@ -43,7 +43,7 @@ class TestDecayApplication:
 
     def test_decay_applied_to_old_memories(self, runner):
         """Memories not accessed recently get decayed"""
-        from src.memory_ts_client import MemoryTSClient
+        from memory_system.memory_ts_client import MemoryTSClient
 
         client = MemoryTSClient(memory_dir=runner.memory_dir)
 
@@ -73,7 +73,7 @@ class TestDecayApplication:
 
     def test_no_decay_for_recent_memories(self, runner):
         """Memories accessed today don't decay"""
-        from src.memory_ts_client import MemoryTSClient
+        from memory_system.memory_ts_client import MemoryTSClient
 
         client = MemoryTSClient(memory_dir=runner.memory_dir)
         memory = client.create(
@@ -94,7 +94,7 @@ class TestDecayApplication:
 
     def test_decay_respects_floor(self, runner):
         """Decay never produces negative importance"""
-        from src.memory_ts_client import MemoryTSClient
+        from memory_system.memory_ts_client import MemoryTSClient
 
         client = MemoryTSClient(memory_dir=runner.memory_dir)
 
@@ -121,7 +121,7 @@ class TestLowImportanceArchival:
 
     def test_archive_below_threshold(self, runner):
         """Memories <0.2 importance get archived"""
-        from src.memory_ts_client import MemoryTSClient
+        from memory_system.memory_ts_client import MemoryTSClient
 
         client = MemoryTSClient(memory_dir=runner.memory_dir)
 
@@ -144,7 +144,7 @@ class TestLowImportanceArchival:
 
     def test_keep_above_threshold(self, runner):
         """Memories >=0.2 importance stay active"""
-        from src.memory_ts_client import MemoryTSClient
+        from memory_system.memory_ts_client import MemoryTSClient
 
         client = MemoryTSClient(memory_dir=runner.memory_dir)
 
@@ -165,7 +165,7 @@ class TestLowImportanceArchival:
 
     def test_threshold_configurable(self, runner):
         """Archival threshold can be configured"""
-        from src.memory_ts_client import MemoryTSClient
+        from memory_system.memory_ts_client import MemoryTSClient
 
         client = MemoryTSClient(memory_dir=runner.memory_dir)
 
@@ -190,7 +190,7 @@ class TestStatsCollection:
 
     def test_collect_basic_stats(self, runner):
         """Collect basic memory statistics"""
-        from src.memory_ts_client import MemoryTSClient
+        from memory_system.memory_ts_client import MemoryTSClient
 
         client = MemoryTSClient(memory_dir=runner.memory_dir)
 
@@ -208,7 +208,7 @@ class TestStatsCollection:
 
     def test_stats_include_project_breakdown(self, runner):
         """Stats include per-project breakdown"""
-        from src.memory_ts_client import MemoryTSClient
+        from memory_system.memory_ts_client import MemoryTSClient
 
         client = MemoryTSClient(memory_dir=runner.memory_dir)
 
@@ -226,7 +226,7 @@ class TestStatsCollection:
 
     def test_stats_include_tag_distribution(self, runner):
         """Stats include tag distribution"""
-        from src.memory_ts_client import MemoryTSClient
+        from memory_system.memory_ts_client import MemoryTSClient
 
         client = MemoryTSClient(memory_dir=runner.memory_dir)
 
@@ -254,7 +254,7 @@ class TestHealthCheck:
 
     def test_health_check_counts_files(self, runner):
         """Health check counts memory files"""
-        from src.memory_ts_client import MemoryTSClient
+        from memory_system.memory_ts_client import MemoryTSClient
 
         client = MemoryTSClient(memory_dir=runner.memory_dir)
         client.create(content="Test", project_id="LFI", tags=["#test"])
@@ -280,7 +280,7 @@ class TestMaintenanceRunner:
 
     def test_runner_executes_all_tasks(self, runner):
         """Runner executes decay, archival, stats, health check"""
-        from src.memory_ts_client import MemoryTSClient
+        from memory_system.memory_ts_client import MemoryTSClient
 
         # Setup test data
         client = MemoryTSClient(memory_dir=runner.memory_dir)
@@ -311,7 +311,7 @@ class TestMaintenanceRunner:
 
     def test_runner_dry_run_mode(self, runner):
         """Runner supports dry-run mode (no changes)"""
-        from src.memory_ts_client import MemoryTSClient
+        from memory_system.memory_ts_client import MemoryTSClient
 
         client = MemoryTSClient(memory_dir=runner.memory_dir)
         memory = client.create(

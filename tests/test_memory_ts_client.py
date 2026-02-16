@@ -13,7 +13,7 @@ import tempfile
 import shutil
 from pathlib import Path
 from datetime import datetime
-from src.memory_ts_client import (
+from memory_system.memory_ts_client import (
     MemoryTSClient,
     Memory,
     MemoryNotFoundError,

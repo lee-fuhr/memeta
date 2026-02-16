@@ -4,7 +4,7 @@ import pytest
 import tempfile
 import os
 
-from src.wild.regret_detector import RegretDetector, DecisionOutcome, RegretPattern
+from memory_system.wild.regret_detector import RegretDetector, DecisionOutcome, RegretPattern
 
 
 @pytest.fixture

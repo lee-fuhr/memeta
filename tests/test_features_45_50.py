@@ -15,10 +15,10 @@ from pathlib import Path
 from unittest.mock import Mock, patch, MagicMock
 from datetime import datetime
 
-from src.multimodal.image_capture import ImageCapture, ImageMemory
-from src.multimodal.code_memory import CodeMemoryLibrary, CodeMemory
-from src.multimodal.decision_journal import DecisionJournal, Decision
-from src.meta_learning_system import MemoryABTesting, CrossSystemLearning, DreamMode
+from memory_system.multimodal.image_capture import ImageCapture, ImageMemory
+from memory_system.multimodal.code_memory import CodeMemoryLibrary, CodeMemory
+from memory_system.multimodal.decision_journal import DecisionJournal, Decision
+from memory_system.meta_learning_system import MemoryABTesting, CrossSystemLearning, DreamMode
 
 
 @pytest.fixture

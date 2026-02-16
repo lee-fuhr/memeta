@@ -14,7 +14,7 @@ import tempfile
 import json
 from pathlib import Path
 from datetime import datetime
-from src.session_consolidator import (
+from memory_system.session_consolidator import (
     SessionConsolidator,
     SessionMemory,
     SessionQualityScore,
@@ -136,7 +136,7 @@ class TestDeduplication:
     def test_deduplicate_against_existing(self, consolidator):
         """Remove duplicates of existing memories"""
         # Create existing memory
-        from src.memory_ts_client import MemoryTSClient
+        from memory_system.memory_ts_client import MemoryTSClient
         client = MemoryTSClient(memory_dir=consolidator.memory_dir)
         client.create(
             content="When clients object to pricing, acknowledge concern and reframe around value",
@@ -161,7 +161,7 @@ class TestDeduplication:
     def test_keeps_distinct_memories(self, consolidator):
         """Keep memories that are not duplicates"""
         # Create existing memory
-        from src.memory_ts_client import MemoryTSClient
+        from memory_system.memory_ts_client import MemoryTSClient
         client = MemoryTSClient(memory_dir=consolidator.memory_dir)
         client.create(
             content="Pricing objection handling",
@@ -245,7 +245,7 @@ class TestEndToEndConsolidation:
         consolidator.consolidate_session(sample_session_file, use_llm=False)
 
         # Check created memories have session_id
-        from src.memory_ts_client import MemoryTSClient
+        from memory_system.memory_ts_client import MemoryTSClient
         client = MemoryTSClient(memory_dir=consolidator.memory_dir)
         memories = client.search(project_id="LFI")
 

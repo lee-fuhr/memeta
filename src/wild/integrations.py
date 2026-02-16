@@ -13,13 +13,9 @@ import sqlite3
 from pathlib import Path
 from typing import List, Dict, Optional
 from datetime import datetime
-import sys
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
-sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
-
-from wild.intelligence_db import IntelligenceDB
-from memory_ts_client import MemoryTSClient, Memory
+from memory_system.wild.intelligence_db import IntelligenceDB
+from memory_system.memory_ts_client import MemoryTSClient, Memory
 
 # Feature 42: Meeting intelligence
 TRANSCRIPTS_DB = Path.home() / "CC/LFI/_ Operations/meeting-intelligence/transcripts.db"

@@ -7,10 +7,7 @@ import tempfile
 from pathlib import Path
 from datetime import datetime
 
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
-
-from intelligence.relationships import MemoryRelationships, MemoryRelationship
+from memory_system.intelligence.relationships import MemoryRelationships, MemoryRelationship
 
 
 @pytest.fixture
@@ -30,7 +27,7 @@ def relationships(temp_db):
 
 def test_init_creates_table(relationships, temp_db):
     """Test that initialization creates required table."""
-    from db_pool import get_connection
+    from memory_system.db_pool import get_connection
 
     with get_connection(temp_db) as conn:
         cursor = conn.execute("""

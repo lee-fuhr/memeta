@@ -9,7 +9,7 @@ import pytest
 import tempfile
 from pathlib import Path
 
-from src.wild.integrations import (
+from memory_system.wild.integrations import (
     analyze_email_sentiment,
     extract_email_actions,
     detect_email_patterns

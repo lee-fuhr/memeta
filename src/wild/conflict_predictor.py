@@ -8,13 +8,10 @@ Prevents surprises and reduces future conflict resolution work.
 from typing import Dict, List, Optional, Tuple
 from pathlib import Path
 import hashlib
-import sys
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
-from wild.intelligence_db import IntelligenceDB
-from memory_ts_client import MemoryTSClient
-from contradiction_detector import find_similar_memories, check_contradictions
+from memory_system.wild.intelligence_db import IntelligenceDB
+from memory_system.memory_ts_client import MemoryTSClient
+from memory_system.contradiction_detector import find_similar_memories, check_contradictions
 
 
 def predict_conflicts(new_memory_content: str,

@@ -5,15 +5,12 @@ Integrates existing lifespan_prediction.py with wild features.
 Predicts when memories become stale and flags for review.
 """
 
-import sys
 from pathlib import Path
 from datetime import datetime
 from typing import Dict, List, Optional
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
 # Import existing lifespan prediction module
-from lifespan_prediction import (
+from memory_system.lifespan_prediction import (
     predict_lifespan_category,
     predict_expiration_date,
     should_flag_for_review,
@@ -21,7 +18,7 @@ from lifespan_prediction import (
     get_lifespan_stats
 )
 
-from memory_ts_client import MemoryTSClient
+from memory_system.memory_ts_client import MemoryTSClient
 
 
 def analyze_memory_lifespans(memory_dir: Optional[Path] = None) -> Dict:

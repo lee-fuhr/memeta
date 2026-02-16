@@ -8,7 +8,7 @@ import sqlite3
 from datetime import datetime, timedelta
 from pathlib import Path
 
-from src.wild.prompt_evolver import (
+from memory_system.wild.prompt_evolver import (
     ExtractionPromptEvolver,
     ExtractionPrompt,
     PromptTestResult

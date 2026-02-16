@@ -7,13 +7,9 @@ Tests version creation, history tracking, diffs, and rollback functionality.
 import pytest
 import tempfile
 import time
-from pathlib import Path
 
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
-from src.intelligence.database import IntelligenceDB
-from src.intelligence.versioning import MemoryVersioning, MemoryVersion
+from memory_system.intelligence.database import IntelligenceDB
+from memory_system.intelligence.versioning import MemoryVersioning, MemoryVersion
 
 
 @pytest.fixture

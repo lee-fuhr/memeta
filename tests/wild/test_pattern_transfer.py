@@ -4,7 +4,7 @@ import pytest
 import tempfile
 import os
 
-from src.wild.pattern_transfer import PatternTransferer, PatternTransfer
+from memory_system.wild.pattern_transfer import PatternTransferer, PatternTransfer
 
 
 @pytest.fixture

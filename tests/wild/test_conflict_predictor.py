@@ -9,7 +9,7 @@ import pytest
 import tempfile
 from pathlib import Path
 
-from src.wild.conflict_predictor import (
+from memory_system.wild.conflict_predictor import (
     predict_conflicts,
     _calculate_conflict_confidence
 )

@@ -14,9 +14,7 @@ from datetime import datetime, timedelta
 from typing import List, Dict, Optional, Literal
 from dataclasses import dataclass
 
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent))
-from db_pool import get_connection
+from memory_system.db_pool import get_connection
 
 
 # Alert types

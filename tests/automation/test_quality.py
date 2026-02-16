@@ -5,12 +5,8 @@ Tests for Feature 32: Quality Scoring
 import pytest
 from datetime import datetime
 
-import sys
-from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
-
-from automation.quality import QualityScoring, QualityScore
-from memory_ts_client import Memory
+from memory_system.automation.quality import QualityScoring, QualityScore
+from memory_system.memory_ts_client import Memory
 
 
 @pytest.fixture

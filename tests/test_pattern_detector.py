@@ -12,17 +12,14 @@ from pathlib import Path
 from datetime import datetime
 from unittest.mock import MagicMock, patch
 
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
-from src.fsrs_scheduler import FSRSScheduler, ReviewGrade
-from src.pattern_detector import (
+from memory_system.fsrs_scheduler import FSRSScheduler, ReviewGrade
+from memory_system.pattern_detector import (
     PatternDetector,
     ReinforcementSignal,
     normalize_text,
     word_overlap_score,
 )
-from src.session_consolidator import SessionConsolidator
+from memory_system.session_consolidator import SessionConsolidator
 
 
 @pytest.fixture

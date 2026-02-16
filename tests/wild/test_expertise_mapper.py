@@ -4,7 +4,7 @@ import pytest
 import tempfile
 import os
 
-from src.wild.expertise_mapper import ExpertiseMapper
+from memory_system.wild.expertise_mapper import ExpertiseMapper
 
 
 @pytest.fixture

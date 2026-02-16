@@ -7,13 +7,9 @@ Tests review scheduling, interval calculation, and promotion readiness.
 import json
 import pytest
 import sqlite3
-from pathlib import Path
 from datetime import datetime, timedelta
 
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
-from src.fsrs_scheduler import (
+from memory_system.fsrs_scheduler import (
     FSRSScheduler,
     ReviewGrade,
     MemoryReviewState,

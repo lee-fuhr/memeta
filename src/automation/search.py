@@ -21,10 +21,8 @@ from datetime import datetime, timedelta
 from typing import List, Dict, Optional, Tuple
 from dataclasses import dataclass, asdict
 
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent))
-from db_pool import get_connection
-from memory_ts_client import MemoryTSClient, Memory
+from memory_system.db_pool import get_connection
+from memory_system.memory_ts_client import MemoryTSClient, Memory
 
 
 @dataclass

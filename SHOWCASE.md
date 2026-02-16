@@ -464,7 +464,41 @@ velocity = db.get_learning_velocity(domain="client-work", days=30)
 
 ---
 
-*Last updated: 2026-02-13*
-*Version: 0.7.0*
-*Status: 58 features production-ready, 765/767 tests passing (99.7%)*
+*Last updated: 2026-02-15*
+*Version: 0.9.0*
+*Status: 58 features production-ready, 1086/1088 tests passing (99.8%)*
 *Vision: Autonomous memory that thinks alongside you*
+
+---
+
+## Progress log
+
+What's been done, most recent first.
+
+**2026-02-15 — v0.9.0: Package infrastructure + import cleanup**
+- Created `pyproject.toml` — package now installable via `pip install -e .`
+- Removed all 71 sys.path hacks across tests, source, hooks, and scripts
+- All imports now use `from memory_system.X import ...` — no more fragile path manipulation
+- Created `conftest.py` at project root
+- Venv at `~/.local/venvs/memory-system/`
+
+**2026-02-15 — v0.8.1: Critical infrastructure tests**
+- Added 322 new tests across 5 previously untested modules: db_pool (50), embedding_manager (62), semantic_search (72), hybrid_search (73), session_history_db (65)
+- Fixed 3 bugs in session_history_db.py found during test writing (docstring syntax, indentation errors, FTS5 bad reference)
+- Total: 1086 passing (was 765)
+
+**2026-02-13 — v0.8.0: F63 + docs**
+- Discovered F63 (prompt evolution) was already built but marked as unshipped — updated all docs
+- 58 features now correctly documented
+
+**2026-02-13 — v0.7.0: QA + design passes**
+- 4-agent QA swarm: code quality, test coverage, data integrity, performance
+- Critical fixes: bounded LRU caches, SQL injection whitelist, missing DB indices, automation/__init__.py, 3 legacy stubs deleted
+- 2-agent design pass: feature coherence + API surface review
+- 765 tests passing, 0 failing
+
+**2026-02-13 — v0.6.0: All 58 features complete**
+- Fixed 8 failing tests (API mismatches, import contamination)
+- Expanded F61 A/B testing: 4 → 14 tests
+- Expanded F75 dream synthesis: 4 → 16 tests
+- All 57+1 features verified working

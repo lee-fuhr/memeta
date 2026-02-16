@@ -11,8 +11,8 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from unittest.mock import Mock, patch
 
-from src.wild.temporal_predictor import TemporalPatternPredictor, TemporalPattern
-from src.memory_ts_client import MemoryTSClient, Memory
+from memory_system.wild.temporal_predictor import TemporalPatternPredictor, TemporalPattern
+from memory_system.memory_ts_client import MemoryTSClient, Memory
 
 
 @pytest.fixture

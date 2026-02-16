@@ -20,16 +20,11 @@ Usage:
     python3 consolidation_worker.py --once
 """
 
-import sys
 import time
 import argparse
-from pathlib import Path
 from datetime import datetime
 
-# Add src to path
-sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
-
-from async_consolidation import process_consolidation_queue, ConsolidationQueue
+from memory_system.async_consolidation import process_consolidation_queue, ConsolidationQueue
 
 
 def worker_loop(sleep_seconds: int = 60, max_per_run: int = 10):

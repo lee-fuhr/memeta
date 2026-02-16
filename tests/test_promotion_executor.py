@@ -7,15 +7,11 @@ FSRS state marking, and promotion logging.
 
 import json
 import pytest
-from pathlib import Path
 from datetime import datetime
 
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
-from src.fsrs_scheduler import FSRSScheduler, ReviewGrade
-from src.memory_ts_client import MemoryTSClient
-from src.promotion_executor import (
+from memory_system.fsrs_scheduler import FSRSScheduler, ReviewGrade
+from memory_system.memory_ts_client import MemoryTSClient
+from memory_system.promotion_executor import (
     PromotionExecutor,
     PromotionResult,
 )

@@ -16,18 +16,14 @@ Safety rails:
 """
 
 import os
-import sys
 import json
 from pathlib import Path
 from datetime import datetime, timedelta
 from typing import List, Dict
 
-# Add parent directory to path
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
-from src.session_history_db import get_recent_sessions, search_sessions
-from src.pattern_miner import mine_all_patterns
-from src.llm_extractor import ask_claude
+from memory_system.session_history_db import get_recent_sessions, search_sessions
+from memory_system.pattern_miner import mine_all_patterns
+from memory_system.llm_extractor import ask_claude
 
 
 PROPOSALS_DIR = Path.home() / "CC/LFI/_ Inbox/proposed-optimizations"

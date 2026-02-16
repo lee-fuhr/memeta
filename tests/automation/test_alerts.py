@@ -8,10 +8,7 @@ import tempfile
 from pathlib import Path
 from datetime import datetime, timedelta
 
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
-
-from automation.alerts import SmartAlerts, Alert, AlertDigest
+from memory_system.automation.alerts import SmartAlerts, Alert, AlertDigest
 
 
 @pytest.fixture
@@ -31,7 +28,7 @@ def alerts(temp_db):
 
 def test_init_creates_tables(alerts, temp_db):
     """Test initialization creates tables."""
-    from db_pool import get_connection
+    from memory_system.db_pool import get_connection
 
     with get_connection(temp_db) as conn:
         cursor = conn.execute("""
@@ -240,7 +237,7 @@ def test_cleanup_old_alerts(alerts):
     alerts.dismiss_alert(alert.alert_id)
 
     # Manually set dismissed_at to 100 days ago
-    from db_pool import get_connection
+    from memory_system.db_pool import get_connection
     old_timestamp = int((datetime.now() - timedelta(days=100)).timestamp())
     with get_connection(alerts.db_path) as conn:
         conn.execute("UPDATE smart_alerts SET dismissed_at = ? WHERE alert_id = ?",
@@ -275,7 +272,7 @@ def test_cleanup_keeps_undismissed_alerts(alerts):
     alert = alerts.create_alert("quality_issue", "low", "Old Undismissed", "Msg", ["m1"])
 
     # Manually set created_at to 100 days ago
-    from db_pool import get_connection
+    from memory_system.db_pool import get_connection
     old_timestamp = int((datetime.now() - timedelta(days=100)).timestamp())
     with get_connection(alerts.db_path) as conn:
         conn.execute("UPDATE smart_alerts SET created_at = ? WHERE alert_id = ?",

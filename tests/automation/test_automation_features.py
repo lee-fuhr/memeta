@@ -7,14 +7,11 @@ import tempfile
 from pathlib import Path
 from datetime import datetime, timedelta
 
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
-
-from automation.alerts import SmartAlerts
-from automation.search import MemoryAwareSearch, SearchQuery
-from automation.summarization import AutoSummarization, TopicSummary
-from automation.quality import QualityScoring
-from memory_ts_client import Memory
+from memory_system.automation.alerts import SmartAlerts
+from memory_system.automation.search import MemoryAwareSearch, SearchQuery
+from memory_system.automation.summarization import AutoSummarization, TopicSummary
+from memory_system.automation.quality import QualityScoring
+from memory_system.memory_ts_client import Memory
 
 
 @pytest.fixture
@@ -179,7 +176,7 @@ def test_f32_find_low_quality():
 
 def test_f32_quality_score_dataclass():
     """Test QualityScore dataclass."""
-    from automation.quality import QualityScore
+    from memory_system.automation.quality import QualityScore
     
     score = QualityScore(
         memory_id="mem_001",

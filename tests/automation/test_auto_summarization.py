@@ -7,11 +7,8 @@ import tempfile
 from pathlib import Path
 from datetime import datetime, timedelta
 
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
-
-from automation.summarization import AutoSummarization, TopicSummary
-from memory_ts_client import Memory
+from memory_system.automation.summarization import AutoSummarization, TopicSummary
+from memory_system.memory_ts_client import Memory
 
 
 @pytest.fixture
@@ -64,7 +61,7 @@ def mock_memories():
 
 def test_init_creates_tables(summarizer, temp_db):
     """Test initialization creates summaries table."""
-    from db_pool import get_connection
+    from memory_system.db_pool import get_connection
 
     with get_connection(temp_db) as conn:
         cursor = conn.execute("""

@@ -10,7 +10,7 @@ Testing:
 
 import pytest
 from datetime import datetime, timedelta
-from src.importance_engine import (
+from memory_system.importance_engine import (
     calculate_importance,
     apply_decay,
     apply_reinforcement,

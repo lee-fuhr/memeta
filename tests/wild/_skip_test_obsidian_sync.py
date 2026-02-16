@@ -9,7 +9,7 @@ import pytest
 import tempfile
 from pathlib import Path
 
-from src.wild.integrations import (
+from memory_system.wild.integrations import (
     export_to_obsidian,
     import_from_obsidian,
     sync_obsidian_vault

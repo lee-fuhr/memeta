@@ -8,25 +8,25 @@ from pathlib import Path
 from datetime import datetime, timedelta
 
 # Feature 33: Sentiment
-from src.wild.sentiment_tracker import analyze_sentiment, get_sentiment_trends
+from memory_system.wild.sentiment_tracker import analyze_sentiment, get_sentiment_trends
 
 # Feature 34: Velocity
-from src.wild.learning_velocity import calculate_velocity_metrics, _is_correction
+from memory_system.wild.learning_velocity import calculate_velocity_metrics, _is_correction
 
 # Feature 35: Personality
-from src.wild.personality_drift import analyze_communication_style, detect_drift
+from memory_system.wild.personality_drift import analyze_communication_style, detect_drift
 
 # Feature 37: Conflict prediction
-from src.wild.conflict_predictor import predict_conflicts, _calculate_conflict_confidence
+from memory_system.wild.conflict_predictor import predict_conflicts, _calculate_conflict_confidence
 
 # Feature 38-42: Integrations
-from src.wild.integrations import (
+from memory_system.wild.integrations import (
     export_to_obsidian, export_to_roam, learn_email_pattern,
     _extract_meeting_insights
 )
 
 # Database
-from src.wild.intelligence_db import IntelligenceDB
+from memory_system.wild.intelligence_db import IntelligenceDB
 
 
 # ============================================================================
@@ -76,7 +76,7 @@ class TestSentimentTracking:
 class TestLearningVelocity:
     def test_is_correction_detection(self):
         """Identifies correction memories"""
-        from src.memory_ts_client import Memory
+        from memory_system.memory_ts_client import Memory
 
         correction = Memory(
             id="test1",
@@ -112,7 +112,7 @@ class TestLearningVelocity:
 class TestPersonalityDrift:
     def test_directness_scoring(self):
         """Scores directness correctly"""
-        from src.memory_ts_client import Memory
+        from memory_system.memory_ts_client import Memory
 
         direct_mems = [
             Memory(id="1", content="Just do this. Don't use that.", importance=0.7,
@@ -135,7 +135,7 @@ class TestPersonalityDrift:
 
     def test_verbosity_scoring(self):
         """Scores verbosity correctly"""
-        from src.memory_ts_client import Memory
+        from memory_system.memory_ts_client import Memory
 
         concise = [Memory(id="1", content="Short text", importance=0.7,
                          tags=[], project_id="test")]
@@ -181,7 +181,7 @@ class TestConflictPrediction:
 class TestIntegrations:
     def test_roam_export_format(self):
         """Exports to Roam format correctly"""
-        from src.memory_ts_client import Memory
+        from memory_system.memory_ts_client import Memory
 
         memories = [
             Memory(

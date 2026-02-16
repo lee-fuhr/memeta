@@ -4,7 +4,7 @@ import pytest
 import tempfile
 import os
 
-from src.wild.momentum_tracker import MomentumTracker, MomentumScore
+from memory_system.wild.momentum_tracker import MomentumTracker, MomentumScore
 
 
 @pytest.fixture

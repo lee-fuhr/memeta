@@ -11,7 +11,7 @@ import tempfile
 import os
 import sqlite3
 
-from src.wild.writing_analyzer import WritingStyleAnalyzer, WritingSnapshot, StyleTrend
+from memory_system.wild.writing_analyzer import WritingStyleAnalyzer, WritingSnapshot, StyleTrend
 
 
 @pytest.fixture

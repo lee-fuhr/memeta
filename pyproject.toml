@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "memory-system"
+version = "0.8.0"
+description = "Memory intelligence system for Claude Code"
+requires-python = ">=3.11"
+dependencies = [
+    "numpy",
+]
+
+[project.optional-dependencies]
+ml = [
+    "sentence-transformers",
+    "scikit-learn",
+]
+test = [
+    "pytest>=7.0",
+]
+
+[tool.setuptools.package-dir]
+"memory_system" = "src"
+"memory_system.intelligence" = "src/intelligence"
+"memory_system.automation" = "src/automation"
+"memory_system.multimodal" = "src/multimodal"
+"memory_system.wild" = "src/wild"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]

@@ -5,7 +5,7 @@ Tests for intelligence_db.py - Shared database for Features 44-50
 import pytest
 import tempfile
 from pathlib import Path
-from src.intelligence_db import IntelligenceDB
+from memory_system.intelligence_db import IntelligenceDB
 
 
 @pytest.fixture

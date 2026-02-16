@@ -7,18 +7,10 @@ Summarizes all sessions from past 24 hours.
 """
 
 import os
-import sys
 import sqlite3
 from datetime import datetime, timedelta
-from pathlib import Path
 
-# Add parent directory to Python path
-script_dir = Path(__file__).parent
-project_dir = script_dir.parent
-sys.path.insert(0, str(project_dir))
-
-# Import after path setup
-from src.session_consolidator import SessionConsolidator
+from memory_system.session_consolidator import SessionConsolidator
 
 
 def generate_daily_summary():

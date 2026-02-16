@@ -16,11 +16,7 @@ import sqlite3
 from pathlib import Path
 import tempfile
 from datetime import datetime, timedelta
-import sys
-
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
-
-from intelligence.reinforcement_scheduler import (
+from memory_system.intelligence.reinforcement_scheduler import (
     ReinforcementScheduler,
     ReviewSchedule,
     ReviewHistoryEntry

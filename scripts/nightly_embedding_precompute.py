@@ -13,14 +13,9 @@ Usage:
     python3 nightly_embedding_precompute.py
 """
 
-import sys
-from pathlib import Path
-
-# Add src to path
-sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
-
-from embedding_manager import EmbeddingManager
 from datetime import datetime
+
+from memory_system.embedding_manager import EmbeddingManager
 
 
 def main():

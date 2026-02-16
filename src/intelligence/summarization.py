@@ -22,17 +22,15 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import List, Optional
-import sys
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
-from intelligence_db import IntelligenceDB
-from memory_ts_client import MemoryTSClient
+from memory_system.intelligence_db import IntelligenceDB
+from memory_system.memory_ts_client import MemoryTSClient
 
 
 # Dynamic import to avoid issues
 def _ask_claude(prompt: str, model: str = "sonnet", temperature: float = 0.3, timeout: int = 30) -> str:
     """Wrapper for ask_claude import"""
-    import llm_extractor
+    from memory_system import llm_extractor
     return llm_extractor.ask_claude(prompt, timeout=timeout)
 
 

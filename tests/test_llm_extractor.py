@@ -7,19 +7,15 @@ with pattern-based extraction. CLI invocation is mocked.
 
 import json
 import pytest
-from pathlib import Path
 from unittest.mock import patch, MagicMock
 
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
-from src.llm_extractor import (
+from memory_system.llm_extractor import (
     generate_extraction_prompt,
     parse_llm_response,
     extract_with_llm,
     combine_extractions,
 )
-from src.session_consolidator import SessionMemory
+from memory_system.session_consolidator import SessionMemory
 
 
 class TestPromptGeneration:
@@ -191,7 +187,7 @@ class TestCombineExtractions:
 class TestExtractWithLLM:
     """Test full LLM extraction pipeline (CLI mocked)"""
 
-    @patch("src.llm_extractor.subprocess.run")
+    @patch("memory_system.llm_extractor.subprocess.run")
     def test_calls_claude_cli(self, mock_run):
         """Should invoke claude -p with extraction prompt"""
         mock_run.return_value = MagicMock(
@@ -204,7 +200,7 @@ class TestExtractWithLLM:
         call_args = mock_run.call_args
         assert "claude" in call_args[0][0][0]
 
-    @patch("src.llm_extractor.subprocess.run")
+    @patch("memory_system.llm_extractor.subprocess.run")
     def test_returns_parsed_memories(self, mock_run):
         """Should return parsed SessionMemory objects"""
         mock_run.return_value = MagicMock(
@@ -217,7 +213,7 @@ class TestExtractWithLLM:
         assert memories[0].content == "Always validate input"
         assert "#llm-extracted" in memories[0].tags
 
-    @patch("src.llm_extractor.subprocess.run")
+    @patch("memory_system.llm_extractor.subprocess.run")
     def test_handles_cli_failure(self, mock_run):
         """Should return empty list if CLI fails"""
         mock_run.return_value = MagicMock(
@@ -228,7 +224,7 @@ class TestExtractWithLLM:
         memories = extract_with_llm("conversation text", project_id="LFI")
         assert len(memories) == 0
 
-    @patch("src.llm_extractor.subprocess.run")
+    @patch("memory_system.llm_extractor.subprocess.run")
     def test_handles_cli_timeout(self, mock_run):
         """Should return empty list on timeout"""
         import subprocess
@@ -236,7 +232,7 @@ class TestExtractWithLLM:
         memories = extract_with_llm("conversation text", project_id="LFI")
         assert len(memories) == 0
 
-    @patch("src.llm_extractor.subprocess.run")
+    @patch("memory_system.llm_extractor.subprocess.run")
     def test_handles_cli_not_found(self, mock_run):
         """Should return empty list if claude CLI not installed"""
         mock_run.side_effect = FileNotFoundError("claude not found")

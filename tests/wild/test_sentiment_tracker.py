@@ -3,7 +3,7 @@ Tests for sentiment_tracker.py (Feature 33)
 """
 
 import pytest
-from src.wild.sentiment_tracker import (
+from memory_system.wild.sentiment_tracker import (
     analyze_sentiment,
     get_sentiment_trends,
     get_sentiment_timeline,

@@ -28,10 +28,7 @@ from pathlib import Path
 from typing import Dict, List, Optional
 from datetime import datetime
 
-import sys
-from pathlib import Path as _Path
-sys.path.insert(0, str(_Path(__file__).parent))
-from db_pool import get_connection
+from memory_system.db_pool import get_connection
 
 
 SESSION_DB_PATH = Path.home() / ".local/share/memory/LFI/session-history.db"

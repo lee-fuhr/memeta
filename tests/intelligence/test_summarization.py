@@ -17,16 +17,13 @@ import json
 from pathlib import Path
 import tempfile
 from datetime import datetime, timedelta
-import sys
 from unittest.mock import Mock, patch
 
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
-
-from intelligence.summarization import (
+from memory_system.intelligence.summarization import (
     MemorySummarizer,
     Summary
 )
-from intelligence_db import IntelligenceDB
+from memory_system.intelligence_db import IntelligenceDB
 
 
 @pytest.fixture
@@ -125,7 +122,7 @@ def test_summarize_cluster_basic(summarizer, mock_memory_client):
     summarizer.intel_db.conn.commit()
 
     # Mock LLM response
-    with patch('intelligence.summarization._ask_claude', return_value="This cluster is about testing. It contains three related memories about unit tests and code quality. The key pattern is focus on test coverage."):
+    with patch('memory_system.intelligence.summarization._ask_claude', return_value="This cluster is about testing. It contains three related memories about unit tests and code quality. The key pattern is focus on test coverage."):
         summary = summarizer.summarize_cluster(cluster_id)
 
     assert summary is not None
@@ -192,7 +189,7 @@ def test_summarize_cluster_llm_fallback(summarizer, mock_memory_client):
     summarizer.intel_db.conn.commit()
 
     # Mock LLM timeout
-    with patch('intelligence.summarization._ask_claude', side_effect=Exception("Timeout")):
+    with patch('memory_system.intelligence.summarization._ask_claude', side_effect=Exception("Timeout")):
         summary = summarizer.summarize_cluster(cluster_id)
 
     assert summary is not None
@@ -212,7 +209,7 @@ def test_summarize_project_basic(summarizer, mock_memory_client):
     mock_memory_client.search.return_value = memories
 
     # Mock LLM response
-    with patch('intelligence.summarization._ask_claude', return_value="Project made progress on features A, B, and C. Key decisions included architecture changes. No major blockers. Learned importance of test coverage."):
+    with patch('memory_system.intelligence.summarization._ask_claude', return_value="Project made progress on features A, B, and C. Key decisions included architecture changes. No major blockers. Learned importance of test coverage."):
         summary = summarizer.summarize_project("proj1", days=30)
 
     assert summary is not None
@@ -254,7 +251,7 @@ def test_summarize_project_date_filtering(summarizer, mock_memory_client):
 
     mock_memory_client.search.return_value = in_range + out_of_range
 
-    with patch('intelligence.summarization._ask_claude', return_value="Summary of recent work."):
+    with patch('memory_system.intelligence.summarization._ask_claude', return_value="Summary of recent work."):
         summary = summarizer.summarize_project("proj1", days=30)
 
     # Should only count memories within 30 days
@@ -276,7 +273,7 @@ def test_summarize_period_basic(summarizer, mock_memory_client):
     ]
     mock_memory_client.search.return_value = memories
 
-    with patch('intelligence.summarization._ask_claude', return_value="**Testing theme**: Focused on test coverage improvements.\n**Development theme**: Implemented new features A and B.\n**Documentation theme**: Updated README and added examples."):
+    with patch('memory_system.intelligence.summarization._ask_claude', return_value="**Testing theme**: Focused on test coverage improvements.\n**Development theme**: Implemented new features A and B.\n**Documentation theme**: Updated README and added examples."):
         summary = summarizer.summarize_period(start, end)
 
     assert summary is not None
@@ -308,7 +305,7 @@ def test_summarize_period_date_swap(summarizer, mock_memory_client):
     ]
     mock_memory_client.search.return_value = memories
 
-    with patch('intelligence.summarization._ask_claude', return_value="Summary of period."):
+    with patch('memory_system.intelligence.summarization._ask_claude', return_value="Summary of period."):
         summary = summarizer.summarize_period(start, end)
 
     # Should have swapped dates
@@ -366,13 +363,13 @@ def test_regenerate_summary(summarizer, mock_memory_client):
     summarizer.intel_db.conn.commit()
 
     # Create initial summary
-    with patch('intelligence.summarization._ask_claude', return_value="Original summary."):
+    with patch('memory_system.intelligence.summarization._ask_claude', return_value="Original summary."):
         original = summarizer.summarize_cluster(cluster_id)
 
     original_id = original.id
 
     # Regenerate
-    with patch('intelligence.summarization._ask_claude', return_value="Regenerated summary."):
+    with patch('memory_system.intelligence.summarization._ask_claude', return_value="Regenerated summary."):
         regenerated = summarizer.regenerate_summary(original_id)
 
     assert regenerated is not None

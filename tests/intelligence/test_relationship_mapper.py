@@ -16,11 +16,7 @@ import sqlite3
 from pathlib import Path
 import tempfile
 from datetime import datetime
-import sys
-
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
-
-from intelligence.relationship_mapper import (
+from memory_system.intelligence.relationship_mapper import (
     RelationshipMapper,
     MemoryRelationship
 )

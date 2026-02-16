@@ -6,17 +6,12 @@ Collects promoted memories, generates synthesis draft,
 sends Pushover notification to Lee.
 """
 
-import sys
 from pathlib import Path
 
-# Add project root to path
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
-
-from src.weekly_synthesis import WeeklySynthesis
-from src.fsrs_scheduler import FSRSScheduler
-from src.memory_ts_client import MemoryTSClient
-from src.promotion_executor import PromotionExecutor
+from memory_system.weekly_synthesis import WeeklySynthesis
+from memory_system.fsrs_scheduler import FSRSScheduler
+from memory_system.memory_ts_client import MemoryTSClient
+from memory_system.promotion_executor import PromotionExecutor
 
 
 def main():

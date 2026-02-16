@@ -8,7 +8,7 @@ from pathlib import Path
 import tempfile
 import sqlite3
 
-from src.wild.frustration_detector import FrustrationDetector, FrustrationSignal
+from memory_system.wild.frustration_detector import FrustrationDetector, FrustrationSignal
 
 
 @pytest.fixture

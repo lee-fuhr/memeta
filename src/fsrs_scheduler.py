@@ -9,16 +9,13 @@ Storage: SQLite database (fsrs.db)
 
 import json
 import sqlite3
-import sys
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from enum import IntEnum
 from pathlib import Path
 from typing import List, Optional
 
-# Add src to path for db_pool import
-sys.path.insert(0, str(Path(__file__).parent))
-from db_pool import get_connection
+from memory_system.db_pool import get_connection
 
 
 
@@ -93,7 +90,7 @@ class FSRSScheduler:
         Note: Returns connection from pool. Caller must close() when done.
         TODO: Refactor to use context manager pattern for auto-return to pool.
         """
-        from db_pool import get_pool
+        from memory_system.db_pool import get_pool
         pool = get_pool(self.db_path)
         return pool.get_connection()
 

@@ -12,15 +12,12 @@ Database: intelligence.db (memory_triggers, trigger_log tables)
 """
 
 import json
-import sys
 from pathlib import Path
 from datetime import datetime
 from typing import List, Dict, Optional, Literal, Callable
 from dataclasses import dataclass
 
-# Add parent to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
-from db_pool import get_connection
+from memory_system.db_pool import get_connection
 
 
 # Action types

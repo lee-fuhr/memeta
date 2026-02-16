@@ -13,13 +13,9 @@ Usage:
 import sys
 import json
 import argparse
-from pathlib import Path
 from datetime import datetime
 
-# Add parent directory to path
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
-from src.session_history_db import (
+from memory_system.session_history_db import (
     search_sessions,
     get_session_by_id,
     get_recent_sessions,

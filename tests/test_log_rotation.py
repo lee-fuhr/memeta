@@ -6,12 +6,8 @@ Tests line counting, gzip archiving, truncation, and threshold behavior.
 
 import gzip
 import pytest
-from pathlib import Path
 
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
-from src.log_rotation import maybe_rotate_log
+from memory_system.log_rotation import maybe_rotate_log
 
 
 @pytest.fixture

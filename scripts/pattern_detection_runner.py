@@ -11,13 +11,9 @@ Usage:
 
 import json
 import sys
-from pathlib import Path
 
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
-
-from src.pattern_detector import PatternDetector
-from src.fsrs_scheduler import FSRSScheduler
+from memory_system.pattern_detector import PatternDetector
+from memory_system.fsrs_scheduler import FSRSScheduler
 
 
 def main():

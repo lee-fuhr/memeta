@@ -20,15 +20,13 @@ Usage:
     python3 nightly_maintenance_master.py
 """
 
-import sys
 import subprocess
 from pathlib import Path
 from datetime import datetime
 import sqlite3
 import shutil
-import sys
-sys.path.insert(0, str(SCRIPTS_DIR.parent / "src"))
-from db_pool import get_connection
+
+from memory_system.db_pool import get_connection
 
 
 SCRIPTS_DIR = Path(__file__).parent

@@ -10,13 +10,13 @@ from pathlib import Path
 import tempfile
 import sqlite3
 
-from src.wild.dream_synthesizer import (
+from memory_system.wild.dream_synthesizer import (
     DreamSynthesizer,
     MemoryNode,
     Connection,
     Synthesis
 )
-from src.db_pool import get_connection
+from memory_system.db_pool import get_connection
 
 
 @pytest.fixture

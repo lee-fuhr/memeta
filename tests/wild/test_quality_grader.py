@@ -10,7 +10,7 @@ from pathlib import Path
 import tempfile
 import sqlite3
 
-from src.wild.quality_grader import MemoryQualityGrader, QualityGrade
+from memory_system.wild.quality_grader import MemoryQualityGrader, QualityGrade
 
 
 @pytest.fixture
