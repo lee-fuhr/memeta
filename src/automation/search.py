@@ -23,6 +23,7 @@ from dataclasses import dataclass, asdict
 
 from memory_system.db_pool import get_connection
 from memory_system.memory_ts_client import MemoryTSClient, Memory
+from memory_system.intelligence.search_optimizer import SearchOptimizer
 
 
 @dataclass
@@ -96,6 +97,7 @@ class MemoryAwareSearch:
         if db_path is None:
             db_path = Path(__file__).parent.parent / "intelligence.db"
         self.db_path = Path(db_path)
+        self.optimizer = SearchOptimizer(db_path=str(self.db_path))
         self._init_db()
 
     def _init_db(self):
@@ -129,15 +131,16 @@ class MemoryAwareSearch:
         Returns:
             List of SearchResult objects
         """
-        results = self.client.search(content=query)[:limit]
+        def _search_fn(q: str) -> list:
+            return self.client.search(content=q)
 
-        search_results = []
-        for mem in results:
-            search_results.append(SearchResult(
-                memory=mem,
-                relevance_score=mem.importance,
-                match_reason="Content match"
-            ))
+        memories = self.optimizer.search_with_cache(query, _search_fn)
+        memories = self.optimizer.rank_results(memories, query)[:limit]
+
+        search_results = [
+            SearchResult(memory=mem, relevance_score=mem.importance, match_reason="Content match")
+            for mem in memories
+        ]
 
         self._log_search(query, {}, len(search_results))
 
@@ -174,9 +177,14 @@ class MemoryAwareSearch:
         Returns:
             List of SearchResult objects
         """
-        # Start with base search or all memories
+        # Start with base search or all memories — use cache when text query present
         if text_query:
-            memories = self.client.search(content=text_query)
+            def _search_fn(q: str) -> list:
+                return self.client.search(content=q)
+
+            memories = self.optimizer.search_with_cache(
+                text_query, _search_fn, project_id=project_id
+            )
         else:
             memories = self.client.search(content="", project_id=project_id)
 
@@ -225,7 +233,12 @@ class MemoryAwareSearch:
         elif order_by == "recency":
             filtered.sort(key=lambda r: r.memory.created, reverse=True)
         elif order_by == "relevance":
-            filtered.sort(key=lambda r: r.relevance_score, reverse=True)
+            # Delegate to F28 optimizer for multi-factor ranking
+            ranked_memories = self.optimizer.rank_results(
+                [r.memory for r in filtered], text_query
+            )
+            memory_order = {mem.id: i for i, mem in enumerate(ranked_memories)}
+            filtered.sort(key=lambda r: memory_order.get(r.memory.id, len(filtered)))
 
         results = filtered[:limit]
 

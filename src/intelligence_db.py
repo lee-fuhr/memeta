@@ -10,7 +10,6 @@ from pathlib import Path
 from typing import Optional
 from datetime import datetime
 
-from memory_system.db_pool import get_connection
 
 
 class IntelligenceDB:
@@ -38,10 +37,7 @@ class IntelligenceDB:
             db_path = Path(__file__).parent.parent / "intelligence.db"
 
         self.db_path = Path(db_path)
-        # Initialize connection from pool (not context manager)
-        from memory_system.db_pool import get_pool
-        pool = get_pool(str(self.db_path))
-        self.conn = pool.get_connection()
+        self.conn = sqlite3.connect(str(self.db_path))
         self.conn.row_factory = sqlite3.Row
         self._init_schema()
 
