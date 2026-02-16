@@ -1,40 +1,85 @@
-# Memory System v1 - Final delivery
+# Memory System v1 — Handoff
 
-**Session:** 2026-02-13
-**Status:** Complete (v0.8.0)
-
----
-
-## Delivered
-
-- **58 features shipped** (F1-22, F23-32, F33-35, F44-50, F51-54, F55-65, F75)
-- **17 features deferred** (F36-43, F66-74 — external integrations, intentionally skipped)
-- **765 tests passing**, 2 skipped, 0 failing (99.7%)
-- **QA pass complete** — 4-agent swarm, critical fixes applied
-- **Design pass complete** — 2-agent review, findings documented
+**Session:** current
+**Date:** 2026-02-15
+**Version:** v0.11.0 (all remaining tasks complete)
 
 ---
 
-## What was built this session
+## What was done this session
 
-### Features completed
-- Fixed 8 failing tests (API mismatches, import contamination)
-- Expanded F61 A/B Testing (4 -> 14 tests)
-- Expanded F75 Dream Synthesis (4 -> 16 tests)
-- All 57 features verified working
+### Task #7: F30 delegates to F28 search backend ✅
+- `src/automation/search.py`: added `SearchOptimizer` import + `self.optimizer` in `__init__`
+- `search()`: now uses `optimizer.search_with_cache()` + `rank_results()` instead of bare client call
+- `search_advanced()`: text queries go through optimizer cache (with project_id scoping)
+- relevance sort delegates to `optimizer.rank_results()` (multi-factor: semantic + recency + importance)
+- NLP parsing layer (`parse_natural_query`) unchanged — stays as preprocessing layer
 
-### QA fixes applied
-- Bounded LRU caches in semantic_search.py and embedding_manager.py (max 1000)
-- SQL injection whitelist in wild/intelligence_db.py update_sync_state()
-- Created src/automation/__init__.py (was missing, blocking imports)
-- Added missing DB indices (decision_journal, memory_summaries, conflict_predictions, etc.)
-- Deleted 3 legacy stub files (memory_clustering, memory_relationships, memory_triggers)
+### Task #8: IntelligenceDB connection leak fixed ✅
+- `src/intelligence_db.py:44`: replaced `pool.get_connection()` with `sqlite3.connect()` directly
+- Pool connections were borrowed at `__init__` time and never returned → pool starvation
+- Now uses a direct sqlite3 connection; `close()` still properly cleans up
+- Removed unused `get_connection` import
+- Kept `self.conn` API unchanged — all callers (`code_memory.py`, tests, etc.) work unmodified
 
-### Design findings (documented, not blocking)
-- 2 feature overlaps: search (F28+F30) and summarization (F26+F31) — refactor candidates
-- No unified entry point — organizational debt, not bugs
-- sys.path hacks in 20+ files — works but fragile
-- Reports: `_working/design-coherence.md`, `_working/design-api-surface.md`
+### Task #9: Dream Mode O(n²) ✅ (was already done in prev session)
+- `MAX_MEMORIES = 1000` at line 89, `_load_memories()` limit at line 228 — both in place
+- Confirmed by code review: fix was applied but not checked off in prev HANDOFF
+
+---
+
+## Current test state
+
+```
+All targeted tests: 43 search + 62 db_pool/intelligence_db = 105 passing
+All 3 background test suite runs: exit code 0
+Known flaky (LLM timeout — pre-existing): 2 tests
+```
+
+Known flaky (not bugs):
+- `tests/test_session_consolidator.py::TestDeduplication::test_deduplicate_against_existing`
+- `tests/wild/test_dream_synthesizer.py::test_temporal_connection_discovery`
+
+---
+
+## Remaining tasks
+
+**None.** All tasks from the previous HANDOFF are complete.
+
+---
+
+## Key technical facts
+
+### Package setup
+```bash
+# Venv (NOT inside Google Drive)
+~/.local/venvs/memory-system/
+
+# Install
+pip install -e "/Users/lee/CC/LFI/_ Operations/memory-system-v1"
+
+# Run tests (exclude wild LLM-dependent tests if in a hurry)
+cd "/Users/lee/CC/LFI/_ Operations/memory-system-v1"
+~/.local/venvs/memory-system/bin/python3 -m pytest tests/ --ignore=tests/wild -q
+```
+
+### Config system
+```python
+from memory_system.config import cfg
+cfg.project_id       # "LFI"
+cfg.session_db_path  # ~/.local/share/memory/LFI/session-history.db
+cfg.fsrs_db_path     # ~/.local/share/memory/fsrs.db
+# Override via env: MEMORY_SYSTEM_PROJECT_ID=TEST
+```
+
+### Import convention
+```python
+# Full package path everywhere (no bare imports)
+from memory_system.intelligence.summarization import MemorySummarizer, TopicSummary
+from memory_system.automation.summarization import AutoSummarization  # alias
+from memory_system.automation.search import MemoryAwareSearch  # delegates to SearchOptimizer
+from memory_system.intelligence.search_optimizer import SearchOptimizer  # F28 backend
+```
 
 ---
 
@@ -42,37 +87,27 @@
 
 | File | Purpose |
 |------|---------|
-| PLAN.md | Project status and history |
-| CHANGELOG.md | Version history (v0.1.0 - v0.7.0) |
-| SHOWCASE.md | Marketing-style feature overview |
-| `_working/qa-*.md` | QA audit reports (4 files) |
-| `_working/design-*.md` | Design review reports (2 files) |
-
----
-
-## If continuing this project
-
-### High priority (next phase)
-1. Merge F26+F31 summarization systems (~4-6hr)
-2. Make F30 search delegate to F28 backend (~3-5hr)
-3. Add tests for 5 critical untested modules (db_pool, embedding_manager, semantic_search, hybrid_search, session_history_db)
-
-### Medium priority
-4. Fix IntelligenceDB connection leak (get/return per operation)
-5. Centralize config (MemoryConfig dataclass)
-6. Standardize import patterns (PYTHONPATH or pip install -e)
-
-### Low priority
-7. Rename wild/intelligence_db.py to WildFeaturesDB
-8. Add wild/__init__.py exports
-9. Module reorganization (by capability instead of by feature number)
+| `src/config.py` | Centralized config |
+| `src/intelligence/summarization.py` | Merged F26+F31 |
+| `src/automation/summarization.py` | Thin re-export wrapper (15 lines) |
+| `src/automation/search.py` | F30 — now delegates to F28 via SearchOptimizer |
+| `src/intelligence/search_optimizer.py` | F28 — cache + ranking backend |
+| `src/intelligence_db.py` | Connection leak fixed (sqlite3.connect direct) |
+| `src/wild/dream_synthesizer.py` | O(n²) fixed (MAX_MEMORIES=1000) |
+| `pyproject.toml` | Package config + pytest settings |
+| `CHANGELOG.md` | Current through v0.10.0 |
 
 ---
 
 ## Git state
+- Branch: `main`, clean working tree
+- 4 commits ahead of origin (not pushed)
 
+Recent commits:
 ```
-Branch: main
-Last commit: QA fixes (caches, SQL injection, indices, cleanup)
-Working tree: clean after final commit
+d6901b1 fix: Task #8 + Task #7 — connection leak + F30→F28 delegation
+2a65ade refactor: Merge F26+F31 summarization into single MemorySummarizer
+5f457fe docs: Update CHANGELOG.md with v0.8.0–v0.10.0 entries
+ec431f9 docs: Update SHOWCASE.md to v0.10.0
+5c9e533 feat: Add src/config.py
 ```

@@ -34,6 +34,8 @@ Thumbs.db
 intelligence.db
 fsrs.db
 clusters.db
+*.db-shm
+*.db-wal
 
 # Working/internal docs
 _working/
