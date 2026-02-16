@@ -314,7 +314,7 @@ This system builds on the work and ideas of several people and projects:
 
 - **[Ben Fox](https://benfox.dev/) / ZeroBot** — Reinforcement learning approach to memory quality, grading system design. The quality grading and behavioral reinforcement concepts here were directly inspired by Ben's work.
 - **[FSRS-6](https://github.com/open-spaced-repetition/fsrs4anki)** — Free Spaced Repetition Scheduler algorithm for memory stability and difficulty tracking.
-- **OpenClaw** — 70% semantic + 30% keyword hybrid search weighting pattern.
+- **[OpenClaw](https://github.com/openclaw/openclaw)** — 70% semantic + 30% BM25 keyword hybrid search weighting pattern (145K+ stars).
 - **[memory-ts](https://github.com/nicholasgasior/memory-ts)** — YAML frontmatter file-based memory storage format that this system extends.
 
 ---
