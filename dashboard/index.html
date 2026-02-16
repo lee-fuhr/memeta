@@ -1,0 +1,1639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mnemora — Memory Intelligence</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;1,9..144,300;1,9..144,400&family=IBM+Plex+Mono:wght@300;400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+/* =====================================================================
+   Design system — Mnemora
+   Palette: deep obsidian + warm amber + bone white
+   ===================================================================== */
+:root {
+  --bg:           #08100d;
+  --bg-2:         #0e1a15;
+  --bg-3:         #162419;
+  --bg-card:      #111c17;
+  --bg-hover:     #1a2a22;
+  --border:       #1e3028;
+  --border-bright:#2a4035;
+
+  --amber:        #d4862a;
+  --amber-bright: #e8a030;
+  --amber-dim:    #9a6020;
+  --amber-glow:   rgba(212,134,42,0.15);
+
+  --green:        #3db87a;
+  --green-dim:    #1e5c3d;
+  --blue:         #3a8ab8;
+  --rose:         #c0516a;
+
+  --text-1:       #e8e2d6;
+  --text-2:       #9aaa9e;
+  --text-3:       #5a7060;
+  --text-amber:   #d4862a;
+
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body:    'IBM Plex Sans', sans-serif;
+  --font-mono:    'IBM Plex Mono', monospace;
+
+  --radius:       6px;
+  --radius-lg:    12px;
+
+  --shadow-card:  0 1px 3px rgba(0,0,0,0.4), 0 0 0 1px var(--border);
+  --shadow-glow:  0 0 24px rgba(212,134,42,0.1);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text-1);
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Subtle noise texture overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 1000;
+  opacity: 0.4;
+}
+
+/* =====================================================================
+   Layout
+   ===================================================================== */
+.shell {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  grid-template-rows: 56px 1fr;
+  min-height: 100vh;
+}
+
+/* =====================================================================
+   Topbar
+   ===================================================================== */
+.topbar {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 0 24px;
+  background: var(--bg-2);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.wordmark {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.wordmark-m {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--amber-bright);
+  letter-spacing: -0.02em;
+  font-style: italic;
+}
+
+.wordmark-rest {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 300;
+  color: var(--text-1);
+  letter-spacing: -0.01em;
+}
+
+.topbar-sep {
+  width: 1px;
+  height: 20px;
+  background: var(--border-bright);
+}
+
+.search-wrap {
+  flex: 1;
+  max-width: 460px;
+  position: relative;
+}
+
+.search-wrap svg {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-3);
+  width: 15px;
+  height: 15px;
+}
+
+#search-input {
+  width: 100%;
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-1);
+  font-family: var(--font-body);
+  font-size: 13px;
+  padding: 8px 12px 8px 36px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+#search-input:focus {
+  border-color: var(--amber-dim);
+}
+
+#search-input::placeholder { color: var(--text-3); }
+
+.topbar-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.project-badge {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-3);
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 3px 8px;
+}
+
+#project-label {
+  color: var(--amber);
+}
+
+.btn-refresh {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-2);
+  font-family: var(--font-body);
+  font-size: 12px;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.btn-refresh:hover {
+  border-color: var(--amber-dim);
+  color: var(--amber);
+}
+
+.btn-refresh svg { width: 13px; height: 13px; }
+
+/* =====================================================================
+   Sidebar
+   ===================================================================== */
+.sidebar {
+  background: var(--bg-2);
+  border-right: 1px solid var(--border);
+  padding: 20px 0;
+  position: sticky;
+  top: 56px;
+  height: calc(100vh - 56px);
+  overflow-y: auto;
+}
+
+.nav-section {
+  margin-bottom: 8px;
+}
+
+.nav-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  color: var(--text-3);
+  text-transform: uppercase;
+  padding: 8px 20px 4px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 20px;
+  color: var(--text-2);
+  text-decoration: none;
+  font-size: 13px;
+  cursor: pointer;
+  border-left: 2px solid transparent;
+  transition: all 0.12s;
+  user-select: none;
+}
+
+.nav-item svg { width: 15px; height: 15px; flex-shrink: 0; opacity: 0.7; }
+
+.nav-item:hover {
+  color: var(--text-1);
+  background: var(--bg-hover);
+}
+
+.nav-item.active {
+  color: var(--amber);
+  border-left-color: var(--amber);
+  background: var(--amber-glow);
+}
+
+.nav-item.active svg { opacity: 1; }
+
+.sidebar-footer {
+  margin-top: auto;
+  padding: 16px 20px;
+  border-top: 1px solid var(--border);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-3);
+}
+
+/* =====================================================================
+   Main content
+   ===================================================================== */
+.main {
+  overflow-y: auto;
+  padding: 28px 32px;
+}
+
+/* View panels */
+.view { display: none; }
+.view.active { display: block; animation: fadein 0.2s ease; }
+
+@keyframes fadein {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* =====================================================================
+   Page headers
+   ===================================================================== */
+.page-header {
+  margin-bottom: 28px;
+}
+
+.page-title {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 300;
+  color: var(--text-1);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.page-title em {
+  font-style: italic;
+  color: var(--amber);
+}
+
+.page-sub {
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--text-2);
+}
+
+/* =====================================================================
+   Stat cards
+   ===================================================================== */
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 14px;
+  margin-bottom: 28px;
+}
+
+.stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.15s;
+}
+
+.stat-card:hover { border-color: var(--border-bright); }
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--amber-dim), transparent);
+  opacity: 0.5;
+}
+
+.stat-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin-bottom: 8px;
+}
+
+.stat-value {
+  font-family: var(--font-display);
+  font-size: 36px;
+  font-weight: 600;
+  color: var(--text-1);
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.stat-value.amber { color: var(--amber-bright); }
+.stat-value.green { color: var(--green); }
+
+.stat-sub {
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--text-3);
+  font-family: var(--font-mono);
+}
+
+/* =====================================================================
+   Grade bar (A/B/C/D distribution)
+   ===================================================================== */
+.grade-bar {
+  display: flex;
+  height: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+  gap: 2px;
+  margin-top: 12px;
+}
+
+.grade-seg {
+  border-radius: 2px;
+  transition: flex 0.6s ease;
+  cursor: default;
+}
+
+.grade-seg.A { background: var(--green); }
+.grade-seg.B { background: var(--amber); }
+.grade-seg.C { background: #6b7c72; }
+.grade-seg.D { background: var(--rose); }
+
+.grade-legend {
+  display: flex;
+  gap: 14px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.grade-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-2);
+}
+
+.grade-dot {
+  width: 8px; height: 8px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+/* =====================================================================
+   Section headings
+   ===================================================================== */
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.section-title {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--text-1);
+  letter-spacing: -0.01em;
+}
+
+.section-count {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-3);
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 2px 7px;
+}
+
+/* =====================================================================
+   Memory cards
+   ===================================================================== */
+.memory-filters {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.filter-select {
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-2);
+  font-family: var(--font-body);
+  font-size: 12px;
+  padding: 6px 10px;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.filter-select:focus { border-color: var(--amber-dim); }
+
+.filter-tag {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  font-size: 11px;
+  color: var(--text-2);
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: all 0.12s;
+  font-family: var(--font-mono);
+}
+
+.filter-tag:hover, .filter-tag.active {
+  border-color: var(--amber-dim);
+  color: var(--amber);
+  background: var(--amber-glow);
+}
+
+.memory-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.memory-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px 20px;
+  cursor: pointer;
+  transition: border-color 0.12s, background 0.12s;
+  position: relative;
+}
+
+.memory-card:hover {
+  border-color: var(--border-bright);
+  background: var(--bg-hover);
+}
+
+.memory-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.memory-preview {
+  font-size: 13px;
+  color: var(--text-1);
+  line-height: 1.5;
+  flex: 1;
+}
+
+.importance-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.imp-pip {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.grade-A .imp-pip { background: var(--green); box-shadow: 0 0 6px var(--green); }
+.grade-B .imp-pip { background: var(--amber); box-shadow: 0 0 6px var(--amber); }
+.grade-C .imp-pip { background: #6b7c72; }
+.grade-D .imp-pip { background: var(--rose); }
+
+.imp-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.grade-A .imp-label { color: var(--green); }
+.grade-B .imp-label { color: var(--amber); }
+.grade-C .imp-label { color: var(--text-3); }
+.grade-D .imp-label { color: var(--rose); }
+
+.memory-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.mem-tag {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-3);
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 1px 6px;
+  cursor: pointer;
+  transition: color 0.12s;
+}
+
+.mem-tag:hover { color: var(--amber); border-color: var(--amber-dim); }
+
+.mem-domain {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--amber-dim);
+}
+
+.mem-date {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-3);
+}
+
+.action-pill {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--rose);
+  background: rgba(192,81,106,0.1);
+  border: 1px solid rgba(192,81,106,0.3);
+  border-radius: 3px;
+  padding: 1px 6px;
+}
+
+.ps-pill {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--blue);
+  background: rgba(58,138,184,0.1);
+  border: 1px solid rgba(58,138,184,0.3);
+  border-radius: 3px;
+  padding: 1px 6px;
+}
+
+/* Importance bar on left edge */
+.memory-card::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 6px; bottom: 6px;
+  width: 3px;
+  border-radius: 0 2px 2px 0;
+  background: var(--border);
+  transition: background 0.12s;
+}
+
+.grade-A.memory-card::before { background: var(--green); }
+.grade-B.memory-card::before { background: var(--amber); }
+.grade-C.memory-card::before { background: #3a4a40; }
+.grade-D.memory-card::before { background: var(--rose); }
+
+.load-more-btn {
+  margin-top: 16px;
+  width: 100%;
+  background: none;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-lg);
+  color: var(--text-3);
+  font-family: var(--font-body);
+  font-size: 13px;
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+
+.load-more-btn:hover {
+  border-color: var(--amber-dim);
+  color: var(--amber);
+}
+
+/* =====================================================================
+   Sessions view
+   ===================================================================== */
+.session-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.session-row {
+  display: grid;
+  grid-template-columns: 160px 1fr 80px 80px 80px;
+  gap: 16px;
+  align-items: center;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  transition: border-color 0.12s;
+  font-size: 13px;
+}
+
+.session-row:hover { border-color: var(--border-bright); }
+
+.sess-date {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-3);
+}
+
+.sess-name {
+  color: var(--text-1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sess-stat {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-2);
+  text-align: right;
+}
+
+.sess-stat.amber { color: var(--amber); }
+.sess-stat.green { color: var(--green); }
+
+.session-table-header {
+  display: grid;
+  grid-template-columns: 160px 1fr 80px 80px 80px;
+  gap: 16px;
+  padding: 8px 16px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin-bottom: 4px;
+}
+
+.session-table-header > * { text-align: right; }
+.session-table-header > :first-child { text-align: left; }
+.session-table-header > :nth-child(2) { text-align: left; }
+
+/* =====================================================================
+   Knowledge map (tag cloud)
+   ===================================================================== */
+.tag-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.tag-bubble {
+  font-family: var(--font-mono);
+  border-radius: 4px;
+  border: 1px solid;
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: all 0.12s;
+  white-space: nowrap;
+}
+
+.tag-bubble:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+/* =====================================================================
+   Activity heatmap
+   ===================================================================== */
+.heatmap-wrap {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  overflow-x: auto;
+}
+
+.heatmap-grid {
+  display: flex;
+  gap: 3px;
+}
+
+.heatmap-col {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.heatmap-cell {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  background: var(--bg-3);
+  transition: background 0.2s;
+  cursor: default;
+  position: relative;
+}
+
+.heatmap-cell[title]:hover::after {
+  content: attr(title);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg-2);
+  border: 1px solid var(--border-bright);
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--text-1);
+  white-space: nowrap;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.heatmap-cell.l1 { background: rgba(212,134,42,0.2); }
+.heatmap-cell.l2 { background: rgba(212,134,42,0.45); }
+.heatmap-cell.l3 { background: rgba(212,134,42,0.7); }
+.heatmap-cell.l4 { background: var(--amber); }
+
+.heatmap-months {
+  display: flex;
+  gap: 3px;
+  margin-bottom: 6px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--text-3);
+  letter-spacing: 0.04em;
+}
+
+/* =====================================================================
+   Two-column layout for overview
+   ===================================================================== */
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.col-block {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+}
+
+/* Domain / context bars */
+.bar-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.bar-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: opacity 0.12s;
+}
+
+.bar-item:hover { opacity: 0.8; }
+
+.bar-label {
+  font-size: 12px;
+  color: var(--text-2);
+  width: 160px;
+  flex-shrink: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: var(--font-mono);
+}
+
+.bar-track {
+  flex: 1;
+  height: 6px;
+  background: var(--bg-3);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--amber-dim), var(--amber));
+  transition: width 0.6s ease;
+}
+
+.bar-count {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-3);
+  width: 36px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* =====================================================================
+   Loading / empty states
+   ===================================================================== */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 80px 20px;
+  color: var(--text-3);
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+
+.spinner {
+  width: 32px; height: 32px;
+  border: 2px solid var(--border);
+  border-top-color: var(--amber);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-3);
+  font-size: 13px;
+}
+
+/* =====================================================================
+   Scrollbar
+   ===================================================================== */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--amber-dim); }
+
+/* =====================================================================
+   Responsive tweaks
+   ===================================================================== */
+@media (max-width: 900px) {
+  .shell { grid-template-columns: 1fr; }
+  .sidebar { display: none; }
+  .two-col { grid-template-columns: 1fr; }
+  .session-row { grid-template-columns: 120px 1fr 60px 60px; }
+  .session-row > :last-child { display: none; }
+  .session-table-header > :last-child { display: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- ================================================================
+       Topbar
+       ================================================================ -->
+  <header class="topbar">
+    <a class="wordmark" href="#">
+      <span class="wordmark-m">M</span>
+      <span class="wordmark-rest">nemora</span>
+    </a>
+
+    <div class="topbar-sep"></div>
+
+    <div class="search-wrap">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="9" cy="9" r="6"/><path d="M15 15l3 3"/>
+      </svg>
+      <input id="search-input" type="text" placeholder="Search memories…" autocomplete="off">
+    </div>
+
+    <div class="topbar-actions">
+      <span class="project-badge">project: <span id="project-label">—</span></span>
+      <button class="btn-refresh" id="btn-refresh">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17 10A7 7 0 1 1 10 3M17 3v7h-7"/>
+        </svg>
+        Refresh
+      </button>
+    </div>
+  </header>
+
+  <!-- ================================================================
+       Sidebar
+       ================================================================ -->
+  <nav class="sidebar">
+    <div class="nav-section">
+      <div class="nav-label">Navigate</div>
+      <div class="nav-item active" data-view="overview">
+        <svg viewBox="0 0 20 20" fill="currentColor"><rect x="3" y="3" width="6" height="6" rx="1"/><rect x="11" y="3" width="6" height="6" rx="1"/><rect x="3" y="11" width="6" height="6" rx="1"/><rect x="11" y="11" width="6" height="6" rx="1"/></svg>
+        Overview
+      </div>
+      <div class="nav-item" data-view="memories">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="10" r="7"/><path d="M10 7v3l2 2"/></svg>
+        Memories
+      </div>
+      <div class="nav-item" data-view="sessions">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="14" height="12" rx="2"/><path d="M7 8h6M7 12h4"/></svg>
+        Sessions
+      </div>
+      <div class="nav-item" data-view="knowledge">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5" cy="10" r="2"/><circle cx="15" cy="5" r="2"/><circle cx="15" cy="15" r="2"/><path d="M7 10h4M13 5.8l-4 3.4M13 14.2l-4-3.4"/></svg>
+        Knowledge map
+      </div>
+    </div>
+
+    <div class="nav-section" style="margin-top:12px; padding-top:12px; border-top:1px solid var(--border)">
+      <div class="nav-label">Filters</div>
+      <div id="domain-nav"></div>
+    </div>
+  </nav>
+
+  <!-- ================================================================
+       Main content
+       ================================================================ -->
+  <main class="main" id="main-content">
+
+    <!-- Overview -->
+    <div class="view active" id="view-overview">
+      <div class="page-header">
+        <h1 class="page-title">Good morning — here's your <em>memory state</em></h1>
+        <p class="page-sub" id="overview-sub">Loading…</p>
+      </div>
+
+      <div class="stat-row" id="stat-row">
+        <div class="loading-state"><div class="spinner"></div></div>
+      </div>
+
+      <!-- Grade distribution -->
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;margin-bottom:24px" id="grade-card">
+        <div class="section-head">
+          <span class="section-title">Quality distribution</span>
+          <span class="section-count" id="grade-total">—</span>
+        </div>
+        <div class="grade-bar" id="grade-bar"></div>
+        <div class="grade-legend" id="grade-legend"></div>
+      </div>
+
+      <div class="two-col">
+        <div class="col-block">
+          <div class="section-head">
+            <span class="section-title">Knowledge domains</span>
+          </div>
+          <div class="bar-list" id="domain-bars"></div>
+        </div>
+        <div class="col-block">
+          <div class="section-head">
+            <span class="section-title">Context types</span>
+          </div>
+          <div class="bar-list" id="context-bars"></div>
+        </div>
+      </div>
+
+      <!-- Session activity heatmap -->
+      <div class="section-head" style="margin-bottom:14px">
+        <span class="section-title">Session activity</span>
+        <span class="section-count" id="heatmap-total">—</span>
+      </div>
+      <div class="heatmap-wrap">
+        <div class="heatmap-months" id="heatmap-months"></div>
+        <div class="heatmap-grid" id="heatmap-grid"></div>
+      </div>
+    </div>
+
+    <!-- Memories -->
+    <div class="view" id="view-memories">
+      <div class="page-header">
+        <h1 class="page-title"><em>Memory</em> library</h1>
+        <p class="page-sub" id="memories-sub">Loading…</p>
+      </div>
+
+      <div class="memory-filters">
+        <select class="filter-select" id="mem-sort">
+          <option value="importance">Sort: importance</option>
+          <option value="recency">Sort: newest first</option>
+        </select>
+        <select class="filter-select" id="mem-domain">
+          <option value="">All domains</option>
+        </select>
+        <div id="mem-tag-filters"></div>
+      </div>
+
+      <div class="section-head">
+        <span class="section-title">Memories</span>
+        <span class="section-count" id="mem-count">—</span>
+      </div>
+
+      <div id="memory-list" class="memory-list">
+        <div class="loading-state"><div class="spinner"></div></div>
+      </div>
+
+      <button class="load-more-btn" id="load-more-btn" style="display:none">
+        Load more
+      </button>
+    </div>
+
+    <!-- Sessions -->
+    <div class="view" id="view-sessions">
+      <div class="page-header">
+        <h1 class="page-title">Session <em>history</em></h1>
+        <p class="page-sub" id="sessions-sub">Loading…</p>
+      </div>
+
+      <div class="session-table-header">
+        <div>Date</div>
+        <div>Session name</div>
+        <div>Messages</div>
+        <div>Tools</div>
+        <div>Memories</div>
+      </div>
+      <div id="session-list" class="session-list">
+        <div class="loading-state"><div class="spinner"></div></div>
+      </div>
+    </div>
+
+    <!-- Knowledge map -->
+    <div class="view" id="view-knowledge">
+      <div class="page-header">
+        <h1 class="page-title">Knowledge <em>map</em></h1>
+        <p class="page-sub">Topics and domains across all memories</p>
+      </div>
+
+      <div class="section-head" style="margin-bottom:14px">
+        <span class="section-title">Semantic tags</span>
+        <span class="section-count" id="tag-count">—</span>
+      </div>
+      <div class="tag-cloud" id="tag-cloud">
+        <div class="loading-state"><div class="spinner"></div></div>
+      </div>
+
+      <div style="height:24px"></div>
+
+      <div class="section-head" style="margin-bottom:14px">
+        <span class="section-title">Domain breakdown</span>
+      </div>
+      <div class="col-block">
+        <div class="bar-list" id="domain-bars-full"></div>
+      </div>
+    </div>
+
+  </main><!-- /main -->
+</div><!-- /shell -->
+
+<script>
+/* ===================================================================
+   Mnemora Dashboard — client-side JS
+   =================================================================== */
+
+const state = {
+  stats: null,
+  memories: null,
+  sessions: null,
+  currentView: 'overview',
+  memFilter: { sort: 'importance', domain: '', tag: '', q: '' },
+  memOffset: 0,
+  MEM_PAGE: 40,
+  activeTag: null,
+};
+
+// -----------------------------------------------------------------------
+// Navigation
+// -----------------------------------------------------------------------
+
+document.querySelectorAll('.nav-item[data-view]').forEach(el => {
+  el.addEventListener('click', () => {
+    const view = el.dataset.view;
+    switchView(view);
+  });
+});
+
+function switchView(view) {
+  document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
+  document.querySelector(`.nav-item[data-view="${view}"]`)?.classList.add('active');
+  document.querySelectorAll('.view').forEach(e => e.classList.remove('active'));
+  document.getElementById(`view-${view}`)?.classList.add('active');
+  state.currentView = view;
+
+  if (view === 'memories' && !state.memories) loadMemories();
+  if (view === 'sessions' && !state.sessions) loadSessions();
+  if (view === 'knowledge' && state.stats) renderKnowledgeMap();
+}
+
+// -----------------------------------------------------------------------
+// Search (top-level)
+// -----------------------------------------------------------------------
+
+const searchInput = document.getElementById('search-input');
+let searchDebounce;
+searchInput.addEventListener('input', () => {
+  clearTimeout(searchDebounce);
+  searchDebounce = setTimeout(() => {
+    state.memFilter.q = searchInput.value.trim();
+    state.memOffset = 0;
+    state.memories = null;
+    if (state.currentView !== 'memories') switchView('memories');
+    else loadMemories();
+  }, 280);
+});
+
+// -----------------------------------------------------------------------
+// Refresh
+// -----------------------------------------------------------------------
+
+document.getElementById('btn-refresh').addEventListener('click', async () => {
+  const btn = document.getElementById('btn-refresh');
+  btn.disabled = true;
+  btn.textContent = 'Refreshing…';
+  await fetch('/api/refresh', { method: 'POST' }).catch(() => {});
+  state.stats = null;
+  state.memories = null;
+  state.sessions = null;
+  await loadStats();
+  if (state.currentView === 'memories') loadMemories();
+  if (state.currentView === 'sessions') loadSessions();
+  btn.disabled = false;
+  btn.innerHTML = `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><path d="M17 10A7 7 0 1 1 10 3M17 3v7h-7"/></svg> Refresh`;
+});
+
+// -----------------------------------------------------------------------
+// Stats / Overview
+// -----------------------------------------------------------------------
+
+async function loadStats() {
+  const res = await fetch('/api/stats');
+  const data = await res.json();
+  state.stats = data;
+
+  const project = data._project || '—';
+  document.getElementById('project-label').textContent = data._project || data.memories?.total ? 'LFI' : '—';
+
+  renderStatCards(data);
+  renderGrades(data);
+  renderDomainBars(data);
+  renderHeatmap(data);
+  renderDomainNav(data);
+
+  const total = data.memories?.total ?? 0;
+  const sessions = data.sessions?.total ?? 0;
+  document.getElementById('overview-sub').textContent =
+    `${total.toLocaleString()} memories across ${sessions.toLocaleString()} sessions`;
+}
+
+function renderStatCards(data) {
+  const m = data.memories || {};
+  const s = data.sessions || {};
+
+  const cards = [
+    { label: 'Total memories', value: (m.total ?? 0).toLocaleString(), cls: 'amber', sub: `avg importance ${(m.avg_importance ?? 0).toFixed(2)}` },
+    { label: 'Sessions', value: (s.total ?? 0).toLocaleString(), cls: '', sub: `${(s.total_messages ?? 0).toLocaleString()} messages` },
+    { label: 'Grade A memories', value: (m.grades?.A ?? 0).toLocaleString(), cls: 'green', sub: 'importance ≥ 0.8' },
+    { label: 'Action items', value: (m.action_required ?? 0).toLocaleString(), cls: '', sub: `${m.problem_solution_pairs ?? 0} problem-solution pairs` },
+  ];
+
+  const row = document.getElementById('stat-row');
+  row.innerHTML = cards.map(c => `
+    <div class="stat-card">
+      <div class="stat-label">${c.label}</div>
+      <div class="stat-value ${c.cls}">${c.value}</div>
+      <div class="stat-sub">${c.sub}</div>
+    </div>
+  `).join('');
+}
+
+function renderGrades(data) {
+  const grades = data.memories?.grades || {};
+  const total = Object.values(grades).reduce((a, b) => a + b, 0);
+  document.getElementById('grade-total').textContent = total.toLocaleString() + ' graded';
+
+  const order = ['A', 'B', 'C', 'D'];
+  const colors = { A: 'var(--green)', B: 'var(--amber)', C: '#6b7c72', D: 'var(--rose)' };
+
+  const bar = document.getElementById('grade-bar');
+  bar.innerHTML = order.map(g => {
+    const count = grades[g] || 0;
+    const pct = total ? (count / total * 100).toFixed(1) : 0;
+    return `<div class="grade-seg ${g}" style="flex:${count};background:${colors[g]}" title="${g}: ${count} (${pct}%)"></div>`;
+  }).join('');
+
+  const legend = document.getElementById('grade-legend');
+  legend.innerHTML = order.map(g => {
+    const count = grades[g] || 0;
+    const pct = total ? (count / total * 100).toFixed(0) : 0;
+    return `<div class="grade-item"><div class="grade-dot" style="background:${colors[g]}"></div>${g} &nbsp;${count} (${pct}%)</div>`;
+  }).join('');
+}
+
+function renderDomainBars(data) {
+  const domains = data.domains || {};
+  const contexts = data.context_types || {};
+  renderBars('domain-bars', domains, 8);
+  renderBars('context-bars', contexts, 8);
+}
+
+function renderBars(containerId, obj, maxItems) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  const entries = Object.entries(obj).sort((a, b) => b[1] - a[1]).slice(0, maxItems);
+  const max = entries[0]?.[1] || 1;
+  el.innerHTML = entries.map(([label, count]) => `
+    <div class="bar-item" data-domain="${label}" title="${label}: ${count}">
+      <div class="bar-label">${label}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${(count/max*100).toFixed(1)}%"></div></div>
+      <div class="bar-count">${count}</div>
+    </div>
+  `).join('') || '<div class="empty-state">No data yet</div>';
+
+  // Click domain bar → filter memories
+  el.querySelectorAll('.bar-item[data-domain]').forEach(item => {
+    item.addEventListener('click', () => {
+      state.memFilter.domain = item.dataset.domain;
+      state.memOffset = 0;
+      state.memories = null;
+      switchView('memories');
+      setTimeout(() => {
+        const domSel = document.getElementById('mem-domain');
+        if (domSel) {
+          for (let opt of domSel.options) {
+            if (opt.value === item.dataset.domain) { opt.selected = true; break; }
+          }
+        }
+      }, 100);
+    });
+  });
+}
+
+function renderHeatmap(data) {
+  const activity = data.sessions?.activity_by_day || {};
+  const today = new Date();
+  const WEEKS = 26; // ~6 months
+  const DAYS = 7;
+
+  // Build 26 weeks × 7 days grid going back from today
+  const start = new Date(today);
+  start.setDate(start.getDate() - (WEEKS * 7 - 1));
+  // Align to Monday
+  const dow = start.getDay(); // 0=Sun
+  start.setDate(start.getDate() - (dow === 0 ? 6 : dow - 1));
+
+  const max = Math.max(1, ...Object.values(activity));
+
+  const cols = [];
+  let monthLabels = [];
+  let lastMonth = -1;
+
+  for (let w = 0; w < WEEKS; w++) {
+    const cells = [];
+    for (let d = 0; d < DAYS; d++) {
+      const date = new Date(start);
+      date.setDate(date.getDate() + w * 7 + d);
+      const key = date.toISOString().slice(0, 10);
+      const count = activity[key] || 0;
+
+      // Track month headers
+      if (d === 0 && date.getMonth() !== lastMonth) {
+        monthLabels.push({ col: w, label: date.toLocaleDateString('en', { month: 'short' }) });
+        lastMonth = date.getMonth();
+      }
+
+      let level = '';
+      if (count > 0) {
+        const ratio = count / max;
+        if (ratio < 0.25) level = 'l1';
+        else if (ratio < 0.5) level = 'l2';
+        else if (ratio < 0.75) level = 'l3';
+        else level = 'l4';
+      }
+      cells.push(`<div class="heatmap-cell ${level}" title="${key}: ${count} session${count !== 1 ? 's' : ''}"></div>`);
+    }
+    cols.push(`<div class="heatmap-col">${cells.join('')}</div>`);
+  }
+
+  document.getElementById('heatmap-grid').innerHTML = cols.join('');
+  document.getElementById('heatmap-total').textContent =
+    (data.sessions?.total ?? 0) + ' total sessions';
+
+  // Month labels — approximate positioning
+  const monthsEl = document.getElementById('heatmap-months');
+  let html = '';
+  for (let i = 0; i < monthLabels.length; i++) {
+    const { col, label } = monthLabels[i];
+    html += `<span style="width:${(col === 0 ? 0 : 15) + (i === 0 ? 0 : 0)}px"></span><span style="margin-right:${(15 * (monthLabels[i+1]?.col ?? WEEKS) - 15 * col) - label.length * 4}px">${label}</span>`;
+  }
+  monthsEl.innerHTML = monthLabels.map(({ col, label }) =>
+    `<span style="padding-right:${Math.max(0, (col < 1 ? 20 : 15))}px">${label}</span>`
+  ).join('');
+}
+
+function renderDomainNav(data) {
+  const domains = data.domains || {};
+  const nav = document.getElementById('domain-nav');
+  const top = Object.entries(domains).sort((a, b) => b[1] - a[1]).slice(0, 8);
+
+  nav.innerHTML = top.map(([d, count]) => `
+    <div class="nav-item" data-filter-domain="${d}" style="font-size:12px;padding:7px 20px">
+      <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${d}</span>
+      <span style="font-family:var(--font-mono);font-size:10px;color:var(--text-3)">${count}</span>
+    </div>
+  `).join('');
+
+  nav.querySelectorAll('[data-filter-domain]').forEach(el => {
+    el.addEventListener('click', () => {
+      state.memFilter.domain = el.dataset.filterDomain;
+      state.memOffset = 0;
+      state.memories = null;
+      switchView('memories');
+    });
+  });
+}
+
+// -----------------------------------------------------------------------
+// Memories
+// -----------------------------------------------------------------------
+
+async function loadMemories(append = false) {
+  if (!append) {
+    state.memories = null;
+    document.getElementById('memory-list').innerHTML = '<div class="loading-state"><div class="spinner"></div></div>';
+  }
+
+  const params = new URLSearchParams({
+    sort: state.memFilter.sort,
+    domain: state.memFilter.domain,
+    tag: state.memFilter.tag,
+    q: state.memFilter.q,
+    limit: state.MEM_PAGE,
+    offset: state.memOffset,
+  });
+
+  const res = await fetch('/api/memories?' + params);
+  const data = await res.json();
+
+  state.memories = state.memories || [];
+  if (append) {
+    state.memories = [...state.memories, ...data.memories];
+  } else {
+    state.memories = data.memories;
+    state.memTotal = data.total;
+  }
+
+  renderMemories(data.total);
+
+  // Populate domain select once
+  if (!append && state.stats) {
+    const sel = document.getElementById('mem-domain');
+    const existing = new Set(Array.from(sel.options).map(o => o.value));
+    Object.keys(state.stats.domains || {}).forEach(d => {
+      if (!existing.has(d)) {
+        const opt = document.createElement('option');
+        opt.value = d; opt.textContent = d;
+        sel.appendChild(opt);
+      }
+    });
+    if (state.memFilter.domain) sel.value = state.memFilter.domain;
+  }
+}
+
+function renderMemories(total) {
+  const list = document.getElementById('memory-list');
+  const shown = state.memories?.length ?? 0;
+
+  document.getElementById('mem-count').textContent = `${total} found`;
+  document.getElementById('memories-sub').textContent =
+    `Showing ${shown} of ${total} memories`;
+
+  if (!state.memories || state.memories.length === 0) {
+    list.innerHTML = '<div class="empty-state">No memories match the current filters</div>';
+    document.getElementById('load-more-btn').style.display = 'none';
+    return;
+  }
+
+  const cards = state.memories.map(m => {
+    const imp = m.importance ?? 0.5;
+    const grade = imp >= 0.8 ? 'A' : imp >= 0.6 ? 'B' : imp >= 0.4 ? 'C' : 'D';
+
+    const tags = (m.tags || []).slice(0, 5).map(t =>
+      `<span class="mem-tag" data-tag="${t}">${t}</span>`
+    ).join('');
+
+    const date = m.created
+      ? new Date(m.created).toLocaleDateString('en', { month: 'short', day: 'numeric', year: 'numeric' })
+      : '';
+
+    const pills = [
+      m.action_required ? '<span class="action-pill">action</span>' : '',
+      m.problem_solution ? '<span class="ps-pill">Q+A</span>' : '',
+    ].join('');
+
+    return `
+      <div class="memory-card grade-${grade}">
+        <div class="memory-card-top">
+          <div class="memory-preview">${escHtml(m.preview)}</div>
+          <div class="importance-badge">
+            <span class="imp-pip"></span>
+            <span class="imp-label">${grade} · ${imp.toFixed(2)}</span>
+          </div>
+        </div>
+        <div class="memory-meta">
+          ${m.knowledge_domain ? `<span class="mem-domain">${escHtml(m.knowledge_domain)}</span>` : ''}
+          ${tags}
+          ${pills}
+          ${date ? `<span class="mem-date">${date}</span>` : ''}
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  list.innerHTML = cards;
+
+  // Tag click → filter
+  list.querySelectorAll('.mem-tag[data-tag]').forEach(el => {
+    el.addEventListener('click', e => {
+      e.stopPropagation();
+      state.memFilter.tag = el.dataset.tag;
+      state.memOffset = 0;
+      state.memories = null;
+      loadMemories();
+    });
+  });
+
+  const loadMoreBtn = document.getElementById('load-more-btn');
+  if (shown < total) {
+    loadMoreBtn.style.display = 'block';
+    loadMoreBtn.textContent = `Load more (${total - shown} remaining)`;
+  } else {
+    loadMoreBtn.style.display = 'none';
+  }
+}
+
+document.getElementById('load-more-btn').addEventListener('click', () => {
+  state.memOffset += state.MEM_PAGE;
+  loadMemories(true);
+});
+
+document.getElementById('mem-sort').addEventListener('change', e => {
+  state.memFilter.sort = e.target.value;
+  state.memOffset = 0;
+  state.memories = null;
+  loadMemories();
+});
+
+document.getElementById('mem-domain').addEventListener('change', e => {
+  state.memFilter.domain = e.target.value;
+  state.memOffset = 0;
+  state.memories = null;
+  loadMemories();
+});
+
+// -----------------------------------------------------------------------
+// Sessions
+// -----------------------------------------------------------------------
+
+async function loadSessions() {
+  const res = await fetch('/api/sessions?limit=100');
+  const data = await res.json();
+  state.sessions = data.sessions;
+
+  document.getElementById('sessions-sub').textContent =
+    `${data.total.toLocaleString()} sessions total`;
+
+  const list = document.getElementById('session-list');
+
+  if (!data.sessions.length) {
+    list.innerHTML = '<div class="empty-state">No sessions found</div>';
+    return;
+  }
+
+  list.innerHTML = data.sessions.map(s => {
+    const dt = s.datetime ? new Date(s.datetime) : null;
+    const dateStr = dt ? dt.toLocaleDateString('en', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
+    const timeStr = dt ? dt.toLocaleTimeString('en', { hour: '2-digit', minute: '2-digit' }) : '';
+    const name = s.name || s.id || 'Untitled session';
+    const mems = s.memories_extracted;
+
+    return `
+      <div class="session-row">
+        <div class="sess-date">${dateStr}<br><span style="color:var(--text-3)">${timeStr}</span></div>
+        <div class="sess-name" title="${escHtml(name)}">${escHtml(name)}</div>
+        <div class="sess-stat">${s.message_count}</div>
+        <div class="sess-stat">${s.tool_call_count}</div>
+        <div class="sess-stat ${mems > 0 ? 'amber' : ''}">${mems > 0 ? mems : '—'}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+// -----------------------------------------------------------------------
+// Knowledge map
+// -----------------------------------------------------------------------
+
+function renderKnowledgeMap() {
+  if (!state.stats) return;
+
+  const tags = state.stats.tags || {};
+  const entries = Object.entries(tags).sort((a, b) => b[1] - a[1]);
+  const max = entries[0]?.[1] || 1;
+
+  document.getElementById('tag-count').textContent = entries.length + ' unique tags';
+
+  // Color palette for tags
+  const palettes = [
+    { bg: 'rgba(212,134,42,0.15)', border: 'rgba(212,134,42,0.4)', text: '#d4862a' },
+    { bg: 'rgba(61,184,122,0.12)', border: 'rgba(61,184,122,0.35)', text: '#3db87a' },
+    { bg: 'rgba(58,138,184,0.12)', border: 'rgba(58,138,184,0.35)', text: '#3a8ab8' },
+    { bg: 'rgba(192,81,106,0.1)', border: 'rgba(192,81,106,0.3)', text: '#c0516a' },
+    { bg: 'rgba(154,110,94,0.12)', border: 'rgba(154,110,94,0.35)', text: '#9a6e5e' },
+  ];
+
+  const cloud = document.getElementById('tag-cloud');
+  cloud.innerHTML = entries.map(([tag, count], i) => {
+    const size = 11 + Math.round((count / max) * 10); // 11–21px
+    const pal = palettes[i % palettes.length];
+    return `<div class="tag-bubble" style="font-size:${size}px;background:${pal.bg};border-color:${pal.border};color:${pal.text}"
+      data-tag="${tag}" title="${count} memories">${tag} <sup style="font-size:0.7em;opacity:0.7">${count}</sup></div>`;
+  }).join('');
+
+  cloud.querySelectorAll('.tag-bubble[data-tag]').forEach(el => {
+    el.addEventListener('click', () => {
+      state.memFilter.tag = el.dataset.tag;
+      state.memOffset = 0;
+      state.memories = null;
+      switchView('memories');
+    });
+  });
+
+  // Full domain bars
+  renderBars('domain-bars-full', state.stats.domains || {}, 20);
+}
+
+// -----------------------------------------------------------------------
+// Utility
+// -----------------------------------------------------------------------
+
+function escHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+// -----------------------------------------------------------------------
+// Boot
+// -----------------------------------------------------------------------
+
+(async () => {
+  await loadStats();
+  // Fetch project label from stats
+  const project = state.stats?._project;
+  if (project) document.getElementById('project-label').textContent = project;
+
+  // Pre-load memories in background
+  setTimeout(loadMemories, 500);
+})();
+</script>
+</body>
+</html>
