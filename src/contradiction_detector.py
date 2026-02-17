@@ -14,6 +14,8 @@ import subprocess
 from typing import List, Dict, Optional
 from dataclasses import dataclass
 
+from .circuit_breaker import get_breaker, CircuitBreakerOpenError
+
 
 @dataclass
 class ContradictionResult:
@@ -27,6 +29,8 @@ def ask_claude_quick(prompt: str, timeout: int = 10) -> str:
     """
     Quick LLM query using Claude CLI.
 
+    Protected by circuit breaker to fail fast when LLM is unavailable.
+
     Args:
         prompt: Question for Claude
         timeout: Timeout in seconds
@@ -34,19 +38,23 @@ def ask_claude_quick(prompt: str, timeout: int = 10) -> str:
     Returns:
         Response text (empty string on failure)
     """
-    try:
+    breaker = get_breaker("llm_contradiction", failure_threshold=3, recovery_timeout=60.0)
+
+    def _run_query():
         result = subprocess.run(
             ["claude", "-p", prompt],
             capture_output=True,
             text=True,
             timeout=timeout
         )
-
         if result.returncode != 0:
-            return ""
-
+            raise RuntimeError(f"Claude CLI returned {result.returncode}")
         return result.stdout.strip()
 
+    try:
+        return breaker.call(_run_query)
+    except CircuitBreakerOpenError:
+        return ""
     except (subprocess.TimeoutExpired, FileNotFoundError, Exception):
         return ""
 
