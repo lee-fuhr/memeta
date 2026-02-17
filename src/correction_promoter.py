@@ -12,6 +12,7 @@ User: "No, just search inbox — not all Gmail labels"
 → Next time: Agent remembers to search inbox only
 """
 
+import os
 from pathlib import Path
 from datetime import datetime
 from typing import Optional
@@ -24,8 +25,11 @@ TOOL_KEYWORDS = [
     "meeting", "transcript", "granola"
 ]
 
-# Path to operations documentation
-TOOLS_MD_PATH = Path.home() / "CC/LFI/_ Operations/CLAUDE.md"
+# Path to the project's CLAUDE.md / TOOLS.md for correction promotion.
+# Set MEMORY_SYSTEM_TOOLS_MD to an absolute path to enable this feature.
+# When unset, corrections are logged but not written to any file.
+_tools_md_env = os.environ.get("MEMORY_SYSTEM_TOOLS_MD")
+TOOLS_MD_PATH: Path | None = Path(_tools_md_env) if _tools_md_env else None
 
 
 def is_tool_correction(correction_text: str) -> bool:

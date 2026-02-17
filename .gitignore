@@ -37,9 +37,32 @@ clusters.db
 *.db-shm
 *.db-wal
 
-# Working/internal docs
+# Working/internal docs (not for public consumption)
 _working/
+HANDOFF.md
+SHOWCASE.md
+PLAN.md
+PROCESS.md
+PRODUCT-FINDINGS.md
+QA-FINDINGS.md
+ORCHESTRATION.md
+STATUS.md
+DOCUMENTATION-SYSTEM.md
+ROADMAP.md
 
 # Synthesis output
 synthesis/
 _archive/
+
+# Environment / secrets
+.env
+.env.*
+
+# Coverage
+htmlcov/
+.coverage
+.coverage.*
+
+# Editor swap files
+*.swp
+*.swo

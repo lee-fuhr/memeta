@@ -55,7 +55,7 @@ class MemorySystemConfig:
 
     # ── Project ───────────────────────────────────────────────────────────
     project_id: str = field(
-        default_factory=lambda: _env("MEMORY_SYSTEM_PROJECT_ID", "LFI")
+        default_factory=lambda: _env("MEMORY_SYSTEM_PROJECT_ID", "default")
     )
 
     # ── Runtime databases (relative to project root by default) ───────────

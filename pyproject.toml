@@ -3,13 +3,43 @@ requires = ["setuptools>=64", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "memory-system"
-version = "0.8.0"
-description = "Memory intelligence system for Claude Code"
+name = "mnemora"
+version = "0.12.0"
+description = "Intelligent memory system for Claude Code — extract, grade, search, and synthesize knowledge across sessions"
+readme = "README.md"
+license = { text = "MIT" }
 requires-python = ">=3.11"
+authors = [
+    { name = "Lee Fuhr" },
+]
+keywords = [
+    "claude",
+    "claude-code",
+    "memory",
+    "ai",
+    "llm",
+    "knowledge-base",
+    "spaced-repetition",
+    "semantic-search",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
 dependencies = [
     "numpy",
 ]
+
+[project.urls]
+Homepage = "https://github.com/leefuhr/mnemora"
+Repository = "https://github.com/leefuhr/mnemora"
+Issues = "https://github.com/leefuhr/mnemora/issues"
 
 [project.optional-dependencies]
 ml = [

@@ -1,8 +1,29 @@
-# Memory Intelligence System
+# Mnemora
 
 **A Claude Code memory framework that learns from your behavior, finds hidden patterns, and gets smarter while you sleep.**
 
-![Python](https://img.shields.io/badge/python-3.9%2B-blue) ![Tests](https://img.shields.io/badge/tests-1085%20passing-brightgreen) ![Version](https://img.shields.io/badge/version-0.11.0-blue) ![License](https://img.shields.io/badge/license-MIT-green)
+![Python](https://img.shields.io/badge/python-3.11%2B-blue) ![Tests](https://img.shields.io/badge/tests-1085%20passing-brightgreen) ![Version](https://img.shields.io/badge/version-0.12.0-blue) ![License](https://img.shields.io/badge/license-MIT-green)
+
+---
+
+## Mnemora vs. Claude Code's built-in Auto Memory
+
+Claude Code ships with a native "Auto Memory" feature. It's a black box: Claude decides what to remember, stores it somewhere on Anthropic's infrastructure, and surfaces it opaquely. You can't see what's stored, can't search it, can't grade it, and can't understand why certain things are remembered and others aren't.
+
+**Mnemora is the version you can see.**
+
+| | Claude Code Auto Memory | Mnemora |
+|--|------------------------|---------|
+| Storage | Anthropic servers (opaque) | Local `.md` files you own |
+| Visibility | None — black box | Full — every memory inspectable |
+| Search | Not available | Semantic + BM25 hybrid, instant |
+| Quality grading | None | A/B/C/D by importance weight |
+| Spaced repetition | None | FSRS-6 — science-backed retention |
+| Pattern detection | None | 58 features including dream synthesis |
+| Self-improvement | None | Overnight consolidation, prompt evolution |
+| Control | None | Full — you decide what persists |
+
+If the built-in feature works for you, great. Mnemora is for people who want to understand, inspect, and actively improve their AI's memory rather than just hoping it learned the right things.
 
 ---
 
