@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mnemora — Memory Intelligence</title>
+<title>Engram — Memory Intelligence</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,7 +11,7 @@
 
 <style>
 /* =====================================================================
-   Design system — Mnemora
+   Design system — Engram
    Palette: deep obsidian + warm amber + bone white
    ===================================================================== */
 :root {
@@ -1125,7 +1125,7 @@ body::before {
 
 <script>
 /* ===================================================================
-   Mnemora Dashboard — client-side JS
+   Engram Dashboard — client-side JS
    =================================================================== */
 
 const state = {
@@ -1648,7 +1648,7 @@ function escHtml(str) {
     // Pre-load memories so Memories tab is instant — guard prevents race
     setTimeout(loadMemories, 800);
   } catch (err) {
-    console.error('Mnemora boot error:', err);
+    console.error('Engram boot error:', err);
     document.getElementById('stat-row').innerHTML =
       `<div class="empty-state" style="color:var(--rose);padding:20px">
         Failed to load data from server.<br>

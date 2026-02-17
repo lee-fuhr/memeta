@@ -1,15 +1,15 @@
-# Contributing to Mnemora
+# Contributing to Engram
 
 Thanks for your interest in contributing.
 
 ## Getting started
 
 ```bash
-git clone https://github.com/leefuhr/mnemora
-cd mnemora
+git clone https://github.com/leefuhr/engram
+cd engram
 
-python3 -m venv ~/.local/venvs/mnemora
-source ~/.local/venvs/mnemora/bin/activate
+python3 -m venv ~/.local/venvs/engram
+source ~/.local/venvs/engram/bin/activate
 pip install -e ".[test]"
 
 # Run tests (exclude wild LLM-dependent tests)

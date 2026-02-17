@@ -1,5 +1,5 @@
 """
-Mnemora Dashboard Server
+Engram Dashboard Server
 
 Serves the dashboard UI and provides JSON API endpoints backed by:
   - Memory .md files at ~/.local/share/memory/{project}/memories/
@@ -41,7 +41,7 @@ DASHBOARD_DIR = Path(__file__).parent
 
 def _parse_args():
     import argparse
-    p = argparse.ArgumentParser(description="Mnemora dashboard server")
+    p = argparse.ArgumentParser(description="Engram dashboard server")
     p.add_argument("--port", type=int, default=DEFAULT_PORT)
     p.add_argument("--project", default=DEFAULT_PROJECT)
     p.add_argument("--memory-base", default=str(DEFAULT_MEMORY_BASE))
@@ -436,7 +436,7 @@ if __name__ == "__main__":
     app.config["PROJECT"] = args.project
     app.config["MEMORY_BASE"] = memory_base
 
-    print(f"Mnemora dashboard — http://localhost:{args.port}")
+    print(f"Engram dashboard — http://localhost:{args.port}")
     print(f"  Project : {args.project}")
     print(f"  Memory  : {memory_base / args.project / 'memories'}")
     print(f"  Sessions: {memory_base / args.project / 'session-history.db'}")

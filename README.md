@@ -1,4 +1,4 @@
-# Mnemora
+# Engram
 
 **A Claude Code memory framework that learns from your behavior, finds hidden patterns, and gets smarter while you sleep.**
 
@@ -6,13 +6,13 @@
 
 ---
 
-## Mnemora vs. Claude Code's built-in Auto Memory
+## Engram vs. Claude Code's built-in Auto Memory
 
 Claude Code ships with a native "Auto Memory" feature. It's a black box: Claude decides what to remember, stores it somewhere on Anthropic's infrastructure, and surfaces it opaquely. You can't see what's stored, can't search it, can't grade it, and can't understand why certain things are remembered and others aren't.
 
-**Mnemora is the version you can see.**
+**Engram is the version you can see.**
 
-| | Claude Code Auto Memory | Mnemora |
+| | Claude Code Auto Memory | Engram |
 |--|------------------------|---------|
 | Storage | Anthropic servers (opaque) | Local `.md` files you own |
 | Visibility | None — black box | Full — every memory inspectable |
@@ -23,7 +23,7 @@ Claude Code ships with a native "Auto Memory" feature. It's a black box: Claude 
 | Self-improvement | None | Overnight consolidation, prompt evolution |
 | Control | None | Full — you decide what persists |
 
-If the built-in feature works for you, great. Mnemora is for people who want to understand, inspect, and actively improve their AI's memory rather than just hoping it learned the right things.
+If the built-in feature works for you, great. Engram is for people who want to understand, inspect, and actively improve their AI's memory rather than just hoping it learned the right things.
 
 ---
 
