@@ -1,15 +1,15 @@
-# Contributing to Engram
+# Contributing to Total Recall
 
 Thanks for your interest in contributing.
 
 ## Getting started
 
 ```bash
-git clone https://github.com/leefuhr/engram
-cd engram
+git clone https://github.com/leefuhr/total-recall
+cd total-recall
 
-python3 -m venv ~/.local/venvs/engram
-source ~/.local/venvs/engram/bin/activate
+python3 -m venv ~/.local/venvs/total-recall
+source ~/.local/venvs/total-recall/bin/activate
 pip install -e ".[test]"
 
 # Run tests (exclude wild LLM-dependent tests)

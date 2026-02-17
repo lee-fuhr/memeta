@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Engram — Memory Intelligence</title>
+<title>Total Recall — Memory Intelligence</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,7 +11,7 @@
 
 <style>
 /* =====================================================================
-   Design system — Engram
+   Design system — Total Recall
    Palette: deep obsidian + warm amber + bone white
    ===================================================================== */
 :root {
@@ -1083,8 +1083,8 @@ body::before {
        ================================================================ -->
   <header class="topbar">
     <a class="wordmark" href="#">
-      <span class="wordmark-m">E</span>
-      <span class="wordmark-rest">ngram</span>
+      <span class="wordmark-m">T</span>
+      <span class="wordmark-rest">otal Recall</span>
     </a>
 
     <div class="topbar-sep"></div>
@@ -1293,7 +1293,7 @@ body::before {
 
 <script>
 /* ===================================================================
-   Engram Dashboard — client-side JS
+   Total Recall Dashboard — client-side JS
    =================================================================== */
 
 const state = {
@@ -1916,7 +1916,7 @@ document.getElementById('export-csv').addEventListener('click', () => {
     // Pre-load memories so Memories tab is instant — guard prevents race
     setTimeout(loadMemories, 800);
   } catch (err) {
-    console.error('Engram boot error:', err);
+    console.error('Total Recall boot error:', err);
     document.getElementById('stat-row').innerHTML =
       `<div class="empty-state" style="color:var(--rose);padding:20px">
         Failed to load data from server.<br>

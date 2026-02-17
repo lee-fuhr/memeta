@@ -6,17 +6,35 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ---
 
+## [0.14.0] - 2026-02-17
+
+### Added — Circuit breaker + Total Recall rename
+- **Circuit breaker for LLM calls (TDD)** — `src/circuit_breaker.py` with CLOSED/OPEN/HALF_OPEN states, 3-failure threshold, 60s recovery timeout, thread-safe via `threading.Lock`, singleton registry via `get_breaker(name)`
+- **12 circuit breaker tests** — state machine (6), registry (3), edge cases (3)
+- **Wired into 3 LLM call sites:** `llm_extractor.extract_with_llm()` → breaker "llm_extraction", `llm_extractor.ask_claude()` → breaker "llm_ask_claude", `contradiction_detector.ask_claude_quick()` → breaker "llm_contradiction"
+
+### Changed — Rename to Total Recall + charter
+- **Project renamed from Engram to Total Recall** across all files (dashboard, pyproject.toml, CONTRIBUTING, SECURITY, all tracking docs)
+- **README rewritten** with project charter framing: every methodology, all additive, predict what's next
+- **SHOWCASE updated** with charter statement, current stats (1,111 tests), and condensed progress log
+
+### Status
+- **Test suite:** 1,111 passing, 2 skipped (99.8%)
+- **Features shipped:** 58
+
+---
+
 ## [0.13.0] - 2026-02-16
 
 ### Added — Dashboard enhancements
 - **Memory detail modal** — click any memory card to see full content, metadata, tags, and grade info in an overlay
 - **`/api/memory/<id>` endpoint** — returns full body, all metadata for a single memory
 - **Export (JSON + CSV)** — `/api/export?format=json|csv` endpoint + export buttons in Memories tab
-- **LaunchAgent** — `com.lfi.engram-dashboard.plist` auto-starts dashboard on login with KeepAlive
+- **LaunchAgent** — `com.lfi.total-recall-dashboard.plist` auto-starts dashboard on login with KeepAlive
 - **Prioritized backlog** — `BACKLOG.md` with 23 items across 5 tiers (compiled from ideas.md, UX analysis, ROADMAP)
 
 ### Fixed
-- Wordmark in dashboard: Mnemora → Engram
+- Wordmark in dashboard: Mnemora → Total Recall
 - YAML frontmatter parser: single-quoted arrays (`['tag1', 'tag2']`) now parsed as lists instead of strings (was causing character-by-character iteration in export/display)
 - `.gitignore` — added BACKLOG.md to excluded working docs
 
@@ -24,7 +42,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [0.12.0] - 2026-02-16
 
-### Added — Engram dashboard
+### Added — Total Recall dashboard
 - **`dashboard/server.py`** — Flask server with JSON API endpoints (`/api/stats`, `/api/memories`, `/api/sessions`, `/api/refresh`)
 - **`dashboard/index.html`** — full-stack UI with Obsidian + amber design (Fraunces + IBM Plex Mono/Sans)
   - Overview: stat cards, grade distribution bar, domain bars, 26-week activity heatmap
@@ -41,8 +59,8 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [0.11.0] - 2026-02-16
 
-### Changed — Rename to Engram
-- Project renamed from Mnemora to Engram throughout (commit c8a7545)
+### Changed — Rename to Total Recall
+- Project renamed from Mnemora to Total Recall throughout (commit c8a7545)
 - README, dashboard, CHANGELOG, package metadata all updated
 
 ### Fixed

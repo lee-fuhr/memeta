@@ -17,7 +17,7 @@ You'll receive a response within 48 hours. If the issue is confirmed, a fix will
 
 ## Scope
 
-Engram runs locally and stores all data on your machine. There is no server-side component, no telemetry, and no data leaves your system unless you explicitly configure external API calls (Claude API for extraction, sentence-transformers for embeddings).
+Total Recall runs locally and stores all data on your machine. There is no server-side component, no telemetry, and no data leaves your system unless you explicitly configure external API calls (Claude API for extraction, sentence-transformers for embeddings).
 
 **Out of scope:**
 - Vulnerabilities in dependencies (report to those projects directly)

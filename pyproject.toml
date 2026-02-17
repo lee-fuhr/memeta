@@ -3,7 +3,7 @@ requires = ["setuptools>=64", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "engram"
+name = "total-recall"
 version = "0.12.0"
 description = "Intelligent memory system for Claude Code — extract, grade, search, and synthesize knowledge across sessions"
 readme = "README.md"
@@ -37,9 +37,9 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/leefuhr/engram"
-Repository = "https://github.com/leefuhr/engram"
-Issues = "https://github.com/leefuhr/engram/issues"
+Homepage = "https://github.com/leefuhr/total-recall"
+Repository = "https://github.com/leefuhr/total-recall"
+Issues = "https://github.com/leefuhr/total-recall/issues"
 
 [project.optional-dependencies]
 ml = [
