@@ -1393,33 +1393,48 @@ function renderDomainNav(data) {
 // Memories
 // -----------------------------------------------------------------------
 
+let _loadingMemories = false;
+
 async function loadMemories(append = false) {
+  // Prevent concurrent loads clobbering each other
+  if (_loadingMemories && !append) return;
+  _loadingMemories = true;
+
   if (!append) {
     state.memories = null;
     document.getElementById('memory-list').innerHTML = '<div class="loading-state"><div class="spinner"></div></div>';
   }
 
-  const params = new URLSearchParams({
-    sort: state.memFilter.sort,
-    domain: state.memFilter.domain,
-    tag: state.memFilter.tag,
-    q: state.memFilter.q,
-    limit: state.MEM_PAGE,
-    offset: state.memOffset,
-  });
+  try {
+    const params = new URLSearchParams({
+      sort: state.memFilter.sort,
+      domain: state.memFilter.domain,
+      tag: state.memFilter.tag,
+      q: state.memFilter.q,
+      limit: state.MEM_PAGE,
+      offset: state.memOffset,
+    });
 
-  const res = await fetch('/api/memories?' + params);
-  const data = await res.json();
+    const res = await fetch('/api/memories?' + params);
+    if (!res.ok) throw new Error(`API error ${res.status}`);
+    const data = await res.json();
 
-  state.memories = state.memories || [];
-  if (append) {
-    state.memories = [...state.memories, ...data.memories];
-  } else {
-    state.memories = data.memories;
-    state.memTotal = data.total;
+    state.memories = state.memories || [];
+    if (append) {
+      state.memories = [...state.memories, ...data.memories];
+    } else {
+      state.memories = data.memories;
+      state.memTotal = data.total;
+    }
+
+    renderMemories(data.total);
+  } catch (err) {
+    console.error('loadMemories failed:', err);
+    document.getElementById('memory-list').innerHTML =
+      `<div class="empty-state" style="color:var(--rose)">Failed to load memories: ${err.message}</div>`;
+  } finally {
+    _loadingMemories = false;
   }
-
-  renderMemories(data.total);
 
   // Populate domain select once
   if (!append && state.stats) {
@@ -1626,13 +1641,21 @@ function escHtml(str) {
 // -----------------------------------------------------------------------
 
 (async () => {
-  await loadStats();
-  // Fetch project label from stats
-  const project = state.stats?._project;
-  if (project) document.getElementById('project-label').textContent = project;
-
-  // Pre-load memories in background
-  setTimeout(loadMemories, 500);
+  try {
+    await loadStats();
+    const project = state.stats?._project;
+    if (project) document.getElementById('project-label').textContent = project;
+    // Pre-load memories so Memories tab is instant — guard prevents race
+    setTimeout(loadMemories, 800);
+  } catch (err) {
+    console.error('Mnemora boot error:', err);
+    document.getElementById('stat-row').innerHTML =
+      `<div class="empty-state" style="color:var(--rose);padding:20px">
+        Failed to load data from server.<br>
+        <span style="font-family:var(--font-mono);font-size:11px;color:var(--text-3)">${err.message}</span><br><br>
+        Is <code>python3 dashboard/server.py</code> running?
+      </div>`;
+  }
 })();
 </script>
 </body>
