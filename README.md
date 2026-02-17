@@ -2,7 +2,7 @@
 
 **Every memory technique that works. Every approach from the meta. All coexisting additively. And then predicting the next features and building those too.**
 
-![Python](https://img.shields.io/badge/python-3.11%2B-blue) ![Tests](https://img.shields.io/badge/tests-1111%20passing-brightgreen) ![Version](https://img.shields.io/badge/version-0.14.0-blue) ![License](https://img.shields.io/badge/license-MIT-green)
+![Python](https://img.shields.io/badge/python-3.11%2B-blue) ![Tests](https://img.shields.io/badge/tests-1111%20passing-brightgreen) ![Version](https://img.shields.io/badge/version-0.15.0-blue) ![License](https://img.shields.io/badge/license-MIT-green)
 
 ---
 

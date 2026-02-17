@@ -6,6 +6,24 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ---
 
+## [0.15.0] - 2026-02-17
+
+### Fixed — Consolidation hook broken since Feb 12
+- **`dashboard_export.py` IndentationError** — entire `with` block body was at wrong indent level, causing import-time crash
+- **Hook using system python instead of venv** — `python3` couldn't resolve `from memory_system.config import cfg`; changed to `~/.local/venvs/memory-system/bin/python3`
+- **5 days of sessions had zero memories captured** — all consolidation attempts failed silently since Feb 12
+
+### Added — Pushover notification on consolidation
+- Hook now sends push notification via Pushover when new memories are saved or reinforcements detected
+- Notification includes: memories saved, deduplicated, reinforcements, promotions, high-value count
+- Gracefully fails — doesn't break the hook if Pushover is unavailable
+
+### Status
+- **Test suite:** 1,111 passing (pre-existing flaky tests unchanged)
+- **Features shipped:** 58
+
+---
+
 ## [0.14.0] - 2026-02-17
 
 ### Added — Circuit breaker + Total Recall rename

@@ -44,73 +44,73 @@ def export_dashboard_data(
     # --- Read FSRS database ---
     if fsrs_db.exists():
         with get_connection(str(fsrs_db)) as conn:
-        conn.row_factory = sqlite3.Row
-        try:
-            rows = conn.execute(
-                "SELECT memory_id, stability, difficulty, review_count, "
-                "projects_validated, promoted, promoted_date, last_review "
-                "FROM memory_reviews"
-            ).fetchall()
+            conn.row_factory = sqlite3.Row
+            try:
+                rows = conn.execute(
+                    "SELECT memory_id, stability, difficulty, review_count, "
+                    "projects_validated, promoted, promoted_date, last_review "
+                    "FROM memory_reviews"
+                ).fetchall()
 
-            for row in rows:
-                projects = []
-                try:
-                    projects = json.loads(row["projects_validated"] or "[]")
-                except (json.JSONDecodeError, TypeError):
-                    pass
+                for row in rows:
+                    projects = []
+                    try:
+                        projects = json.loads(row["projects_validated"] or "[]")
+                    except (json.JSONDecodeError, TypeError):
+                        pass
 
-                stability = row["stability"] or 1.0
-                review_count = row["review_count"] or 0
-                project_count = len(projects)
-                promoted = bool(row["promoted"])
+                    stability = row["stability"] or 1.0
+                    review_count = row["review_count"] or 0
+                    project_count = len(projects)
+                    promoted = bool(row["promoted"])
 
-                # Path A (cross-project): stability >= 2.0, reviews >= 2, projects >= 2
-                path_a = min(
-                    stability / 2.0,
-                    review_count / 2.0 if review_count else 0,
-                    project_count / 2.0 if project_count else 0,
+                    # Path A (cross-project): stability >= 2.0, reviews >= 2, projects >= 2
+                    path_a = min(
+                        stability / 2.0,
+                        review_count / 2.0 if review_count else 0,
+                        project_count / 2.0 if project_count else 0,
+                    )
+                    path_a = min(max(path_a, 0), 1.0)
+
+                    # Path B (deep reinforcement): stability >= 4.0, reviews >= 5
+                    path_b = min(
+                        stability / 4.0,
+                        review_count / 5.0 if review_count else 0,
+                    )
+                    path_b = min(max(path_b, 0), 1.0)
+
+                    entry = {
+                        "memory_id": row["memory_id"],
+                        "stability": round(stability, 2),
+                        "review_count": review_count,
+                        "projects": projects,
+                        "promoted": promoted,
+                        "path_a_progress": round(path_a, 2),
+                        "path_b_progress": round(path_b, 2),
+                    }
+                    data["pipeline"].append(entry)
+
+                    # Aggregate project counts
+                    for proj in projects:
+                        data["projects"][proj] = data["projects"].get(proj, 0) + 1
+
+                # Totals
+                data["totals"]["tracked"] = len(rows)
+                data["totals"]["promoted"] = sum(
+                    1 for r in data["pipeline"] if r["promoted"]
                 )
-                path_a = min(max(path_a, 0), 1.0)
-
-                # Path B (deep reinforcement): stability >= 4.0, reviews >= 5
-                path_b = min(
-                    stability / 4.0,
-                    review_count / 5.0 if review_count else 0,
+                data["totals"]["pending_promotion"] = sum(
+                    1
+                    for r in data["pipeline"]
+                    if not r["promoted"]
+                    and (r["path_a_progress"] >= 0.75 or r["path_b_progress"] >= 0.75)
                 )
-                path_b = min(max(path_b, 0), 1.0)
-
-                entry = {
-                    "memory_id": row["memory_id"],
-                    "stability": round(stability, 2),
-                    "review_count": review_count,
-                    "projects": projects,
-                    "promoted": promoted,
-                    "path_a_progress": round(path_a, 2),
-                    "path_b_progress": round(path_b, 2),
-                }
-                data["pipeline"].append(entry)
-
-                # Aggregate project counts
-                for proj in projects:
-                    data["projects"][proj] = data["projects"].get(proj, 0) + 1
-
-            # Totals
-            data["totals"]["tracked"] = len(rows)
-            data["totals"]["promoted"] = sum(
-                1 for r in data["pipeline"] if r["promoted"]
-            )
-            data["totals"]["pending_promotion"] = sum(
-                1
-                for r in data["pipeline"]
-                if not r["promoted"]
-                and (r["path_a_progress"] >= 0.75 or r["path_b_progress"] >= 0.75)
-            )
-            # Promoted IDs for accurate dashboard filtering
-            data["promoted_ids"] = [
-                r["memory_id"] for r in data["pipeline"] if r["promoted"]
-            ]
-        finally:
-            conn.close()
+                # Promoted IDs for accurate dashboard filtering
+                data["promoted_ids"] = [
+                    r["memory_id"] for r in data["pipeline"] if r["promoted"]
+                ]
+            finally:
+                conn.close()
 
     # --- Scan memory project directories ---
     memory_base = Path.home() / ".local/share/memory"
