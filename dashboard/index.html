@@ -909,6 +909,151 @@ body::before {
 }
 
 /* =====================================================================
+   Memory detail modal
+   ===================================================================== */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(4px);
+  z-index: 500;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-overlay.open {
+  display: flex;
+  animation: fadein 0.15s ease;
+}
+
+.modal {
+  background: var(--bg-2);
+  border: 1px solid var(--border-bright);
+  border-radius: var(--radius-lg);
+  width: min(720px, 90vw);
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.5), var(--shadow-glow);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border);
+}
+
+.modal-title {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--text-1);
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  color: var(--text-3);
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: color 0.12s, background 0.12s;
+  line-height: 1;
+}
+
+.modal-close:hover {
+  color: var(--text-1);
+  background: var(--bg-3);
+}
+
+.modal-body {
+  overflow-y: auto;
+  padding: 24px;
+  flex: 1;
+}
+
+.modal-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.modal-meta-item {
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+}
+
+.modal-meta-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-3);
+  margin-bottom: 4px;
+}
+
+.modal-meta-value {
+  font-size: 13px;
+  color: var(--text-1);
+}
+
+.modal-body-content {
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--text-1);
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.modal-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 16px;
+}
+
+/* =====================================================================
+   Export buttons
+   ===================================================================== */
+.export-bar {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.btn-export {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-3);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 5px 10px;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.btn-export:hover {
+  border-color: var(--amber-dim);
+  color: var(--amber);
+}
+
+/* =====================================================================
    Scrollbar
    ===================================================================== */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -938,8 +1083,8 @@ body::before {
        ================================================================ -->
   <header class="topbar">
     <a class="wordmark" href="#">
-      <span class="wordmark-m">M</span>
-      <span class="wordmark-rest">nemora</span>
+      <span class="wordmark-m">E</span>
+      <span class="wordmark-rest">ngram</span>
     </a>
 
     <div class="topbar-sep"></div>
@@ -1060,6 +1205,16 @@ body::before {
           <option value="">All domains</option>
         </select>
         <div id="mem-tag-filters"></div>
+        <div class="export-bar">
+          <button class="btn-export" id="export-json" title="Export all memories as JSON">
+            <svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 10v3a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1v-3"/><path d="M8 2v8M5 7l3 3 3-3"/></svg>
+            JSON
+          </button>
+          <button class="btn-export" id="export-csv" title="Export all memories as CSV">
+            <svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 10v3a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1v-3"/><path d="M8 2v8M5 7l3 3 3-3"/></svg>
+            CSV
+          </button>
+        </div>
       </div>
 
       <div class="section-head">
@@ -1122,6 +1277,19 @@ body::before {
 
   </main><!-- /main -->
 </div><!-- /shell -->
+
+<!-- Memory detail modal -->
+<div class="modal-overlay" id="memory-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-title">Memory detail</span>
+      <button class="modal-close" id="modal-close">&times;</button>
+    </div>
+    <div class="modal-body" id="modal-body">
+      <div class="loading-state"><div class="spinner"></div></div>
+    </div>
+  </div>
+</div>
 
 <script>
 /* ===================================================================
@@ -1483,7 +1651,7 @@ function renderMemories(total) {
     ].join('');
 
     return `
-      <div class="memory-card grade-${grade}">
+      <div class="memory-card grade-${grade}" data-memory-id="${escHtml(m.id)}">
         <div class="memory-card-top">
           <div class="memory-preview">${escHtml(m.preview)}</div>
           <div class="importance-badge">
@@ -1511,6 +1679,13 @@ function renderMemories(total) {
       state.memOffset = 0;
       state.memories = null;
       loadMemories();
+    });
+  });
+
+  // Card click → open detail modal
+  list.querySelectorAll('.memory-card[data-memory-id]').forEach(el => {
+    el.addEventListener('click', () => {
+      openMemoryModal(el.dataset.memoryId);
     });
   });
 
@@ -1635,6 +1810,99 @@ function escHtml(str) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
 }
+
+// -----------------------------------------------------------------------
+// Memory detail modal
+// -----------------------------------------------------------------------
+
+const modal = document.getElementById('memory-modal');
+const modalBody = document.getElementById('modal-body');
+const modalTitle = document.getElementById('modal-title');
+
+document.getElementById('modal-close').addEventListener('click', closeModal);
+modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+function closeModal() {
+  modal.classList.remove('open');
+}
+
+async function openMemoryModal(memoryId) {
+  modal.classList.add('open');
+  modalBody.innerHTML = '<div class="loading-state"><div class="spinner"></div></div>';
+  modalTitle.textContent = 'Loading…';
+
+  try {
+    const res = await fetch(`/api/memory/${encodeURIComponent(memoryId)}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const m = await res.json();
+    if (m.error) throw new Error(m.error);
+
+    const imp = m.importance ?? 0.5;
+    const grade = imp >= 0.8 ? 'A' : imp >= 0.6 ? 'B' : imp >= 0.4 ? 'C' : 'D';
+    const gradeColors = { A: 'var(--green)', B: 'var(--amber)', C: '#6b7c72', D: 'var(--rose)' };
+
+    const created = m.created ? new Date(m.created).toLocaleDateString('en', { month: 'long', day: 'numeric', year: 'numeric' }) : '—';
+    const updated = m.updated ? new Date(m.updated).toLocaleDateString('en', { month: 'long', day: 'numeric', year: 'numeric' }) : '—';
+
+    modalTitle.innerHTML = `<span style="color:${gradeColors[grade]}">●</span> ${escHtml(m.knowledge_domain || 'Memory')} <span style="color:var(--text-3);font-size:12px;font-family:var(--font-mono)">${grade} · ${imp.toFixed(2)}</span>`;
+
+    const tags = (m.tags || []).map(t => `<span class="mem-tag">${escHtml(t)}</span>`).join('');
+
+    const pills = [
+      m.action_required ? '<span class="action-pill">action required</span>' : '',
+      m.problem_solution ? '<span class="ps-pill">problem-solution pair</span>' : '',
+    ].filter(Boolean).join(' ');
+
+    modalBody.innerHTML = `
+      <div class="modal-meta-grid">
+        <div class="modal-meta-item">
+          <div class="modal-meta-label">Grade</div>
+          <div class="modal-meta-value" style="color:${gradeColors[grade]}">${grade} (${imp.toFixed(2)})</div>
+        </div>
+        <div class="modal-meta-item">
+          <div class="modal-meta-label">Confidence</div>
+          <div class="modal-meta-value">${(m.confidence ?? 0).toFixed(2)}</div>
+        </div>
+        <div class="modal-meta-item">
+          <div class="modal-meta-label">Domain</div>
+          <div class="modal-meta-value">${escHtml(m.knowledge_domain)}</div>
+        </div>
+        <div class="modal-meta-item">
+          <div class="modal-meta-label">Type</div>
+          <div class="modal-meta-value">${escHtml(m.context_type)}</div>
+        </div>
+        <div class="modal-meta-item">
+          <div class="modal-meta-label">Created</div>
+          <div class="modal-meta-value">${created}</div>
+        </div>
+        <div class="modal-meta-item">
+          <div class="modal-meta-label">Updated</div>
+          <div class="modal-meta-value">${updated}</div>
+        </div>
+      </div>
+      ${pills ? `<div style="margin-bottom:16px">${pills}</div>` : ''}
+      <div class="modal-body-content">${escHtml(m.body)}</div>
+      ${tags ? `<div class="modal-tags">${tags}</div>` : ''}
+      ${m.filename ? `<div style="margin-top:12px;font-family:var(--font-mono);font-size:10px;color:var(--text-3)">File: ${escHtml(m.filename)}</div>` : ''}
+    `;
+  } catch (err) {
+    modalBody.innerHTML = `<div class="empty-state" style="color:var(--rose)">Failed to load memory: ${err.message}</div>`;
+    modalTitle.textContent = 'Error';
+  }
+}
+
+// -----------------------------------------------------------------------
+// Export
+// -----------------------------------------------------------------------
+
+document.getElementById('export-json').addEventListener('click', () => {
+  window.open('/api/export?format=json', '_blank');
+});
+
+document.getElementById('export-csv').addEventListener('click', () => {
+  window.open('/api/export?format=csv', '_blank');
+});
 
 // -----------------------------------------------------------------------
 // Boot

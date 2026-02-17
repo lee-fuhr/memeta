@@ -6,6 +6,52 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ---
 
+## [0.13.0] - 2026-02-16
+
+### Added — Dashboard enhancements
+- **Memory detail modal** — click any memory card to see full content, metadata, tags, and grade info in an overlay
+- **`/api/memory/<id>` endpoint** — returns full body, all metadata for a single memory
+- **Export (JSON + CSV)** — `/api/export?format=json|csv` endpoint + export buttons in Memories tab
+- **LaunchAgent** — `com.lfi.engram-dashboard.plist` auto-starts dashboard on login with KeepAlive
+- **Prioritized backlog** — `BACKLOG.md` with 23 items across 5 tiers (compiled from ideas.md, UX analysis, ROADMAP)
+
+### Fixed
+- Wordmark in dashboard: Mnemora → Engram
+- YAML frontmatter parser: single-quoted arrays (`['tag1', 'tag2']`) now parsed as lists instead of strings (was causing character-by-character iteration in export/display)
+- `.gitignore` — added BACKLOG.md to excluded working docs
+
+---
+
+## [0.12.0] - 2026-02-16
+
+### Added — Engram dashboard
+- **`dashboard/server.py`** — Flask server with JSON API endpoints (`/api/stats`, `/api/memories`, `/api/sessions`, `/api/refresh`)
+- **`dashboard/index.html`** — full-stack UI with Obsidian + amber design (Fraunces + IBM Plex Mono/Sans)
+  - Overview: stat cards, grade distribution bar, domain bars, 26-week activity heatmap
+  - Memories: searchable/filterable cards with grade indicators, pagination
+  - Sessions: table with date, name, message/tool/memory counts
+  - Knowledge map: tag cloud (frequency-scaled) + domain breakdown
+  - Sidebar with domain quick-filters
+
+### Fixed
+- Memories tab race condition — eliminated with concurrent load guard
+- Error handling for API failures in frontend
+
+---
+
+## [0.11.0] - 2026-02-16
+
+### Changed — Rename to Engram
+- Project renamed from Mnemora to Engram throughout (commit c8a7545)
+- README, dashboard, CHANGELOG, package metadata all updated
+
+### Fixed
+- **F30→F28 search delegation** — `MemoryAwareSearch.search()` now delegates to `SearchOptimizer.search_with_cache()` + `rank_results()` instead of bare client call
+- **IntelligenceDB connection leak** — replaced `pool.get_connection()` with `sqlite3.connect()` directly (pool connections were borrowed at init and never returned)
+- **Dream Mode O(n²)** — `MAX_MEMORIES = 1000` cap confirmed in place
+
+---
+
 ## [0.10.0] - 2026-02-15
 
 ### Added — Config centralization

@@ -99,6 +99,14 @@ def _parse_yaml_frontmatter(text: str) -> tuple[dict, str]:
             parsed = json.loads(val)
             meta[key.strip()] = parsed
         except (json.JSONDecodeError, ValueError):
+            # Try single-quoted arrays (common in YAML: ['tag1', 'tag2'])
+            if val.startswith("[") and val.endswith("]"):
+                try:
+                    parsed = json.loads(val.replace("'", '"'))
+                    meta[key.strip()] = parsed
+                    continue
+                except (json.JSONDecodeError, ValueError):
+                    pass
             if val.lower() == "null":
                 meta[key.strip()] = None
             elif val.lower() == "true":
@@ -416,6 +424,78 @@ def api_memories():
         })
 
     return jsonify({"total": len(filtered), "memories": result})
+
+
+@app.route("/api/memory/<memory_id>")
+def api_memory_detail(memory_id):
+    """Return full content for a single memory."""
+    _ensure_data(app.config["PROJECT"], app.config["MEMORY_BASE"])
+    for m in _cache["memories"]:
+        mid = m.get("id") or m.get("_filename")
+        if mid == memory_id:
+            return jsonify({
+                "id": mid,
+                "importance": m.get("importance_weight", 0.5),
+                "confidence": m.get("confidence_score", 0.5),
+                "context_type": m.get("context_type") or "unknown",
+                "knowledge_domain": m.get("knowledge_domain") or "unknown",
+                "tags": m.get("semantic_tags") or [],
+                "created": m.get("created_dt"),
+                "updated": m.get("updated_dt"),
+                "action_required": m.get("action_required") or False,
+                "problem_solution": m.get("problem_solution_pair") or False,
+                "body": m.get("_body") or "",
+                "filename": m.get("_filename") or "",
+                "source_session": m.get("source_session") or "",
+                "related_memories": m.get("related_memories") or [],
+            })
+    return jsonify({"error": "Not found"}), 404
+
+
+@app.route("/api/export")
+def api_export():
+    """Export memories as JSON or CSV."""
+    _ensure_data(app.config["PROJECT"], app.config["MEMORY_BASE"])
+    fmt = request.args.get("format", "json")
+    memories = _cache["memories"]
+
+    rows = []
+    for m in memories:
+        raw_tags = m.get("semantic_tags") or []
+        if isinstance(raw_tags, list):
+            tags_str = ", ".join(str(t) for t in raw_tags)
+        else:
+            tags_str = str(raw_tags)
+        rows.append({
+            "id": m.get("id") or m.get("_filename"),
+            "importance": m.get("importance_weight", 0.5),
+            "confidence": m.get("confidence_score", 0.5),
+            "context_type": m.get("context_type") or "unknown",
+            "knowledge_domain": m.get("knowledge_domain") or "unknown",
+            "tags": tags_str,
+            "created": m.get("created_dt") or "",
+            "updated": m.get("updated_dt") or "",
+            "action_required": m.get("action_required") or False,
+            "problem_solution": m.get("problem_solution_pair") or False,
+            "body": m.get("_body") or "",
+        })
+
+    if fmt == "csv":
+        import csv
+        import io
+        output = io.StringIO()
+        if rows:
+            writer = csv.DictWriter(output, fieldnames=rows[0].keys())
+            writer.writeheader()
+            writer.writerows(rows)
+        from flask import Response
+        return Response(
+            output.getvalue(),
+            mimetype="text/csv",
+            headers={"Content-Disposition": "attachment; filename=engram-memories.csv"},
+        )
+
+    return jsonify({"total": len(rows), "memories": rows})
 
 
 @app.route("/api/sessions")
