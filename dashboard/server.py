@@ -848,6 +848,28 @@ def api_cross_client():
                         "error": str(e)})
 
 
+@app.route("/api/regret-check")
+def api_regret_check():
+    """Check a decision against regret patterns."""
+    try:
+        from memory_system.decision_regret_loop import DecisionRegretLoop, format_regret_warning
+        db_path = Path(__file__).parent.parent / "intelligence.db"
+        loop = DecisionRegretLoop(db_path=db_path)
+        decision = request.args.get("decision", "")
+        if not decision:
+            return jsonify({"warning": None, "summary": loop.get_summary()})
+        warning = loop.check_decision(decision)
+        return jsonify({
+            "warning": warning.to_dict() if warning else None,
+            "formatted": format_regret_warning(warning),
+            "summary": loop.get_summary(),
+        })
+    except ImportError:
+        return jsonify({"warning": None, "error": "decision_regret_loop module not available"})
+    except Exception as e:
+        return jsonify({"warning": None, "error": str(e)})
+
+
 # ---------------------------------------------------------------------------
 # Notification API
 # ---------------------------------------------------------------------------
