@@ -181,23 +181,41 @@ body::before {
   border: 1px solid var(--border);
   border-radius: 4px;
   padding: 3px 8px;
+  cursor: pointer;
+  transition: border-color 0.12s, color 0.12s;
+}
+.project-badge:hover {
+  border-color: var(--amber-dim);
+  color: var(--amber);
 }
 
 #project-label {
   color: var(--amber);
 }
 
-.btn-refresh {
+.refresh-wrap {
   display: flex;
   align-items: center;
   gap: 6px;
+}
+
+.refresh-updated {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-3);
+}
+
+.btn-refresh {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: none;
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  color: var(--text-2);
-  font-family: var(--font-body);
-  font-size: 12px;
-  padding: 6px 12px;
+  color: var(--text-3);
+  width: 28px;
+  height: 28px;
+  padding: 0;
   cursor: pointer;
   transition: border-color 0.15s, color 0.15s;
 }
@@ -208,6 +226,39 @@ body::before {
 }
 
 .btn-refresh svg { width: 13px; height: 13px; }
+
+/* =====================================================================
+   Tooltip system
+   ===================================================================== */
+[data-tooltip] {
+  position: relative;
+}
+[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg-3);
+  border: 1px solid var(--border-bright);
+  color: var(--text-1);
+  font-family: var(--font-body);
+  font-size: 11px;
+  line-height: 1.5;
+  padding: 6px 10px;
+  border-radius: 6px;
+  white-space: normal;
+  width: max-content;
+  max-width: 240px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 9999;
+  text-align: left;
+}
+[data-tooltip]:hover::after {
+  opacity: 1;
+}
 
 /* =====================================================================
    Sidebar
@@ -339,6 +390,8 @@ body::before {
 }
 
 .stat-card:hover { border-color: var(--border-bright); }
+.stat-card[data-action] { cursor: pointer; }
+.stat-card[data-action]:hover { border-color: var(--amber); }
 
 .stat-card::before {
   content: '';
@@ -605,6 +658,29 @@ body::before {
   padding: 1px 6px;
 }
 
+.session-filter-chip {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--amber);
+  background: rgba(212,134,42,0.1);
+  border: 1px solid rgba(212,134,42,0.3);
+  border-radius: 4px;
+  padding: 3px 10px;
+  margin-bottom: 12px;
+}
+.session-filter-chip.active { display: flex; }
+.session-filter-chip-x {
+  cursor: pointer;
+  opacity: 0.7;
+  font-size: 14px;
+  line-height: 1;
+  margin-left: 2px;
+}
+.session-filter-chip-x:hover { opacity: 1; }
+
 .ps-pill {
   font-family: var(--font-mono);
   font-size: 10px;
@@ -672,7 +748,7 @@ body::before {
   font-size: 13px;
 }
 
-.session-row:hover { border-color: var(--border-bright); }
+.session-row:hover { border-color: var(--border-bright); cursor: pointer; }
 
 .sess-date {
   font-family: var(--font-mono);
@@ -1072,6 +1148,378 @@ body::before {
   .session-row > :last-child { display: none; }
   .session-table-header > :last-child { display: none; }
 }
+
+/* =====================================================================
+   Notification bell + dropdown
+   ===================================================================== */
+.notif-wrap {
+  position: relative;
+}
+
+.btn-bell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-2);
+  width: 34px;
+  height: 34px;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+  position: relative;
+}
+
+.btn-bell:hover {
+  border-color: var(--amber-dim);
+  color: var(--amber);
+}
+
+.btn-bell svg { width: 16px; height: 16px; }
+
+.notif-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 16px;
+  height: 16px;
+  background: var(--rose);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 500;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.notif-badge.hidden { display: none; }
+
+.notif-dropdown {
+  display: none;
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 380px;
+  max-height: 480px;
+  background: var(--bg-2);
+  border: 1px solid var(--border-bright);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5), var(--shadow-glow);
+  z-index: 200;
+  overflow: hidden;
+}
+
+.notif-dropdown.open { display: flex; flex-direction: column; }
+
+.notif-dropdown-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+}
+.notif-dropdown-header:hover { background: rgba(255,255,255,0.02); }
+
+.notif-dropdown-title {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--text-1);
+}
+
+.notif-dropdown-title-btn {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--text-1);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: color 0.12s;
+}
+.notif-dropdown-title-btn:hover { color: var(--amber-bright); }
+
+.notif-link {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--amber-dim);
+  cursor: pointer;
+  border: none;
+  background: none;
+  transition: color 0.12s;
+  padding: 2px 4px;
+}
+
+.notif-link:hover { color: var(--amber-bright); }
+
+.notif-dropdown-list {
+  overflow-y: auto;
+  flex: 1;
+  max-height: 400px;
+}
+
+.notif-item {
+  display: flex;
+  gap: 10px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background 0.1s;
+  align-items: flex-start;
+}
+
+.notif-item:hover { background: var(--bg-hover); }
+.notif-item:last-child { border-bottom: none; }
+
+.notif-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 14px;
+}
+
+.notif-icon.consolidation { background: rgba(212,134,42,0.15); }
+.notif-icon.promotion     { background: rgba(61,184,122,0.15); }
+.notif-icon.reinforcement { background: rgba(58,138,184,0.15); }
+.notif-icon.contradiction { background: rgba(192,81,106,0.15); }
+.notif-icon.default       { background: var(--bg-3); }
+
+.notif-content { flex: 1; min-width: 0; }
+
+.notif-title-text {
+  font-size: 12px;
+  color: var(--text-1);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.notif-time {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-3);
+  margin-top: 2px;
+}
+
+.notif-dismiss-btn {
+  background: none;
+  border: none;
+  color: var(--text-3);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 2px 4px;
+  line-height: 1;
+  opacity: 0;
+  transition: opacity 0.12s, color 0.12s;
+  flex-shrink: 0;
+  align-self: center;
+}
+
+.notif-item:hover .notif-dismiss-btn { opacity: 1; }
+.notif-dismiss-btn:hover { color: var(--rose); }
+
+.notif-dropdown-footer {
+  padding: 10px 16px;
+  border-top: 1px solid var(--border);
+  text-align: center;
+}
+
+.notif-empty {
+  padding: 32px 16px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-3);
+  font-family: var(--font-mono);
+}
+
+/* =====================================================================
+   Activity view
+   ===================================================================== */
+.activity-filters {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.activity-card {
+  display: flex;
+  gap: 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 14px 18px;
+  transition: border-color 0.12s;
+}
+
+.activity-card:hover { border-color: var(--border-bright); }
+.activity-card.dismissed { opacity: 0.45; }
+
+.activity-card-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 18px;
+}
+
+.activity-card-body { flex: 1; min-width: 0; }
+
+.activity-card-title {
+  font-size: 13px;
+  color: var(--text-1);
+  margin-bottom: 4px;
+}
+
+.activity-card-message {
+  font-size: 12px;
+  color: var(--text-2);
+  margin-bottom: 6px;
+}
+
+.activity-card-meta {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.activity-card-time {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-3);
+}
+
+.activity-card-type {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 3px;
+  border: 1px solid var(--border);
+  color: var(--text-3);
+}
+
+.activity-card-actions {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  align-self: flex-start;
+}
+
+.btn-dismiss-activity {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-3);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  padding: 4px 8px;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+
+.btn-dismiss-activity:hover {
+  border-color: var(--amber-dim);
+  color: var(--amber);
+}
+
+/* Activity card memory content */
+.activity-content-section {
+  margin-top: 10px;
+}
+
+.activity-content-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-3);
+  display: block;
+  margin-bottom: 4px;
+}
+
+.activity-content-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.activity-content-list li {
+  font-size: 12px;
+  color: var(--text-2);
+  line-height: 1.5;
+  padding-left: 14px;
+  position: relative;
+}
+
+.activity-content-list li::before {
+  content: '·';
+  position: absolute;
+  left: 3px;
+  color: var(--amber-dim);
+  font-weight: 600;
+}
+
+.activity-content-more {
+  color: var(--text-3) !important;
+  font-family: var(--font-mono);
+  font-size: 10px !important;
+}
+
+.activity-content-more::before {
+  display: none !important;
+}
+
+.btn-expand-more {
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--amber-dim);
+  cursor: pointer;
+  transition: color 0.12s;
+}
+.btn-expand-more:hover { color: var(--amber-bright); }
+
+/* bar-row for knowledge map (click-to-filter) */
+.bar-row {
+  display: grid;
+  grid-template-columns: 140px 1fr 48px;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 6px;
+  transition: opacity 0.12s;
+}
+.bar-row:hover { opacity: 1 !important; }
+.bar-row .bar-label { font-size: 12px; color: var(--text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bar-row .bar-count { font-family: var(--font-mono); font-size: 11px; color: var(--text-3); text-align: right; }
 </style>
 </head>
 <body>
@@ -1097,13 +1545,38 @@ body::before {
     </div>
 
     <div class="topbar-actions">
-      <span class="project-badge">project: <span id="project-label">—</span></span>
-      <button class="btn-refresh" id="btn-refresh">
-        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M17 10A7 7 0 1 1 10 3M17 3v7h-7"/>
-        </svg>
-        Refresh
-      </button>
+      <span class="project-badge" data-tooltip="Current memory scope. Click to switch projects.">project: <span id="project-label">—</span></span>
+
+      <div class="notif-wrap" id="notif-wrap">
+        <button class="btn-bell" id="btn-bell" title="Notifications">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M10 2a5 5 0 0 0-5 5v3l-1.5 2.5h13L15 10V7a5 5 0 0 0-5-5z"/>
+            <path d="M8.5 16.5a1.5 1.5 0 0 0 3 0"/>
+          </svg>
+          <span class="notif-badge hidden" id="notif-badge">0</span>
+        </button>
+        <div class="notif-dropdown" id="notif-dropdown">
+          <div class="notif-dropdown-header">
+            <button class="notif-dropdown-title-btn" id="notif-header-link" title="View all activity">Notifications</button>
+            <button class="notif-link" id="notif-mark-all-read">Mark all read</button>
+          </div>
+          <div class="notif-dropdown-list" id="notif-dropdown-list">
+            <div class="notif-empty">No new notifications</div>
+          </div>
+          <div class="notif-dropdown-footer">
+            <button class="notif-link" id="notif-view-all">View all activity →</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="refresh-wrap">
+        <span class="refresh-updated" id="refresh-updated"></span>
+        <button class="btn-refresh" id="btn-refresh" title="Refresh data">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 10A7 7 0 1 1 10 3M17 3v7h-7"/>
+          </svg>
+        </button>
+      </div>
     </div>
   </header>
 
@@ -1124,6 +1597,14 @@ body::before {
       <div class="nav-item" data-view="sessions">
         <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="14" height="12" rx="2"/><path d="M7 8h6M7 12h4"/></svg>
         Sessions
+      </div>
+      <div class="nav-item" data-view="activity">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M10 2a5 5 0 0 0-5 5v3l-1.5 2.5h13L15 10V7a5 5 0 0 0-5-5z"/>
+          <path d="M8.5 16.5a1.5 1.5 0 0 0 3 0"/>
+        </svg>
+        Activity
+        <span class="section-count" id="activity-nav-badge" style="margin-left:auto;display:none;font-family:var(--font-mono);font-size:10px;color:var(--amber)">0</span>
       </div>
       <div class="nav-item" data-view="knowledge">
         <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5" cy="10" r="2"/><circle cx="15" cy="5" r="2"/><circle cx="15" cy="15" r="2"/><path d="M7 10h4M13 5.8l-4 3.4M13 14.2l-4-3.4"/></svg>
@@ -1217,6 +1698,11 @@ body::before {
         </div>
       </div>
 
+      <div class="session-filter-chip" id="session-filter-chip">
+        <span>Filtered by session</span>
+        <span class="session-filter-chip-x" id="session-filter-clear" title="Clear session filter">✕</span>
+      </div>
+
       <div class="section-head">
         <span class="section-title">Memories</span>
         <span class="section-count" id="mem-count">—</span>
@@ -1241,9 +1727,9 @@ body::before {
       <div class="session-table-header">
         <div>Date</div>
         <div>Session name</div>
-        <div>Messages</div>
-        <div>Tools</div>
-        <div>Memories</div>
+        <div data-tooltip="Total messages exchanged in this session.">Messages</div>
+        <div data-tooltip="Number of tool calls (file reads, bash commands, etc.) made by Claude.">Tools</div>
+        <div data-tooltip="Memories extracted and saved to Total Recall at the end of this session. Click a row to see them.">Memories</div>
       </div>
       <div id="session-list" class="session-list">
         <div class="loading-state"><div class="spinner"></div></div>
@@ -1275,6 +1761,45 @@ body::before {
       </div>
     </div>
 
+    <!-- Activity -->
+    <div class="view" id="view-activity">
+      <div class="page-header">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div>
+            <h1 class="page-title">System <em>activity</em></h1>
+            <p class="page-sub" id="activity-sub">Loading…</p>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <select class="filter-select" id="activity-type-filter">
+              <option value="">All types</option>
+              <option value="consolidation_summary">💾 Session recap</option>
+              <option value="reinforcement_detected">🔁 Reinforced</option>
+              <option value="memory_promoted">⬆️ Promoted</option>
+              <option value="contradiction">⚠️ Contradiction</option>
+              <option value="pattern_detected">🔍 Pattern</option>
+              <option value="quality_issue">📊 Quality</option>
+              <option value="expiring_memory">⏰ Expiring</option>
+              <option value="stale_memory">💤 Stale</option>
+            </select>
+            <button class="btn-export" id="activity-dismiss-all">Dismiss all</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-head">
+        <span class="section-title">Recent activity</span>
+        <span class="section-count" id="activity-count">—</span>
+      </div>
+
+      <div id="activity-list" class="activity-list">
+        <div class="loading-state"><div class="spinner"></div></div>
+      </div>
+
+      <button class="load-more-btn" id="activity-load-more" style="display:none">
+        Load more
+      </button>
+    </div>
+
   </main><!-- /main -->
 </div><!-- /shell -->
 
@@ -1301,7 +1826,7 @@ const state = {
   memories: null,
   sessions: null,
   currentView: 'overview',
-  memFilter: { sort: 'importance', domain: '', tag: '', q: '' },
+  memFilter: { sort: 'importance', domain: '', tag: '', q: '', session_id: '', action_required: '', min_importance: '' },
   memOffset: 0,
   MEM_PAGE: 40,
   activeTag: null,
@@ -1314,6 +1839,10 @@ const state = {
 document.querySelectorAll('.nav-item[data-view]').forEach(el => {
   el.addEventListener('click', () => {
     const view = el.dataset.view;
+    if (view === 'memories') {
+      // Clear session filter so Memories nav always shows full list
+      state.memFilter.session_id = '';
+    }
     switchView(view);
   });
 });
@@ -1328,6 +1857,7 @@ function switchView(view) {
   if (view === 'memories' && !state.memories) loadMemories();
   if (view === 'sessions' && !state.sessions) loadSessions();
   if (view === 'knowledge' && state.stats) renderKnowledgeMap();
+  if (view === 'activity') loadActivity();
 }
 
 // -----------------------------------------------------------------------
@@ -1351,10 +1881,29 @@ searchInput.addEventListener('input', () => {
 // Refresh
 // -----------------------------------------------------------------------
 
+let _lastRefreshed = null;
+
+function updateRefreshTimestamp() {
+  _lastRefreshed = new Date();
+  const el = document.getElementById('refresh-updated');
+  if (el) el.textContent = 'just now';
+}
+
+function tickRefreshTimestamp() {
+  const el = document.getElementById('refresh-updated');
+  if (!el || !_lastRefreshed) return;
+  const diffMin = Math.floor((new Date() - _lastRefreshed) / 60000);
+  if (diffMin === 0) el.textContent = 'just now';
+  else if (diffMin === 1) el.textContent = '1 min ago';
+  else el.textContent = `${diffMin} min ago`;
+}
+
+setInterval(tickRefreshTimestamp, 60000);
+
 document.getElementById('btn-refresh').addEventListener('click', async () => {
   const btn = document.getElementById('btn-refresh');
   btn.disabled = true;
-  btn.textContent = 'Refreshing…';
+  btn.style.opacity = '0.4';
   await fetch('/api/refresh', { method: 'POST' }).catch(() => {});
   state.stats = null;
   state.memories = null;
@@ -1363,7 +1912,17 @@ document.getElementById('btn-refresh').addEventListener('click', async () => {
   if (state.currentView === 'memories') loadMemories();
   if (state.currentView === 'sessions') loadSessions();
   btn.disabled = false;
-  btn.innerHTML = `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><path d="M17 10A7 7 0 1 1 10 3M17 3v7h-7"/></svg> Refresh`;
+  btn.style.opacity = '';
+  updateRefreshTimestamp();
+});
+
+// Project badge click → filter memories by this project
+document.querySelector('.project-badge').addEventListener('click', () => {
+  const proj = document.getElementById('project-label').textContent;
+  if (!proj || proj === '—') return;
+  state.memFilter = { sort: state.memFilter.sort, domain: '', tag: '', q: '', session_id: '', action_required: '', min_importance: '' };
+  switchView('memories');
+  loadMemories();
 });
 
 // -----------------------------------------------------------------------
@@ -1395,20 +1954,38 @@ function renderStatCards(data) {
   const s = data.sessions || {};
 
   const cards = [
-    { label: 'Total memories', value: (m.total ?? 0).toLocaleString(), cls: 'amber', sub: `avg importance ${(m.avg_importance ?? 0).toFixed(2)}` },
-    { label: 'Sessions', value: (s.total ?? 0).toLocaleString(), cls: '', sub: `${(s.total_messages ?? 0).toLocaleString()} messages` },
-    { label: 'Grade A memories', value: (m.grades?.A ?? 0).toLocaleString(), cls: 'green', sub: 'importance ≥ 0.8' },
-    { label: 'Action items', value: (m.action_required ?? 0).toLocaleString(), cls: '', sub: `${m.problem_solution_pairs ?? 0} problem-solution pairs` },
+    { label: 'Total memories', value: (m.total ?? 0).toLocaleString(), cls: 'amber', sub: `avg importance ${(m.avg_importance ?? 0).toFixed(2)}`, action: 'memories', tooltip: 'View all memories' },
+    { label: 'Sessions', value: (s.total ?? 0).toLocaleString(), cls: '', sub: `${(s.total_messages ?? 0).toLocaleString()} messages`, action: 'sessions', tooltip: 'View session history' },
+    { label: 'Grade A memories', value: (m.grades?.A ?? 0).toLocaleString(), cls: 'green', sub: 'importance ≥ 0.8', action: 'grade-a', tooltip: 'Filter to grade A memories (importance ≥ 0.8)' },
+    { label: 'Action items', value: (m.action_required ?? 0).toLocaleString(), cls: '', sub: `${m.problem_solution_pairs ?? 0} problem-solution pairs`, action: 'action-required', tooltip: 'Filter to memories requiring action' },
   ];
 
   const row = document.getElementById('stat-row');
   row.innerHTML = cards.map(c => `
-    <div class="stat-card">
+    <div class="stat-card" data-action="${c.action}" data-tooltip="${c.tooltip}">
       <div class="stat-label">${c.label}</div>
       <div class="stat-value ${c.cls}">${c.value}</div>
       <div class="stat-sub">${c.sub}</div>
     </div>
   `).join('');
+
+  // Wire up stat card clicks
+  row.querySelectorAll('.stat-card[data-action]').forEach(card => {
+    card.addEventListener('click', () => {
+      const action = card.dataset.action;
+      if (action === 'memories') {
+        state.memFilter = { sort: 'importance', domain: '', tag: '', q: '', session_id: '', action_required: '', min_importance: '' };
+        state.memOffset = 0; state.memories = null;
+        switchView('memories'); loadMemories();
+      } else if (action === 'sessions') {
+        switchView('sessions');
+      } else if (action === 'grade-a') {
+        filterByMinImportance(0.8);
+      } else if (action === 'action-required') {
+        filterByActionRequired();
+      }
+    });
+  });
 }
 
 function renderGrades(data) {
@@ -1435,9 +2012,14 @@ function renderGrades(data) {
 }
 
 function renderDomainBars(data) {
-  const domains = data.domains || {};
+  // For overview, show top substantive domains (exclude meta-tags like learnings/universal)
+  const allDomains = data.domains || {};
+  const META_DOMAINS = new Set(['learnings', 'universal', 'promoted', '#learning', '#universal', '#promoted']);
+  const substantiveDomains = Object.fromEntries(
+    Object.entries(allDomains).filter(([k]) => !META_DOMAINS.has(k.toLowerCase()))
+  );
   const contexts = data.context_types || {};
-  renderBars('domain-bars', domains, 8);
+  renderBars('domain-bars', Object.keys(substantiveDomains).length > 0 ? substantiveDomains : allDomains, 8);
   renderBars('context-bars', contexts, 8);
 }
 
@@ -1514,14 +2096,27 @@ function renderHeatmap(data) {
         else if (ratio < 0.75) level = 'l3';
         else level = 'l4';
       }
-      cells.push(`<div class="heatmap-cell ${level}" title="${key}: ${count} session${count !== 1 ? 's' : ''}"></div>`);
+      const clickable = count > 0 ? `data-date="${key}" style="cursor:pointer"` : '';
+      cells.push(`<div class="heatmap-cell ${level}" title="${key}: ${count} session${count !== 1 ? 's' : ''}" ${clickable}></div>`);
     }
     cols.push(`<div class="heatmap-col">${cells.join('')}</div>`);
   }
 
-  document.getElementById('heatmap-grid').innerHTML = cols.join('');
+  const grid = document.getElementById('heatmap-grid');
+  grid.innerHTML = cols.join('');
   document.getElementById('heatmap-total').textContent =
     (data.sessions?.total ?? 0) + ' total sessions';
+
+  // Heatmap day cells → Sessions view filtered to that date
+  grid.querySelectorAll('.heatmap-cell[data-date]').forEach(cell => {
+    cell.addEventListener('click', () => {
+      const date = cell.dataset.date;
+      if (!date) return;
+      state.sessionDateFilter = date;
+      switchView('sessions');
+      loadSessions(date);
+    });
+  });
 
   // Month labels — approximate positioning
   const monthsEl = document.getElementById('heatmap-months');
@@ -1582,6 +2177,9 @@ async function loadMemories(append = false) {
       limit: state.MEM_PAGE,
       offset: state.memOffset,
     });
+    if (state.memFilter.session_id) params.set('session_id', state.memFilter.session_id);
+    if (state.memFilter.action_required) params.set('action_required', state.memFilter.action_required);
+    if (state.memFilter.min_importance) params.set('min_importance', state.memFilter.min_importance);
 
     const res = await fetch('/api/memories?' + params);
     if (!res.ok) throw new Error(`API error ${res.status}`);
@@ -1627,6 +2225,10 @@ function renderMemories(total) {
   document.getElementById('memories-sub').textContent =
     `Showing ${shown} of ${total} memories`;
 
+  // Show/hide session filter chip
+  const chip = document.getElementById('session-filter-chip');
+  if (chip) chip.classList.toggle('active', !!state.memFilter.session_id);
+
   if (!state.memories || state.memories.length === 0) {
     list.innerHTML = '<div class="empty-state">No memories match the current filters</div>';
     document.getElementById('load-more-btn').style.display = 'none';
@@ -1635,19 +2237,29 @@ function renderMemories(total) {
 
   const cards = state.memories.map(m => {
     const imp = m.importance ?? 0.5;
+    const conf = m.confidence ?? 0.9;
     const grade = imp >= 0.8 ? 'A' : imp >= 0.6 ? 'B' : imp >= 0.4 ? 'C' : 'D';
+    const gradeDesc = { A: 'A — very important (≥0.8)', B: 'B — important (≥0.6)', C: 'C — moderate (≥0.4)', D: 'D — low importance (<0.4)' }[grade];
+    const gradeTooltip = `Grade ${gradeDesc}. Set at extraction based on how useful this memory is likely to be. Drives retrieval ranking.`;
+    const confTooltip = `Confidence: ${conf.toFixed(2)}. How certain the system is this memory is accurate and stable. Starts at 0.9, rises with reinforcements, falls with contradictions.`;
+    const impTooltip = `Importance: ${imp.toFixed(2)}. Raw 0–1 weight used to compute grade and rank memories in search results.`;
 
-    const tags = (m.tags || []).slice(0, 5).map(t =>
-      `<span class="mem-tag" data-tag="${t}">${t}</span>`
-    ).join('');
+    const tags = (m.tags || []).slice(0, 5).map(t => {
+      let ttip = '';
+      if (t === '#learning' || t === 'learning') ttip = 'General-purpose learning. Most memories land here by default.';
+      else if (t === '#promoted' || t === 'promoted') ttip = 'Promoted to global scope — appeared across enough sessions to be universally relevant.';
+      else if (t === '#universal' || t === 'universal') ttip = 'Universal scope — applies across all projects.';
+      else if (t === '#action' || t === 'action') ttip = 'Action required — this memory flags something to do.';
+      return `<span class="mem-tag" data-tag="${t}"${ttip ? ` data-tooltip="${ttip}"` : ''}>${t}</span>`;
+    }).join('');
 
     const date = m.created
       ? new Date(m.created).toLocaleDateString('en', { month: 'short', day: 'numeric', year: 'numeric' })
       : '';
 
     const pills = [
-      m.action_required ? '<span class="action-pill">action</span>' : '',
-      m.problem_solution ? '<span class="ps-pill">Q+A</span>' : '',
+      m.action_required ? '<span class="action-pill" data-tooltip="This memory has an associated action item.">action</span>' : '',
+      m.problem_solution ? '<span class="ps-pill" data-tooltip="This memory is a question + answer pair.">Q+A</span>' : '',
     ].join('');
 
     return `
@@ -1655,14 +2267,15 @@ function renderMemories(total) {
         <div class="memory-card-top">
           <div class="memory-preview">${escHtml(m.preview)}</div>
           <div class="importance-badge">
-            <span class="imp-pip"></span>
-            <span class="imp-label">${grade} · ${imp.toFixed(2)}</span>
+            <span class="imp-pip" data-tooltip="${escHtml(impTooltip)}"></span>
+            <span class="imp-label" data-tooltip="${escHtml(gradeTooltip)}">${grade} · ${imp.toFixed(2)}</span>
           </div>
         </div>
         <div class="memory-meta">
-          ${m.knowledge_domain ? `<span class="mem-domain">${escHtml(m.knowledge_domain)}</span>` : ''}
+          ${m.knowledge_domain ? `<span class="mem-domain" data-tooltip="Domain: how this memory is categorized for filtering.">${escHtml(m.knowledge_domain)}</span>` : ''}
           ${tags}
           ${pills}
+          ${conf < 0.75 ? `<span class="mem-tag" style="color:var(--rose)" data-tooltip="${escHtml(confTooltip)}">conf ${conf.toFixed(2)}</span>` : ''}
           ${date ? `<span class="mem-date">${date}</span>` : ''}
         </div>
       </div>
@@ -1703,6 +2316,13 @@ document.getElementById('load-more-btn').addEventListener('click', () => {
   loadMemories(true);
 });
 
+document.getElementById('session-filter-clear').addEventListener('click', () => {
+  state.memFilter.session_id = '';
+  state.memOffset = 0;
+  state.memories = null;
+  loadMemories();
+});
+
 document.getElementById('mem-sort').addEventListener('change', e => {
   state.memFilter.sort = e.target.value;
   state.memOffset = 0;
@@ -1721,13 +2341,17 @@ document.getElementById('mem-domain').addEventListener('change', e => {
 // Sessions
 // -----------------------------------------------------------------------
 
-async function loadSessions() {
-  const res = await fetch('/api/sessions?limit=100');
+async function loadSessions(dateFilter) {
+  const params = new URLSearchParams({ limit: 200 });
+  if (dateFilter) params.set('date', dateFilter);
+  const res = await fetch('/api/sessions?' + params);
   const data = await res.json();
   state.sessions = data.sessions;
 
   document.getElementById('sessions-sub').textContent =
-    `${data.total.toLocaleString()} sessions total`;
+    dateFilter
+      ? `${data.total.toLocaleString()} sessions on ${dateFilter}`
+      : `${data.total.toLocaleString()} sessions total`;
 
   const list = document.getElementById('session-list');
 
@@ -1742,9 +2366,11 @@ async function loadSessions() {
     const timeStr = dt ? dt.toLocaleTimeString('en', { hour: '2-digit', minute: '2-digit' }) : '';
     const name = s.name || s.id || 'Untitled session';
     const mems = s.memories_extracted;
+    const sid = s.id || '';
+    const memTitle = mems > 0 ? `Click to see ${mems} memories from this session` : '';
 
     return `
-      <div class="session-row">
+      <div class="session-row" data-session-id="${escHtml(sid)}" title="${escHtml(memTitle || 'View memories from this session')}">
         <div class="sess-date">${dateStr}<br><span style="color:var(--text-3)">${timeStr}</span></div>
         <div class="sess-name" title="${escHtml(name)}">${escHtml(name)}</div>
         <div class="sess-stat">${s.message_count}</div>
@@ -1753,6 +2379,14 @@ async function loadSessions() {
       </div>
     `;
   }).join('');
+
+  // Click row → filter memories by session
+  list.querySelectorAll('.session-row[data-session-id]').forEach(row => {
+    row.addEventListener('click', () => {
+      const sid = row.dataset.sessionId;
+      if (sid) filterBySession(sid);
+    });
+  });
 }
 
 // -----------------------------------------------------------------------
@@ -1794,8 +2428,57 @@ function renderKnowledgeMap() {
     });
   });
 
-  // Full domain bars
-  renderBars('domain-bars-full', state.stats.domains || {}, 20);
+  // Domain breakdown: split meta-tags (learnings/universal/promoted) from substantive domains
+  const allDomains = state.stats.domains || {};
+  const META_DOMAINS = new Set(['learnings', 'universal', 'promoted', '#learning', '#universal', '#promoted']);
+  const substantive = {};
+  const meta = {};
+  for (const [k, v] of Object.entries(allDomains)) {
+    if (META_DOMAINS.has(k.toLowerCase())) meta[k] = v;
+    else substantive[k] = v;
+  }
+
+  const fullEl = document.getElementById('domain-bars-full');
+  if (fullEl) {
+    let html = '';
+    // Substantive domains first
+    if (Object.keys(substantive).length > 0) {
+      html += `<div style="font-family:var(--font-mono);font-size:10px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px">Substantive domains</div>`;
+      html += renderBarsHtml(substantive, 20);
+    }
+    // Meta-tags at bottom, de-emphasized
+    if (Object.keys(meta).length > 0) {
+      html += `<div style="font-family:var(--font-mono);font-size:10px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.08em;margin:16px 0 8px;border-top:1px solid var(--border);padding-top:12px">Default / system tags</div>`;
+      html += renderBarsHtml(meta, 5, 0.4); // dimmed opacity
+    }
+    fullEl.innerHTML = html;
+
+    // Make domain bars clickable
+    fullEl.querySelectorAll('.bar-row[data-domain]').forEach(row => {
+      row.style.cursor = 'pointer';
+      row.addEventListener('click', () => {
+        state.memFilter.domain = row.dataset.domain;
+        state.memOffset = 0;
+        state.memories = null;
+        switchView('memories');
+        loadMemories();
+      });
+    });
+  }
+}
+
+// Return bar HTML for a domain map (used in knowledge map and overview)
+function renderBarsHtml(domains, maxItems = 20, opacity = 1) {
+  const entries = Object.entries(domains).sort((a, b) => b[1] - a[1]).slice(0, maxItems);
+  const maxVal = entries[0]?.[1] || 1;
+  return entries.map(([domain, count]) => {
+    const pct = Math.max(3, Math.round((count / maxVal) * 100));
+    return `<div class="bar-row" data-domain="${escHtml(domain)}" style="opacity:${opacity}" title="${count} memories · click to filter">
+      <span class="bar-label">${escHtml(domain)}</span>
+      <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
+      <span class="bar-count">${count}</span>
+    </div>`;
+  }).join('');
 }
 
 // -----------------------------------------------------------------------
@@ -1905,6 +2588,402 @@ document.getElementById('export-csv').addEventListener('click', () => {
 });
 
 // -----------------------------------------------------------------------
+// Notification center
+// -----------------------------------------------------------------------
+
+const NOTIF_ICONS = {
+  consolidation_summary:  { emoji: '\u{1f4be}', cls: 'consolidation' },
+  memory_promoted:        { emoji: '\u2b06\ufe0f', cls: 'promotion' },
+  reinforcement_detected: { emoji: '\u{1f501}', cls: 'reinforcement' },
+  contradiction:          { emoji: '\u26a0\ufe0f', cls: 'contradiction' },
+  pattern_detected:       { emoji: '\u{1f50d}', cls: 'default' },
+  quality_issue:          { emoji: '\u{1f4ca}', cls: 'default' },
+  expiring_memory:        { emoji: '\u23f0',    cls: 'default' },
+  stale_memory:           { emoji: '\u{1f4a4}', cls: 'default' },
+};
+
+// Human-readable labels for alert types (used in chips)
+const ALERT_LABELS = {
+  consolidation_summary:  'session recap',
+  memory_promoted:        'promoted',
+  reinforcement_detected: 'reinforced',
+  contradiction:          'contradiction',
+  pattern_detected:       'pattern',
+  quality_issue:          'quality',
+  expiring_memory:        'expiring',
+  stale_memory:           'stale',
+};
+
+function relativeTime(isoStr) {
+  if (!isoStr) return '';
+  const date = new Date(isoStr);
+  const now = new Date();
+  const diffSec = Math.floor((now - date) / 1000);
+  if (diffSec < 60) return 'just now';
+  const diffMin = Math.floor(diffSec / 60);
+  if (diffMin < 60) return `${diffMin}m ago`;
+  const diffHr = Math.floor(diffMin / 60);
+  if (diffHr < 24) return `${diffHr}h ago`;
+  const diffDay = Math.floor(diffHr / 24);
+  if (diffDay < 7) return `${diffDay}d ago`;
+  return date.toLocaleDateString('en', { month: 'short', day: 'numeric' });
+}
+
+// --- Bell badge + dropdown ---
+
+let notifDropdownOpen = false;
+
+document.getElementById('btn-bell').addEventListener('click', (e) => {
+  e.stopPropagation();
+  const dd = document.getElementById('notif-dropdown');
+  notifDropdownOpen = !notifDropdownOpen;
+  dd.classList.toggle('open', notifDropdownOpen);
+  if (notifDropdownOpen) loadNotifDropdown();
+});
+
+document.addEventListener('click', (e) => {
+  if (notifDropdownOpen && !document.getElementById('notif-wrap').contains(e.target)) {
+    notifDropdownOpen = false;
+    document.getElementById('notif-dropdown').classList.remove('open');
+  }
+});
+
+async function pollNotifications() {
+  try {
+    const res = await fetch('/api/notifications?limit=8');
+    if (!res.ok) return;
+    const data = await res.json();
+
+    const badge = document.getElementById('notif-badge');
+    const count = data.unread_count || 0;
+    badge.textContent = count > 99 ? '99+' : count;
+    badge.classList.toggle('hidden', count === 0);
+
+    const navBadge = document.getElementById('activity-nav-badge');
+    if (navBadge) {
+      navBadge.textContent = count;
+      navBadge.style.display = count > 0 ? 'inline' : 'none';
+    }
+  } catch (e) {
+    // Silent fail for poll
+  }
+}
+
+async function loadNotifDropdown() {
+  const list = document.getElementById('notif-dropdown-list');
+  try {
+    const res = await fetch('/api/notifications?limit=8');
+    const data = await res.json();
+    const items = data.notifications || [];
+
+    if (items.length === 0) {
+      list.innerHTML = '<div class="notif-empty">No new notifications</div>';
+      return;
+    }
+
+    list.innerHTML = items.map(n => {
+      const icon = NOTIF_ICONS[n.alert_type] || { emoji: '\u{1f514}', cls: 'default' };
+      return `
+        <div class="notif-item" data-notif-id="${n.alert_id}">
+          <div class="notif-icon ${icon.cls}">${icon.emoji}</div>
+          <div class="notif-content">
+            <div class="notif-title-text">${escHtml(n.title)}</div>
+            <div class="notif-time">${relativeTime(n.created_at)}</div>
+          </div>
+          <button class="notif-dismiss-btn" data-dismiss-id="${n.alert_id}" title="Dismiss">&times;</button>
+        </div>
+      `;
+    }).join('');
+
+    list.querySelectorAll('.notif-dismiss-btn').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const id = btn.dataset.dismissId;
+        await fetch(`/api/notifications/${id}/dismiss`, { method: 'POST' });
+        btn.closest('.notif-item').remove();
+        pollNotifications();
+        if (!list.querySelector('.notif-item')) {
+          list.innerHTML = '<div class="notif-empty">No new notifications</div>';
+        }
+      });
+    });
+
+    list.querySelectorAll('.notif-item').forEach(item => {
+      item.addEventListener('click', () => {
+        notifDropdownOpen = false;
+        document.getElementById('notif-dropdown').classList.remove('open');
+        switchView('activity');
+      });
+    });
+  } catch (e) {
+    list.innerHTML = '<div class="notif-empty" style="color:var(--rose)">Failed to load</div>';
+  }
+}
+
+document.getElementById('notif-mark-all-read').addEventListener('click', async (e) => {
+  e.stopPropagation();
+  await fetch('/api/notifications/dismiss-all', { method: 'POST' });
+  document.getElementById('notif-dropdown-list').innerHTML =
+    '<div class="notif-empty">No new notifications</div>';
+  pollNotifications();
+});
+
+document.getElementById('notif-header-link').addEventListener('click', () => {
+  notifDropdownOpen = false;
+  document.getElementById('notif-dropdown').classList.remove('open');
+  switchView('activity');
+});
+
+// Make entire dropdown header clickable (except mark-all-read button)
+document.querySelector('.notif-dropdown-header').addEventListener('click', e => {
+  if (e.target.closest('#notif-mark-all-read')) return; // let mark-all-read handle itself
+  notifDropdownOpen = false;
+  document.getElementById('notif-dropdown').classList.remove('open');
+  switchView('activity');
+});
+
+document.getElementById('notif-view-all').addEventListener('click', () => {
+  notifDropdownOpen = false;
+  document.getElementById('notif-dropdown').classList.remove('open');
+  switchView('activity');
+});
+
+// Filter memories by session ID (used from activity cards and session rows)
+function filterBySession(sessionId) {
+  if (!sessionId) return;
+  state.memFilter = { sort: state.memFilter.sort, domain: '', tag: '', q: '', session_id: sessionId, action_required: '', min_importance: '' };
+  switchView('memories');
+  loadMemories();
+}
+
+function filterByActionRequired() {
+  state.memFilter = { sort: state.memFilter.sort, domain: '', tag: '', q: '', session_id: '', action_required: 'true', min_importance: '' };
+  state.memOffset = 0;
+  state.memories = null;
+  switchView('memories');
+  loadMemories();
+}
+
+function filterByMinImportance(threshold) {
+  state.memFilter = { sort: 'importance', domain: '', tag: '', q: '', session_id: '', action_required: '', min_importance: String(threshold) };
+  state.memOffset = 0;
+  state.memories = null;
+  switchView('memories');
+  loadMemories();
+}
+
+// Poll every 30 seconds
+setInterval(pollNotifications, 30000);
+
+// -----------------------------------------------------------------------
+// Activity view
+// -----------------------------------------------------------------------
+
+let activityState = { items: null, total: 0, offset: 0, PAGE: 40 };
+
+async function loadActivity(append = false) {
+  if (!append) {
+    activityState.items = null;
+    activityState.offset = 0;
+    document.getElementById('activity-list').innerHTML =
+      '<div class="loading-state"><div class="spinner"></div></div>';
+  }
+
+  const typeFilter = document.getElementById('activity-type-filter').value;
+  const params = new URLSearchParams({
+    limit: activityState.PAGE,
+    offset: activityState.offset,
+  });
+  if (typeFilter) params.set('type', typeFilter);
+
+  try {
+    const res = await fetch('/api/notifications/all?' + params);
+    const data = await res.json();
+
+    activityState.total = data.total;
+    const newItems = data.notifications || [];
+
+    if (append) {
+      activityState.items = [...(activityState.items || []), ...newItems];
+    } else {
+      activityState.items = newItems;
+    }
+
+    renderActivity();
+  } catch (e) {
+    document.getElementById('activity-list').innerHTML =
+      `<div class="empty-state" style="color:var(--rose)">Failed: ${e.message}</div>`;
+  }
+}
+
+function renderActivity() {
+  const items = activityState.items || [];
+  const list = document.getElementById('activity-list');
+
+  document.getElementById('activity-count').textContent = activityState.total + ' total';
+  document.getElementById('activity-sub').textContent =
+    `Showing ${items.length} of ${activityState.total} events`;
+
+  if (items.length === 0) {
+    list.innerHTML = '<div class="empty-state">No activity yet. Consolidation events will appear here after sessions end.</div>';
+    document.getElementById('activity-load-more').style.display = 'none';
+    return;
+  }
+
+  // Render content section (saved/reinforced/promoted memory previews)
+  function contentSection(label, previews, cardId, sectionKey) {
+    if (!previews || previews.length === 0) return '';
+    const MAX_DEFAULT = 3;
+    const allPreviews = previews;
+    const shown = allPreviews.slice(0, MAX_DEFAULT);
+    const more = allPreviews.length - shown.length;
+    const itemsHtml = shown.map(p => `<li>${escHtml(p)}</li>`).join('');
+    const moreHtml = more > 0
+      ? `<li class="activity-content-more">
+           <button class="btn-expand-more" data-card="${cardId}" data-section="${sectionKey}" data-all="${escHtml(JSON.stringify(allPreviews))}">+ ${more} more</button>
+         </li>`
+      : '';
+    return `<div class="activity-content-section" data-section-id="${cardId}-${sectionKey}">
+      <span class="activity-content-label">${label}</span>
+      <ul class="activity-content-list">${itemsHtml}${moreHtml}</ul>
+    </div>`;
+  }
+
+  // Strip markdown formatting for plain-text display
+  function stripMd(s) {
+    return String(s || '')
+      .replace(/\*\*(.+?)\*\*/g, '$1')
+      .replace(/\*(.+?)\*/g, '$1')
+      .replace(/^#+\s+/gm, '')
+      .replace(/^[-*]\s+/gm, '')
+      .replace(/\s+/g, ' ').trim();
+  }
+
+  // Derive semantic title from memory content
+  function semanticTitle(n) {
+    const meta = n.metadata || {};
+    const savedPreviews = meta.saved_previews || [];
+    const reinforcedPreviews = meta.reinforced_previews || [];
+    // Use first preview truncated — actual content, not system jargon
+    if (savedPreviews.length > 0) {
+      const clean = stripMd(savedPreviews[0].replace(/\s*\(\d+\.\d+\)$/, ''));
+      return clean.slice(0, 72).replace(/\s+$/, '') + (clean.length > 72 ? '…' : '');
+    }
+    if (reinforcedPreviews.length > 0) {
+      const clean = stripMd(reinforcedPreviews[0]);
+      return clean.slice(0, 72).replace(/\s+$/, '') + (clean.length > 72 ? '…' : '');
+    }
+    // Fallback: use the stored title
+    return n.title;
+  }
+
+  // Count summary as secondary metadata
+  function countSummary(meta) {
+    const parts = [];
+    if (meta.memories_saved) parts.push(`${meta.memories_saved} saved`);
+    if (meta.reinforcements) parts.push(`${meta.reinforcements} reinforced`);
+    if (meta.promotions) parts.push(`${meta.promotions} promoted`);
+    if (meta.count && !meta.memories_saved) parts.push(`×${meta.count}`);
+    return parts.join(' · ');
+  }
+
+  list.innerHTML = items.map(n => {
+    const icon = NOTIF_ICONS[n.alert_type] || { emoji: '\u{1f514}', cls: 'default' };
+    const dismissed = n.dismissed_at ? ' dismissed' : '';
+    const meta = n.metadata || {};
+    const typeIcon = icon.emoji;
+    const typeLabel = ALERT_LABELS[n.alert_type] || n.alert_type.replace(/_/g, ' ');
+    const summary = countSummary(meta);
+    const sessionId = meta.session_id || '';
+
+    const contentHtml =
+      contentSection('Saved', meta.saved_previews, n.alert_id, 'saved') +
+      contentSection('Reinforced', meta.reinforced_previews, n.alert_id, 'reinforced') +
+      contentSection('Promoted', meta.promoted_previews, n.alert_id, 'promoted');
+
+    const clickable = sessionId ? ` style="cursor:pointer" title="Show memories from this session"` : '';
+
+    return `
+      <div class="activity-card${dismissed}" data-activity-id="${n.alert_id}" data-session-id="${escHtml(sessionId)}"${clickable}>
+        <div class="activity-card-icon ${icon.cls}">${icon.emoji}</div>
+        <div class="activity-card-body">
+          <div class="activity-card-title">${escHtml(semanticTitle(n))}</div>
+          <div class="activity-card-meta">
+            <span class="activity-card-time">${relativeTime(n.created_at)}</span>
+            <span class="activity-card-type">${typeIcon} ${typeLabel}</span>
+            ${summary ? `<span class="activity-card-type" style="color:var(--text-3)">${escHtml(summary)}</span>` : ''}
+          </div>
+          ${contentHtml}
+        </div>
+        ${!n.dismissed_at ? `
+          <div class="activity-card-actions">
+            <button class="btn-dismiss-activity" data-dismiss-id="${n.alert_id}">Dismiss</button>
+          </div>
+        ` : ''}
+      </div>
+    `;
+  }).join('');
+
+  // Dismiss buttons
+  list.querySelectorAll('.btn-dismiss-activity').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const id = btn.dataset.dismissId;
+      await fetch(`/api/notifications/${id}/dismiss`, { method: 'POST' });
+      btn.closest('.activity-card').classList.add('dismissed');
+      btn.remove();
+      pollNotifications();
+    });
+  });
+
+  // Card click → filter memories by session
+  list.querySelectorAll('.activity-card[data-session-id]').forEach(card => {
+    const sid = card.dataset.sessionId;
+    if (!sid) return;
+    card.addEventListener('click', (e) => {
+      // Don't intercept dismiss or expand clicks
+      if (e.target.closest('.btn-dismiss-activity') || e.target.closest('.btn-expand-more')) return;
+      filterBySession(sid);
+    });
+  });
+
+  // "+ N more" expand in place
+  list.querySelectorAll('.btn-expand-more').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const all = JSON.parse(btn.dataset.all || '[]');
+      const sectionEl = document.querySelector(`[data-section-id="${btn.dataset.card}-${btn.dataset.section}"]`);
+      if (!sectionEl) return;
+      const ul = sectionEl.querySelector('.activity-content-list');
+      ul.innerHTML = all.map(p => `<li>${escHtml(p)}</li>`).join('');
+    });
+  });
+
+  const loadMoreBtn = document.getElementById('activity-load-more');
+  if (items.length < activityState.total) {
+    loadMoreBtn.style.display = 'block';
+    loadMoreBtn.textContent = `Load more (${activityState.total - items.length} remaining)`;
+  } else {
+    loadMoreBtn.style.display = 'none';
+  }
+}
+
+document.getElementById('activity-load-more').addEventListener('click', () => {
+  activityState.offset += activityState.PAGE;
+  loadActivity(true);
+});
+
+document.getElementById('activity-type-filter').addEventListener('change', () => {
+  loadActivity();
+});
+
+document.getElementById('activity-dismiss-all').addEventListener('click', async () => {
+  await fetch('/api/notifications/dismiss-all', { method: 'POST' });
+  loadActivity();
+  pollNotifications();
+});
+
+// -----------------------------------------------------------------------
 // Boot
 // -----------------------------------------------------------------------
 
@@ -1915,6 +2994,16 @@ document.getElementById('export-csv').addEventListener('click', () => {
     if (project) document.getElementById('project-label').textContent = project;
     // Pre-load memories so Memories tab is instant — guard prevents race
     setTimeout(loadMemories, 800);
+
+    // Initial notification poll
+    pollNotifications();
+
+    // Deep-link: handle ?view=activity from macOS notification
+    const urlParams = new URLSearchParams(window.location.search);
+    const viewParam = urlParams.get('view');
+    if (viewParam && document.getElementById(`view-${viewParam}`)) {
+      switchView(viewParam);
+    }
   } catch (err) {
     console.error('Total Recall boot error:', err);
     document.getElementById('stat-row').innerHTML =

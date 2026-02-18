@@ -285,3 +285,123 @@ def test_cleanup_keeps_undismissed_alerts(alerts):
     # Alert should still exist
     retrieved = alerts.get_alert(alert.alert_id)
     assert retrieved is not None
+
+
+# -----------------------------------------------------------------------
+# Notification center: get_all_alerts, dismiss_all, new types, to_dict
+# -----------------------------------------------------------------------
+
+
+def test_get_all_alerts_with_pagination(alerts):
+    """Test get_all_alerts returns both read and unread, with pagination."""
+    for i in range(5):
+        a = alerts.create_alert("consolidation_summary", "medium", f"Alert {i}", "Msg")
+        if i < 2:
+            alerts.dismiss_alert(a.alert_id)
+
+    all_alerts, total = alerts.get_all_alerts(limit=3, offset=0)
+    assert total == 5
+    assert len(all_alerts) == 3
+
+    # Second page
+    all_alerts_p2, total_p2 = alerts.get_all_alerts(limit=3, offset=3)
+    assert total_p2 == 5
+    assert len(all_alerts_p2) == 2
+
+
+def test_get_all_alerts_filter_by_type(alerts):
+    """Test get_all_alerts type filter."""
+    alerts.create_alert("consolidation_summary", "medium", "Consolidation", "Msg")
+    alerts.create_alert("memory_promoted", "high", "Promotion", "Msg")
+    alerts.create_alert("consolidation_summary", "medium", "Consolidation 2", "Msg")
+
+    filtered, total = alerts.get_all_alerts(alert_type="consolidation_summary")
+    assert total == 2
+    assert len(filtered) == 2
+    assert all(a.alert_type == "consolidation_summary" for a in filtered)
+
+
+def test_get_all_alerts_returns_newest_first(alerts):
+    """Test get_all_alerts returns in reverse chronological order."""
+    import time
+    a1 = alerts.create_alert("consolidation_summary", "medium", "First", "Msg")
+    time.sleep(1.1)  # created_at uses int(time.time()) — need >1s gap
+    a2 = alerts.create_alert("consolidation_summary", "medium", "Second", "Msg")
+
+    all_alerts, _ = alerts.get_all_alerts()
+    assert all_alerts[0].title == "Second"
+    assert all_alerts[1].title == "First"
+
+
+def test_dismiss_all(alerts):
+    """Test dismiss_all marks all unread as dismissed."""
+    alerts.create_alert("consolidation_summary", "medium", "A1", "Msg")
+    alerts.create_alert("reinforcement_detected", "medium", "A2", "Msg")
+    alerts.create_alert("memory_promoted", "high", "A3", "Msg")
+
+    assert len(alerts.get_unread_alerts()) == 3
+
+    alerts.dismiss_all()
+
+    assert len(alerts.get_unread_alerts()) == 0
+
+    # All should still exist in get_all_alerts
+    all_alerts, total = alerts.get_all_alerts()
+    assert total == 3
+    assert all(a.dismissed_at is not None for a in all_alerts)
+
+
+def test_new_alert_types(alerts):
+    """Test new consolidation-related alert types work correctly."""
+    a1 = alerts.create_alert(
+        "consolidation_summary", "medium", "Session consolidated",
+        "5 memories saved", metadata={"memories_saved": 5, "session_id": "abc123"}
+    )
+    a2 = alerts.create_alert(
+        "memory_promoted", "high", "3 memories promoted",
+        "Reached threshold"
+    )
+    a3 = alerts.create_alert(
+        "reinforcement_detected", "medium", "2 reinforcements",
+        "Patterns found"
+    )
+
+    assert a1.alert_type == "consolidation_summary"
+    assert a2.alert_type == "memory_promoted"
+    assert a3.alert_type == "reinforcement_detected"
+
+    meta = json.loads(a1.metadata)
+    assert meta["memories_saved"] == 5
+    assert meta["session_id"] == "abc123"
+
+
+def test_alert_to_dict(alerts):
+    """Test Alert.to_dict() serialization for API."""
+    a = alerts.create_alert(
+        "consolidation_summary", "medium", "Test",
+        "Message", memory_ids=["m1", "m2"],
+        metadata={"key": "value"}
+    )
+    d = a.to_dict()
+    assert d["alert_id"] == a.alert_id
+    assert d["alert_type"] == "consolidation_summary"
+    assert d["memory_ids"] == ["m1", "m2"]
+    assert d["metadata"]["key"] == "value"
+    assert d["dismissed_at"] is None
+    assert isinstance(d["created_at"], str)
+
+
+def test_alert_to_dict_handles_empty(alerts):
+    """Test to_dict with no memory_ids or metadata."""
+    a = alerts.create_alert(
+        "stale_memory", "low", "Stale", "Message"
+    )
+    d = a.to_dict()
+    assert d["memory_ids"] == []
+    assert d["metadata"] == {}
+
+
+def test_dismiss_all_idempotent(alerts):
+    """Test dismiss_all with no unread alerts doesn't error."""
+    alerts.dismiss_all()  # No alerts exist, should not raise
+    assert len(alerts.get_unread_alerts()) == 0

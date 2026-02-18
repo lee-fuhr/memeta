@@ -6,6 +6,23 @@
 
 ---
 
+## Documentation
+
+**Next session:** `HANDOFF.md` — current state, what's done, what's next
+
+| Doc | What it is |
+|-----|-----------|
+| [`HANDOFF.md`](HANDOFF.md) | Session handoff — read this first |
+| [`BACKLOG.md`](BACKLOG.md) | Prioritized feature backlog |
+| [`ROADMAP.md`](ROADMAP.md) | Version roadmap |
+| [`CHANGELOG.md`](CHANGELOG.md) | What changed and when |
+| [`docs/PRODUCT-FINDINGS.md`](docs/PRODUCT-FINDINGS.md) | Research and product insights |
+| [`docs/QA-FINDINGS.md`](docs/QA-FINDINGS.md) | QA results and test findings |
+| [`docs/SHOWCASE.md`](docs/SHOWCASE.md) | Feature demos and examples |
+| [`docs/PROCESS.md`](docs/PROCESS.md) | Development process guide |
+
+---
+
 ## What this is
 
 The Claude Code memory ecosystem is exploding. Reddit posts, Ben Fox's ZeroBot, OpenClaw's hybrid search, FSRS spaced repetition, dream synthesis, frustration detection — every week someone discovers a new technique that genuinely works.

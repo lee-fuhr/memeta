@@ -29,6 +29,14 @@ except ImportError:
     print("Flask not found. Install with: pip install flask", file=sys.stderr)
     sys.exit(1)
 
+# SmartAlerts for notification center
+try:
+    sys.path.insert(0, str(Path(__file__).parent.parent))
+    from src.automation.alerts import SmartAlerts
+    _alerts_available = True
+except ImportError:
+    _alerts_available = False
+
 # ---------------------------------------------------------------------------
 # Config
 # ---------------------------------------------------------------------------
@@ -322,6 +330,18 @@ app = Flask(__name__, static_folder=str(DASHBOARD_DIR), static_url_path="")
 # State (populated on first request or at startup)
 _cache: dict = {}
 
+# Notification system (lazy-init)
+_smart_alerts: Optional['SmartAlerts'] = None
+
+
+def _get_alerts() -> Optional['SmartAlerts']:
+    """Lazy-init SmartAlerts pointing at intelligence.db."""
+    global _smart_alerts
+    if _smart_alerts is None and _alerts_available:
+        db_path = Path(__file__).parent.parent / "intelligence.db"
+        _smart_alerts = SmartAlerts(db_path=db_path)
+    return _smart_alerts
+
 
 def _ensure_data(project: str, memory_base: Path):
     """Load data if not yet cached (or project changed)."""
@@ -371,6 +391,9 @@ def api_memories():
     q = request.args.get("q", "").lower()
     domain = request.args.get("domain", "")
     tag = request.args.get("tag", "")
+    session_id = request.args.get("session_id", "")
+    action_required = request.args.get("action_required", "")
+    min_importance = request.args.get("min_importance", "")
     sort = request.args.get("sort", "importance")  # importance | recency
     limit = min(int(request.args.get("limit", 50)), 200)
 
@@ -396,14 +419,41 @@ def api_memories():
             if tag in (m.get("semantic_tags") or [])
         ]
 
+    if session_id:
+        filtered = [
+            m for m in filtered
+            if (m.get("session_id") or "").startswith(session_id)
+        ]
+
+    if action_required == "true":
+        filtered = [
+            m for m in filtered
+            if m.get("action_required")
+        ]
+
+    if min_importance:
+        try:
+            threshold = float(min_importance)
+            filtered = [
+                m for m in filtered
+                if (m.get("importance_weight") or 0) >= threshold
+            ]
+        except ValueError:
+            pass
+
     # Sort
     if sort == "importance":
         filtered.sort(key=lambda m: m.get("importance_weight") or 0, reverse=True)
     elif sort == "recency":
-        filtered.sort(
-            key=lambda m: m.get("created") or 0,
-            reverse=True,
-        )
+        def _recency_key(m):
+            v = m.get("created") or 0
+            if hasattr(v, "timestamp"):   # datetime.datetime object
+                return v.timestamp()
+            try:
+                return int(v)
+            except (TypeError, ValueError):
+                return 0
+        filtered.sort(key=_recency_key, reverse=True)
 
     # Return slim projection
     result = []
@@ -420,6 +470,7 @@ def api_memories():
             "updated": m.get("updated_dt"),
             "action_required": m.get("action_required") or False,
             "problem_solution": m.get("problem_solution_pair") or False,
+            "session_id": m.get("session_id") or "",
             "preview": body[:240].replace("\n", " "),
         })
 
@@ -446,7 +497,7 @@ def api_memory_detail(memory_id):
                 "problem_solution": m.get("problem_solution_pair") or False,
                 "body": m.get("_body") or "",
                 "filename": m.get("_filename") or "",
-                "source_session": m.get("source_session") or "",
+                "source_session": m.get("session_id") or "",
                 "related_memories": m.get("related_memories") or [],
             })
     return jsonify({"error": "Not found"}), 404
@@ -502,8 +553,78 @@ def api_export():
 def api_sessions():
     _ensure_data(app.config["PROJECT"], app.config["MEMORY_BASE"])
     limit = min(int(request.args.get("limit", 50)), 200)
-    sessions = _cache["sessions"][:limit]
-    return jsonify({"total": len(_cache["sessions"]), "sessions": sessions})
+    date_filter = request.args.get("date", "")  # YYYY-MM-DD
+    sessions = _cache["sessions"]
+    if date_filter:
+        sessions = [
+            s for s in sessions
+            if (s.get("date") or "").startswith(date_filter)
+        ]
+    return jsonify({"total": len(sessions), "sessions": sessions[:limit]})
+
+
+# ---------------------------------------------------------------------------
+# Notification API
+# ---------------------------------------------------------------------------
+
+@app.route("/api/notifications")
+def api_notifications():
+    """Get unread notifications for bell badge + dropdown."""
+    alerts_sys = _get_alerts()
+    if not alerts_sys:
+        return jsonify({"unread_count": 0, "notifications": []})
+
+    alert_type = request.args.get("type", None) or None
+    limit = min(int(request.args.get("limit", 8)), 50)
+
+    unread = alerts_sys.get_unread_alerts(alert_type=alert_type, limit=limit)
+    all_unread = alerts_sys.get_unread_alerts(limit=999)
+    return jsonify({
+        "unread_count": len(all_unread),
+        "notifications": [a.to_dict() for a in unread],
+    })
+
+
+@app.route("/api/notifications/all")
+def api_notifications_all():
+    """Get all notifications with pagination (for Activity view)."""
+    alerts_sys = _get_alerts()
+    if not alerts_sys:
+        return jsonify({"total": 0, "notifications": []})
+
+    alert_type = request.args.get("type", None) or None
+    limit = min(int(request.args.get("limit", 50)), 200)
+    offset = int(request.args.get("offset", 0))
+
+    alerts, total = alerts_sys.get_all_alerts(
+        alert_type=alert_type, limit=limit, offset=offset
+    )
+    return jsonify({
+        "total": total,
+        "notifications": [a.to_dict() for a in alerts],
+    })
+
+
+@app.route("/api/notifications/<int:alert_id>/dismiss", methods=["POST"])
+def api_dismiss_notification(alert_id):
+    """Dismiss a single notification."""
+    alerts_sys = _get_alerts()
+    if not alerts_sys:
+        return jsonify({"error": "Alerts not available"}), 503
+
+    alerts_sys.dismiss_alert(alert_id)
+    return jsonify({"ok": True})
+
+
+@app.route("/api/notifications/dismiss-all", methods=["POST"])
+def api_dismiss_all():
+    """Dismiss all unread notifications."""
+    alerts_sys = _get_alerts()
+    if not alerts_sys:
+        return jsonify({"error": "Alerts not available"}), 503
+
+    alerts_sys.dismiss_all()
+    return jsonify({"ok": True})
 
 
 # ---------------------------------------------------------------------------

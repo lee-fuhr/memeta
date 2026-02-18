@@ -11,14 +11,17 @@ import json
 import time
 from pathlib import Path
 from datetime import datetime, timedelta
-from typing import List, Dict, Optional, Literal
+from typing import List, Dict, Optional, Literal, Tuple
 from dataclasses import dataclass
 
 from memory_system.db_pool import get_connection
 
 
 # Alert types
-AlertType = Literal["expiring_memory", "contradiction", "pattern_detected", "stale_memory", "quality_issue"]
+AlertType = Literal[
+    "expiring_memory", "contradiction", "pattern_detected", "stale_memory", "quality_issue",
+    "consolidation_summary", "memory_promoted", "reinforcement_detected",
+]
 
 
 @dataclass
@@ -34,6 +37,21 @@ class Alert:
     dismissed_at: Optional[datetime]
     action_taken: bool
     metadata: str  # JSON additional data
+
+    def to_dict(self) -> Dict:
+        """Serialize alert for JSON API response."""
+        return {
+            "alert_id": self.alert_id,
+            "alert_type": self.alert_type,
+            "severity": self.severity,
+            "title": self.title,
+            "message": self.message,
+            "memory_ids": json.loads(self.memory_ids) if isinstance(self.memory_ids, str) else (self.memory_ids or []),
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "dismissed_at": self.dismissed_at.isoformat() if self.dismissed_at else None,
+            "action_taken": self.action_taken,
+            "metadata": json.loads(self.metadata) if isinstance(self.metadata, str) else (self.metadata or {}),
+        }
 
 
 @dataclass
@@ -264,6 +282,71 @@ class SmartAlerts:
                 ))
 
             return alerts
+
+    def get_all_alerts(
+        self,
+        alert_type: Optional[str] = None,
+        limit: int = 50,
+        offset: int = 0,
+    ) -> Tuple[List[Alert], int]:
+        """
+        Get all alerts (both read and unread) with pagination.
+
+        Args:
+            alert_type: Filter by alert type (None = all)
+            limit: Page size
+            offset: Skip N records
+
+        Returns:
+            Tuple of (alerts_list, total_count)
+        """
+        count_query = "SELECT COUNT(*) FROM smart_alerts"
+        query = """
+            SELECT alert_id, alert_type, severity, title, message,
+                   memory_ids, created_at, dismissed_at, action_taken, metadata
+            FROM smart_alerts
+        """
+
+        params: list = []
+        if alert_type:
+            count_query += " WHERE alert_type = ?"
+            query += " WHERE alert_type = ?"
+            params.append(alert_type)
+
+        query += " ORDER BY created_at DESC LIMIT ? OFFSET ?"
+
+        with get_connection(self.db_path) as conn:
+            total = conn.execute(count_query, params[:1] if alert_type else []).fetchone()[0]
+            cursor = conn.execute(query, params + [limit, offset])
+
+            alerts = []
+            for row in cursor.fetchall():
+                alerts.append(Alert(
+                    alert_id=row[0],
+                    alert_type=row[1],
+                    severity=row[2],
+                    title=row[3],
+                    message=row[4],
+                    memory_ids=row[5],
+                    created_at=datetime.fromtimestamp(row[6]),
+                    dismissed_at=datetime.fromtimestamp(row[7]) if row[7] else None,
+                    action_taken=bool(row[8]),
+                    metadata=row[9]
+                ))
+
+        return alerts, total
+
+    def dismiss_all(self):
+        """Dismiss all unread alerts."""
+        now = int(time.time())
+
+        with get_connection(self.db_path) as conn:
+            conn.execute("""
+                UPDATE smart_alerts
+                SET dismissed_at = ?
+                WHERE dismissed_at IS NULL
+            """, (now,))
+            conn.commit()
 
     def dismiss_alert(self, alert_id: int, notes: Optional[str] = None):
         """
