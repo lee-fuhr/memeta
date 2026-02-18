@@ -103,8 +103,9 @@ def test_cache_hit_second_search(optimizer, monkeypatch):
                     return m
             raise FileNotFoundError(f"Memory {memory_id} not found")
 
-    # Patch the import
+    # Patch the import (save original to restore after test)
     import sys
+    _orig_module = sys.modules.get('memory_system.memory_ts_client')
     sys.modules['memory_system.memory_ts_client'] = type(sys)('memory_system.memory_ts_client')
     sys.modules['memory_system.memory_ts_client'].MemoryTSClient = MockClient
 
@@ -129,6 +130,10 @@ def test_cache_hit_second_search(optimizer, monkeypatch):
     with sqlite3.connect(optimizer.db_path) as conn:
         row = conn.execute("SELECT hits FROM search_cache").fetchone()
         assert row[0] == 2  # Second hit
+
+    # Restore original module to prevent test pollution
+    if _orig_module is not None:
+        sys.modules['memory_system.memory_ts_client'] = _orig_module
 
 
 def test_cache_respects_project_id(optimizer):
@@ -259,8 +264,9 @@ def test_cache_efficiency(optimizer):
                     return m
             raise FileNotFoundError(f"Memory {memory_id} not found")
 
-    # Patch the import
+    # Patch the import (save original to restore after test)
     import sys
+    _orig_module = sys.modules.get('memory_system.memory_ts_client')
     sys.modules['memory_system.memory_ts_client'] = type(sys)('memory_system.memory_ts_client')
     sys.modules['memory_system.memory_ts_client'].MemoryTSClient = MockClient
 
@@ -279,6 +285,10 @@ def test_cache_efficiency(optimizer):
     with sqlite3.connect(optimizer.db_path) as conn:
         row = conn.execute("SELECT hits FROM search_cache").fetchone()
         assert row[0] == 11  # 1 initial + 10 cache hits
+
+    # Restore original module to prevent test pollution
+    if _orig_module is not None:
+        sys.modules['memory_system.memory_ts_client'] = _orig_module
 
 
 # === Ranking Tests ===
@@ -373,8 +383,9 @@ def test_get_cache_stats(optimizer):
                     return m
             raise FileNotFoundError(f"Memory {memory_id} not found")
 
-    # Patch the import
+    # Patch the import (save original to restore after test)
     import sys
+    _orig_module = sys.modules.get('memory_system.memory_ts_client')
     sys.modules['memory_system.memory_ts_client'] = type(sys)('memory_system.memory_ts_client')
     sys.modules['memory_system.memory_ts_client'].MemoryTSClient = MockClient
 
@@ -390,3 +401,7 @@ def test_get_cache_stats(optimizer):
 
     assert stats['total_entries'] == 2
     assert stats['total_hits'] >= 2  # test1 hit at least twice
+
+    # Restore original module to prevent test pollution
+    if _orig_module is not None:
+        sys.modules['memory_system.memory_ts_client'] = _orig_module
