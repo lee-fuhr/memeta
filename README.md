@@ -113,31 +113,22 @@ Assistant: On March 12, you decided to use JWT with refresh tokens.
 
 ### Quick setup (recommended)
 
-Clone this repo, point Claude Code at it, and ask it to set it up:
+Paste this into Claude Code:
 
-```bash
-git clone https://github.com/lee-fuhr/total-recall.git
-```
+> "Set up Total Recall for me: https://github.com/lee-fuhr/total-recall"
 
-Then in Claude Code:
-> "Set up Total Recall from the repo I just cloned. Walk me through the configuration."
-
-Claude will create the venv, install dependencies, configure paths, and set up the session end hook.
+Claude will clone the repo, create a venv, install dependencies, configure paths, and set up the session end hook. It'll walk you through any choices.
 
 ### Manual setup
+
+If you prefer to do it yourself:
 
 ```bash
 git clone https://github.com/lee-fuhr/total-recall.git
 cd total-recall
-
-# Create venv outside cloud-synced folders
 python3 -m venv ~/.local/venvs/memory-system
 source ~/.local/venvs/memory-system/bin/activate
-
-# Install
 pip install -e .
-
-# Verify
 pytest tests/ --ignore=tests/wild -q
 ```
 

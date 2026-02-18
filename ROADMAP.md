@@ -52,26 +52,23 @@ Making the dashboard actually useful.
 
 ---
 
-## In progress
+## Phase 4: Deeper autonomy (next)
 
-Nothing actively in progress — looking for contributors.
+[View milestone →](https://github.com/lee-fuhr/total-recall/milestone/4)
 
----
-
-## Planned
-
-See [GitHub Issues](https://github.com/lee-fuhr/total-recall/issues) for the full list. Highlights:
-
-**Next up:**
 - Energy-aware memory loading — morning sessions get strategic memories, afternoon gets operational
 - Frustration archaeology — 90-day pattern analysis, not just 20-minute detection
 - Memory interview — structured 10-minute weekly review that doesn't feel like chores
-- Memory relationship graph — force-directed visualization of the knowledge structure
-- PyPI packaging
-
-**On the horizon:**
 - Persona-aware filtering (business vs health vs personal context)
-- Memory-as-training-data export (fine-tuning dataset from graded memories)
+- Dashboard notifications panel
+
+## Phase 5: Community + packaging
+
+[View milestone →](https://github.com/lee-fuhr/total-recall/milestone/5)
+
+- PyPI packaging
+- Memory relationship graph visualization
+- Memory-as-training-data export
 - Search backend consolidation
 - External integrations (Slack, Notion, email, calendar)
 
