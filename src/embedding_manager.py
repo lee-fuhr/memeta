@@ -28,7 +28,8 @@ class EmbeddingManager:
     Manages persistent embeddings for semantic search.
 
     Architecture:
-    - embeddings table: (content_hash, embedding_blob, created_at)
+    - embeddings table: (content_hash, embedding_blob, created_at) [SQLite]
+    - VectorStore: FAISS index for fast similarity search [dual-write]
     - Batch computation: Process all memories without embeddings
     - Cache in-memory for session lifetime
     """
@@ -42,7 +43,17 @@ class EmbeddingManager:
         self.db_path = str(db_path)
         self._model = None
         self._session_cache = OrderedDict()  # LRU-bounded in-memory cache
+        self._vector_store = None
         self._init_db()
+        self._init_vector_store()
+
+    def _init_vector_store(self):
+        """Try to initialize FAISS VectorStore for fast similarity search."""
+        try:
+            from memory_system.vector_store import VectorStore
+            self._vector_store = VectorStore()
+        except (ImportError, Exception):
+            self._vector_store = None
 
     def _init_db(self):
         """Create embeddings table if needed"""
@@ -126,7 +137,7 @@ class EmbeddingManager:
         model = self._get_model()
         embedding = model.encode(content, convert_to_numpy=True).astype(np.float32)
 
-        # Save to database
+        # Save to database (SQLite — primary storage)
         with sqlite3.connect(self.db_path) as conn:
             now = datetime.now().isoformat()
             conn.execute("""
@@ -142,6 +153,13 @@ class EmbeddingManager:
                 now
             ))
             conn.commit()
+
+        # Dual-write to VectorStore (FAISS) for fast search
+        if self._vector_store is not None:
+            try:
+                self._vector_store.store_embedding(content_hash, embedding)
+            except Exception:
+                pass
 
         # Cache in session with LRU eviction
         self._session_cache[content_hash] = embedding
@@ -263,6 +281,9 @@ class EmbeddingManager:
         """
         Fast semantic search using pre-computed embeddings.
 
+        Uses FAISS VectorStore when available for O(1) indexed search,
+        falls back to brute-force cosine similarity.
+
         Args:
             query: Search query
             memories: List of memory dicts with 'content' key
@@ -275,7 +296,31 @@ class EmbeddingManager:
         # Get query embedding
         query_embedding = self.get_embedding(query)
 
-        # Get embeddings for all memories (should be pre-computed)
+        # Try FAISS VectorStore for fast indexed search
+        if self._vector_store is not None and self._vector_store.count() > 0:
+            try:
+                results = self._vector_store.find_similar(
+                    query_embedding, top_k=top_k, threshold=threshold
+                )
+                # Map back to memory dicts via content_hash
+                hash_to_memory = {}
+                for memory in memories:
+                    content = memory.get('content', '')
+                    if content:
+                        h = self._hash_content(content)
+                        hash_to_memory[h] = memory
+
+                scored = []
+                for r in results:
+                    mem = hash_to_memory.get(r["content_hash"])
+                    if mem:
+                        scored.append((mem, r["similarity"]))
+                if scored:
+                    return scored
+            except Exception:
+                pass
+
+        # Fallback: brute-force cosine similarity
         scored = []
 
         for memory in memories:

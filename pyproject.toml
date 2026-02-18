@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "total-recall"
-version = "0.12.0"
+version = "0.16.0"
 description = "Intelligent memory system for Claude Code — extract, grade, search, and synthesize knowledge across sessions"
 readme = "README.md"
 license = { text = "MIT" }
@@ -45,6 +45,7 @@ Issues = "https://github.com/leefuhr/total-recall/issues"
 ml = [
     "sentence-transformers",
     "scikit-learn",
+    "faiss-cpu>=1.7.0",
 ]
 test = [
     "pytest>=7.0",
