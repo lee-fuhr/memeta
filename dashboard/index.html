@@ -1163,6 +1163,114 @@ body::before {
   margin-top: 16px;
 }
 
+/* Session replay modal */
+.session-stats-bar {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.session-stat-chip {
+  font-size: 12px;
+  color: var(--text-2);
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 4px 10px;
+}
+
+.session-stat-chip strong { color: var(--text-1); }
+
+.turn-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 50vh;
+  overflow-y: auto;
+  padding: 4px 0;
+}
+
+.turn-item {
+  padding: 8px 12px;
+  border-radius: var(--radius);
+  font-size: 13px;
+  line-height: 1.5;
+  border-left: 3px solid transparent;
+}
+
+.turn-item.user {
+  background: color-mix(in srgb, var(--amber) 8%, var(--bg-3));
+  border-left-color: var(--amber);
+}
+
+.turn-item.assistant {
+  background: var(--bg-3);
+  border-left-color: var(--border);
+}
+
+.turn-role {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-3);
+  margin-bottom: 2px;
+}
+
+.turn-preview {
+  color: var(--text-1);
+  word-wrap: break-word;
+}
+
+.turn-tools {
+  font-size: 11px;
+  color: var(--amber);
+  margin-top: 2px;
+}
+
+.session-memories-section {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.session-memories-section h4 {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-2);
+  margin: 0 0 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.session-memory-chip {
+  display: inline-block;
+  font-size: 12px;
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 4px 8px;
+  margin: 2px 4px 2px 0;
+  color: var(--text-2);
+  cursor: pointer;
+}
+
+.session-memory-chip:hover {
+  border-color: var(--amber-dim);
+  color: var(--amber);
+}
+
+.session-filter-link {
+  font-size: 12px;
+  color: var(--amber);
+  cursor: pointer;
+  margin-top: 8px;
+  display: inline-block;
+}
+
+.session-filter-link:hover { text-decoration: underline; }
+
 /* =====================================================================
    Export buttons
    ===================================================================== */
@@ -1868,6 +1976,18 @@ body::before {
 </div><!-- /shell -->
 
 <!-- Memory detail modal -->
+<div class="modal-overlay" id="session-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="session-modal-title">Session detail</span>
+      <button class="modal-close" id="session-modal-close">&times;</button>
+    </div>
+    <div class="modal-body" id="session-modal-body">
+      <div class="loading-state"><div class="spinner"></div></div>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="memory-modal">
   <div class="modal">
     <div class="modal-header">
@@ -2474,11 +2594,11 @@ async function loadSessions(dateFilter) {
     `;
   }).join('');
 
-  // Click row → filter memories by session
+  // Click row → open session detail modal
   list.querySelectorAll('.session-row[data-session-id]').forEach(row => {
     row.addEventListener('click', () => {
       const sid = row.dataset.sessionId;
-      if (sid) filterBySession(sid);
+      if (sid) openSessionModal(sid);
     });
   });
 }
@@ -2609,7 +2729,12 @@ const modalTitle = document.getElementById('modal-title');
 
 document.getElementById('modal-close').addEventListener('click', closeModal);
 modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    if (sessionModal.classList.contains('open')) closeSessionModal();
+    else closeModal();
+  }
+});
 
 function closeModal() {
   modal.classList.remove('open');
@@ -2677,6 +2802,98 @@ async function openMemoryModal(memoryId) {
   } catch (err) {
     modalBody.innerHTML = `<div class="empty-state" style="color:var(--rose)">Failed to load memory: ${err.message}</div>`;
     modalTitle.textContent = 'Error';
+  }
+}
+
+// -----------------------------------------------------------------------
+// Session detail modal
+// -----------------------------------------------------------------------
+
+const sessionModal = document.getElementById('session-modal');
+const sessionModalBody = document.getElementById('session-modal-body');
+const sessionModalTitle = document.getElementById('session-modal-title');
+
+document.getElementById('session-modal-close').addEventListener('click', closeSessionModal);
+sessionModal.addEventListener('click', e => { if (e.target === sessionModal) closeSessionModal(); });
+
+function closeSessionModal() {
+  sessionModal.classList.remove('open');
+}
+
+async function openSessionModal(sessionId) {
+  sessionModal.classList.add('open');
+  sessionModalBody.innerHTML = '<div class="loading-state"><div class="spinner"></div></div>';
+  sessionModalTitle.textContent = 'Loading…';
+
+  try {
+    const res = await fetch(`/api/session/${encodeURIComponent(sessionId)}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+
+    const s = data.session;
+    const turns = data.turns || [];
+    const memories = data.memories || [];
+
+    const dateStr = s.datetime
+      ? new Date(s.datetime).toLocaleDateString('en', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' })
+      : '';
+
+    sessionModalTitle.textContent = s.name || 'Session';
+
+    const turnsHtml = turns.map(t => {
+      const roleCls = t.role === 'user' ? 'user' : 'assistant';
+      const toolsHtml = t.tool_calls > 0 ? `<div class="turn-tools">${t.tool_calls} tool call${t.tool_calls > 1 ? 's' : ''}</div>` : '';
+      return `
+        <div class="turn-item ${roleCls}">
+          <div class="turn-role">${escHtml(t.role)}</div>
+          <div class="turn-preview">${escHtml(t.preview)}</div>
+          ${toolsHtml}
+        </div>
+      `;
+    }).join('');
+
+    const memoriesHtml = memories.length > 0 ? `
+      <div class="session-memories-section">
+        <h4>Memories extracted (${memories.length})</h4>
+        ${memories.map(m => `<span class="session-memory-chip" data-memory-id="${escHtml(m.id)}" title="${escHtml(m.preview)}">${escHtml(m.knowledge_domain)}: ${escHtml(m.preview.substring(0, 40))}…</span>`).join('')}
+      </div>
+    ` : '';
+
+    sessionModalBody.innerHTML = `
+      <div class="session-stats-bar">
+        ${dateStr ? `<span class="session-stat-chip">${dateStr}</span>` : ''}
+        <span class="session-stat-chip"><strong>${s.message_count}</strong> messages</span>
+        <span class="session-stat-chip"><strong>${s.tool_call_count}</strong> tool calls</span>
+        <span class="session-stat-chip"><strong>${s.memories_extracted}</strong> memories</span>
+      </div>
+      ${turns.length > 0 ? `<div class="turn-list">${turnsHtml}</div>` : '<div class="empty-state">No transcript available</div>'}
+      ${memoriesHtml}
+      <div style="margin-top:12px">
+        <span class="session-filter-link" data-session-id="${escHtml(sessionId)}">Filter memories by this session</span>
+        <span style="margin-left:12px;font-family:var(--font-mono);font-size:10px;color:var(--text-3)">claude --resume ${escHtml(sessionId.substring(0, 8))}</span>
+      </div>
+    `;
+
+    // Wire up memory chips → open memory modal
+    sessionModalBody.querySelectorAll('.session-memory-chip[data-memory-id]').forEach(el => {
+      el.addEventListener('click', () => {
+        closeSessionModal();
+        openMemoryModal(el.dataset.memoryId);
+      });
+    });
+
+    // Wire up filter link
+    sessionModalBody.querySelectorAll('.session-filter-link[data-session-id]').forEach(el => {
+      el.addEventListener('click', () => {
+        closeSessionModal();
+        filterBySession(el.dataset.sessionId);
+      });
+    });
+
+  } catch (err) {
+    sessionModalBody.innerHTML = `<div class="empty-state" style="color:var(--rose)">Failed to load session: ${err.message}</div>`;
+    sessionModalTitle.textContent = 'Error';
   }
 }
 

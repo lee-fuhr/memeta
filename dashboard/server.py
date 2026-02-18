@@ -643,6 +643,126 @@ def api_sessions():
     return jsonify({"total": len(sessions), "sessions": sessions[:limit]})
 
 
+@app.route("/api/session/<session_id>")
+def api_session_detail(session_id):
+    """Return session metadata + summarised transcript turns."""
+    _ensure_data(app.config["PROJECT"], app.config["MEMORY_BASE"])
+    memory_base = Path(app.config["MEMORY_BASE"])
+    project = app.config["PROJECT"]
+    db_path = memory_base / project / "session-history.db"
+
+    if not db_path.exists():
+        return jsonify({"error": "session DB not found"}), 404
+
+    conn = sqlite3.connect(str(db_path))
+    conn.row_factory = sqlite3.Row
+    row = conn.execute(
+        "SELECT * FROM session_history WHERE id = ?", (session_id,)
+    ).fetchone()
+    conn.close()
+
+    if not row:
+        return jsonify({"error": "session not found"}), 404
+
+    # Build metadata
+    ts = row["timestamp"]
+    dt = None
+    if ts:
+        try:
+            dt = datetime.fromtimestamp(
+                float(ts) / 1000, tz=timezone.utc
+            ).isoformat()
+        except (TypeError, ValueError):
+            pass
+
+    meta = {
+        "id": row["id"],
+        "name": row["name"],
+        "datetime": dt,
+        "message_count": row["message_count"] or 0,
+        "tool_call_count": row["tool_call_count"] or 0,
+        "memories_extracted": row["memories_extracted"] or 0,
+    }
+
+    # Summarise transcript turns (don't send full multi-MB blob)
+    turns = _summarise_transcript(row["full_transcript_json"])
+
+    # Find memories from this session
+    memories = [
+        {
+            "id": m.get("id") or m.get("_filename"),
+            "importance": m.get("importance_weight", 0.5),
+            "knowledge_domain": m.get("knowledge_domain") or "unknown",
+            "preview": (m.get("_body") or "")[:120].replace("\n", " "),
+        }
+        for m in _cache.get("memories", [])
+        if (m.get("session_id") or "").startswith(session_id)
+    ]
+
+    return jsonify({"session": meta, "turns": turns, "memories": memories})
+
+
+def _summarise_transcript(transcript_json: str, max_turns: int = 50) -> list[dict]:
+    """Extract user/assistant messages from a full transcript JSON.
+
+    Returns a slim list: [{role, preview, tool_calls, timestamp}, ...]
+    Caps at max_turns to keep the response reasonable.
+    """
+    try:
+        data = json.loads(transcript_json)
+    except (json.JSONDecodeError, TypeError):
+        return []
+
+    if not isinstance(data, list):
+        return []
+
+    turns = []
+    for item in data:
+        msg_type = item.get("type", "")
+        if msg_type not in ("user", "assistant"):
+            continue
+
+        msg = item.get("message", {})
+        if not isinstance(msg, dict):
+            continue
+
+        role = msg.get("role", msg_type)
+        content = msg.get("content", "")
+
+        # Multi-part content (list of blocks)
+        if isinstance(content, list):
+            text_parts = []
+            tool_count = 0
+            for part in content:
+                if isinstance(part, dict):
+                    if part.get("type") == "text":
+                        text_parts.append(part.get("text", ""))
+                    elif part.get("type") == "tool_use":
+                        tool_count += 1
+                elif isinstance(part, str):
+                    text_parts.append(part)
+            preview = " ".join(text_parts)[:300]
+        else:
+            preview = str(content)[:300]
+            tool_count = 0
+
+        preview = preview.replace("\n", " ").strip()
+        if not preview and tool_count == 0:
+            continue
+
+        turns.append({
+            "role": role,
+            "preview": preview,
+            "tool_calls": tool_count,
+            "timestamp": item.get("timestamp"),
+        })
+
+        if len(turns) >= max_turns:
+            break
+
+    return turns
+
+
 # ---------------------------------------------------------------------------
 # Notification API
 # ---------------------------------------------------------------------------
