@@ -6,6 +6,30 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ---
 
+## [0.17.0] - 2026-02-17
+
+### Added — Intelligence layer (tier 2 complete)
+- **Cluster-based morning briefing** — `src/cluster_briefing.py`: `ClusterBriefing` class reads memory clusters from intelligence.db, generates `MorningBriefing` with top clusters, content previews, divergence signals. `/api/briefing` dashboard endpoint.
+- **FAISS vector store** — `src/vector_store.py`: `VectorStore` class backed by FAISS `IndexFlatIP` (L2-normalized inner product = cosine similarity). Persistent save/load, batch operations, SQLite migration. Dual-write in `embedding_manager.py` (FAISS primary, SQLite fallback). Chose over ChromaDB due to Python 3.14 pydantic incompatibility.
+- **Intelligence orchestrator** — `src/intelligence_orchestrator.py`: Central "brain stem" collecting signals from 5 sources (dream synthesis, momentum tracking, energy scheduling, regret detection, frustration events). Synthesizes into prioritized `DailyBriefing`. `/api/intelligence` dashboard endpoint.
+- **Cross-client pattern synthesizer** — `src/cross_client_synthesizer.py`: Reads global-scope and consent-tagged memories, groups by knowledge domain, generates `TransferHypothesis` with confidence boosted by prior transfer effectiveness. `/api/cross-client` dashboard endpoint.
+- **Decision regret loop** — `src/decision_regret_loop.py`: Real-time warning before repeating regretted decisions. Fuzzy keyword matching against historical `decision_outcomes` table, decision categorization, formatted warnings with regret rate and alternatives. `/api/regret-check` dashboard endpoint.
+- **Embeddings migration script** — `scripts/migrate_embeddings_to_faiss.py`: One-time migration from SQLite embeddings to FAISS index.
+
+### Tests
+- 20 new tests in `tests/test_cluster_briefing.py`
+- 24 new tests in `tests/test_vector_store.py`
+- 20 new tests in `tests/test_intelligence_orchestrator.py`
+- 25 new tests in `tests/test_cross_client_synthesizer.py`
+- 24 new tests in `tests/test_decision_regret_loop.py`
+
+### Status
+- **Test suite:** 1,256 passing (113 new tests)
+- **Features shipped:** 58 + 10 dashboard/infra improvements
+- **Backlog tier 2:** Complete (items #6-#10 shipped)
+
+---
+
 ## [0.16.0] - 2026-02-17
 
 ### Added — Dashboard UX + freshness review

@@ -1,8 +1,8 @@
 # Total Recall — prioritized backlog
 
 **Last updated:** 2026-02-17
-**Version:** v0.16.0 (search explain, freshness review, session replay, CI)
-**Total memories:** 1,255 | **Sessions:** 500 | **Tests:** 1,145
+**Version:** v0.17.0 (intelligence layer, FAISS vectors, cross-client, regret loop)
+**Total memories:** 1,255 | **Sessions:** 500 | **Tests:** 1,256
 
 ---
 
@@ -29,35 +29,20 @@ Shipped: `days_stale` field, CSS staleness classes (opacity), colored freshness 
 
 ## Tier 2 — high impact, medium effort (this month)
 
-### 6. Intelligence orchestrator ("memory brain stem")
-**Why:** 58 features exist but they're disconnected. Dream synthesis, momentum tracking, energy scheduling, regret detection each run independently. No conductor wires them together.
-**What:** `src/intelligence_orchestrator.py` — background process that reads all wild/ feature outputs, synthesizes into 3-5 high-priority daily signals, surfaces via morning briefing.
-**Effort:** ~8 hours
-**Depends on:** Circuit breaker (#1)
+### ~~6. Intelligence orchestrator ("memory brain stem")~~ ✅ Done (v0.17.0)
+Shipped: `src/intelligence_orchestrator.py` — 5 signal collectors (dream, momentum, energy, regret, frustration), synthesizes into prioritized DailyBriefing, `/api/intelligence` endpoint. 20 tests.
 
-### 7. Cluster-based morning briefing
-**Why:** Memory clustering (F25) runs but output goes nowhere. Cluster summaries are computed and stored but never surfaced.
-**What:** When session starts, load cluster summaries instead of raw memories. Detect cluster divergence as insight signal. "Your thinking about X has split into two distinct clusters."
-**Effort:** ~4 hours (clustering already runs via F25)
-**Depends on:** Intelligence orchestrator (#6) or standalone
+### ~~7. Cluster-based morning briefing~~ ✅ Done (v0.17.0)
+Shipped: `src/cluster_briefing.py` — ClusterBriefing reads clusters from intelligence.db, generates MorningBriefing with previews and divergence signals, `/api/briefing` endpoint. 20 tests.
 
-### 8. Cross-client pattern transfer
-**Why:** Lee solves problems for one client that apply to others. `pattern_transfer.py` and `cross_project_sharing.py` exist but aren't wired together.
-**What:** Synthesis layer that reads across tagged insights and generates cross-client hypotheses. Tag-based consent model (cross_client_ok: true).
-**Effort:** ~6 hours
-**Depends on:** Nothing (but better after #6)
+### ~~8. Cross-client pattern transfer~~ ✅ Done (v0.17.0)
+Shipped: `src/cross_client_synthesizer.py` — reads global/consent-tagged memories, groups by domain, generates TransferHypothesis with prior-effectiveness confidence boost, `/api/cross-client` endpoint. 25 tests.
 
-### 9. Decision regret loop — real-time warning
-**Why:** `regret_detector.py` tracks decisions and outcomes but only retrospectively. Should warn before repeating mistakes.
-**What:** Hook on session decisions that checks regret database. "You've made this call 4 times. Three times you regretted it."
-**Effort:** ~4 hours (event_detector.py + regret_detector.py exist)
-**Depends on:** Circuit breaker (#1)
+### ~~9. Decision regret loop — real-time warning~~ ✅ Done (v0.17.0)
+Shipped: `src/decision_regret_loop.py` — fuzzy keyword matching against decision_outcomes, categorization, formatted warnings with regret rate and alternatives, `/api/regret-check` endpoint. 24 tests.
 
-### 10. Vector migration to ChromaDB
-**Why:** Current embedding search is brute-force cosine over SQLite blobs. Won't scale past ~5K memories.
-**What:** `src/vector_store.py` backed by ChromaDB. Dual-write during migration. TDD spec exists in ROADMAP.md.
-**Effort:** ~6 hours
-**Depends on:** Circuit breaker (#1)
+### ~~10. Vector migration to FAISS~~ ✅ Done (v0.17.0)
+Shipped: `src/vector_store.py` — FAISS IndexFlatIP (not ChromaDB — pydantic v1 broken on Python 3.14). Dual-write in embedding_manager.py, migration script, persistent save/load. 24 tests.
 
 ---
 
@@ -178,3 +163,8 @@ These require third-party APIs or infrastructure not yet available:
 | GitHub Actions CI | v0.16.0 | 2026-02-17 |
 | Memory freshness review cycle | v0.16.0 | 2026-02-17 |
 | Session replay modal | v0.16.0 | 2026-02-17 |
+| Intelligence orchestrator | v0.17.0 | 2026-02-17 |
+| Cluster-based morning briefing | v0.17.0 | 2026-02-17 |
+| Cross-client pattern transfer | v0.17.0 | 2026-02-17 |
+| Decision regret loop | v0.17.0 | 2026-02-17 |
+| FAISS vector store | v0.17.0 | 2026-02-17 |

@@ -1,6 +1,6 @@
 # Total Recall — build roadmap
 
-**Status:** v0.16.0 — search explain, freshness review, session replay, CI
+**Status:** v0.17.0 — intelligence layer, FAISS vectors, cross-client, regret loop
 **Last updated:** 2026-02-17
 
 ## Progress log
@@ -30,21 +30,25 @@
 | 21 | GitHub Actions CI | ✅ Done | pytest on push/PR, Python 3.11-3.13 matrix |
 | 22 | Memory freshness review | ✅ Done | scan/refresh/archive CLI, Pushover, LaunchAgent |
 | 23 | Session replay modal | ✅ Done | Click session → transcript + memories overlay |
-| 24 | Vector migration (TDD) | ⬜ Queued | Backlog tier 2 |
-| 25 | Search merge | ⬜ Queued | Depends on #24. Backlog tier 5 |
+| 24 | Cluster-based morning briefing | ✅ Done | ClusterBriefing reads clusters, generates morning briefing, /api/briefing |
+| 25 | FAISS vector store | ✅ Done | IndexFlatIP, dual-write in embedding_manager, migration script |
+| 26 | Intelligence orchestrator | ✅ Done | 5 signal collectors, DailyBriefing, /api/intelligence |
+| 27 | Cross-client pattern transfer | ✅ Done | Consent-tagged memories, domain grouping, transfer hypotheses |
+| 28 | Decision regret loop | ✅ Done | Fuzzy keyword matching, formatted warnings, /api/regret-check |
+| 29 | Search merge | ⬜ Queued | Depends on #25. Backlog tier 5 |
 
 ---
 
 ## What's next
 
-**Tier 1 complete.** All 5 items shipped (v0.14.0–v0.16.0).
+**Tier 1 + Tier 2 complete.** All 10 items shipped (v0.14.0–v0.17.0).
 
-**Now building (from BACKLOG.md tier 2):**
-1. Cluster-based morning briefing (#7)
-2. Vector migration to ChromaDB (#10)
-3. Intelligence orchestrator (#6)
-4. Cross-client pattern transfer (#8)
-5. Decision regret loop (#9)
+**Next up (from BACKLOG.md tier 3):**
+1. Energy-aware memory loading (#11)
+2. Frustration archaeology report (#12)
+3. Persona-aware memory filtering (#13)
+4. Memory interview (#14)
+5. Memory-as-training-data export (#15)
 
 **Full backlog:** `BACKLOG.md` (23 items, 5 tiers)
 

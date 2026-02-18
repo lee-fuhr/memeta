@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "total-recall"
-version = "0.16.0"
+version = "0.17.0"
 description = "Intelligent memory system for Claude Code — extract, grade, search, and synthesize knowledge across sessions"
 readme = "README.md"
 license = { text = "MIT" }
