@@ -797,6 +797,33 @@ def api_briefing():
                         "error": str(e)})
 
 
+@app.route("/api/intelligence")
+def api_intelligence():
+    """Get intelligence orchestrator briefing."""
+    try:
+        from memory_system.intelligence_orchestrator import (
+            IntelligenceOrchestrator, format_daily_briefing,
+        )
+        intel_db = Path(__file__).parent.parent / "intelligence.db"
+        orch = IntelligenceOrchestrator(db_path=intel_db)
+        briefing = orch.generate_briefing(
+            max_signals=int(request.args.get("max_signals", 10)),
+        )
+        return jsonify({
+            "signals": [s.to_dict() for s in briefing.signals],
+            "signal_count": briefing.signal_count,
+            "is_empty": briefing.is_empty,
+            "generated_at": briefing.generated_at.isoformat(),
+            "formatted": format_daily_briefing(briefing),
+        })
+    except ImportError:
+        return jsonify({"signals": [], "signal_count": 0, "is_empty": True,
+                        "error": "intelligence_orchestrator module not available"})
+    except Exception as e:
+        return jsonify({"signals": [], "signal_count": 0, "is_empty": True,
+                        "error": str(e)})
+
+
 # ---------------------------------------------------------------------------
 # Notification API
 # ---------------------------------------------------------------------------
