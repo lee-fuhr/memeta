@@ -824,6 +824,30 @@ def api_intelligence():
                         "error": str(e)})
 
 
+@app.route("/api/cross-client")
+def api_cross_client():
+    """Cross-client pattern synthesis — identify transferable patterns."""
+    try:
+        from memory_system.cross_client_synthesizer import CrossClientSynthesizer
+        src_dir = Path(__file__).parent.parent / "src"
+        db_path = Path(__file__).parent.parent / "intelligence.db"
+        memory_dir = app.config.get("MEMORY_DIR", DEFAULT_MEMORY_BASE / DEFAULT_PROJECT / "memories")
+        synth = CrossClientSynthesizer(memory_dir=memory_dir, db_path=db_path)
+        report = synth.synthesize()
+        return jsonify({
+            "hypotheses": [h.to_dict() for h in report.hypotheses],
+            "projects_analyzed": report.projects_analyzed,
+            "total_memories_scanned": report.total_memories_scanned,
+            "is_empty": report.is_empty,
+        })
+    except ImportError:
+        return jsonify({"hypotheses": [], "is_empty": True,
+                        "error": "cross_client_synthesizer module not available"})
+    except Exception as e:
+        return jsonify({"hypotheses": [], "is_empty": True,
+                        "error": str(e)})
+
+
 # ---------------------------------------------------------------------------
 # Notification API
 # ---------------------------------------------------------------------------
