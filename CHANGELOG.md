@@ -6,6 +6,25 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ---
 
+## [0.16.0] - 2026-02-17
+
+### Added — Dashboard UX + freshness review
+- **"Explain why" on search results** — `_extract_snippet()` centers ~120-char window on match, `_match_reasons()` identifies body/tag/domain matches. Search cards show highlighted snippet + match reason tags.
+- **Memory freshness indicators** — `days_stale` field on `/api/memories`, CSS opacity classes (stale-1/2/3), colored freshness pips (green/amber/yellow/rose), stale toggle filter
+- **Memory freshness review cycle** — `src/memory_freshness_reviewer.py`: `scan_stale_memories()`, `refresh_memory()`, `archive_memory()`, interactive CLI review, Pushover notification summary, weekly LaunchAgent (Sundays 9am)
+- **Session replay modal** — click session row to view transcript turns + linked memories. `/api/session/<id>` endpoint with `_summarise_transcript()`. Shows user/assistant turns with 300-char previews, session stats, memory chips
+- **GitHub Actions CI** — `.github/workflows/test.yml`: pytest on push/PR, Python 3.11/3.12/3.13 matrix, pip caching, ignores tests/wild
+
+### Tests
+- 16 new tests in `tests/test_dashboard_search.py` (snippet extraction, match reasons)
+- 18 new tests in `tests/test_memory_freshness_reviewer.py` (scan, refresh, archive, summary, _days_since)
+
+### Status
+- **Test suite:** 1,145 passing (34 new tests)
+- **Features shipped:** 58 + 5 dashboard/infra improvements
+
+---
+
 ## [0.15.0] - 2026-02-17
 
 ### Fixed — Consolidation hook broken since Feb 12
