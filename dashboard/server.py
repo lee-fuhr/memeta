@@ -334,6 +334,45 @@ _cache: dict = {}
 _smart_alerts: Optional['SmartAlerts'] = None
 
 
+def _extract_snippet(body: str, query: str, window: int = 120) -> str:
+    """Return a ~window-char excerpt of body centred on the first query match.
+
+    Returns an empty string if the query doesn't appear in body (callers
+    should fall back to the normal preview in that case).
+    """
+    lower_body = body.lower()
+    lower_q = query.lower()
+    idx = lower_body.find(lower_q)
+    if idx == -1:
+        return ""
+    start = max(0, idx - window // 2)
+    end = min(len(body), idx + len(query) + window // 2)
+    snippet = body[start:end].replace("\n", " ").strip()
+    if start > 0:
+        snippet = "…" + snippet
+    if end < len(body):
+        snippet = snippet + "…"
+    return snippet
+
+
+def _match_reasons(m: dict, q: str) -> list[str]:
+    """Return a list of human-readable reasons why memory *m* matched query *q*."""
+    reasons = []
+    lower_q = q.lower()
+    if lower_q in (m.get("_body") or "").lower():
+        reasons.append("body")
+    tag_str = json.dumps(m.get("semantic_tags") or []).lower()
+    if lower_q in tag_str:
+        matched_tags = [t for t in (m.get("semantic_tags") or []) if lower_q in t.lower()]
+        if matched_tags:
+            reasons.append(f"tag: {matched_tags[0]}")
+        else:
+            reasons.append("tag")
+    if lower_q in (m.get("knowledge_domain") or "").lower():
+        reasons.append(f"domain: {m.get('knowledge_domain')}")
+    return reasons
+
+
 def _get_alerts() -> Optional['SmartAlerts']:
     """Lazy-init SmartAlerts pointing at intelligence.db."""
     global _smart_alerts
@@ -459,7 +498,7 @@ def api_memories():
     result = []
     for m in filtered[:limit]:
         body = m.get("_body") or ""
-        result.append({
+        entry = {
             "id": m.get("id") or m.get("_filename"),
             "importance": m.get("importance_weight", 0.5),
             "confidence": m.get("confidence_score", 0.5),
@@ -472,7 +511,11 @@ def api_memories():
             "problem_solution": m.get("problem_solution_pair") or False,
             "session_id": m.get("session_id") or "",
             "preview": body[:240].replace("\n", " "),
-        })
+        }
+        if q:
+            entry["match_snippet"] = _extract_snippet(body, q)
+            entry["match_reasons"] = _match_reasons(m, q)
+        result.append(entry)
 
     return jsonify({"total": len(filtered), "memories": result})
 

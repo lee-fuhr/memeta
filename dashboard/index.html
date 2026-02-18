@@ -586,6 +586,31 @@ body::before {
   flex: 1;
 }
 
+.memory-preview mark {
+  background: color-mix(in srgb, var(--amber) 30%, transparent);
+  color: inherit;
+  border-radius: 2px;
+  padding: 0 1px;
+}
+
+.match-reasons {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.match-reason-tag {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--amber);
+  background: color-mix(in srgb, var(--amber) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--amber) 30%, transparent);
+  border-radius: 3px;
+  padding: 1px 5px;
+  letter-spacing: 0.02em;
+}
+
 .importance-badge {
   display: flex;
   align-items: center;
@@ -2262,10 +2287,19 @@ function renderMemories(total) {
       m.problem_solution ? '<span class="ps-pill" data-tooltip="This memory is a question + answer pair.">Q+A</span>' : '',
     ].join('');
 
+    // Search match display — snippet with highlighted term, plus match reasons
+    const activeQ = state.memFilter.q || '';
+    const previewHtml = (activeQ && m.match_snippet)
+      ? highlightQuery(m.match_snippet, activeQ)
+      : escHtml(m.preview);
+    const matchReasonsHtml = (activeQ && m.match_reasons && m.match_reasons.length)
+      ? `<div class="match-reasons">${m.match_reasons.map(r => `<span class="match-reason-tag" data-tooltip="This memory matched your search via its ${r}">matched via ${escHtml(r)}</span>`).join('')}</div>`
+      : '';
+
     return `
       <div class="memory-card grade-${grade}" data-memory-id="${escHtml(m.id)}">
         <div class="memory-card-top">
-          <div class="memory-preview">${escHtml(m.preview)}</div>
+          <div class="memory-preview">${previewHtml}${matchReasonsHtml}</div>
           <div class="importance-badge">
             <span class="imp-pip" data-tooltip="${escHtml(impTooltip)}"></span>
             <span class="imp-label" data-tooltip="${escHtml(gradeTooltip)}">${grade} · ${imp.toFixed(2)}</span>
@@ -2492,6 +2526,17 @@ function escHtml(str) {
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
+}
+
+/** Escape str for HTML, then wrap occurrences of query in <mark>. */
+function highlightQuery(str, query) {
+  if (!str) return '';
+  const escaped = escHtml(str);
+  if (!query) return escaped;
+  const escapedQ = escHtml(query);
+  // Case-insensitive replace with <mark>
+  const re = new RegExp(escapedQ.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+  return escaped.replace(re, m => `<mark>${m}</mark>`);
 }
 
 // -----------------------------------------------------------------------
