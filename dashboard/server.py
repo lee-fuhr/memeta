@@ -764,6 +764,40 @@ def _summarise_transcript(transcript_json: str, max_turns: int = 50) -> list[dic
 
 
 # ---------------------------------------------------------------------------
+# Briefing API
+# ---------------------------------------------------------------------------
+
+@app.route("/api/briefing")
+def api_briefing():
+    """Get cluster-based morning briefing."""
+    try:
+        from memory_system.cluster_briefing import generate_briefing, format_briefing_text
+        memory_base = Path(app.config["MEMORY_BASE"])
+        project = app.config["PROJECT"]
+        memory_dir = memory_base / project / "memories"
+        intel_db = Path(__file__).parent.parent / "intelligence.db"
+
+        briefing = generate_briefing(
+            db_path=intel_db,
+            memory_dir=memory_dir,
+            max_clusters=int(request.args.get("max_clusters", 10)),
+        )
+        return jsonify({
+            "items": [item.to_dict() for item in briefing.items],
+            "divergences": briefing.divergences,
+            "generated_at": briefing.generated_at.isoformat(),
+            "is_empty": briefing.is_empty,
+            "formatted": format_briefing_text(briefing),
+        })
+    except ImportError:
+        return jsonify({"items": [], "divergences": [], "is_empty": True,
+                        "error": "cluster_briefing module not available"})
+    except Exception as e:
+        return jsonify({"items": [], "divergences": [], "is_empty": True,
+                        "error": str(e)})
+
+
+# ---------------------------------------------------------------------------
 # Notification API
 # ---------------------------------------------------------------------------
 
