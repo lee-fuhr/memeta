@@ -3,7 +3,7 @@ requires = ["setuptools>=64", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "total-recall"
+name = "total-rekall"
 version = "0.17.0"
 description = "Intelligent memory system for Claude Code — extract, grade, search, and synthesize knowledge across sessions"
 readme = "README.md"
@@ -37,9 +37,9 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/leefuhr/total-recall"
-Repository = "https://github.com/leefuhr/total-recall"
-Issues = "https://github.com/leefuhr/total-recall/issues"
+Homepage = "https://github.com/lee-fuhr/total-rekall"
+Repository = "https://github.com/lee-fuhr/total-rekall"
+Issues = "https://github.com/lee-fuhr/total-rekall/issues"
 
 [project.optional-dependencies]
 ml = [
@@ -49,6 +49,8 @@ ml = [
 ]
 test = [
     "pytest>=7.0",
+    "scikit-learn",
+    "faiss-cpu>=1.7.0",
 ]
 
 [tool.setuptools.package-dir]

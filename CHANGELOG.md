@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to the Memory System v1 project.
+All notable changes to Total Rekall.
 
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 

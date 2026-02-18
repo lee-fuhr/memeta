@@ -39,14 +39,11 @@ clusters.db
 
 # Working/internal docs
 _working/
+_internal/
 PLAN.md
 ORCHESTRATION.md
 STATUS.md
-DOCUMENTATION-SYSTEM.md
 HANDOFF*.md
-docs/PROCESS.md
-docs/PRODUCT-FINDINGS.md
-docs/QA-FINDINGS.md
 
 # Runtime artifacts
 fsrs-status.json

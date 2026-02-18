@@ -1,5 +1,5 @@
 """
-Total Recall Dashboard Server
+Total Rekall Dashboard Server
 
 Serves the dashboard UI and provides JSON API endpoints backed by:
   - Memory .md files at ~/.local/share/memory/{project}/memories/
@@ -49,7 +49,7 @@ DASHBOARD_DIR = Path(__file__).parent
 
 def _parse_args():
     import argparse
-    p = argparse.ArgumentParser(description="Total Recall dashboard server")
+    p = argparse.ArgumentParser(description="Total Rekall dashboard server")
     p.add_argument("--port", type=int, default=DEFAULT_PORT)
     p.add_argument("--project", default=DEFAULT_PROJECT)
     p.add_argument("--memory-base", default=str(DEFAULT_MEMORY_BASE))
@@ -623,7 +623,7 @@ def api_export():
         return Response(
             output.getvalue(),
             mimetype="text/csv",
-            headers={"Content-Disposition": "attachment; filename=total-recall-memories.csv"},
+            headers={"Content-Disposition": "attachment; filename=total-rekall-memories.csv"},
         )
 
     return jsonify({"total": len(rows), "memories": rows})
@@ -944,7 +944,7 @@ if __name__ == "__main__":
     app.config["PROJECT"] = args.project
     app.config["MEMORY_BASE"] = memory_base
 
-    print(f"Total Recall dashboard — http://localhost:{args.port}")
+    print(f"Total Rekall dashboard — http://localhost:{args.port}")
     print(f"  Project : {args.project}")
     print(f"  Memory  : {memory_base / args.project / 'memories'}")
     print(f"  Sessions: {memory_base / args.project / 'session-history.db'}")

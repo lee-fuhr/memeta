@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Total Recall — Memory Intelligence</title>
+<title>Total Rekall — Memory Intelligence</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,7 +11,7 @@
 
 <style>
 /* =====================================================================
-   Design system — Total Recall
+   Design system — Total Rekall
    Palette: deep obsidian + warm amber + bone white
    ===================================================================== */
 :root {
@@ -1901,7 +1901,7 @@ body::before {
         <div>Session name</div>
         <div data-tooltip="Total messages exchanged in this session.">Messages</div>
         <div data-tooltip="Number of tool calls (file reads, bash commands, etc.) made by Claude.">Tools</div>
-        <div data-tooltip="Memories extracted and saved to Total Recall at the end of this session. Click a row to see them.">Memories</div>
+        <div data-tooltip="Memories extracted and saved to Total Rekall at the end of this session. Click a row to see them.">Memories</div>
       </div>
       <div id="session-list" class="session-list">
         <div class="loading-state"><div class="spinner"></div></div>
@@ -2002,7 +2002,7 @@ body::before {
 
 <script>
 /* ===================================================================
-   Total Recall Dashboard — client-side JS
+   Total Rekall Dashboard — client-side JS
    =================================================================== */
 
 const state = {
@@ -3327,7 +3327,7 @@ document.getElementById('activity-dismiss-all').addEventListener('click', async 
       switchView(viewParam);
     }
   } catch (err) {
-    console.error('Total Recall boot error:', err);
+    console.error('Total Rekall boot error:', err);
     document.getElementById('stat-row').innerHTML =
       `<div class="empty-state" style="color:var(--rose);padding:20px">
         Failed to load data from server.<br>

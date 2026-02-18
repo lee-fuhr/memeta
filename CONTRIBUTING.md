@@ -1,15 +1,15 @@
-# Contributing to Total Recall
+# Contributing to Total Rekall
 
 Thanks for your interest in contributing.
 
 ## Getting started
 
 ```bash
-git clone https://github.com/leefuhr/total-recall
-cd total-recall
+git clone https://github.com/lee-fuhr/total-rekall
+cd total-rekall
 
-python3 -m venv ~/.local/venvs/total-recall
-source ~/.local/venvs/total-recall/bin/activate
+python3 -m venv ~/.local/venvs/total-rekall
+source ~/.local/venvs/total-rekall/bin/activate
 pip install -e ".[test]"
 
 # Run tests (exclude wild LLM-dependent tests)

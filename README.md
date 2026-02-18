@@ -1,4 +1,4 @@
-# Total Recall
+# Total Rekall
 
 **Every memory technique that works. Every approach from the meta. All coexisting additively. And then predicting the next features and building those too.**
 
@@ -12,19 +12,19 @@ The Claude Code memory ecosystem is exploding. Reddit posts, Ben Fox's ZeroBot, 
 
 The problem: they're all separate projects. You can use Ben's quality grading OR OpenClaw's search weighting OR FSRS scheduling, but nobody's combined them. Each approach solves a real problem, but you have to pick and choose, and they don't talk to each other.
 
-**Total Recall is the kitchen sink.** Every methodology and approach that has come through the meta, through Reddit, through the community — as long as they can coexist additively, they're in. Not "pick one approach" but "use all of them simultaneously, and let them reinforce each other."
+**Total Rekall is the kitchen sink.** Every methodology and approach that has come through the meta, through Reddit, through the community — as long as they can coexist additively, they're in. Not "pick one approach" but "use all of them simultaneously, and let them reinforce each other."
 
 And then: **predict what's next and build it before anyone asks.** The backlog isn't a wish list — it's a forecast.
 
 ---
 
-## Total Recall vs. Claude Code's built-in auto memory
+## Total Rekall vs. Claude Code's built-in auto memory
 
 Claude Code ships with a native "auto memory" feature. It's a black box: Claude decides what to remember, stores it somewhere on Anthropic's infrastructure, and surfaces it opaquely. You can't see what's stored, can't search it, can't grade it, and can't understand why certain things are remembered and others aren't.
 
-**Total Recall is the version you can see, own, and extend.**
+**Total Rekall is the version you can see, own, and extend.**
 
-| | Claude Code auto memory | Total Recall |
+| | Claude Code auto memory | Total Rekall |
 |--|------------------------|--------------|
 | Storage | Anthropic servers (opaque) | Local `.md` files you own |
 | Visibility | None — black box | Full — every memory inspectable |
@@ -99,7 +99,7 @@ User:      "What did we decide about the authentication approach?"
 Assistant: "I don't have specific details. Can you remind me?"
 ```
 
-**After (Total Recall):**
+**After (Total Rekall):**
 ```
 User:      "What did we decide about the authentication approach?"
 Assistant: On March 12, you decided to use JWT with refresh tokens.
@@ -115,7 +115,7 @@ Assistant: On March 12, you decided to use JWT with refresh tokens.
 
 Paste this into Claude Code:
 
-> "Set up Total Recall for me: https://github.com/lee-fuhr/total-recall"
+> "Set up Total Rekall for me: https://github.com/lee-fuhr/total-rekall"
 
 Claude will clone the repo, create a venv, install dependencies, configure paths, and set up the session end hook. It'll walk you through any choices.
 
@@ -124,8 +124,8 @@ Claude will clone the repo, create a venv, install dependencies, configure paths
 If you prefer to do it yourself:
 
 ```bash
-git clone https://github.com/lee-fuhr/total-recall.git
-cd total-recall
+git clone https://github.com/lee-fuhr/total-rekall.git
+cd total-rekall
 python3 -m venv ~/.local/venvs/memory-system
 source ~/.local/venvs/memory-system/bin/activate
 pip install -e .
@@ -156,7 +156,7 @@ Add to `~/.claude/settings.json` under `hooks.SessionEnd`:
 ```json
 {
   "type": "command",
-  "command": "~/.local/venvs/memory-system/bin/python3 /path/to/total-recall/hooks/session-memory-consolidation-async.py",
+  "command": "~/.local/venvs/memory-system/bin/python3 /path/to/total-rekall/hooks/session-memory-consolidation-async.py",
   "timeout": 180000
 }
 ```
@@ -197,7 +197,7 @@ Add to `~/.claude/settings.json` under `hooks.SessionEnd`:
 | [`ROADMAP.md`](ROADMAP.md) | Development timeline — shipped, in progress, planned |
 | [`CHANGELOG.md`](CHANGELOG.md) | What changed and when |
 | [`CONTRIBUTING.md`](CONTRIBUTING.md) | How to contribute |
-| [Issues](https://github.com/lee-fuhr/total-recall/issues) | Feature backlog — request features here |
+| [Issues](https://github.com/lee-fuhr/total-rekall/issues) | Feature backlog — request features here |
 
 ---
 

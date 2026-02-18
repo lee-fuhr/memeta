@@ -1,6 +1,6 @@
 # Features
 
-Every feature in Total Recall, organized by layer. Each one coexists additively — adding feature N+1 makes features 1 through N better.
+Every feature in Total Rekall, organized by layer. Each one coexists additively — adding feature N+1 makes features 1 through N better.
 
 **Current:** v0.17.0 · 1,256 tests passing · 68 features shipped
 

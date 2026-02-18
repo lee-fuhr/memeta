@@ -1,6 +1,6 @@
 # Roadmap
 
-Where Total Recall has been, where it is, and where it's going.
+Where Total Rekall has been, where it is, and where it's going.
 
 ---
 
@@ -28,7 +28,7 @@ Making the dashboard actually useful.
 
 ### v0.14.0 — Circuit breaker + rename (Feb 2026)
 - **Circuit breaker** for LLM calls — 3-failure threshold, auto-recovery
-- Renamed project to Total Recall
+- Renamed project to Total Rekall
 
 ### v0.13.0 — Dashboard (Feb 2026)
 - Full Flask dashboard: overview, memories, sessions, knowledge map
@@ -54,7 +54,7 @@ Making the dashboard actually useful.
 
 ## Phase 4: Deeper autonomy (next)
 
-[View milestone →](https://github.com/lee-fuhr/total-recall/milestone/4)
+[View milestone →](https://github.com/lee-fuhr/total-rekall/milestone/4)
 
 - Energy-aware memory loading — morning sessions get strategic memories, afternoon gets operational
 - Frustration archaeology — 90-day pattern analysis, not just 20-minute detection
@@ -64,7 +64,7 @@ Making the dashboard actually useful.
 
 ## Phase 5: Community + packaging
 
-[View milestone →](https://github.com/lee-fuhr/total-recall/milestone/5)
+[View milestone →](https://github.com/lee-fuhr/total-rekall/milestone/5)
 
 - PyPI packaging
 - Memory relationship graph visualization
