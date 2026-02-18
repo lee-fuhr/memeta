@@ -37,19 +37,20 @@ clusters.db
 *.db-shm
 *.db-wal
 
-# Working/internal docs (not for public consumption)
+# Working/internal docs
 _working/
-HANDOFF.md
-SHOWCASE.md
 PLAN.md
-PROCESS.md
-PRODUCT-FINDINGS.md
-QA-FINDINGS.md
 ORCHESTRATION.md
 STATUS.md
 DOCUMENTATION-SYSTEM.md
-ROADMAP.md
-BACKLOG.md
+HANDOFF*.md
+docs/PROCESS.md
+docs/PRODUCT-FINDINGS.md
+docs/QA-FINDINGS.md
+
+# Runtime artifacts
+fsrs-status.json
+memory_system
 
 # Synthesis output
 synthesis/

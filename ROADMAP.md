@@ -1,136 +1,85 @@
-# Total Recall — build roadmap
+# Roadmap
 
-**Status:** v0.17.0 — intelligence layer, FAISS vectors, cross-client, regret loop
-**Last updated:** 2026-02-17
-
-## Progress log
-
-| # | Task | Status | Notes |
-|---|------|--------|-------|
-| 1 | Gap analysis | ✅ Done | 1,368 lines across 4 files. Key finds: IDF=1.0 bug, cross_project_sharing.py is a stub |
-| 2 | Test critical modules | ✅ Done | 318 new tests, 1,085 total passing. Fixed 4 mock issues in hybrid_search |
-| 3 | Connection leak fix | ✅ Done | IntelligenceDB: replaced pool.get_connection() with sqlite3.connect() directly |
-| 4 | sys.path cleanup | ✅ Done | 71 files migrated to `from memory_system.X import ...`. pyproject.toml + pip install -e . |
-| 5 | Config centralization | ✅ Done | `src/config.py` — MemorySystemConfig frozen dataclass, env var overrides |
-| 6 | F26+F31 summarization merge | ✅ Done | Unified MemorySummarizer with TopicSummary + connection leak fixes |
-| 7 | F30→F28 search delegation | ✅ Done | MemoryAwareSearch.search() delegates to SearchOptimizer |
-| 8 | Dream mode O(n²) fix | ✅ Done | MAX_MEMORIES=1000 cap |
-| 9 | Rename to Total Recall | ✅ Done | Full rename from Mnemora |
-| 10 | Dashboard | ✅ Done | Flask server + full-stack UI (overview, memories, sessions, knowledge map) |
-| 11 | Memory detail modal | ✅ Done | Click card → full content overlay. /api/memory/<id> endpoint |
-| 12 | Export JSON/CSV | ✅ Done | /api/export endpoint + buttons. Fixed YAML tags parsing |
-| 13 | LaunchAgent | ✅ Done | com.lfi.total-recall-dashboard — RunAtLoad + KeepAlive on port 7860 |
-| 14 | Backlog | ✅ Done | BACKLOG.md — 23 items across 5 priority tiers |
-| 15 | Push to GitHub | ✅ Done | All commits on origin/main |
-| 16 | Circuit breaker (TDD) | ✅ Done | 12 tests, 3 LLM call sites wired. Breakers: llm_extraction, llm_ask_claude, llm_contradiction |
-| 17 | Fix consolidation hook | ✅ Done | Broken since Feb 12 — venv python + dashboard_export indentation fix |
-| 18 | Pushover notifications | ✅ Done | Hook sends push when memories saved/reinforced |
-| 19 | "Explain why" search | ✅ Done | Snippet extraction, match reasons, highlights |
-| 20 | Dashboard freshness indicators | ✅ Done | Staleness visual (opacity + pips), stale filter |
-| 21 | GitHub Actions CI | ✅ Done | pytest on push/PR, Python 3.11-3.13 matrix |
-| 22 | Memory freshness review | ✅ Done | scan/refresh/archive CLI, Pushover, LaunchAgent |
-| 23 | Session replay modal | ✅ Done | Click session → transcript + memories overlay |
-| 24 | Cluster-based morning briefing | ✅ Done | ClusterBriefing reads clusters, generates morning briefing, /api/briefing |
-| 25 | FAISS vector store | ✅ Done | IndexFlatIP, dual-write in embedding_manager, migration script |
-| 26 | Intelligence orchestrator | ✅ Done | 5 signal collectors, DailyBriefing, /api/intelligence |
-| 27 | Cross-client pattern transfer | ✅ Done | Consent-tagged memories, domain grouping, transfer hypotheses |
-| 28 | Decision regret loop | ✅ Done | Fuzzy keyword matching, formatted warnings, /api/regret-check |
-| 29 | Search merge | ⬜ Queued | Depends on #25. Backlog tier 5 |
+Where Total Recall has been, where it is, and where it's going.
 
 ---
 
-## What's next
+## Shipped
 
-**Tier 1 + Tier 2 complete.** All 10 items shipped (v0.14.0–v0.17.0).
+### v0.17.0 — Intelligence layer (Feb 2026)
+The "brain stem" that wires all features into a coherent system.
+- **FAISS vector store** — indexed similarity search replacing brute-force cosine
+- **Intelligence orchestrator** — synthesizes signals from dream synthesis, momentum, energy, regret, and frustration into a prioritized daily briefing
+- **Cluster-based morning briefing** — surfaces cluster summaries and divergence signals
+- **Cross-client pattern transfer** — consent-tagged memories generate transfer hypotheses across projects
+- **Decision regret loop** — real-time warning before repeating regretted decisions
 
-**Next up (from BACKLOG.md tier 3):**
-1. Energy-aware memory loading (#11)
-2. Frustration archaeology report (#12)
-3. Persona-aware memory filtering (#13)
-4. Memory interview (#14)
-5. Memory-as-training-data export (#15)
+### v0.16.0 — Dashboard UX + freshness (Feb 2026)
+Making the dashboard actually useful.
+- **Search with explanation** — match reasons + highlighted snippets
+- **Memory freshness indicators** — staleness visuals with filtering
+- **Session replay** — click session → view transcript + linked memories
+- **Memory freshness review cycle** — weekly scan/refresh/archive with notifications
+- **GitHub Actions CI** — pytest on push/PR, Python 3.11–3.13 matrix
 
-**Full backlog:** `BACKLOG.md` (23 items, 5 tiers)
+### v0.15.0 — Stability (Feb 2026)
+- Fixed consolidation hook (broken since Feb 12)
+- Added Pushover notifications on memory saves
+
+### v0.14.0 — Circuit breaker + rename (Feb 2026)
+- **Circuit breaker** for LLM calls — 3-failure threshold, auto-recovery
+- Renamed project to Total Recall
+
+### v0.13.0 — Dashboard (Feb 2026)
+- Full Flask dashboard: overview, memories, sessions, knowledge map
+- Memory detail modals, JSON/CSV export
+- LaunchAgent auto-start
+
+### v0.8.0–v0.12.0 — Foundation (Feb 2026)
+- sys.path cleanup (71 files)
+- Config centralization
+- Search delegation and optimization
+- Dream mode O(n²) fix
+- 1,085 tests baseline
+
+### v0.1.0–v0.7.0 — Initial build (Feb 2026)
+- 58 features across foundation, intelligence, autonomous, and wild layers
+- Hybrid search (70% semantic + 30% BM25)
+- FSRS-6 spaced repetition
+- Dream mode synthesis
+- Frustration detection
+- Full test suite
 
 ---
 
-## Agent prompts (for remaining tasks)
+## In progress
 
-### Circuit breaker (TDD)
+Nothing actively in progress — looking for contributors.
 
-**Goal:** Build and wire in a circuit breaker for LLM calls using test-driven development.
+---
 
-**Prompt for spawned agent:**
-```
-Build a circuit breaker for LLM calls in /Users/lee/CC/LFI/_ Operations/memory-system-v1/ using TDD.
+## Planned
 
-Step 1 — Write tests first (tests/test_circuit_breaker.py):
-- test_closed_state_passes_calls_through
-- test_opens_after_3_consecutive_failures
-- test_open_state_raises_CircuitBreakerOpenError_immediately
-- test_transitions_to_half_open_after_recovery_timeout
-- test_closes_again_after_success_in_half_open
-- test_reset_returns_to_closed
-Run pytest — all 6 must FAIL (not yet implemented). If any pass, the test is wrong.
+See [GitHub Issues](https://github.com/lee-fuhr/total-recall/issues) for the full list. Highlights:
 
-Step 2 — Implement src/circuit_breaker.py:
-- CircuitBreaker class: CLOSED / OPEN / HALF_OPEN states
-- __init__(failure_threshold=3, recovery_timeout=60.0, name='default')
-- call(fn, *args, **kwargs) — wraps a callable with circuit breaker logic
-- reset() — manual reset to CLOSED
-- Module-level: get_breaker(name) -> CircuitBreaker (singleton registry)
-Run pytest — all 6 must now PASS.
+**Next up:**
+- Energy-aware memory loading — morning sessions get strategic memories, afternoon gets operational
+- Frustration archaeology — 90-day pattern analysis, not just 20-minute detection
+- Memory interview — structured 10-minute weekly review that doesn't feel like chores
+- Memory relationship graph — force-directed visualization of the knowledge structure
+- PyPI packaging
 
-Step 3 — Wire into exactly 3 LLM call sites:
-Find the 3 highest-risk LLM calls: grep -rn "anthropic\|openai\|llm\|completion\|chat" src/ --include="*.py" | grep -v "__pycache__" | grep -v test
-For each: wrap with get_breaker('name').call(fn, ...) and handle CircuitBreakerOpenError with a logged fallback
-Run full pytest after each wire-in — 1085+ passing required before touching the next one.
+**On the horizon:**
+- Persona-aware filtering (business vs health vs personal context)
+- Memory-as-training-data export (fine-tuning dataset from graded memories)
+- Search backend consolidation
+- External integrations (Slack, Notion, email, calendar)
 
-Step 4 — Commit:
-git -C /Users/lee/CC/LFI/_ Operations/memory-system-v1 add src/circuit_breaker.py tests/test_circuit_breaker.py
-git -C /Users/lee/CC/LFI/_ Operations/memory-system-v1 commit -m "Add circuit breaker for LLM calls (TDD)"
-```
+---
 
-### Vector migration (TDD)
+## Design principles
 
-**Goal:** Migrate embedding storage from SQLite blobs to ChromaDB with hybrid BM25+vector search.
-
-**Prompt for spawned agent:**
-```
-Migrate memory-system-v1 embeddings to ChromaDB using TDD.
-Working directory: /Users/lee/CC/LFI/_ Operations/memory-system-v1/
-
-Step 1 — Define the interface with tests first (tests/test_vector_store.py):
-Write tests for a VectorStore class that doesn't exist yet:
-- test_store_and_retrieve_embedding (store np.ndarray, get same array back)
-- test_find_similar_returns_ranked_results (store 3, query returns correct top-1)
-- test_threshold_filters_low_scores (nothing below 0.65)
-- test_graceful_import_error (if chromadb not installed, raises ImportError with message)
-Run pytest on just this file — all must FAIL.
-
-Step 2 — Implement src/vector_store.py:
-pip install 'chromadb>=0.4.0'
-Build VectorStore backed by ChromaDB PersistentClient at ./chroma_db/
-Interface: get_embedding(hash) / store_embedding(hash, array, metadata) / find_similar(array, top_k, threshold)
-Run test_vector_store.py — all must PASS before proceeding.
-
-Step 3 — Update embedding_manager.py (dual-write):
-- Try to import VectorStore; if unavailable, set to None
-- In store_embedding(): write to BOTH SQLite (existing) AND VectorStore (new)
-- In get_embedding(): check VectorStore first, fall back to SQLite
-- Run full pytest — 1085+ passing required.
-
-Step 4 — Update semantic_search.py:
-- Use VectorStore.find_similar() instead of brute-force cosine
-- Keep old cosine as _fallback if VectorStore is None
-- Run full pytest — 1085+ passing required.
-
-Step 5 — Create migration script: scripts/migrate_embeddings_to_chroma.py
-- Reads existing SQLite embeddings, writes to ChromaDB
-- Supports --dry-run flag
-- Idempotent (skip if already migrated)
-
-Step 6 — Commit everything:
-git -C /Users/lee/CC/LFI/_ Operations/memory-system-v1 add src/vector_store.py tests/test_vector_store.py scripts/migrate_embeddings_to_chroma.py
-git -C /Users/lee/CC/LFI/_ Operations/memory-system-v1 commit -m "Vector migration: ChromaDB with dual-write (TDD)"
-```
+1. **Absorb every technique that works** — if it improves memory quality, it goes in
+2. **Make them compound** — features feed each other in a loop, not a list
+3. **Coexist additively** — new features layer on top, nothing gets replaced
+4. **Predict and preempt** — build what the community will need before they ask

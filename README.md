@@ -2,24 +2,7 @@
 
 **Every memory technique that works. Every approach from the meta. All coexisting additively. And then predicting the next features and building those too.**
 
-![Python](https://img.shields.io/badge/python-3.11%2B-blue) ![Tests](https://img.shields.io/badge/tests-1111%20passing-brightgreen) ![Version](https://img.shields.io/badge/version-0.15.0-blue) ![License](https://img.shields.io/badge/license-MIT-green)
-
----
-
-## Documentation
-
-**Next session:** `HANDOFF.md` — current state, what's done, what's next
-
-| Doc | What it is |
-|-----|-----------|
-| [`HANDOFF.md`](HANDOFF.md) | Session handoff — read this first |
-| [`BACKLOG.md`](BACKLOG.md) | Prioritized feature backlog |
-| [`ROADMAP.md`](ROADMAP.md) | Version roadmap |
-| [`CHANGELOG.md`](CHANGELOG.md) | What changed and when |
-| [`docs/PRODUCT-FINDINGS.md`](docs/PRODUCT-FINDINGS.md) | Research and product insights |
-| [`docs/QA-FINDINGS.md`](docs/QA-FINDINGS.md) | QA results and test findings |
-| [`docs/SHOWCASE.md`](docs/SHOWCASE.md) | Feature demos and examples |
-| [`docs/PROCESS.md`](docs/PROCESS.md) | Development process guide |
+![Python](https://img.shields.io/badge/python-3.11%2B-blue) ![Tests](https://img.shields.io/badge/tests-1256%20passing-brightgreen) ![Version](https://img.shields.io/badge/version-0.17.0-blue) ![License](https://img.shields.io/badge/license-MIT-green)
 
 ---
 
@@ -31,19 +14,7 @@ The problem: they're all separate projects. You can use Ben's quality grading OR
 
 **Total Recall is the kitchen sink.** Every methodology and approach that has come through the meta, through Reddit, through the community — as long as they can coexist additively, they're in. Not "pick one approach" but "use all of them simultaneously, and let them reinforce each other."
 
-And then: **predict what's next and build it before anyone asks.** The backlog isn't a wish list — it's a forecast. What will the community discover in 3 months? Build it now.
-
----
-
-## The charter
-
-1. **Absorb every technique that works** — quality grading, spaced repetition, semantic search, contradiction detection, dream synthesis, frustration tracking, decision journaling, energy-aware scheduling, pattern transfer. If it improves memory quality, it goes in.
-
-2. **Make them compound** — These techniques aren't independent. Quality grades feed spaced repetition. Spaced repetition feeds search ranking. Search ranking feeds context loading. Context loading feeds extraction quality. The system is a loop, not a list.
-
-3. **Coexist additively** — New features layer on top. Nothing gets replaced. The contradiction detector doesn't disable the quality grader — it feeds it. The circuit breaker doesn't remove LLM calls — it protects them. Adding feature N+1 makes features 1 through N better.
-
-4. **Predict and preempt** — What will the community need next? Build it before the Reddit post. The backlog is organized by "what insight is 3 months away from being obvious?"
+And then: **predict what's next and build it before anyone asks.** The backlog isn't a wish list — it's a forecast.
 
 ---
 
@@ -60,7 +31,7 @@ Claude Code ships with a native "auto memory" feature. It's a black box: Claude 
 | Search | Not available | Semantic + BM25 hybrid, cached |
 | Quality grading | None | A/B/C/D by importance weight |
 | Spaced repetition | None | FSRS-6 — science-backed retention |
-| Pattern detection | None | 58 features including dream synthesis |
+| Pattern detection | None | 68 features including dream synthesis |
 | Self-improvement | None | Overnight consolidation, prompt evolution |
 | Methodology count | 1 (proprietary) | All of them (open, additive) |
 | Control | None | Full — you decide what persists |
@@ -68,45 +39,26 @@ Claude Code ships with a native "auto memory" feature. It's a black box: Claude 
 
 ---
 
-## What's inside (58 features, all additive)
+## What's inside
+
+68 features across 6 layers, all additive:
 
 ### Foundation — the basics done right
-- **Contradiction detection** — spots conflicting preferences automatically
-- **Provenance tracking** — every memory tagged with session ID + resume link
-- **Memory versioning** — full audit trail with rollback
-- **Decision journal** — captures decisions + rationale + outcomes
-- **Quality auto-grading** — A/B/C/D grades that improve extraction prompts over time
+Contradiction detection · provenance tracking · memory versioning · decision journal · quality auto-grading · FSRS-6 spaced repetition · importance scoring with auto-tuning
 
 ### Intelligence — the compounding layer
-- **FSRS-6 spaced repetition** — science-backed retention scheduling
-- **Hybrid search** — 70% semantic + 30% BM25 keyword (OpenClaw pattern)
-- **Cache-aware search** — 24h TTL cache + multi-factor ranking
-- **Memory clustering** — semantic grouping with divergence detection
-- **Summarization** — cluster, project, period, and topic summaries
+Hybrid search (70% semantic + 30% BM25) · cache-aware search with multi-factor ranking · semantic clustering · relationship mapping · smart alerts · quality scoring
 
 ### Autonomous — the system that works while you sleep
-- **Dream mode synthesis** — overnight consolidation finds hidden cross-domain connections
-- **Frustration early warning** — detects repeated corrections before you spiral
-- **Momentum tracking** — knows when you're "on a roll" vs "spinning"
-- **Energy-aware scheduling** — learns your best thinking hours
-- **Decision regret detection** — warns before you repeat a mistake for the 4th time
-- **Pattern transfer** — solutions from one project surface for similar problems elsewhere
-- **Prompt evolution** — genetic algorithm optimizes extraction prompts using quality grades
-- **Writing style tracking** — catches unintentional drift vs intentional compression
-- **Context pre-loading** — checks calendar, pre-loads relevant context before meetings
-
-### Infrastructure — the things that keep it all running
-- **Circuit breaker** — LLM calls protected with 3-failure threshold, auto-recovery
-- **Connection pooling** — prevents SQLite contention under concurrent operations
-- **Centralized config** — all paths/constants overridable via environment variables
-- **Automated maintenance** — nightly VACUUM, ANALYZE, backups with 7-day retention
+Dream mode synthesis · frustration early warning · momentum tracking · energy-aware scheduling · decision regret warnings · pattern transfer across projects · prompt evolution via genetic algorithm · context pre-loading before meetings
 
 ### Dashboard — see what your memory knows
-- **Overview** — stat cards, grade distribution, domain breakdown, 26-week activity heatmap
-- **Memory library** — searchable, filterable, click-to-detail with full content modal
-- **Session history** — every session indexed with message/tool/memory counts
-- **Knowledge map** — tag cloud + domain breakdown
-- **Export** — JSON and CSV, one click
+Overview with heatmap · searchable memory library · session replay · knowledge map · export (JSON/CSV) · freshness indicators · intelligence briefing · cross-client patterns
+
+### Infrastructure
+Circuit breaker for LLM calls · FAISS vector store with dual-write · centralized config · async consolidation · GitHub Actions CI
+
+**Full feature list with implementation details:** [`FEATURES.md`](FEATURES.md)
 
 ---
 
@@ -125,7 +77,6 @@ Key insights extracted:
 Dream synthesis (3am run):
 - Approach for Project A maps to Project B's problem
 - Both struggle with the same underlying constraint
-- Solution from one context could solve the other
 ```
 
 ### During work (real-time intelligence)
@@ -136,8 +87,8 @@ Suggestion: Add a hook to prevent webhook errors permanently.
 ```
 
 ```
-🤔 Pattern noticed: You chose approach X over Y in 3 similar situations.
-All 3 times you later corrected to approach Y. Consider starting with Y?
+🤔 You've made this call 4 times. Three times you regretted it.
+Consider instead: Write tests first.
 ```
 
 ### Query (before vs after)
@@ -154,65 +105,50 @@ User:      "What did we decide about the authentication approach?"
 Assistant: On March 12, you decided to use JWT with refresh tokens.
            Reasoning: Stateless, works across multiple services.
            Related: This mirrors your decision for the API project.
-           [View full decision] [See session transcript]
 ```
-
----
-
-## Architecture
-
-**Single database strategy** — All features share `intelligence.db` with schema namespacing. Enables cross-feature queries like "show A-grade memories that triggered frustration warnings."
-
-**Local semantic search** — sentence-transformers (`all-MiniLM-L6-v2`) for embeddings. No API costs per query. 384-dim vectors, ~50ms per memory. 90MB model, runs offline.
-
-**Hybrid search** — 70% semantic + 30% BM25 keyword. Best of both worlds: semantic understanding + exact-match precision.
-
-**FSRS-6 spaced repetition** — Tracks memory stability, difficulty, intervals. FAIL/HARD/GOOD/EASY grading on reinforcements. Science-backed retention.
-
-**Connection pooling** — Prevents `SQLITE_BUSY` errors under concurrent operations. 5-connection pool with exponential backoff.
-
-**Circuit breaker** — LLM calls protected with CLOSED/OPEN/HALF_OPEN states. 3-failure threshold, 60s recovery timeout. Separate breakers per call pathway so one failure doesn't cascade.
-
-**Cache-aware search** — `SearchOptimizer` wraps all search with 24h TTL cache + multi-factor ranking (semantic × 0.5 + keyword × 0.2 + recency × 0.2 + importance × 0.1).
 
 ---
 
 ## Installation
 
-**Prerequisites:** Python 3.9+, Claude API access, [memory-ts](https://github.com/nicholasgasior/memory-ts) CLI
+### Quick setup (recommended)
+
+Clone this repo, point Claude Code at it, and ask it to set it up:
 
 ```bash
-git clone https://github.com/lee-fuhr/memory-system-v1
-cd memory-system-v1
+git clone https://github.com/lee-fuhr/total-recall.git
+```
+
+Then in Claude Code:
+> "Set up Total Recall from the repo I just cloned. Walk me through the configuration."
+
+Claude will create the venv, install dependencies, configure paths, and set up the session end hook.
+
+### Manual setup
+
+```bash
+git clone https://github.com/lee-fuhr/total-recall.git
+cd total-recall
 
 # Create venv outside cloud-synced folders
 python3 -m venv ~/.local/venvs/memory-system
 source ~/.local/venvs/memory-system/bin/activate
 
-# Install as package
+# Install
 pip install -e .
 
-# Run tests
+# Verify
 pytest tests/ --ignore=tests/wild -q
 ```
 
 ### Configuration
 
-Via environment variables:
+All paths configurable via environment variables:
 
 ```bash
 export MEMORY_SYSTEM_PROJECT_ID="MyProject"
 export MEMORY_SYSTEM_SESSION_DB="~/.local/share/memory/MyProject/session-history.db"
-export MEMORY_SYSTEM_FSRS_DB="~/.local/share/memory/fsrs.db"
 export MEMORY_SYSTEM_INTELLIGENCE_DB="~/.local/share/memory/intelligence.db"
-```
-
-Or in code:
-
-```python
-from memory_system.config import cfg
-print(cfg.project_id)       # "MyProject"
-print(cfg.session_db_path)  # ~/.local/share/memory/MyProject/session-history.db
 ```
 
 ### Dashboard
@@ -229,89 +165,48 @@ Add to `~/.claude/settings.json` under `hooks.SessionEnd`:
 ```json
 {
   "type": "command",
-  "command": "~/.local/venvs/memory-system/bin/python3 /path/to/memory-system-v1/hooks/session-memory-consolidation.py",
+  "command": "~/.local/venvs/memory-system/bin/python3 /path/to/total-recall/hooks/session-memory-consolidation-async.py",
   "timeout": 180000
 }
 ```
 
 ---
 
-## Usage
+## Architecture
 
-```python
-from memory_system.automation.search import MemoryAwareSearch
-from memory_system.intelligence.summarization import MemorySummarizer
+**Single database strategy** — All features share `intelligence.db` with schema namespacing. Enables cross-feature queries like "show A-grade memories that triggered frustration warnings."
 
-# Search memories (cache-aware, multi-factor ranked)
-search = MemoryAwareSearch()
+**Local semantic search** — sentence-transformers (`all-MiniLM-L6-v2`) for embeddings. No API costs per query. 384-dim vectors. Runs fully offline.
 
-results = search.search("authentication decisions")
+**Hybrid search** — 70% semantic + 30% BM25 keyword. Semantic understanding meets exact-match precision.
 
-results = search.search_natural("What did I learn about API design last month?")
+**FAISS vector store** — `IndexFlatIP` with L2-normalized inner product for cosine similarity. Dual-write architecture: FAISS for fast indexed search, SQLite fallback for compatibility.
 
-results = search.search_advanced(
-    text_query="deadline",
-    min_importance=0.7,
-    tags=["urgent"],
-    order_by="relevance"
-)
+**FSRS-6 spaced repetition** — Tracks memory stability, difficulty, and intervals. Science-backed retention scheduling.
 
-# Summarization
-summarizer = MemorySummarizer()
-summary = summarizer.get_summary("cluster-id")  # cluster summary
-summary = summarizer.get_summary(42)             # topic summary
-```
-
----
-
-## Features (58 shipped)
-
-| Category | Features |
-|----------|----------|
-| Foundation (F1–22) | Daily summaries, contradiction detection, provenance tracking, FSRS-6, session consolidation, pattern mining, conflict resolution |
-| Intelligence (F23–35, F44–50) | Versioning, relationship mapping, clustering, search optimization, quality scoring, sentiment tracking, learning velocity, drift detection, voice/image/code capture, dream synthesis |
-| Autonomous (F51–65, F75) | Temporal prediction, momentum tracking, energy scheduling, context pre-loading, frustration early warning, pattern transfer, writing style analysis, decision regret detection, expertise mapping, context decay prediction, prompt evolution, cascade detection |
-
-**17 features deferred** — External integrations (F36–43, F66–74) requiring third-party APIs. Core system is complete without them.
-
-Full feature list with test counts: [SHOWCASE.md](SHOWCASE.md)
-
----
-
-## What's next (from BACKLOG.md)
-
-The backlog predicts what the community will need next and builds it preemptively:
-
-- **Session end hook** — automatic memory extraction on every session close
-- **Memory freshness review** — weekly pruning cycle, Pushover-powered
-- **Intelligence orchestrator** — the "brain stem" that wires all 58 features into a coherent system
-- **Cluster-based morning briefing** — cluster summaries instead of raw memory dumps
-- **Cross-client pattern transfer** — solutions from one project surface for similar problems elsewhere
-- **Vector migration to ChromaDB** — scale past 5K memories
-- **Memory interview** — 10-minute weekly structured review that doesn't feel like chores
-
-Full prioritized backlog: [BACKLOG.md](BACKLOG.md)
-
----
-
-## Performance
-
-| Metric | Before | After |
-|--------|--------|-------|
-| Semantic search | 500s (real-time API calls) | <1s (pre-computed embeddings) |
-| Session consolidation | 60s | <1s (async queue) |
-| API costs at 10K scale | ~$1,000/day | ~$4/day |
-| Test suite | — | 1,111 passing (99.8%) |
+**Circuit breaker** — LLM calls protected with CLOSED/OPEN/HALF_OPEN states. 3-failure threshold, 60s recovery timeout. Separate breakers per call pathway.
 
 ---
 
 ## Tech stack
 
-**Core:** Python 3.9+ with type hints · SQLite 3.35+ with FTS5 full-text search · pytest
+**Core:** Python 3.11+ · SQLite 3.35+ with FTS5 full-text search · pytest
 
-**AI/ML:** sentence-transformers (`all-MiniLM-L6-v2`) for local embeddings · Claude API for extraction and contradiction detection · FSRS-6 spaced repetition
+**AI/ML:** sentence-transformers (`all-MiniLM-L6-v2`) for local embeddings · FAISS for indexed vector search · Claude API for extraction and contradiction detection · FSRS-6 spaced repetition
 
-**Automation:** macOS LaunchAgents for scheduled jobs · Connection pooling (queue.Queue) · Circuit breaker for LLM call protection · Exponential backoff for retry logic
+**Automation:** macOS LaunchAgents for scheduled jobs · Circuit breaker for LLM call protection
+
+---
+
+## Documentation
+
+| Doc | What it is |
+|-----|-----------|
+| [`FEATURES.md`](FEATURES.md) | Full feature list with implementation details |
+| [`ROADMAP.md`](ROADMAP.md) | Development timeline — shipped, in progress, planned |
+| [`CHANGELOG.md`](CHANGELOG.md) | What changed and when |
+| [`CONTRIBUTING.md`](CONTRIBUTING.md) | How to contribute |
+| [Issues](https://github.com/lee-fuhr/total-recall/issues) | Feature backlog — request features here |
 
 ---
 
@@ -319,11 +214,11 @@ Full prioritized backlog: [BACKLOG.md](BACKLOG.md)
 
 This system builds on the work and ideas of several people and projects:
 
-- **[Ben Fox](https://benfox.dev/) / ZeroBot** — Reinforcement learning approach to memory quality, grading system design. The quality grading and behavioral reinforcement concepts here were directly inspired by Ben's work.
-- **[FSRS-6](https://github.com/open-spaced-repetition/fsrs4anki)** — Free Spaced Repetition Scheduler algorithm for memory stability and difficulty tracking.
-- **[OpenClaw](https://github.com/openclaw/openclaw)** — 70% semantic + 30% BM25 keyword hybrid search weighting pattern (145K+ stars).
-- **[memory-ts](https://github.com/nicholasgasior/memory-ts)** — YAML frontmatter file-based memory storage format that this system extends.
-- **r/ClaudeAI, r/ClaudeCode** — The community meta that surfaces new techniques weekly. This project exists to absorb all of them.
+- **[Ben Fox](https://benfox.dev/) / ZeroBot** — Reinforcement learning approach to memory quality, grading system design
+- **[FSRS-6](https://github.com/open-spaced-repetition/fsrs4anki)** — Free Spaced Repetition Scheduler algorithm
+- **[OpenClaw](https://github.com/openclaw/openclaw)** — 70/30 semantic + BM25 hybrid search weighting pattern
+- **[memory-ts](https://github.com/nicholasgasior/memory-ts)** — YAML frontmatter file-based storage format that inspired the memory file structure
+- **r/ClaudeAI, r/ClaudeCode** — The community meta that surfaces new techniques weekly
 
 ---
 
@@ -333,4 +228,4 @@ MIT — see [LICENSE](LICENSE)
 
 ---
 
-*58 features · 1,111 tests · Every methodology · All additive*
+*68 features · 1,256 tests · every methodology · all additive*
