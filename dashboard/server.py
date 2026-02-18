@@ -433,6 +433,7 @@ def api_memories():
     session_id = request.args.get("session_id", "")
     action_required = request.args.get("action_required", "")
     min_importance = request.args.get("min_importance", "")
+    stale_days = request.args.get("stale_days", "")  # memories older than N days
     sort = request.args.get("sort", "importance")  # importance | recency
     limit = min(int(request.args.get("limit", 50)), 200)
 
@@ -480,6 +481,26 @@ def api_memories():
         except ValueError:
             pass
 
+    if stale_days:
+        try:
+            stale_threshold = int(stale_days)
+            now_epoch = datetime.now(tz=timezone.utc).timestamp()
+            def _is_stale(m):
+                for f in ("updated", "created"):
+                    v = m.get(f)
+                    if v:
+                        try:
+                            ts = int(v)
+                            if ts > 1e12:
+                                ts = ts / 1000
+                            return (now_epoch - ts) / 86400 >= stale_threshold
+                        except (TypeError, ValueError):
+                            pass
+                return False
+            filtered = [m for m in filtered if _is_stale(m)]
+        except ValueError:
+            pass
+
     # Sort
     if sort == "importance":
         filtered.sort(key=lambda m: m.get("importance_weight") or 0, reverse=True)
@@ -495,9 +516,24 @@ def api_memories():
         filtered.sort(key=_recency_key, reverse=True)
 
     # Return slim projection
+    now_ts = datetime.now(tz=timezone.utc).timestamp()
     result = []
     for m in filtered[:limit]:
         body = m.get("_body") or ""
+        # Compute days since last update
+        days_stale = None
+        for ts_field in ("updated", "created"):
+            v = m.get(ts_field)
+            if v:
+                try:
+                    ts = int(v)
+                    if ts > 1e12:
+                        ts = ts / 1000
+                    days_stale = max(0, int((now_ts - ts) / 86400))
+                    break
+                except (TypeError, ValueError):
+                    pass
+
         entry = {
             "id": m.get("id") or m.get("_filename"),
             "importance": m.get("importance_weight", 0.5),
@@ -511,6 +547,7 @@ def api_memories():
             "problem_solution": m.get("problem_solution_pair") or False,
             "session_id": m.get("session_id") or "",
             "preview": body[:240].replace("\n", " "),
+            "days_stale": days_stale,
         }
         if q:
             entry["match_snippet"] = _extract_snippet(body, q)

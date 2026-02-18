@@ -571,6 +571,44 @@ body::before {
   background: var(--bg-hover);
 }
 
+/* Freshness indicators — subtle opacity fade for aging memories */
+.memory-card.stale-1 { opacity: 0.85; }  /* 30-89 days */
+.memory-card.stale-2 { opacity: 0.65; }  /* 90-179 days */
+.memory-card.stale-3 { opacity: 0.50; }  /* 180+ days */
+
+.freshness-pip {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+
+.freshness-pip.fresh    { background: #4ade80; }  /* <7 days */
+.freshness-pip.recent   { background: var(--amber); }  /* 7-29 days */
+.freshness-pip.aging    { background: #f59e0b; }  /* 30-89 days */
+.freshness-pip.stale    { background: var(--rose); }   /* 90+ days */
+
+.stale-toggle {
+  font-size: 12px;
+  padding: 5px 10px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--bg-3);
+  color: var(--text-2);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.stale-toggle:hover { border-color: var(--amber-dim); }
+
+.stale-toggle.active {
+  border-color: var(--rose);
+  color: var(--rose);
+  background: color-mix(in srgb, var(--rose) 10%, var(--bg-3));
+}
+
 .memory-card-top {
   display: flex;
   align-items: flex-start;
@@ -1711,6 +1749,7 @@ body::before {
           <option value="">All domains</option>
         </select>
         <div id="mem-tag-filters"></div>
+        <button class="stale-toggle" id="stale-toggle" title="Show only memories older than 90 days">Stale (>90d)</button>
         <div class="export-bar">
           <button class="btn-export" id="export-json" title="Export all memories as JSON">
             <svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 10v3a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1v-3"/><path d="M8 2v8M5 7l3 3 3-3"/></svg>
@@ -1851,7 +1890,7 @@ const state = {
   memories: null,
   sessions: null,
   currentView: 'overview',
-  memFilter: { sort: 'importance', domain: '', tag: '', q: '', session_id: '', action_required: '', min_importance: '' },
+  memFilter: { sort: 'importance', domain: '', tag: '', q: '', session_id: '', action_required: '', min_importance: '', stale_days: '' },
   memOffset: 0,
   MEM_PAGE: 40,
   activeTag: null,
@@ -1945,7 +1984,7 @@ document.getElementById('btn-refresh').addEventListener('click', async () => {
 document.querySelector('.project-badge').addEventListener('click', () => {
   const proj = document.getElementById('project-label').textContent;
   if (!proj || proj === '—') return;
-  state.memFilter = { sort: state.memFilter.sort, domain: '', tag: '', q: '', session_id: '', action_required: '', min_importance: '' };
+  state.memFilter = { sort: state.memFilter.sort, domain: '', tag: '', q: '', session_id: '', action_required: '', min_importance: '', stale_days: '' };
   switchView('memories');
   loadMemories();
 });
@@ -1999,7 +2038,7 @@ function renderStatCards(data) {
     card.addEventListener('click', () => {
       const action = card.dataset.action;
       if (action === 'memories') {
-        state.memFilter = { sort: 'importance', domain: '', tag: '', q: '', session_id: '', action_required: '', min_importance: '' };
+        state.memFilter = { sort: 'importance', domain: '', tag: '', q: '', session_id: '', action_required: '', min_importance: '', stale_days: '' };
         state.memOffset = 0; state.memories = null;
         switchView('memories'); loadMemories();
       } else if (action === 'sessions') {
@@ -2205,6 +2244,7 @@ async function loadMemories(append = false) {
     if (state.memFilter.session_id) params.set('session_id', state.memFilter.session_id);
     if (state.memFilter.action_required) params.set('action_required', state.memFilter.action_required);
     if (state.memFilter.min_importance) params.set('min_importance', state.memFilter.min_importance);
+    if (state.memFilter.stale_days) params.set('stale_days', state.memFilter.stale_days);
 
     const res = await fetch('/api/memories?' + params);
     if (!res.ok) throw new Error(`API error ${res.status}`);
@@ -2254,6 +2294,10 @@ function renderMemories(total) {
   const chip = document.getElementById('session-filter-chip');
   if (chip) chip.classList.toggle('active', !!state.memFilter.session_id);
 
+  // Sync stale toggle visual
+  const staleBtn = document.getElementById('stale-toggle');
+  if (staleBtn) staleBtn.classList.toggle('active', !!state.memFilter.stale_days);
+
   if (!state.memories || state.memories.length === 0) {
     list.innerHTML = '<div class="empty-state">No memories match the current filters</div>';
     document.getElementById('load-more-btn').style.display = 'none';
@@ -2296,8 +2340,15 @@ function renderMemories(total) {
       ? `<div class="match-reasons">${m.match_reasons.map(r => `<span class="match-reason-tag" data-tooltip="This memory matched your search via its ${r}">matched via ${escHtml(r)}</span>`).join('')}</div>`
       : '';
 
+    // Freshness indicator
+    const ds = m.days_stale;
+    const staleClass = ds == null ? '' : ds >= 180 ? ' stale-3' : ds >= 90 ? ' stale-2' : ds >= 30 ? ' stale-1' : '';
+    const freshCls = ds == null ? 'fresh' : ds < 7 ? 'fresh' : ds < 30 ? 'recent' : ds < 90 ? 'aging' : 'stale';
+    const freshLabel = ds == null ? '' : ds === 0 ? 'today' : ds === 1 ? '1 day ago' : `${ds}d ago`;
+    const freshTooltip = ds == null ? '' : `Last updated ${freshLabel}. ${ds >= 90 ? 'Consider reviewing — this memory may be outdated.' : ''}`;
+
     return `
-      <div class="memory-card grade-${grade}" data-memory-id="${escHtml(m.id)}">
+      <div class="memory-card grade-${grade}${staleClass}" data-memory-id="${escHtml(m.id)}">
         <div class="memory-card-top">
           <div class="memory-preview">${previewHtml}${matchReasonsHtml}</div>
           <div class="importance-badge">
@@ -2310,7 +2361,7 @@ function renderMemories(total) {
           ${tags}
           ${pills}
           ${conf < 0.75 ? `<span class="mem-tag" style="color:var(--rose)" data-tooltip="${escHtml(confTooltip)}">conf ${conf.toFixed(2)}</span>` : ''}
-          ${date ? `<span class="mem-date">${date}</span>` : ''}
+          ${freshLabel ? `<span class="mem-date" data-tooltip="${escHtml(freshTooltip)}"><span class="freshness-pip ${freshCls}"></span>${freshLabel}</span>` : (date ? `<span class="mem-date">${date}</span>` : '')}
         </div>
       </div>
     `;
@@ -2366,6 +2417,15 @@ document.getElementById('mem-sort').addEventListener('change', e => {
 
 document.getElementById('mem-domain').addEventListener('change', e => {
   state.memFilter.domain = e.target.value;
+  state.memOffset = 0;
+  state.memories = null;
+  loadMemories();
+});
+
+document.getElementById('stale-toggle').addEventListener('click', () => {
+  const btn = document.getElementById('stale-toggle');
+  const isActive = btn.classList.toggle('active');
+  state.memFilter.stale_days = isActive ? '90' : '';
   state.memOffset = 0;
   state.memories = null;
   loadMemories();
@@ -2796,13 +2856,13 @@ document.getElementById('notif-view-all').addEventListener('click', () => {
 // Filter memories by session ID (used from activity cards and session rows)
 function filterBySession(sessionId) {
   if (!sessionId) return;
-  state.memFilter = { sort: state.memFilter.sort, domain: '', tag: '', q: '', session_id: sessionId, action_required: '', min_importance: '' };
+  state.memFilter = { sort: state.memFilter.sort, domain: '', tag: '', q: '', session_id: sessionId, action_required: '', min_importance: '', stale_days: '' };
   switchView('memories');
   loadMemories();
 }
 
 function filterByActionRequired() {
-  state.memFilter = { sort: state.memFilter.sort, domain: '', tag: '', q: '', session_id: '', action_required: 'true', min_importance: '' };
+  state.memFilter = { sort: state.memFilter.sort, domain: '', tag: '', q: '', session_id: '', action_required: 'true', min_importance: '', stale_days: '' };
   state.memOffset = 0;
   state.memories = null;
   switchView('memories');
@@ -2810,7 +2870,7 @@ function filterByActionRequired() {
 }
 
 function filterByMinImportance(threshold) {
-  state.memFilter = { sort: 'importance', domain: '', tag: '', q: '', session_id: '', action_required: '', min_importance: String(threshold) };
+  state.memFilter = { sort: 'importance', domain: '', tag: '', q: '', session_id: '', action_required: '', min_importance: String(threshold), stale_days: '' };
   state.memOffset = 0;
   state.memories = null;
   switchView('memories');
