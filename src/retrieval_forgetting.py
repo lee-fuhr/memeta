@@ -38,7 +38,6 @@ class RetrievalForgettingDetector:
         self,
         db_path: str,
         gini_threshold: float = 0.7,
-        neglect_days: int = 30,
     ):
         """
         Initialize the retrieval forgetting detector.
@@ -47,12 +46,9 @@ class RetrievalForgettingDetector:
             db_path: Path to the SQLite database file.
             gini_threshold: Gini coefficient above which a cluster is
                 considered imbalanced.  Default 0.7.
-            neglect_days: Days without retrieval before a memory is
-                considered neglected.  Default 30.
         """
         self.db_path = Path(db_path)
         self.gini_threshold = gini_threshold
-        self.neglect_days = neglect_days
         self.conn = sqlite3.connect(str(self.db_path))
         self._init_db()
 
@@ -386,6 +382,12 @@ class RetrievalForgettingDetector:
         }
 
     # ── Cleanup ─────────────────────────────────────────────────────────
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
 
     def close(self) -> None:
         """Close the database connection."""

@@ -37,6 +37,21 @@ def _iso(dt: datetime) -> str:
     return dt.isoformat()
 
 
+def _create_mock_memories_table(gc: GenerationalGC) -> None:
+    """Create the mock_memories table used for testing."""
+    gc.conn.execute("""
+        CREATE TABLE IF NOT EXISTS mock_memories (
+            memory_id TEXT PRIMARY KEY,
+            importance REAL NOT NULL DEFAULT 0.5,
+            access_count INTEGER NOT NULL DEFAULT 0,
+            last_accessed TEXT,
+            has_links INTEGER NOT NULL DEFAULT 0,
+            created_at TEXT NOT NULL
+        )
+    """)
+    gc.conn.commit()
+
+
 def _seed_memory(gc: GenerationalGC, memory_id: str, created_at: datetime,
                  importance: float = 0.5, access_count: int = 0,
                  last_accessed: datetime | None = None,
@@ -61,6 +76,7 @@ def gc(tmp_path):
     """Provide a fresh GenerationalGC backed by a temp database."""
     db = tmp_path / "test_gc.db"
     g = GenerationalGC(db_path=str(db))
+    _create_mock_memories_table(g)
     yield g
     g.close()
 
@@ -70,6 +86,7 @@ def gc_with_mock_data(tmp_path):
     """GC instance pre-loaded with memories in all three generations."""
     db = tmp_path / "test_gc_loaded.db"
     g = GenerationalGC(db_path=str(db))
+    _create_mock_memories_table(g)
     now = _now()
 
     # Gen 0: 2-day-old memory, not accessed
@@ -114,13 +131,16 @@ class TestInit:
         )
         assert cur.fetchone() is not None
 
-    def test_creates_mock_memories_table(self, gc):
-        """mock_memories table exists (for standalone testing)."""
-        cur = gc.conn.cursor()
+    def test_mock_memories_not_in_prod_schema(self, tmp_path):
+        """mock_memories table is NOT created by production _init_db."""
+        db = tmp_path / "no_mock.db"
+        g = GenerationalGC(db_path=str(db))
+        cur = g.conn.cursor()
         cur.execute(
             "SELECT name FROM sqlite_master WHERE type='table' AND name='mock_memories'"
         )
-        assert cur.fetchone() is not None
+        assert cur.fetchone() is None
+        g.close()
 
     def test_idempotent_init(self, tmp_path):
         """Creating two GC instances on the same DB does not raise."""
