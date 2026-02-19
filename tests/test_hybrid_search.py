@@ -584,13 +584,15 @@ class TestScoreComputation:
         expected = 0.7 * 0.0 + 0.3 * r['bm25_score']
         assert abs(r['hybrid_score'] - expected) < 1e-6
 
-    def test_bm25_score_matches_direct_call(self):
-        """BM25 score in results matches direct bm25_score() call."""
+    def test_bm25_score_matches_direct_call_with_idf(self):
+        """BM25 score in results matches direct bm25_score() call with corpus IDF."""
         memories = _make_memories(["test content here", "other stuff"])
         avg_length = sum(len(m['content'].split()) for m in memories) / len(memories)
+        corpus_docs = [m['content'] for m in memories]
+        corpus_idf = hs.compute_idf(corpus_docs)
         results = hs.hybrid_search("test", memories, use_semantic=False)
         for r in results:
-            direct = hs.bm25_score("test", r['content'], avg_length)
+            direct = hs.bm25_score("test", r['content'], avg_length, idf=corpus_idf)
             assert abs(r['bm25_score'] - direct) < 1e-6
 
     def test_ranking_order_by_relevance(self):
@@ -694,5 +696,278 @@ class TestIntegration:
         standalone = hs.bm25_score(query, content, avg_len)
         memories = [{"content": content}]
         results = hs.hybrid_search(query, memories, use_semantic=False)
-        # avg_length in hybrid_search = 4.0 (same as standalone)
+        # Single-doc corpus: IDF = log((1+1)/(1+1)) + 1 = 1.0 = same as default
         assert abs(results[0]['bm25_score'] - standalone) < 1e-6
+
+
+# ===========================================================================
+# 11. IDF computation
+# ===========================================================================
+
+class TestComputeIDF:
+
+    def test_common_word_lower_idf_than_rare(self):
+        """A term appearing in all documents has lower IDF than a rare term."""
+        docs = [
+            "the cat sat on the mat",
+            "the dog sat on the rug",
+            "the bird flew over the tree",
+            "a rare xylophone appeared once",
+        ]
+        idf = hs.compute_idf(docs)
+        # "the" appears in all 4 docs, "xylophone" appears in 1
+        assert idf["the"] < idf["xylophone"]
+
+    def test_term_not_in_corpus_handled_gracefully(self):
+        """Querying IDF for a term not in corpus returns default in bm25_score."""
+        docs = ["alpha beta", "gamma delta"]
+        idf = hs.compute_idf(docs)
+        # "omega" is not in IDF dict — bm25_score should fall back to 1.0
+        assert "omega" not in idf
+        score = hs.bm25_score("omega", "omega is here", avg_doc_length=3.0, idf=idf)
+        # Should use default idf=1.0 for unknown term, still produce a score
+        assert score > 0.0
+
+    def test_empty_corpus_returns_empty_dict(self):
+        """Empty document list returns empty IDF dict."""
+        idf = hs.compute_idf([])
+        assert idf == {}
+
+    def test_single_document_corpus(self):
+        """Single document corpus: IDF = log(2/2) + 1 = 1.0 for all terms."""
+        idf = hs.compute_idf(["hello world"])
+        # log((1+1)/(1+1)) + 1 = log(1) + 1 = 0 + 1 = 1.0
+        assert abs(idf["hello"] - 1.0) < 1e-6
+        assert abs(idf["world"] - 1.0) < 1e-6
+
+    def test_idf_values_are_positive(self):
+        """All IDF values are positive."""
+        docs = ["a b c", "a b", "a"]
+        idf = hs.compute_idf(docs)
+        for term, value in idf.items():
+            assert value > 0.0
+
+    def test_idf_formula_correctness(self):
+        """Verify IDF formula: log((N+1)/(count+1)) + 1."""
+        docs = ["apple banana", "apple cherry", "banana date"]
+        idf = hs.compute_idf(docs)
+        # apple: in 2 of 3 docs -> log((3+1)/(2+1)) + 1 = log(4/3) + 1
+        expected_apple = math.log(4 / 3) + 1
+        assert abs(idf["apple"] - expected_apple) < 1e-6
+        # date: in 1 of 3 docs -> log((3+1)/(1+1)) + 1 = log(2) + 1
+        expected_date = math.log(2) + 1
+        assert abs(idf["date"] - expected_date) < 1e-6
+
+    def test_idf_improves_bm25_discrimination(self):
+        """With IDF, rare terms boost BM25 score more than common terms."""
+        docs = [
+            "the quick brown fox",
+            "the slow brown dog",
+            "the lazy brown cat",
+        ]
+        idf = hs.compute_idf(docs)
+        # "fox" is rare (1 doc), "the" is common (3 docs)
+        # Document with "fox" should score higher for query "fox" than for "the"
+        score_rare = hs.bm25_score("fox", "the quick brown fox", avg_doc_length=4.0, idf=idf)
+        score_common = hs.bm25_score("the", "the quick brown fox", avg_doc_length=4.0, idf=idf)
+        assert score_rare > score_common
+
+
+# ===========================================================================
+# 12. Score normalization
+# ===========================================================================
+
+class TestNormalizeScores:
+
+    def test_all_normalized_in_zero_one(self):
+        """All normalized scores fall in [0, 1]."""
+        scores = [0.5, 1.0, 2.0, 3.5, 0.1]
+        normalized = hs.normalize_scores(scores)
+        for s in normalized:
+            assert 0.0 <= s <= 1.0
+
+    def test_max_becomes_one(self):
+        """The maximum score normalizes to 1.0."""
+        scores = [0.5, 2.0, 1.5]
+        normalized = hs.normalize_scores(scores)
+        assert abs(normalized[1] - 1.0) < 1e-6
+
+    def test_empty_list_returns_empty(self):
+        """Empty list returns empty list."""
+        assert hs.normalize_scores([]) == []
+
+    def test_all_zeros_returns_zeros(self):
+        """All-zero scores return all zeros."""
+        scores = [0.0, 0.0, 0.0]
+        normalized = hs.normalize_scores(scores)
+        assert normalized == [0.0, 0.0, 0.0]
+
+    def test_single_value_normalizes_to_one(self):
+        """Single positive value normalizes to 1.0."""
+        normalized = hs.normalize_scores([5.0])
+        assert abs(normalized[0] - 1.0) < 1e-6
+
+    def test_single_zero_stays_zero(self):
+        """Single zero value stays 0.0."""
+        normalized = hs.normalize_scores([0.0])
+        assert normalized == [0.0]
+
+    def test_preserves_relative_ordering(self):
+        """Normalization preserves relative ordering of scores."""
+        scores = [1.0, 3.0, 2.0]
+        normalized = hs.normalize_scores(scores)
+        assert normalized[0] < normalized[2] < normalized[1]
+
+    def test_proportions_preserved(self):
+        """Ratios between scores are preserved."""
+        scores = [2.0, 4.0]
+        normalized = hs.normalize_scores(scores)
+        assert abs(normalized[0] / normalized[1] - 0.5) < 1e-6
+
+    def test_hybrid_search_normalized_bm25_in_zero_one(self):
+        """After hybrid_search, normalized BM25 scores are in [0, 1]."""
+        memories = _make_memories([
+            "office setup guide for new employees",
+            "completely unrelated xyz abc",
+            "office desk arrangement tips",
+        ])
+        results = hs.hybrid_search("office", memories, use_semantic=False)
+        for r in results:
+            assert 0.0 <= r['bm25_score_normalized'] <= 1.0
+
+
+# ===========================================================================
+# 13. Pre-computed embeddings
+# ===========================================================================
+
+class TestPrecomputedEmbeddings:
+
+    def test_embeddings_parameter_accepted(self):
+        """hybrid_search accepts embeddings parameter."""
+        import inspect
+        sig = inspect.signature(hs.hybrid_search)
+        assert 'embeddings' in sig.parameters
+
+    def test_embeddings_none_falls_back_gracefully(self):
+        """embeddings=None falls back to standard semantic path."""
+        memories = _make_memories(["test content"])
+        # use_semantic=False so no model needed
+        results = hs.hybrid_search("test", memories, use_semantic=False, embeddings=None)
+        assert len(results) == 1
+        assert results[0]['bm25_score'] > 0.0
+
+    def test_precomputed_embeddings_avoids_model_calls(self):
+        """When embeddings dict provided, semantic_search is NOT called."""
+        import numpy as np
+        content = "test content here"
+        memories = _make_memories([content])
+        # Create fake embeddings
+        fake_query_emb = np.random.rand(384).astype(np.float32)
+        fake_doc_emb = np.random.rand(384).astype(np.float32)
+        embeddings = {content[:100]: fake_doc_emb}  # first 100 chars as key
+
+        with patch('memory_system.hybrid_search.semantic_search', create=True) as mock_ss:
+            # Patch embed_text at the source module where it's imported from
+            with patch('memory_system.semantic_search.embed_text', return_value=fake_query_emb):
+                results = hs.hybrid_search(
+                    "test", memories,
+                    use_semantic=True,
+                    embeddings=embeddings
+                )
+            # semantic_search should NOT have been called
+            mock_ss.assert_not_called()
+
+    def test_precomputed_embeddings_produces_semantic_score(self):
+        """Pre-computed embeddings produce a non-trivial semantic score."""
+        import numpy as np
+        # Create two similar vectors
+        vec_a = np.ones(384, dtype=np.float32)
+        vec_b = np.ones(384, dtype=np.float32) * 0.9
+        vec_b[0] = 1.0  # keep similar
+
+        content = "test content here"
+        memories = _make_memories([content])
+        cache_key = content[:100]  # first 100 chars
+        embeddings = {cache_key: vec_b}
+
+        with patch('memory_system.semantic_search.embed_text', return_value=vec_a):
+            results = hs.hybrid_search(
+                "test", memories,
+                use_semantic=True,
+                embeddings=embeddings
+            )
+        assert results[0]['semantic_score'] > 0.0
+
+    def test_missing_embedding_key_gives_zero_semantic(self):
+        """If content key not in embeddings dict, semantic_score = 0.0."""
+        import numpy as np
+        memories = _make_memories(["some content not in dict"])
+        embeddings = {"different key": np.ones(384, dtype=np.float32)}
+
+        with patch('memory_system.semantic_search.embed_text', return_value=np.ones(384)):
+            results = hs.hybrid_search(
+                "test", memories,
+                use_semantic=True,
+                embeddings=embeddings
+            )
+        assert results[0]['semantic_score'] == 0.0
+
+    def test_empty_embeddings_dict_gives_zero_semantic(self):
+        """Empty embeddings dict gives zero semantic score for all docs."""
+        import numpy as np
+        memories = _make_memories(["some content"])
+        embeddings = {}
+
+        with patch('memory_system.semantic_search.embed_text', return_value=np.ones(384)):
+            results = hs.hybrid_search(
+                "test", memories,
+                use_semantic=True,
+                embeddings=embeddings
+            )
+        assert results[0]['semantic_score'] == 0.0
+
+
+# ===========================================================================
+# 14. Weights integrity
+# ===========================================================================
+
+class TestWeightsIntegrity:
+
+    def test_default_weights_sum_to_one(self):
+        """Default semantic_weight + bm25_weight = 1.0."""
+        import inspect
+        sig = inspect.signature(hs.hybrid_search)
+        sw = sig.parameters['semantic_weight'].default
+        bw = sig.parameters['bm25_weight'].default
+        assert abs(sw + bw - 1.0) < 1e-6
+
+    def test_end_to_end_sorted_descending(self):
+        """End-to-end: results sorted by hybrid_score descending."""
+        memories = _make_memories([
+            "python programming language guide",
+            "java enterprise application server",
+            "python snake species in africa",
+            "javascript web development tutorial",
+            "python data science machine learning",
+        ])
+        results = hs.hybrid_search("python programming", memories, use_semantic=False, top_k=5)
+        scores = [r['hybrid_score'] for r in results]
+        assert scores == sorted(scores, reverse=True)
+
+    def test_top_k_greater_than_memories_returns_all(self):
+        """top_k > len(memories) returns all available memories."""
+        memories = _make_memories(["one", "two", "three"])
+        results = hs.hybrid_search("one", memories, top_k=100, use_semantic=False)
+        assert len(results) == 3
+
+    def test_single_document_returns_it(self):
+        """Single document corpus returns that document."""
+        memories = _make_memories(["the only document"])
+        results = hs.hybrid_search("document", memories, use_semantic=False)
+        assert len(results) == 1
+        assert results[0]['content'] == "the only document"
+
+    def test_empty_corpus_returns_empty(self):
+        """Empty corpus returns empty list."""
+        results = hs.hybrid_search("anything", [], use_semantic=False)
+        assert results == []
