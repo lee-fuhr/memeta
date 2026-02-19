@@ -6,6 +6,50 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ---
 
+## [0.19.0] - 2026-02-19
+
+### Added — Mega sprint (29 features)
+
+**Batch 1 — system capabilities (19 features)**
+- **Compaction triggers** — Time/size/quality/access-based triggers for memory compaction (40 tests)
+- **Frustration archaeology** — Mines session history for recurring frustration patterns (23 tests)
+- **Memory interview** — Interactive Q&A to deepen shallow memories via guided elicitation (21 tests)
+- **Energy-aware loading** — Throttles memory loading based on system/user energy state (23 tests)
+- **Cross-project sharing DB** — SQLite-backed cross-project memory sharing with permissions (14 tests)
+- **Persona filter** — Filters memories by persona/context for role-appropriate recall (23 tests)
+- **Memory compressor** — Lossless and lossy compression strategies preserving key insights (35 tests)
+- **Memory health score** — Composite health metric across freshness, quality, connections, access (37 tests)
+- **Event stream** — Pub/sub event system for memory lifecycle with persistence (25 tests)
+- **Access tracker** — Tracks memory access patterns with frequency analytics (25 tests)
+- **Entity extractor** — Extracts and links persons, tools, projects from memory text (33 tests)
+- **Context budget optimizer** — Greedy token-budget optimizer for memory retrieval within limits (26 tests)
+- **Temporal knowledge graph** — Tracks entities and relationships across time with evolution queries (30 tests)
+- **Embedding maintenance** — Pre-computes and refreshes embeddings for fast search (15 tests)
+- **Unified API** — Single `MemorySystem` class wrapping all features (22 tests)
+- **Confidence persistence** — Persists confidence scores across sessions with SQLite backing (17 tests)
+- **Relevance explanation** — Shows why each search result matched with highlighted snippets (45 tests)
+- **Self-test diagnostics** — Validates system integrity: DB, files, config, search (24 tests)
+- **Intelligence DB pool** — Connection pooling for intelligence.db with WAL mode (14 tests)
+
+**Batch 2 — cognitive psychology + CS foundations (10 features)**
+- **Generational GC** — Three-generation memory lifecycle (nursery/young/tenured) with graduated collection. Based on Ungar (1984). (30 tests)
+- **Directed forgetting** — Detects "scratch that"/"remember this" intent markers, adjusts importance. Based on Bjork (1972). (25 tests)
+- **Encoding depth** — Scores memory depth 1-3 (shallow/intermediate/deep) via levels of processing heuristics. Based on Craik & Lockhart (1972). (30 tests)
+- **Prospective triggers** — Event/topic/time-based "remember when X" triggers from conversation. Based on Einstein & McDaniel (1990). (42 tests)
+- **Content hash dedup** — Multi-level deduplication: exact SHA-256, normalized, and semantic hash. (50 tests)
+- **Memory PageRank** — Iterative PageRank on relationship graph for structural importance scoring. (35 tests)
+- **Retrieval-induced forgetting** — Detects retrieval blind spots via Gini coefficient analysis. Based on Anderson & Bjork (1994). (30 tests)
+- **Emotional tagging** — Detects valence/arousal from session context for flashbulb memory prioritization. Based on Brown & Kulik (1977). (30 tests)
+- **Schema classifier** — Classifies memories as assimilation/extension/accommodation. Based on Bartlett (1932). (35 tests)
+- **Reference counter** — Tracks memory dependency counts, protects referenced memories from archival. (45 tests)
+
+### Tests
+- 952 new tests across 29 features
+- **Test suite:** 2,031 passing
+- **Features shipped:** 101
+
+---
+
 ## [0.18.0] - 2026-02-18
 
 ### Added — Build sprint (5 features)

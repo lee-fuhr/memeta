@@ -2,7 +2,7 @@
 
 Every feature in Total Rekall, organized by layer. Each one coexists additively — adding feature N+1 makes features 1 through N better.
 
-**Current:** v0.18.0 · 1,079 tests passing · 72 features shipped
+**Current:** v0.19.0 · 2,031 tests passing · 101 features shipped
 
 ---
 
@@ -28,6 +28,11 @@ Every feature in Total Rekall, organized by layer. Each one coexists additively 
 | Correction promotion | Corrections automatically promote to higher importance | `src/correction_promoter.py` |
 | Event detection | Identifies significant events in the memory stream | `src/event_detector.py` |
 | Pattern mining | Extracts patterns from the memory relationship graph | `src/pattern_miner.py` |
+| Confidence persistence | Persists confidence scores across sessions with SQLite backing | `src/confidence_persistence.py` |
+| Directed forgetting | Detects "scratch that"/"remember this" intent markers, adjusts importance | `src/directed_forgetting.py` |
+| Encoding depth scoring | Rates memory depth 1-3 (shallow/intermediate/deep) via Craik & Lockhart heuristics | `src/encoding_depth.py` |
+| Entity extraction | Extracts and links persons, tools, projects from memory text | `src/entity_extractor.py` |
+| Emotional tagging | Detects valence/arousal from session context for flashbulb memory prioritization | `src/emotional_tagging.py` |
 
 ---
 
@@ -48,6 +53,11 @@ Every feature in Total Rekall, organized by layer. Each one coexists additively 
 | Sentiment tracking | Detect frustration and satisfaction trends as optimization triggers | `src/wild/sentiment_tracker.py` |
 | Learning velocity | Correction rate tracking, ROI calculation, acceleration detection | `src/wild/learning_velocity.py` |
 | Writing style tracking | Catches unintentional drift vs intentional compression | `src/wild/personality_drift.py` |
+| Relevance explanation | Shows why each search result matched with highlighted snippets | `src/relevance_explanation.py` |
+| Temporal knowledge graph | Tracks entities and relationships across time with evolution queries | `src/temporal_knowledge_graph.py` |
+| Memory PageRank | Iterative PageRank on relationship graph for structural importance | `src/memory_pagerank.py` |
+| Schema classifier | Classifies new memories as assimilation/extension/accommodation (Bartlett) | `src/schema_classifier.py` |
+| Retrieval-induced forgetting | Detects retrieval blind spots where few memories dominate search (Gini) | `src/retrieval_forgetting.py` |
 
 ---
 
@@ -68,6 +78,9 @@ Every feature in Total Rekall, organized by layer. Each one coexists additively 
 | Context pre-loading | Checks calendar, pre-loads relevant context before meetings | `src/wild/context_preloader.py` |
 | Temporal prediction | Predicts what you'll need from memory access patterns | `src/wild/temporal_predictor.py` |
 | Context decay prediction | Predicts staleness before it happens | `src/wild/decay_predictor.py` |
+| Frustration archaeology | Mines session history for recurring frustration patterns | `src/wild/frustration_archaeology.py` |
+| Memory interview | Interactive Q&A to deepen shallow memories via guided elicitation | `src/memory_interview.py` |
+| Prospective triggers | Event/topic/time-based "remember when X" triggers from conversation | `src/prospective_triggers.py` |
 | Expertise mapping | Maps agent expertise by domain for intelligent routing | `src/wild/expertise_mapper.py` |
 | Mistake cascade detection | Tracks mistake cascades to prevent compound errors | `src/wild/mistake_cascade.py` |
 | Learning intervention | Detects repeated questions, suggests learning resources | `src/wild/learning_interventioner.py` |
@@ -123,6 +136,22 @@ Every feature in Total Rekall, organized by layer. Each one coexists additively 
 | Intelligence orchestrator | Central "brain stem" wiring all features into coherent signals | `src/intelligence_orchestrator.py` |
 | Cluster briefing | Surfaces cluster summaries and divergence signals | `src/cluster_briefing.py` |
 | Log rotation | Automated log file management | `src/log_rotation.py` |
+| Compaction triggers | Time/size/quality/access-based triggers for memory compaction | `src/compaction_triggers.py` |
+| Energy-aware loading | Throttles memory loading based on system/user energy state | `src/energy_aware_loading.py` |
+| Persona filter | Filters memories by persona/context for role-appropriate recall | `src/persona_filter.py` |
+| Memory compressor | Lossless and lossy compression strategies preserving key insights | `src/memory_compressor.py` |
+| Memory health score | Composite health metric across freshness, quality, connections, access | `src/memory_health.py` |
+| Event stream | Pub/sub event system for memory lifecycle with persistence | `src/event_stream.py` |
+| Access tracker | Tracks memory access patterns with frequency analytics | `src/access_tracker.py` |
+| Context budget optimizer | Greedy token-budget optimizer for memory retrieval within limits | `src/context_budget.py` |
+| Cross-project sharing DB | SQLite-backed cross-project memory sharing with permissions | `src/cross_project_sharing_db.py` |
+| Embedding maintenance | Pre-computes and refreshes embeddings for fast search | `src/embedding_maintenance.py` |
+| Unified API | Single `MemorySystem` class wrapping all features | `src/api.py` |
+| Self-test diagnostics | Validates system integrity: DB, files, config, search | `src/self_test.py` |
+| Intelligence DB pool | Connection pooling for intelligence.db with WAL mode | `src/intelligence_db.py` |
+| Generational GC | Three-generation memory lifecycle with graduated collection (Ungar 1984) | `src/generational_gc.py` |
+| Content hash dedup | Multi-level deduplication: exact, normalized, semantic hash | `src/content_dedup.py` |
+| Reference counter | Tracks memory dependency counts, protects referenced memories from archival | `src/reference_counter.py` |
 
 ---
 

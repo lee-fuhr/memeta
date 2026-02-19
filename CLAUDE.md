@@ -1,7 +1,7 @@
 # Total Rekall — project instructions
 
-**Version:** 0.18.0
-**Last updated:** 2026-02-18
+**Version:** 0.19.0
+**Last updated:** 2026-02-19
 
 ---
 
