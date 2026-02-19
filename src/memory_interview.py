@@ -56,8 +56,9 @@ class MemoryInterviewer:
         Returns:
             List of InterviewQuestion (up to MAX_QUESTIONS)
         """
-        stale = self._get_stale_memories()
-        contradicted = self._get_contradicted_memories()
+        all_memories = self.client.list()
+        stale = self._get_stale_memories(all_memories)
+        contradicted = self._get_contradicted_memories(all_memories)
         unrated = self._get_unrated_decisions()
 
         # Determine slot allocation
@@ -190,13 +191,18 @@ class MemoryInterviewer:
     # Private helpers
     # ------------------------------------------------------------------
 
-    def _get_stale_memories(self) -> List[Memory]:
-        """Get memories not updated in STALE_DAYS with importance >= MIN_IMPORTANCE."""
+    def _get_stale_memories(self, memories: Optional[List[Memory]] = None) -> List[Memory]:
+        """Get memories not updated in STALE_DAYS with importance >= MIN_IMPORTANCE.
+
+        Args:
+            memories: Pre-fetched memory list. If None, fetches from disk.
+        """
         cutoff = datetime.now() - timedelta(days=self.STALE_DAYS)
-        all_memories = self.client.list()
+        if memories is None:
+            memories = self.client.list()
         stale = []
 
-        for m in all_memories:
+        for m in memories:
             if m.status != 'active':
                 continue
             if m.importance < self.MIN_IMPORTANCE:
@@ -210,12 +216,17 @@ class MemoryInterviewer:
         stale.sort(key=lambda m: self._parse_date(m.updated) or datetime.min)
         return stale
 
-    def _get_contradicted_memories(self) -> List[Memory]:
-        """Get memories with confidence_score < 0.5 (contradicted or uncertain)."""
-        all_memories = self.client.list()
+    def _get_contradicted_memories(self, memories: Optional[List[Memory]] = None) -> List[Memory]:
+        """Get memories with confidence_score < 0.5 (contradicted or uncertain).
+
+        Args:
+            memories: Pre-fetched memory list. If None, fetches from disk.
+        """
+        if memories is None:
+            memories = self.client.list()
         contradicted = []
 
-        for m in all_memories:
+        for m in memories:
             if m.status != 'active':
                 continue
             if m.confidence_score < 0.5:
