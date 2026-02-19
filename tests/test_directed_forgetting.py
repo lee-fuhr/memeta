@@ -241,7 +241,6 @@ class TestGetDirectiveForContent:
         # Message 0 content ("The API endpoint is /v2/users") has a forget
         # directive at position 2 ("scratch that") — distance 2
         directive = df.get_directive_for_content(
-            content="The API endpoint is /v2/users",
             messages=conversation_with_forget,
             position=0,
             window=3,
@@ -253,7 +252,6 @@ class TestGetDirectiveForContent:
         # "the deploy key rotates every 90 days" is at position 0 which contains
         # the remember marker itself
         directive = df.get_directive_for_content(
-            content="the deploy key rotates every 90 days",
             messages=conversation_with_remember,
             position=0,
             window=3,
@@ -273,7 +271,6 @@ class TestGetDirectiveForContent:
         ]
         # Position 0 is far from the forget at position 6 (distance 6 > window 3)
         directive = df.get_directive_for_content(
-            content="The server is on port 3000.",
             messages=msgs,
             position=0,
             window=3,
@@ -282,7 +279,6 @@ class TestGetDirectiveForContent:
 
     def test_returns_distance(self, df, conversation_with_forget):
         directive = df.get_directive_for_content(
-            content="The API endpoint is /v2/users",
             messages=conversation_with_forget,
             position=0,
             window=3,
@@ -293,7 +289,6 @@ class TestGetDirectiveForContent:
 
     def test_no_directive_in_empty_messages(self, df):
         directive = df.get_directive_for_content(
-            content="anything",
             messages=[],
             position=0,
             window=3,
@@ -303,7 +298,6 @@ class TestGetDirectiveForContent:
     def test_window_default(self, df, conversation_with_forget):
         """Default window should work (3 messages)."""
         directive = df.get_directive_for_content(
-            content="The API endpoint is /v2/users",
             messages=conversation_with_forget,
             position=0,
         )
@@ -317,7 +311,6 @@ class TestGetDirectiveForContent:
             {"role": "user", "content": "Scratch that, HTTP is fine internally."},
         ]
         directive = df.get_directive_for_content(
-            content="use SSL everywhere",
             messages=msgs,
             position=0,
             window=3,
@@ -432,5 +425,5 @@ class TestEdgeCases:
     def test_position_out_of_range(self, df):
         """Position beyond message list should return None."""
         msgs = [{"role": "user", "content": "Hello"}]
-        directive = df.get_directive_for_content("Hello", msgs, position=10, window=3)
+        directive = df.get_directive_for_content(msgs, position=10, window=3)
         assert directive is None

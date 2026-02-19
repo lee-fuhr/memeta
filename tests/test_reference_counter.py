@@ -434,3 +434,29 @@ class TestEdgeCases:
         assert counts["total"] == 4
         for t in ["relationship", "chunk", "decision", "synthesis"]:
             assert counts[t] == 1
+
+
+# ---------------------------------------------------------------------------
+# 12. ref_type validation
+# ---------------------------------------------------------------------------
+
+class TestRefTypeValidation:
+    def test_increment_rejects_invalid_ref_type(self, rc):
+        """Incrementing with an invalid ref_type raises ValueError."""
+        with pytest.raises(ValueError, match="Invalid ref_type 'bogus'"):
+            rc.increment("mem-1", ref_type="bogus")
+
+    def test_decrement_rejects_invalid_ref_type(self, rc):
+        """Decrementing with an invalid ref_type raises ValueError."""
+        with pytest.raises(ValueError, match="Invalid ref_type 'unknown'"):
+            rc.decrement("mem-1", ref_type="unknown")
+
+    def test_increment_rejects_empty_string(self, rc):
+        """Empty string is not a valid ref_type."""
+        with pytest.raises(ValueError, match="Invalid ref_type"):
+            rc.increment("mem-1", ref_type="")
+
+    def test_decrement_rejects_typo(self, rc):
+        """Common typo of valid ref_type should be rejected."""
+        with pytest.raises(ValueError, match="Invalid ref_type 'relations'"):
+            rc.decrement("mem-1", ref_type="relations")

@@ -82,6 +82,8 @@ class ReferenceCounter:
 
     def increment(self, memory_id: str, ref_type: str = "relationship") -> int:
         """Increment reference count for a memory. Returns new total for this type."""
+        if ref_type not in REF_TYPES:
+            raise ValueError(f"Invalid ref_type '{ref_type}'. Must be one of: {REF_TYPES}")
         now = self._now()
         conn = self._connect()
         try:
@@ -104,6 +106,8 @@ class ReferenceCounter:
 
     def decrement(self, memory_id: str, ref_type: str = "relationship") -> int:
         """Decrement reference count. Returns new total for this type. Never goes below 0."""
+        if ref_type not in REF_TYPES:
+            raise ValueError(f"Invalid ref_type '{ref_type}'. Must be one of: {REF_TYPES}")
         now = self._now()
         conn = self._connect()
         try:
