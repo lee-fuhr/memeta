@@ -245,7 +245,12 @@ def hybrid_search(
     # Sort by hybrid score
     scored_memories.sort(key=lambda x: x['hybrid_score'], reverse=True)
 
-    return scored_memories[:top_k]
+    # Add relevance explanations
+    top_results = scored_memories[:top_k]
+    from .relevance_explanation import add_explanations_to_results
+    add_explanations_to_results(query, top_results)
+
+    return top_results
 
 
 def keyword_search(
