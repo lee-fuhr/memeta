@@ -52,6 +52,8 @@ class Memory:
     temporal_relevance: str = "persistent"
     knowledge_domain: str = "learnings"
     status: str = "active"
+    confirmations: int = 0
+    contradictions: int = 0
     retrieval_weight: Optional[float] = None
     schema_version: int = 2
 
@@ -317,6 +319,8 @@ updated: {memory.updated}
 reasoning: {memory.reasoning}
 importance_weight: {memory.importance}
 confidence_score: {memory.confidence_score}
+confirmations: {memory.confirmations}
+contradictions: {memory.contradictions}
 context_type: {memory.context_type}
 temporal_relevance: {memory.temporal_relevance}
 knowledge_domain: {memory.knowledge_domain}
@@ -496,6 +500,8 @@ updated: {memory.updated}
 reasoning: {memory.reasoning}
 importance_weight: {memory.importance}
 confidence_score: {memory.confidence_score}
+confirmations: {memory.confirmations}
+contradictions: {memory.contradictions}
 context_type: {memory.context_type}
 temporal_relevance: {memory.temporal_relevance}
 knowledge_domain: {memory.knowledge_domain}
@@ -596,6 +602,11 @@ schema_version: {memory.schema_version}
                 value = ast.literal_eval(value) if value.startswith("[") else []
             elif key in ("importance_weight", "confidence_score", "retrieval_weight"):
                 value = float(value) if value != "null" else 0.0
+            elif key in ("confirmations", "contradictions"):
+                try:
+                    value = int(value)
+                except (ValueError, TypeError):
+                    value = 0
             elif key == "schema_version":
                 value = int(value) if value.isdigit() else 2
 
@@ -625,6 +636,8 @@ schema_version: {memory.schema_version}
             temporal_relevance=metadata.get("temporal_relevance", "persistent"),
             knowledge_domain=metadata.get("knowledge_domain", "learnings"),
             status=metadata.get("status", "active"),
+            confirmations=metadata.get("confirmations", 0),
+            contradictions=metadata.get("contradictions", 0),
             retrieval_weight=metadata.get("retrieval_weight"),
             schema_version=metadata.get("schema_version", 2)
         )
