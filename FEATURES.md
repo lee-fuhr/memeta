@@ -2,7 +2,7 @@
 
 Every feature in Total Rekall, organized by layer. Each one coexists additively — adding feature N+1 makes features 1 through N better.
 
-**Current:** v0.19.0 · 2,031 tests passing · 101 features shipped
+**Current:** v0.19.1 · 2,035 tests passing · 101 features shipped
 
 ---
 

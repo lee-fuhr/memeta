@@ -257,7 +257,6 @@ class TestSchemaCreation:
                 "cross_system_imports",
                 "dream_insights",
                 "temporal_patterns",
-                "memory_access_log",
                 "memory_clusters",
                 "memory_summaries",
             }

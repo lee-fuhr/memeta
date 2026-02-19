@@ -6,6 +6,35 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ---
 
+## [0.19.1] - 2026-02-19
+
+### Fixed — code quality pass
+
+**Critical fixes**
+- **Schema conflict resolved** — `memory_access_log` table was defined with incompatible schemas in `intelligence_db.py` (TEXT PK) and `access_tracker.py` (INTEGER AUTOINCREMENT PK). Removed duplicate from `intelligence_db.py` and `temporal_predictor.py`. `access_tracker.py` is now the sole owner.
+- **Connection leaks fixed** — `encoding_depth.py` (5 methods), `emotional_tagging.py` (every public method), `generational_gc.py` (init failure path), `retrieval_forgetting.py` (missing context manager). All now use proper try/finally or context manager patterns.
+- **`memory_health.py` field mismatch** — `_compute_components` expected `created_at`, `source`, `title` but Memory dataclass uses `created`, `source_session_id`, has no `title`. Now accepts both field naming conventions with graceful fallbacks.
+
+**Important fixes**
+- **`api.py` TTL cache** — `search()`, `get_recent()`, `get_stats()` each scanned every .md file from disk. Added 5-second TTL cache on `_list_memories()` to prevent redundant disk I/O.
+- **`api.py` exception logging** — Bare `except Exception: pass` on contradiction check replaced with `logger.debug()` for visibility.
+- **`prospective_triggers.py` connection reuse** — `extract_triggers` opened a new SQLite connection per regex match inside a loop. Now opens once, closes once.
+- **`memory_pagerank.py` batch inserts** — `store_results` changed from N individual INSERTs to `executemany`. Bare `except Exception` narrowed to specific exception types.
+- **`reference_counter.py` validation** — Added `ref_type` validation in `increment`/`decrement`. Invalid types now raise `ValueError` instead of silently storing.
+- **Dead code removed** — `directed_forgetting.py` unused `content` parameter, `retrieval_forgetting.py` unused `neglect_days`, `memory_pagerank.py` unused `total_real_edges`, `generational_gc.py` `mock_memories` table removed from production schema.
+
+**Minor fixes**
+- **False positive reduction** — `emotional_tagging.py` correction markers narrowed ("actually" → "actually no", "wait" → "wait no"). `prospective_triggers.py` "may" month disambiguation (only matches as month when preceded by preposition or followed by day number).
+- **`schema_classifier.py` persist parameter** — `classify()` now accepts `persist=False` to skip DB write (pure classification without side effects).
+- **`memory_interview.py` deduplication** — `generate_interview` was calling `client.list()` twice; now fetches once and passes to both helper methods.
+
+### Tests
+- 4 new tests (reference_counter validation, generational_gc schema)
+- 1 test updated (intelligence_db_pool schema expectations)
+- **Test suite:** 2,035 passing (from 2,031)
+
+---
+
 ## [0.19.0] - 2026-02-19
 
 ### Added — Mega sprint (29 features)
