@@ -83,7 +83,7 @@ def test_log_memory_access_basic(predictor):
     )
 
     assert log_id is not None
-    assert len(log_id) == 16  # MD5 hash truncated to 16 chars
+    assert log_id.isdigit()  # Auto-generated integer ID
 
     # Verify entry in database
     with sqlite3.connect(predictor.db_path) as conn:

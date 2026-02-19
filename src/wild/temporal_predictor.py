@@ -90,20 +90,32 @@ class TemporalPatternPredictor:
                 )
             """)
 
-            # Memory access log table
+            # memory_access_log table is owned by access_tracker.py — do not recreate here
+            # Ensure it exists (using access_tracker's canonical schema) and add
+            # temporal-specific columns if missing.
             conn.execute("""
                 CREATE TABLE IF NOT EXISTS memory_access_log (
-                    id TEXT PRIMARY KEY,
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
                     memory_id TEXT NOT NULL,
-                    accessed_at INTEGER NOT NULL,
+                    accessed_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     access_type TEXT NOT NULL,
-                    day_of_week INTEGER,
-                    hour_of_day INTEGER,
-                    session_id TEXT,
-                    context_keywords TEXT,
-                    created_at INTEGER NOT NULL
+                    query_context TEXT
                 )
             """)
+            # Add temporal columns needed by this module (idempotent)
+            for col_def in [
+                ("day_of_week", "INTEGER"),
+                ("hour_of_day", "INTEGER"),
+                ("session_id", "TEXT"),
+                ("context_keywords", "TEXT"),
+                ("created_at", "INTEGER"),
+            ]:
+                try:
+                    conn.execute(
+                        f"ALTER TABLE memory_access_log ADD COLUMN {col_def[0]} {col_def[1]}"
+                    )
+                except sqlite3.OperationalError:
+                    pass  # Column already exists
 
             # Indexes
             conn.execute("""
@@ -150,24 +162,18 @@ class TemporalPatternPredictor:
             session_id: Current session
 
         Returns:
-            Log entry ID
+            Log entry ID (string representation of auto-generated integer)
         """
         now = int(datetime.now().timestamp())
         dt = datetime.now()
 
-        # Include microseconds for uniqueness
-        import time
-        unique_str = f"{memory_id}-{now}-{time.time()}-{access_type}"
-        log_id = hashlib.md5(unique_str.encode()).hexdigest()[:16]
-
         with get_connection(self.db_path) as conn:
-            conn.execute("""
+            cursor = conn.execute("""
                 INSERT INTO memory_access_log
-                (id, memory_id, accessed_at, access_type, day_of_week,
+                (memory_id, accessed_at, access_type, day_of_week,
                  hour_of_day, session_id, context_keywords, created_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             """, (
-                log_id,
                 memory_id,
                 now,
                 access_type,
@@ -177,6 +183,7 @@ class TemporalPatternPredictor:
                 json.dumps(context_keywords or []),
                 now
             ))
+            log_id = str(cursor.lastrowid)
             conn.commit()
 
         return log_id

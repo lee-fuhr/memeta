@@ -188,19 +188,7 @@ class IntelligenceDB:
             )
         """)
 
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS memory_access_log (
-                id TEXT PRIMARY KEY,
-                memory_id TEXT NOT NULL,
-                accessed_at INTEGER NOT NULL,
-                access_type TEXT NOT NULL,
-                day_of_week INTEGER,
-                hour_of_day INTEGER,
-                session_id TEXT,
-                context_keywords TEXT,
-                created_at INTEGER NOT NULL
-            )
-        """)
+        # memory_access_log table is owned by access_tracker.py — do not recreate here
 
         # Indexes for common queries
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_voice_project ON voice_memories(project_id)")
@@ -245,9 +233,7 @@ class IntelligenceDB:
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_temporal_pattern_type ON temporal_patterns(pattern_type)")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_temporal_trigger ON temporal_patterns(trigger_condition)")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_temporal_confidence ON temporal_patterns(confidence DESC)")
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_access_memory ON memory_access_log(memory_id, accessed_at DESC)")
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_access_temporal ON memory_access_log(day_of_week, hour_of_day)")
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_access_session ON memory_access_log(session_id)")
+        # memory_access_log indexes owned by access_tracker.py — do not recreate here
 
         # F25: Clustering indexes
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_cluster_project ON memory_clusters(project_id)")
