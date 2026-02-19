@@ -54,8 +54,8 @@ class GenerationalGC:
     Three-generation garbage collector for the memory store.
 
     Each instance manages its own SQLite database with tables for generation
-    tracking, GC event history, and a mock_memories table for standalone
-    testing (simulates importance, access counts, etc.).
+    tracking and GC event history.  The caller provides importance, access
+    counts, etc. via a mock_memories table (created externally for testing).
     """
 
     def __init__(self, db_path: Optional[str | Path] = None):
@@ -71,7 +71,11 @@ class GenerationalGC:
         self.db_path = Path(db_path)
         self.conn = sqlite3.connect(str(self.db_path))
         self.conn.row_factory = sqlite3.Row
-        self._init_db()
+        try:
+            self._init_db()
+        except Exception:
+            self.conn.close()
+            raise
 
     # ── Schema ────────────────────────────────────────────────────────────
 
@@ -97,20 +101,6 @@ class GenerationalGC:
                 promoted_count INTEGER NOT NULL,
                 total_in_generation INTEGER NOT NULL,
                 timestamp TEXT NOT NULL
-            )
-        """)
-
-        # Mock memories table — used for standalone testing.
-        # In production, the caller would provide importance / access data
-        # from the real memory store.  This table simulates those signals.
-        cur.execute("""
-            CREATE TABLE IF NOT EXISTS mock_memories (
-                memory_id TEXT PRIMARY KEY,
-                importance REAL NOT NULL DEFAULT 0.5,
-                access_count INTEGER NOT NULL DEFAULT 0,
-                last_accessed TEXT,
-                has_links INTEGER NOT NULL DEFAULT 0,
-                created_at TEXT NOT NULL
             )
         """)
 
@@ -445,6 +435,12 @@ class GenerationalGC:
         return [dict(row) for row in cur.fetchall()]
 
     # ── Lifecycle ─────────────────────────────────────────────────────────
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
 
     def close(self) -> None:
         """Close the database connection."""

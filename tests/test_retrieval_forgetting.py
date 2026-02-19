@@ -36,7 +36,7 @@ def detector(tmp_path):
 def populated_detector(tmp_path):
     """Detector pre-loaded with imbalanced retrieval data for a cluster."""
     db = tmp_path / "test_populated.db"
-    d = RetrievalForgettingDetector(db_path=str(db), gini_threshold=0.5, neglect_days=30)
+    d = RetrievalForgettingDetector(db_path=str(db), gini_threshold=0.5)
     # Cluster "webflow" has 5 memories. mem-1 and mem-2 dominate.
     for _ in range(50):
         d.log_retrieval("mem-1", cluster_id="webflow", query="deploy")
@@ -87,18 +87,16 @@ class TestInit:
         d2.close()
 
     def test_default_thresholds(self, detector):
-        """Default gini_threshold is 0.7, neglect_days is 30."""
+        """Default gini_threshold is 0.7."""
         assert detector.gini_threshold == 0.7
-        assert detector.neglect_days == 30
 
     def test_custom_thresholds(self, tmp_path):
         """Custom thresholds are stored correctly."""
         db = tmp_path / "custom.db"
         d = RetrievalForgettingDetector(
-            db_path=str(db), gini_threshold=0.5, neglect_days=14
+            db_path=str(db), gini_threshold=0.5
         )
         assert d.gini_threshold == 0.5
-        assert d.neglect_days == 14
         d.close()
 
 

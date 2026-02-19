@@ -58,12 +58,9 @@ class EncodingDepthScorer:
     # Reference markers — indicate cross-knowledge connections
     REFERENCE_MARKERS = [
         "in project",
-        "on the",
-        "when we",
         "last time",
         "previously",
         "we learned",
-        "from the",
         "that time",
     ]
 
@@ -79,22 +76,24 @@ class EncodingDepthScorer:
     def _init_db(self) -> None:
         """Create the encoding_depth table if it doesn't exist."""
         conn = sqlite3.connect(self._db_path)
-        conn.execute(
-            """
-            CREATE TABLE IF NOT EXISTS encoding_depth (
-                memory_id TEXT PRIMARY KEY,
-                depth_level INTEGER NOT NULL,
-                char_count INTEGER,
-                causal_count INTEGER DEFAULT 0,
-                comparison_count INTEGER DEFAULT 0,
-                reference_count INTEGER DEFAULT 0,
-                signals TEXT,
-                scored_at TEXT NOT NULL
+        try:
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS encoding_depth (
+                    memory_id TEXT PRIMARY KEY,
+                    depth_level INTEGER NOT NULL,
+                    char_count INTEGER,
+                    causal_count INTEGER DEFAULT 0,
+                    comparison_count INTEGER DEFAULT 0,
+                    reference_count INTEGER DEFAULT 0,
+                    signals TEXT,
+                    scored_at TEXT NOT NULL
+                )
+                """
             )
-            """
-        )
-        conn.commit()
-        conn.close()
+            conn.commit()
+        finally:
+            conn.close()
 
     def _count_markers(self, content_lower: str, markers: List[str]) -> tuple:
         """Count occurrences of markers in content and return (count, matched_list).
@@ -215,34 +214,36 @@ class EncodingDepthScorer:
         now = datetime.now().isoformat()
 
         conn = sqlite3.connect(self._db_path)
-        conn.execute(
-            """
-            INSERT INTO encoding_depth
-                (memory_id, depth_level, char_count, causal_count,
-                 comparison_count, reference_count, signals, scored_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            ON CONFLICT(memory_id) DO UPDATE SET
-                depth_level = excluded.depth_level,
-                char_count = excluded.char_count,
-                causal_count = excluded.causal_count,
-                comparison_count = excluded.comparison_count,
-                reference_count = excluded.reference_count,
-                signals = excluded.signals,
-                scored_at = excluded.scored_at
-            """,
-            (
-                memory_id,
-                analysis["depth"],
-                analysis["char_count"],
-                analysis["causal_count"],
-                analysis["comparison_count"],
-                analysis["reference_count"],
-                json.dumps(analysis["signals"]),
-                now,
-            ),
-        )
-        conn.commit()
-        conn.close()
+        try:
+            conn.execute(
+                """
+                INSERT INTO encoding_depth
+                    (memory_id, depth_level, char_count, causal_count,
+                     comparison_count, reference_count, signals, scored_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(memory_id) DO UPDATE SET
+                    depth_level = excluded.depth_level,
+                    char_count = excluded.char_count,
+                    causal_count = excluded.causal_count,
+                    comparison_count = excluded.comparison_count,
+                    reference_count = excluded.reference_count,
+                    signals = excluded.signals,
+                    scored_at = excluded.scored_at
+                """,
+                (
+                    memory_id,
+                    analysis["depth"],
+                    analysis["char_count"],
+                    analysis["causal_count"],
+                    analysis["comparison_count"],
+                    analysis["reference_count"],
+                    json.dumps(analysis["signals"]),
+                    now,
+                ),
+            )
+            conn.commit()
+        finally:
+            conn.close()
 
         return analysis["depth"]
 
@@ -256,20 +257,22 @@ class EncodingDepthScorer:
             List of dicts with memory_id, depth_level, scored_at.
         """
         conn = sqlite3.connect(self._db_path)
-        conn.row_factory = sqlite3.Row
-        rows = conn.execute(
-            """
-            SELECT memory_id, depth_level, char_count, causal_count,
-                   comparison_count, reference_count, signals, scored_at
-            FROM encoding_depth
-            WHERE depth_level = 1
-            ORDER BY scored_at DESC
-            LIMIT ?
-            """,
-            (limit,),
-        ).fetchall()
-        conn.close()
-        return [dict(row) for row in rows]
+        try:
+            conn.row_factory = sqlite3.Row
+            rows = conn.execute(
+                """
+                SELECT memory_id, depth_level, char_count, causal_count,
+                       comparison_count, reference_count, signals, scored_at
+                FROM encoding_depth
+                WHERE depth_level = 1
+                ORDER BY scored_at DESC
+                LIMIT ?
+                """,
+                (limit,),
+            ).fetchall()
+            return [dict(row) for row in rows]
+        finally:
+            conn.close()
 
     def get_depth_distribution(self) -> Dict[int, int]:
         """Return count of memories at each depth level.
@@ -278,19 +281,21 @@ class EncodingDepthScorer:
             Dict mapping depth level (1, 2, 3) to count.
         """
         conn = sqlite3.connect(self._db_path)
-        rows = conn.execute(
-            """
-            SELECT depth_level, COUNT(*) as cnt
-            FROM encoding_depth
-            GROUP BY depth_level
-            """
-        ).fetchall()
-        conn.close()
+        try:
+            rows = conn.execute(
+                """
+                SELECT depth_level, COUNT(*) as cnt
+                FROM encoding_depth
+                GROUP BY depth_level
+                """
+            ).fetchall()
 
-        dist = {1: 0, 2: 0, 3: 0}
-        for level, count in rows:
-            dist[level] = count
-        return dist
+            dist = {1: 0, 2: 0, 3: 0}
+            for level, count in rows:
+                dist[level] = count
+            return dist
+        finally:
+            conn.close()
 
     def get_enrichment_candidates(
         self, max_age_days: int = 30
@@ -305,16 +310,18 @@ class EncodingDepthScorer:
         """
         cutoff = (datetime.now() - timedelta(days=max_age_days)).isoformat()
         conn = sqlite3.connect(self._db_path)
-        conn.row_factory = sqlite3.Row
-        rows = conn.execute(
-            """
-            SELECT memory_id, depth_level, char_count, causal_count,
-                   comparison_count, reference_count, signals, scored_at
-            FROM encoding_depth
-            WHERE depth_level = 1 AND scored_at >= ?
-            ORDER BY scored_at DESC
-            """,
-            (cutoff,),
-        ).fetchall()
-        conn.close()
-        return [dict(row) for row in rows]
+        try:
+            conn.row_factory = sqlite3.Row
+            rows = conn.execute(
+                """
+                SELECT memory_id, depth_level, char_count, causal_count,
+                       comparison_count, reference_count, signals, scored_at
+                FROM encoding_depth
+                WHERE depth_level = 1 AND scored_at >= ?
+                ORDER BY scored_at DESC
+                """,
+                (cutoff,),
+            ).fetchall()
+            return [dict(row) for row in rows]
+        finally:
+            conn.close()

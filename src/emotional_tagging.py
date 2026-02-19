@@ -52,7 +52,8 @@ _SUCCESS_KEYWORDS = re.compile(
 )
 
 _CORRECTION_MARKERS = re.compile(
-    r"\b(actually|wait)\b|no that'?s wrong", re.IGNORECASE
+    r"\b(actually no|actually,? that'?s|wait,? no|wait,? that'?s wrong)\b|no that'?s wrong",
+    re.IGNORECASE,
 )
 
 # Minimum length for ALL CAPS word to count (avoids "I", "A", "OK")
@@ -72,7 +73,8 @@ class EmotionalTagger:
     # ── Database ──────────────────────────────────────────────────────
 
     def _init_db(self) -> None:
-        with sqlite3.connect(self._db_path) as conn:
+        conn = sqlite3.connect(self._db_path)
+        try:
             conn.execute(
                 """
                 CREATE TABLE IF NOT EXISTS emotional_tags (
@@ -90,9 +92,9 @@ class EmotionalTagger:
             conn.execute(
                 "CREATE INDEX IF NOT EXISTS idx_emotional_valence ON emotional_tags(valence)"
             )
-
-    def _conn(self) -> sqlite3.Connection:
-        return sqlite3.connect(self._db_path)
+            conn.commit()
+        finally:
+            conn.close()
 
     # ── Analysis ──────────────────────────────────────────────────────
 
@@ -210,7 +212,8 @@ class EmotionalTagger:
             created_at=now,
         )
 
-        with self._conn() as conn:
+        conn = sqlite3.connect(self._db_path)
+        try:
             conn.execute(
                 """
                 INSERT OR REPLACE INTO emotional_tags
@@ -225,6 +228,9 @@ class EmotionalTagger:
                     tag.created_at,
                 ),
             )
+            conn.commit()
+        finally:
+            conn.close()
 
         return tag
 
@@ -232,12 +238,15 @@ class EmotionalTagger:
 
     def get_tag(self, memory_id: str) -> EmotionalTag | None:
         """Retrieve emotional tag for a memory."""
-        with self._conn() as conn:
+        conn = sqlite3.connect(self._db_path)
+        try:
             row = conn.execute(
                 "SELECT memory_id, valence, arousal, signals, created_at "
                 "FROM emotional_tags WHERE memory_id = ?",
                 (memory_id,),
             ).fetchone()
+        finally:
+            conn.close()
 
         if row is None:
             return None
@@ -254,13 +263,16 @@ class EmotionalTagger:
         self, threshold: float = 0.5
     ) -> list[EmotionalTag]:
         """Find memories with high emotional arousal."""
-        with self._conn() as conn:
+        conn = sqlite3.connect(self._db_path)
+        try:
             rows = conn.execute(
                 "SELECT memory_id, valence, arousal, signals, created_at "
                 "FROM emotional_tags WHERE arousal >= ? "
                 "ORDER BY arousal DESC",
                 (threshold,),
             ).fetchall()
+        finally:
+            conn.close()
 
         return [
             EmotionalTag(
@@ -282,10 +294,13 @@ class EmotionalTagger:
 
     def get_emotional_distribution(self) -> dict:
         """Return emotional distribution summary."""
-        with self._conn() as conn:
+        conn = sqlite3.connect(self._db_path)
+        try:
             rows = conn.execute(
                 "SELECT valence, arousal FROM emotional_tags"
             ).fetchall()
+        finally:
+            conn.close()
 
         if not rows:
             return {
@@ -318,13 +333,16 @@ class EmotionalTagger:
         self, min_arousal: float = 0.7
     ) -> list[EmotionalTag]:
         """Return memories with very high arousal (flashbulb-quality encoding)."""
-        with self._conn() as conn:
+        conn = sqlite3.connect(self._db_path)
+        try:
             rows = conn.execute(
                 "SELECT memory_id, valence, arousal, signals, created_at "
                 "FROM emotional_tags WHERE arousal >= ? "
                 "ORDER BY arousal DESC",
                 (min_arousal,),
             ).fetchall()
+        finally:
+            conn.close()
 
         return [
             EmotionalTag(

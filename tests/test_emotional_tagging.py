@@ -166,8 +166,8 @@ class TestCorrectionMarkers:
         assert result["valence"] < 0.0
         assert "correction_markers" in result["signals"]
 
-    def test_wait_marker(self, tagger):
-        result = tagger.analyze_context(_msgs("Wait, that doesn't look correct"))
+    def test_wait_no_marker(self, tagger):
+        result = tagger.analyze_context(_msgs("Wait, no, that's not right at all"))
         assert result["arousal"] >= 0.2
         assert result["valence"] < 0.0
 
