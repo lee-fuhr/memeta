@@ -234,6 +234,13 @@ class ProspectiveTriggerManager:
         # Check for time keywords even without a parseable date
         for kw in self._TIME_KEYWORDS:
             if kw in text_lower:
+                # Disambiguate "may" — only match as month name, not modal verb
+                if kw == "may":
+                    if not re.search(
+                        r'(?:in|by|before|until|after)\s+may\b|\bmay\s+\d{1,2}\b',
+                        text_lower,
+                    ):
+                        continue
                 parsed = self._parse_relative_date(text)
                 if parsed:
                     return "time", {"after_date": parsed}
@@ -271,20 +278,20 @@ class ProspectiveTriggerManager:
         created: list[ProspectiveTrigger] = []
         now = datetime.now(timezone.utc).isoformat()
 
-        for pattern in self.TRIGGER_PATTERNS:
-            for match in re.finditer(pattern, text, re.IGNORECASE):
-                captured = match.group(1).strip()
-                if not captured:
-                    continue
+        conn = sqlite3.connect(self._db_path)
+        try:
+            for pattern in self.TRIGGER_PATTERNS:
+                for match in re.finditer(pattern, text, re.IGNORECASE):
+                    captured = match.group(1).strip()
+                    if not captured:
+                        continue
 
-                trigger_type, condition = self.classify_trigger_type(captured)
+                    trigger_type, condition = self.classify_trigger_type(captured)
 
-                # Skip if no meaningful keywords extracted
-                if trigger_type in ("topic", "event") and not condition.get("keywords"):
-                    continue
+                    # Skip if no meaningful keywords extracted
+                    if trigger_type in ("topic", "event") and not condition.get("keywords"):
+                        continue
 
-                conn = sqlite3.connect(self._db_path)
-                try:
                     cursor = conn.execute(
                         "INSERT INTO prospective_triggers "
                         "(memory_id, trigger_type, condition, status, created_at) "
@@ -293,17 +300,17 @@ class ProspectiveTriggerManager:
                     )
                     conn.commit()
                     trigger_id = cursor.lastrowid
-                finally:
-                    conn.close()
 
-                created.append(ProspectiveTrigger(
-                    trigger_id=trigger_id,
-                    memory_id=memory_id,
-                    trigger_type=trigger_type,
-                    condition=condition,
-                    status="pending",
-                    created_at=now,
-                ))
+                    created.append(ProspectiveTrigger(
+                        trigger_id=trigger_id,
+                        memory_id=memory_id,
+                        trigger_type=trigger_type,
+                        condition=condition,
+                        status="pending",
+                        created_at=now,
+                    ))
+        finally:
+            conn.close()
 
         return created
 

@@ -153,6 +153,7 @@ class SchemaClassifier:
         neighbor_embeddings: list[list[float]],
         cluster_id: Optional[str] = None,
         memory_id: Optional[str] = None,
+        persist: bool = True,
     ) -> SchemaEvent:
         """Classify a new memory against its nearest neighbors.
 
@@ -162,13 +163,13 @@ class SchemaClassifier:
         - 0.3 <= distance <= 0.6 → extension
         - distance > 0.6 → accommodation
 
-        The event is automatically recorded to the database.
-
         Args:
             new_embedding: The embedding of the new memory.
             neighbor_embeddings: Embeddings of the cluster's existing memories.
             cluster_id: Optional cluster identifier.
             memory_id: Optional memory identifier (auto-generated if not provided).
+            persist: If True (default), record the event to the database.
+                Set to False for classify-only mode with no side effects.
 
         Returns:
             A SchemaEvent describing the classification.
@@ -200,7 +201,8 @@ class SchemaClassifier:
             timestamp=datetime.now(timezone.utc).isoformat(),
         )
 
-        self.record_event(event)
+        if persist:
+            self.record_event(event)
         return event
 
     # ------------------------------------------------------------------
