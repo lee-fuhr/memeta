@@ -6,6 +6,28 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ---
 
+## [0.18.0] - 2026-02-18
+
+### Added — Build sprint (5 features)
+- **Provenance tracking** — `source_session_id` field traces every memory to its originating session. Conditionally written to YAML frontmatter (omitted when None), backward-compatible with legacy files.
+- **Daily episodic summaries** — `src/daily_episodic_summary.py`: End-of-day summary generation from session history. `generate()` queries sessions, aggregates content (6000 char cap), calls Claude API. `load_recent()` for next-day context injection. LaunchAgent at 23:55.
+- **Hybrid search unification** — `compute_idf()` with smoothed IDF formula replaces hardcoded 1.0. `normalize_scores()` scales BM25 to [0,1] before weighted combination. `embeddings` parameter for pre-computed vectors avoids per-doc model calls. Full backward compatibility.
+- **Circuit breaker persistence** — SQLite persistence (WAL mode) so breaker state survives process restarts. Built-in `fallback` parameter on `call()`. `get_stats()` for dashboard. Thresholds adjusted to 5 failures / 600s recovery.
+- **Memory decay archival** — Stale memories (importance < 0.2) moved to `archived/` directory during nightly maintenance. Manifest files document what was archived and why. `list(include_archived=True)` to include archived memories. DecayPredictor integration.
+
+### Tests
+- 10 new tests for provenance tracking
+- 18 new tests for daily episodic summaries
+- 27 new tests for hybrid search (IDF, normalization, embeddings, weights)
+- 27 new tests for circuit breaker (persistence, fallback, stats, edge cases)
+- Memory decay archival tests (count TBD)
+
+### Status
+- **Test suite:** 1,064+ passing (82+ new tests)
+- **Features shipped:** 72
+
+---
+
 ## [0.17.0] - 2026-02-17
 
 ### Added — Intelligence layer (tier 2 complete)

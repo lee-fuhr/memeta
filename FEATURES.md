@@ -2,7 +2,7 @@
 
 Every feature in Total Rekall, organized by layer. Each one coexists additively — adding feature N+1 makes features 1 through N better.
 
-**Current:** v0.17.0 · 1,256 tests passing · 68 features shipped
+**Current:** v0.18.0 · 1,064+ tests passing · 72 features shipped
 
 ---
 
@@ -16,6 +16,7 @@ Every feature in Total Rekall, organized by layer. Each one coexists additively 
 | Contradiction detection | Spots conflicting memories via LLM analysis | `src/contradiction_detector.py` |
 | Daily maintenance | Nightly VACUUM, ANALYZE, backups with 7-day retention | `src/daily_memory_maintenance.py` |
 | File-based storage | Markdown files with YAML frontmatter — readable, portable, yours | `src/memory_ts_client.py` |
+| Provenance tracking | Every memory traces back to its source session via `source_session_id` | `src/memory_ts_client.py` |
 | Decision journal | Records decisions, rationale, outcomes for future reference | `src/decision_journal.py` |
 | Session history | Tracks every session: message counts, tool usage, memory links | `src/session_history_db.py` |
 | Importance auto-tuning | Learns what makes a good memory by watching which ones actually help | `src/importance_auto_tuning.py` |
@@ -41,7 +42,7 @@ Every feature in Total Rekall, organized by layer. Each one coexists additively 
 | Reinforcement scheduling | Review scheduling based on FSRS reinforcement data | `src/intelligence/reinforcement_scheduler.py` |
 | Cache-aware search | 24h TTL cache + multi-factor ranking (semantic × 0.5 + keyword × 0.2 + recency × 0.2 + importance × 0.1) | `src/intelligence/search_optimizer.py` |
 | Smart alerts | Proactive notifications for expiring memories, patterns, contradictions | `src/automation/alerts.py` |
-| Hybrid search | 70% semantic + 30% BM25 keyword (OpenClaw pattern) | `src/hybrid_search.py` |
+| Hybrid search | 70% semantic + 30% BM25 with corpus IDF, score normalization, pre-computed embeddings | `src/hybrid_search.py` |
 | Natural language queries | Ask questions in plain English, get ranked results | `src/automation/search.py` |
 | Quality scoring | Auto-detects low-quality memories (vague, duplicate, unclear) | `src/automation/quality.py` |
 | Sentiment tracking | Detect frustration and satisfaction trends as optimization triggers | `src/wild/sentiment_tracker.py` |
@@ -54,6 +55,7 @@ Every feature in Total Rekall, organized by layer. Each one coexists additively 
 
 | Feature | What it does | File |
 |---------|-------------|------|
+| Daily episodic summaries | End-of-day session summaries for next-day context injection | `src/daily_episodic_summary.py` |
 | Dream mode synthesis | Overnight consolidation finds hidden cross-domain connections | `src/wild/dream_synthesizer.py` |
 | Frustration early warning | Detects repeated corrections before you spiral, suggests interventions | `src/wild/frustration_detector.py` |
 | Momentum tracking | Knows when you're "on a roll" vs "spinning" (0–100 score) | `src/wild/momentum_tracker.py` |
@@ -111,7 +113,7 @@ Every feature in Total Rekall, organized by layer. Each one coexists additively 
 
 | Feature | What it does | File |
 |---------|-------------|------|
-| Circuit breaker | LLM calls protected: CLOSED/OPEN/HALF_OPEN states, 3-failure threshold, 60s recovery | `src/circuit_breaker.py` |
+| Circuit breaker | LLM calls protected: closed/open/half_open states, SQLite persistence, fallback support, 5-failure threshold, 600s recovery | `src/circuit_breaker.py` |
 | FAISS vector store | Indexed similarity search with L2-normalized cosine, dual-write with SQLite fallback | `src/vector_store.py` |
 | Centralized config | All paths and constants overridable via `MEMORY_SYSTEM_*` environment variables | `src/config.py` |
 | Async consolidation | Queue-based background memory extraction (<1s to queue) | `src/async_consolidation.py` |

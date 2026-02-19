@@ -1,13 +1,13 @@
 # Total Rekall — project instructions
 
-**Version:** 0.17.0
+**Version:** 0.18.0
 **Last updated:** 2026-02-18
 
 ---
 
 ## What this is
 
-Intelligent memory system for Claude Code. 68 features, 1,256 tests, Python 3.11+. Extracts knowledge from sessions, grades it, searches it semantically, and synthesizes insights across projects.
+Intelligent memory system for Claude Code. 72 features, 1,064+ tests, Python 3.11+. Extracts knowledge from sessions, grades it, searches it semantically, and synthesizes insights across projects.
 
 **Architecture:** Memory files (YAML frontmatter + markdown) at `~/.local/share/memory/LFI/memories/`. Intelligence layer in `intelligence.db` (SQLite). FAISS vector store for semantic search. Flask dashboard at localhost:8766.
 
