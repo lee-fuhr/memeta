@@ -230,14 +230,14 @@ class MemoryHealthScore:
         with_prov = sum(
             1
             for m in memories
-            if m.get("source") or m.get("session_id")
+            if m.get("source") or m.get("source_session_id") or m.get("session_id")
         )
         pct_with_provenance = (with_prov / n) * 100
 
         # 4. avg_freshness: 100 * avg(max(0, 1 - age_days/365))
         freshness_scores = []
         for m in memories:
-            created = m.get("created_at")
+            created = m.get("created_at") or m.get("created")
             if created:
                 if isinstance(created, str):
                     try:
@@ -261,7 +261,11 @@ class MemoryHealthScore:
         # Heuristic: if many memories share the same tag set it hints
         # redundancy.  Without embeddings we use a simple proxy: count of
         # duplicate titles / total.
-        titles = [m.get("title", "") for m in memories if m.get("title")]
+        titles = [
+            m.get("title", "") or m.get("content", "")[:80]
+            for m in memories
+            if m.get("title") or m.get("content")
+        ]
         if titles:
             unique = len(set(titles))
             redundancy_pct = ((len(titles) - unique) / len(titles)) * 100

@@ -21,9 +21,13 @@ Usage:
 
 import argparse
 import json
+import logging
 import sys
+import time
 from typing import List, Dict, Optional, Any
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 from .memory_ts_client import MemoryTSClient, Memory
 from .config import cfg
@@ -36,6 +40,23 @@ class MemorySystem:
         self.client = MemoryTSClient(memory_dir=memory_dir)
         self.project_id = project_id
         self._memory_dir = memory_dir
+        self._cache = None
+        self._cache_time = 0.0
+        self._cache_ttl = 5.0  # seconds
+
+    def _list_memories(self):
+        """Cached memory listing with 5-second TTL."""
+        now = time.monotonic()
+        if self._cache is not None and (now - self._cache_time) < self._cache_ttl:
+            return self._cache
+        self._cache = self.client.list()
+        self._cache_time = now
+        return self._cache
+
+    def _invalidate_cache(self):
+        """Invalidate the memory cache (call after writes)."""
+        self._cache = None
+        self._cache_time = 0.0
 
     def save(
         self,
@@ -74,7 +95,7 @@ class MemorySystem:
             try:
                 from .contradiction_detector import check_contradictions as _check
 
-                existing = self.client.list()
+                existing = self._list_memories()
                 existing_dicts = [
                     {"id": m.id, "content": m.content} for m in existing
                 ]
@@ -91,7 +112,7 @@ class MemorySystem:
                             )
             except Exception:
                 # Contradiction check is best-effort; don't block save
-                pass
+                logger.debug("Contradiction check failed (best-effort)", exc_info=True)
 
         # Step 3: save
         memory = self.client.create(
@@ -103,6 +124,7 @@ class MemorySystem:
             **kwargs,
         )
 
+        self._invalidate_cache()
         return memory
 
     def search(self, query: str, top_k: int = 10) -> List[Dict]:
@@ -120,7 +142,7 @@ class MemorySystem:
         """
         from .hybrid_search import hybrid_search
 
-        all_memories = self.client.list()
+        all_memories = self._list_memories()
         if not all_memories:
             return []
 
@@ -155,7 +177,7 @@ class MemorySystem:
         Returns:
             List of Memory objects, newest first
         """
-        all_memories = self.client.list()
+        all_memories = self._list_memories()
         sorted_memories = sorted(
             all_memories, key=lambda m: m.created, reverse=True
         )
@@ -175,7 +197,7 @@ class MemorySystem:
         """
         from .confidence_scoring import get_confidence_stats
 
-        all_memories = self.client.list()
+        all_memories = self._list_memories()
 
         if not all_memories:
             return {
