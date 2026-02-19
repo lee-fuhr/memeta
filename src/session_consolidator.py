@@ -605,7 +605,8 @@ Answer with ONE WORD ONLY."""
                     tags=memory.tags,
                     importance=memory.importance,
                     scope="project",  # New memories start as project-scope
-                    session_id=session_id  # Track provenance
+                    session_id=session_id,  # Track provenance (legacy field)
+                    source_session_id=session_id  # Track provenance (new field)
                 )
                 memory.id = created_memory.id
                 saved_list.append(memory)
