@@ -3,6 +3,9 @@ Shared intelligence database for Features 23-75
 
 Central SQLite database with schema namespacing by feature.
 Enables cross-feature queries and unified storage.
+
+Uses connection pooling via db_pool for better concurrency
+and reduced SQLITE_BUSY errors.
 """
 
 import sqlite3
@@ -10,6 +13,7 @@ from pathlib import Path
 from typing import Optional
 from datetime import datetime
 
+from memory_system.db_pool import get_pool, close_all_pools
 
 
 class IntelligenceDB:
@@ -24,6 +28,12 @@ class IntelligenceDB:
     - ab_tests: Feature 48 (memory strategy experiments)
     - cross_system_imports: Feature 49 (external patterns)
     - dream_insights: Feature 50 (overnight synthesis)
+
+    Connection management:
+    - Uses connection pooling from db_pool module
+    - self.conn provides a PooledConnection for backward compatibility
+    - PooledConnection proxies all operations to the underlying SQLite connection
+    - close() returns the connection to the pool instead of destroying it
     """
 
     def __init__(self, db_path: Optional[Path] = None):
@@ -37,7 +47,8 @@ class IntelligenceDB:
             db_path = Path(__file__).parent.parent / "intelligence.db"
 
         self.db_path = Path(db_path)
-        self.conn = sqlite3.connect(str(self.db_path))
+        self._pool = get_pool(str(self.db_path))
+        self.conn = self._pool.get_connection()
         self.conn.row_factory = sqlite3.Row
         self._init_schema()
 
@@ -251,14 +262,20 @@ class IntelligenceDB:
         self.conn.commit()
 
     def close(self):
-        """Close database connection"""
+        """Return connection to pool.
+
+        The PooledConnection.close() method returns the connection to
+        the pool rather than destroying it, enabling reuse.
+        Safe to call multiple times.
+        """
         if self.conn:
             self.conn.close()
+            self.conn = None
 
     def __enter__(self):
         """Context manager support"""
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        """Close on context exit"""
+        """Return connection to pool on context exit"""
         self.close()
