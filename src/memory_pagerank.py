@@ -39,6 +39,7 @@ Usage:
     stats = pr.get_stats()
 """
 
+import logging
 import sqlite3
 from collections import defaultdict
 from datetime import datetime, timezone
@@ -46,6 +47,8 @@ from pathlib import Path
 from typing import Optional
 
 from memory_system.db_pool import get_connection
+
+logger = logging.getLogger(__name__)
 
 
 class MemoryPageRank:
@@ -164,9 +167,6 @@ class MemoryPageRank:
         out_degree = {node: len(outgoing.get(node, set())) for node in node_list}
         in_degree = {node: len(incoming.get(node, set())) for node in node_list}
 
-        # Handle case where all nodes have only self-loops (no real edges)
-        total_real_edges = sum(1 for src, tgt in unique_edges if src != tgt)
-
         # Initialize scores
         rank = {node: 1.0 / n for node in node_list}
 
@@ -243,7 +243,8 @@ class MemoryPageRank:
                 ).fetchall()
 
                 edges = [(row[0], row[1]) for row in rows]
-        except Exception:
+        except (sqlite3.OperationalError, KeyError) as exc:
+            logger.debug("PageRank computation from DB failed: %s", exc)
             return {}
 
         if not edges:
@@ -269,17 +270,18 @@ class MemoryPageRank:
         now = datetime.now(timezone.utc).isoformat()
 
         with get_connection(self.db_path) as conn:
-            for mem_id, score in scores.items():
-                in_deg = self._last_in_degree.get(mem_id, 0)
-                out_deg = self._last_out_degree.get(mem_id, 0)
-                conn.execute(
-                    """
-                    INSERT OR REPLACE INTO memory_pagerank
-                    (memory_id, pagerank_score, in_degree, out_degree, computed_at)
-                    VALUES (?, ?, ?, ?, ?)
-                    """,
-                    (mem_id, score, in_deg, out_deg, now),
-                )
+            conn.executemany(
+                """
+                INSERT OR REPLACE INTO memory_pagerank
+                (memory_id, pagerank_score, in_degree, out_degree, computed_at)
+                VALUES (?, ?, ?, ?, ?)
+                """,
+                [
+                    (mem_id, score, self._last_in_degree.get(mem_id, 0),
+                     self._last_out_degree.get(mem_id, 0), now)
+                    for mem_id, score in scores.items()
+                ],
+            )
             conn.commit()
 
     def get_top_memories(self, limit: int = 10) -> list[dict]:

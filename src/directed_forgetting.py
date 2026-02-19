@@ -21,7 +21,7 @@ Usage:
 
     df = DirectedForgetting()
     directives = df.scan_conversation(messages)
-    directive = df.get_directive_for_content(content, messages, position)
+    directive = df.get_directive_for_content(messages, position)
     importance = df.apply_importance_modifier(base_importance, directive)
 """
 
@@ -135,7 +135,6 @@ class DirectedForgetting:
 
     def get_directive_for_content(
         self,
-        content: str,
         messages: list[dict],
         position: int,
         window: int = 3,
@@ -149,9 +148,8 @@ class DirectedForgetting:
         are within range.
 
         Args:
-            content:  The text whose importance we're evaluating.
             messages: Full conversation message list.
-            position: Index of the message containing *content*.
+            position: Index of the message containing the content.
             window:   How many messages away to search.
 
         Returns:
