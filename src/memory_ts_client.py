@@ -43,6 +43,7 @@ class Memory:
     project_id: str
     scope: str = "project"  # project or global
     session_id: Optional[str] = None  # Track which session created this memory
+    source_session_id: Optional[str] = None  # Provenance: the session that produced this memory
     created: str = field(default_factory=lambda: datetime.now().isoformat())
     updated: str = field(default_factory=lambda: datetime.now().isoformat())
     reasoning: str = ""
@@ -131,6 +132,7 @@ class MemoryTSClient:
         tags: List[str],
         importance: Optional[float] = None,
         scope: str = "project",
+        source_session_id: Optional[str] = None,
         **kwargs
     ) -> Memory:
         """
@@ -142,6 +144,7 @@ class MemoryTSClient:
             tags: List of tags (e.g. ["#learning", "#important"])
             importance: Importance score (0.0-1.0), auto-calculated if None
             scope: "project" or "global"
+            source_session_id: Session ID that produced this memory (provenance tracking)
             **kwargs: Additional memory fields
 
         Returns:
@@ -166,6 +169,7 @@ class MemoryTSClient:
             tags=tags,
             importance=importance,
             scope=scope,
+            source_session_id=source_session_id,
             **kwargs
         )
 
@@ -304,6 +308,11 @@ class MemoryTSClient:
         memory_file = self._safe_memory_path(memory.id)
 
         # Build YAML frontmatter
+        # Conditionally include source_session_id (omit if None)
+        source_session_line = ""
+        if memory.source_session_id is not None:
+            source_session_line = f"\nsource_session_id: {memory.source_session_id}"
+
         frontmatter = f"""---
 id: {memory.id}
 created: {memory.created}
@@ -342,7 +351,7 @@ awaiting_decision: false
 blocked_by: null
 blocks: []
 related_files: []
-retrieval_weight: {memory.retrieval_weight or memory.importance}
+retrieval_weight: {memory.retrieval_weight or memory.importance}{source_session_line}
 exclude_from_retrieval: false
 schema_version: {memory.schema_version}
 ---
@@ -416,6 +425,13 @@ schema_version: {memory.schema_version}
 
             metadata[key] = value
 
+        # Parse source_session_id (None if absent — backward-compatible)
+        raw_source_session = metadata.get("source_session_id")
+        if raw_source_session in (None, "null", ""):
+            source_session_id = None
+        else:
+            source_session_id = str(raw_source_session)
+
         # Build Memory object
         return Memory(
             id=metadata.get("id", memory_file.stem),
@@ -424,6 +440,7 @@ schema_version: {memory.schema_version}
             tags=metadata.get("semantic_tags", []),
             project_id=metadata.get("project_id", "LFI"),
             scope=metadata.get("scope", "project"),
+            source_session_id=source_session_id,
             created=metadata.get("created", ""),
             updated=metadata.get("updated", ""),
             reasoning=metadata.get("reasoning", ""),

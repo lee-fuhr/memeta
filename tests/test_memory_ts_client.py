@@ -342,3 +342,173 @@ class TestFileCorruption:
         # Search should still return the good one
         results = client.search()
         assert len(results) >= 1
+
+
+class TestSourceSessionIdProvenance:
+    """Test source_session_id provenance tracking"""
+
+    def test_create_with_source_session_id_roundtrips(self, client):
+        """Save with source_session_id, verify it round-trips through write/read"""
+        memory = client.create(
+            content="Learning from session abc-123",
+            project_id="LFI",
+            tags=["#learning"],
+            source_session_id="abc-123-def-456"
+        )
+
+        retrieved = client.get(memory.id)
+        assert retrieved.source_session_id == "abc-123-def-456"
+
+    def test_create_without_source_session_id_is_none(self, client):
+        """Save without source_session_id, verify field is None (not error)"""
+        memory = client.create(
+            content="Learning without provenance",
+            project_id="LFI",
+            tags=["#learning"]
+        )
+
+        retrieved = client.get(memory.id)
+        assert retrieved.source_session_id is None
+
+    def test_legacy_memory_without_source_session_id(self, temp_memory_dir):
+        """Load a legacy memory file (no source_session_id in YAML), verify no crash"""
+        client = MemoryTSClient(memory_dir=temp_memory_dir)
+
+        # Write a legacy-format memory file (no source_session_id line)
+        legacy_file = Path(temp_memory_dir) / "legacy-mem-001.md"
+        legacy_file.write_text("""---
+id: legacy-mem-001
+created: 2025-01-01T00:00:00
+updated: 2025-01-01T00:00:00
+reasoning: old memory
+importance_weight: 0.7
+confidence_score: 0.9
+context_type: knowledge
+temporal_relevance: persistent
+knowledge_domain: learnings
+semantic_tags: ['#learning']
+session_id: unknown
+project_id: LFI
+status: active
+scope: project
+retrieval_weight: 0.7
+schema_version: 2
+---
+
+This is a legacy memory without source_session_id.
+""")
+
+        memory = client.get("legacy-mem-001")
+        assert memory.source_session_id is None
+        assert memory.content == "This is a legacy memory without source_session_id."
+
+    def test_update_preserves_source_session_id(self, client):
+        """Update a memory, verify source_session_id is preserved"""
+        memory = client.create(
+            content="Original content with provenance",
+            project_id="LFI",
+            tags=["#learning"],
+            source_session_id="session-xyz-789"
+        )
+
+        updated = client.update(memory.id, content="Updated content with provenance")
+        assert updated.source_session_id == "session-xyz-789"
+        assert updated.content == "Updated content with provenance"
+
+        # Verify it persists through another read
+        re_read = client.get(memory.id)
+        assert re_read.source_session_id == "session-xyz-789"
+
+    def test_multiple_memories_same_session(self, client):
+        """Multiple memories from same session all have same source_session_id"""
+        session = "batch-session-42"
+        memories = []
+        for i in range(3):
+            mem = client.create(
+                content=f"Memory number {i} from batch session",
+                project_id="LFI",
+                tags=["#learning"],
+                source_session_id=session
+            )
+            memories.append(mem)
+
+        for mem in memories:
+            retrieved = client.get(mem.id)
+            assert retrieved.source_session_id == session
+
+    def test_source_session_id_survives_save_load_list_cycle(self, client):
+        """source_session_id survives a full save/load/list cycle"""
+        session = "cycle-session-99"
+        memory = client.create(
+            content="Memory to survive full cycle with provenance",
+            project_id="LFI",
+            tags=["#cycle-test"],
+            source_session_id=session
+        )
+
+        # Load via get
+        loaded = client.get(memory.id)
+        assert loaded.source_session_id == session
+
+        # Load via search (list)
+        results = client.search(tags=["#cycle-test"])
+        assert len(results) == 1
+        assert results[0].source_session_id == session
+
+    def test_source_session_id_not_written_when_none(self, client, temp_memory_dir):
+        """When source_session_id is None, the field is omitted from YAML (not written as null)"""
+        memory = client.create(
+            content="Memory without provenance tracking",
+            project_id="LFI",
+            tags=["#learning"]
+        )
+
+        # Read the raw file content
+        memory_file = Path(temp_memory_dir) / f"{memory.id}.md"
+        raw_content = memory_file.read_text()
+        assert "source_session_id" not in raw_content
+
+    def test_source_session_id_written_when_provided(self, client, temp_memory_dir):
+        """When source_session_id is provided, it appears in YAML frontmatter"""
+        memory = client.create(
+            content="Memory with provenance tracking",
+            project_id="LFI",
+            tags=["#learning"],
+            source_session_id="written-session-abc"
+        )
+
+        # Read the raw file content
+        memory_file = Path(temp_memory_dir) / f"{memory.id}.md"
+        raw_content = memory_file.read_text()
+        assert "source_session_id: written-session-abc" in raw_content
+
+    def test_source_session_id_with_special_characters(self, client):
+        """source_session_id with UUID-like format roundtrips correctly"""
+        uuid_session = "550e8400-e29b-41d4-a716-446655440000"
+        memory = client.create(
+            content="Memory with UUID session ID",
+            project_id="LFI",
+            tags=["#learning"],
+            source_session_id=uuid_session
+        )
+
+        retrieved = client.get(memory.id)
+        assert retrieved.source_session_id == uuid_session
+
+    def test_source_session_id_independent_of_session_id(self, client):
+        """source_session_id persists through YAML while session_id is a runtime field"""
+        memory = client.create(
+            content="Memory with both session fields",
+            project_id="LFI",
+            tags=["#learning"],
+            session_id="legacy-session-1",
+            source_session_id="provenance-session-2"
+        )
+
+        # source_session_id persists (written to YAML frontmatter)
+        retrieved = client.get(memory.id)
+        assert retrieved.source_session_id == "provenance-session-2"
+
+        # session_id is a runtime/creation field, not persisted in YAML
+        # so after reload it won't be the same — this is expected behavior
+        assert memory.session_id == "legacy-session-1"  # exists at creation time
