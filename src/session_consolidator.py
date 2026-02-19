@@ -695,3 +695,21 @@ def calculate_session_quality(memories: List[SessionMemory]) -> SessionQualitySc
         high_value_count=high_value,
         quality_score=quality_score
     )
+
+
+def load_daily_context(days: int = 2) -> str:
+    """
+    Load recent daily summaries for context injection into new sessions.
+
+    Creates a DailyEpisodicSummary instance and returns the last N days
+    of daily summaries concatenated with date headers.
+
+    Args:
+        days: Number of past days to load (default: 2).
+
+    Returns:
+        Concatenated summary content, or empty string if no files exist.
+    """
+    from .daily_episodic_summary import DailyEpisodicSummary
+
+    return DailyEpisodicSummary().load_recent(days=days)

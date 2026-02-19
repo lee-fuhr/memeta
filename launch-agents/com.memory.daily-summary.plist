@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.memory.daily-summary</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Users/lee/.local/venvs/memory-system/bin/python3</string>
+        <string>-m</string>
+        <string>memory_system.daily_episodic_summary</string>
+    </array>
+    <key>WorkingDirectory</key>
+    <string>/Users/lee/CC/LFI/_ Operations/memory-system-v1</string>
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Hour</key>
+        <integer>23</integer>
+        <key>Minute</key>
+        <integer>55</integer>
+    </dict>
+    <key>StandardOutPath</key>
+    <string>/Users/lee/Library/Logs/memory-daily-summary.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/lee/Library/Logs/memory-daily-summary.log</string>
+</dict>
+</plist>
