@@ -178,9 +178,21 @@ class MemoryTSClient:
 
         return memory
 
+    def _archived_memory_path(self, memory_id: str) -> Path:
+        """Build archived memory file path with path traversal protection"""
+        safe_id = re.sub(r'[/\\]', '', memory_id).replace('..', '')
+        if not safe_id:
+            raise ValueError(f"Invalid memory_id: {memory_id}")
+        path = (self.memory_dir / "archived" / f"{safe_id}.md").resolve()
+        if not str(path).startswith(str(self.memory_dir.resolve())):
+            raise ValueError(f"Path traversal detected in memory_id: {memory_id}")
+        return path
+
     def get(self, memory_id: str) -> Memory:
         """
         Get memory by ID
+
+        Checks both active and archived locations.
 
         Args:
             memory_id: Memory identifier
@@ -193,7 +205,12 @@ class MemoryTSClient:
         """
         memory_file = self._safe_memory_path(memory_id)
         if not memory_file.exists():
-            raise MemoryNotFoundError(f"Memory {memory_id} not found")
+            # Check archived location
+            archived_file = self._archived_memory_path(memory_id)
+            if archived_file.exists():
+                memory_file = archived_file
+            else:
+                raise MemoryNotFoundError(f"Memory {memory_id} not found")
 
         memory = self._read_memory(memory_file)
 
@@ -201,6 +218,165 @@ class MemoryTSClient:
         self._log_access(memory_id, 'direct')
 
         return memory
+
+    def list(self, include_archived: bool = False) -> List[Memory]:
+        """
+        List all memories
+
+        Args:
+            include_archived: If True, include memories in archived/ subdirectory
+
+        Returns:
+            List of Memory objects
+        """
+        results = []
+
+        # Active memories (top-level .md files)
+        for memory_file in self.memory_dir.glob("*.md"):
+            try:
+                memory = self._read_memory(memory_file)
+                results.append(memory)
+            except Exception:
+                continue
+
+        # Archived memories
+        if include_archived:
+            archived_dir = self.memory_dir / "archived"
+            if archived_dir.exists():
+                for memory_file in archived_dir.glob("*.md"):
+                    # Skip manifest files
+                    if memory_file.name.endswith("-archive.md"):
+                        continue
+                    try:
+                        memory = self._read_memory(memory_file)
+                        results.append(memory)
+                    except Exception:
+                        continue
+
+        return results
+
+    def archive(self, memory_id: str, reason: str = "low_importance") -> bool:
+        """
+        Archive a memory by moving it to the archived/ subdirectory
+
+        Moves the file from {memory_dir}/{id}.md to {memory_dir}/archived/{id}.md
+        and updates the YAML frontmatter with archived: true.
+
+        Args:
+            memory_id: Memory to archive
+            reason: Reason for archival (e.g. "low_importance", "predicted_stale")
+
+        Returns:
+            True if archived, False if already archived or not found
+        """
+        source_file = self._safe_memory_path(memory_id)
+        dest_file = self._archived_memory_path(memory_id)
+
+        # Already archived
+        if not source_file.exists():
+            if dest_file.exists():
+                return False  # Already archived, idempotent
+            return False  # Not found at all
+
+        # Create archived/ directory lazily
+        archived_dir = self.memory_dir / "archived"
+        archived_dir.mkdir(exist_ok=True)
+
+        # Read, update status, write to new location
+        memory = self._read_memory(source_file)
+        memory.status = "archived"
+
+        # Add #archived tag if not present
+        if "#archived" not in memory.tags:
+            memory.tags.append("#archived")
+
+        memory.updated = datetime.now().isoformat()
+
+        # Write to archived location using _write_memory's atomic pattern
+        # but targeting the archived directory
+        self._write_memory_to(memory, dest_file)
+
+        # Remove original file
+        source_file.unlink()
+
+        return True
+
+    def _write_memory_to(self, memory: Memory, target_path: Path) -> None:
+        """Write memory to a specific path (used for archival)"""
+        import tempfile
+
+        # Build YAML frontmatter (same as _write_memory)
+        source_session_line = ""
+        if memory.source_session_id is not None:
+            source_session_line = f"\nsource_session_id: {memory.source_session_id}"
+
+        frontmatter = f"""---
+id: {memory.id}
+created: {memory.created}
+updated: {memory.updated}
+reasoning: {memory.reasoning}
+importance_weight: {memory.importance}
+confidence_score: {memory.confidence_score}
+context_type: {memory.context_type}
+temporal_relevance: {memory.temporal_relevance}
+knowledge_domain: {memory.knowledge_domain}
+emotional_resonance: null
+action_required: false
+problem_solution_pair: true
+semantic_tags: {memory.tags}
+trigger_phrases: []
+question_types: []
+session_id: {memory.session_id or "unknown"}
+project_id: {memory.project_id}
+status: {memory.status}
+scope: {memory.scope}
+temporal_class: long_term
+fade_rate: 0.03
+expires_after_sessions: 0
+domain: learnings
+feature: null
+component: null
+supersedes: null
+superseded_by: null
+related_to: []
+resolves: []
+resolved_by: null
+parent_id: null
+child_ids: []
+awaiting_implementation: false
+awaiting_decision: false
+blocked_by: null
+blocks: []
+related_files: []
+retrieval_weight: {memory.retrieval_weight or memory.importance}{source_session_line}
+exclude_from_retrieval: false
+archived: true
+schema_version: {memory.schema_version}
+---
+
+{memory.content}
+"""
+        # Atomic write
+        temp_fd, temp_path = tempfile.mkstemp(
+            dir=target_path.parent,
+            prefix=f".{target_path.name}.",
+            suffix=".tmp"
+        )
+
+        try:
+            os.write(temp_fd, frontmatter.encode('utf-8'))
+            os.close(temp_fd)
+            os.replace(temp_path, target_path)
+        except Exception:
+            try:
+                os.close(temp_fd)
+            except Exception:
+                pass
+            try:
+                os.unlink(temp_path)
+            except Exception:
+                pass
+            raise
 
     def search(
         self,

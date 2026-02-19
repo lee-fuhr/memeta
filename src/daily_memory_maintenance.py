@@ -43,15 +43,17 @@ class MaintenanceRunner:
     - Health checks
     """
 
-    def __init__(self, memory_dir: Optional[Path] = None):
+    def __init__(self, memory_dir: Optional[Path] = None, decay_predictor=None):
         """
         Initialize maintenance runner
 
         Args:
             memory_dir: Directory for memory-ts storage
+            decay_predictor: Optional DecayPredictor for stale memory detection
         """
         self.memory_dir = memory_dir
         self.client = MemoryTSClient(memory_dir=memory_dir)
+        self.decay_predictor = decay_predictor
 
     def run(self, dry_run: bool = False) -> Dict[str, Any]:
         """
@@ -68,8 +70,11 @@ class MaintenanceRunner:
         # Apply decay
         decay_count = 0 if dry_run else apply_decay_to_all(self.memory_dir)
 
-        # Archive low importance
-        archived_count = 0 if dry_run else archive_low_importance(self.memory_dir)
+        # Archive low importance and predicted-stale memories
+        archived_count = 0 if dry_run else archive_low_importance(
+            self.memory_dir,
+            decay_predictor=self.decay_predictor
+        )
 
         # Collect stats
         stats = collect_stats(self.memory_dir)
@@ -134,40 +139,109 @@ def apply_decay_to_all(memory_dir: Optional[Path] = None) -> int:
 
 def archive_low_importance(
     memory_dir: Optional[Path] = None,
-    threshold: float = 0.2
+    threshold: float = 0.2,
+    decay_predictor=None
 ) -> int:
     """
-    Archive memories below importance threshold
+    Archive memories below importance threshold or predicted stale
 
-    Archives by setting status to "archived" and adding #archived tag
+    Moves memory files to {memory_dir}/archived/ subdirectory.
+    Also queries DecayPredictor for memories already past predicted stale date.
+    Creates a manifest file listing all archived memories.
 
     Args:
         memory_dir: Directory for memory-ts storage
         threshold: Importance threshold (default 0.2)
+        decay_predictor: Optional DecayPredictor instance (for testing injection)
 
     Returns:
         Number of memories archived
     """
     client = MemoryTSClient(memory_dir=memory_dir)
-    memories = client.search()
+    memories = client.list()
 
-    archived_count = 0
-
+    # Collect memories to archive: low importance
+    to_archive = {}  # memory_id -> (reason, importance)
     for memory in memories:
         if memory.importance < threshold and memory.status == "active":
-            # Archive by updating status and adding tag
-            tags = memory.tags if memory.tags else []
-            if "#archived" not in tags:
-                tags.append("#archived")
+            to_archive[memory.id] = ("low_importance", memory.importance)
 
-            client.update(
-                memory.id,
-                status="archived",
-                tags=tags
-            )
+    # Query DecayPredictor for memories already past stale date
+    if decay_predictor is not None:
+        try:
+            stale_predictions = decay_predictor.get_memories_becoming_stale(days_ahead=0)
+            for prediction in stale_predictions:
+                if prediction.memory_id not in to_archive:
+                    # Find the memory to get its importance
+                    try:
+                        mem = client.get(prediction.memory_id)
+                        if mem.status == "active":
+                            to_archive[prediction.memory_id] = ("predicted_stale", mem.importance)
+                    except Exception:
+                        continue
+        except Exception:
+            pass  # DecayPredictor failure should not block archival
+
+    # Archive each memory
+    archived_count = 0
+    archived_entries = []
+
+    for memory_id, (reason, importance) in to_archive.items():
+        success = client.archive(memory_id, reason=reason)
+        if success:
             archived_count += 1
+            archived_entries.append({
+                "memory_id": memory_id,
+                "reason": reason,
+                "importance": importance
+            })
+
+    # Write manifest if any memories were archived
+    if archived_entries:
+        _write_archive_manifest(memory_dir or client.memory_dir, archived_entries)
 
     return archived_count
+
+
+def _write_archive_manifest(
+    memory_dir: Path,
+    archived_entries: List[Dict[str, Any]]
+) -> None:
+    """
+    Write archive manifest file listing all archived memories
+
+    Creates {memory_dir}/archived/YYYY-MM-DD-archive.md
+
+    Args:
+        memory_dir: Memory directory path
+        archived_entries: List of dicts with memory_id, reason, importance
+    """
+    mem_dir = Path(memory_dir)
+    archived_dir = mem_dir / "archived"
+    archived_dir.mkdir(exist_ok=True)
+
+    today = datetime.now().strftime("%Y-%m-%d")
+    manifest_path = archived_dir / f"{today}-archive.md"
+
+    lines = [
+        f"# Archive manifest — {today}",
+        "",
+        f"archived_at: {datetime.now().isoformat()}",
+        f"count: {len(archived_entries)}",
+        "",
+        "## Archived memories",
+        ""
+    ]
+
+    for entry in archived_entries:
+        lines.append(
+            f"- **{entry['memory_id']}** — reason: {entry['reason']}, "
+            f"importance: {entry['importance']}"
+        )
+
+    lines.append("")  # trailing newline
+
+    manifest_path.write_text("\n".join(lines))
 
 
 def collect_stats(memory_dir: Optional[Path] = None) -> Dict[str, Any]:
