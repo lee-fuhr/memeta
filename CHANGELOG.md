@@ -20,10 +20,10 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - 18 new tests for daily episodic summaries
 - 27 new tests for hybrid search (IDF, normalization, embeddings, weights)
 - 27 new tests for circuit breaker (persistence, fallback, stats, edge cases)
-- Memory decay archival tests (count TBD)
+- 15 new tests for memory decay archival (6 classes: importance, access, manifest, decay predictor, idempotency, runner)
 
 ### Status
-- **Test suite:** 1,064+ passing (82+ new tests)
+- **Test suite:** 1,079 passing (97 new tests)
 - **Features shipped:** 72
 
 ---
