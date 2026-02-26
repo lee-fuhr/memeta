@@ -372,3 +372,59 @@ class TestImportanceIntegration:
         if len(memories) > 0:
             # Should have high importance from trigger words
             assert memories[0].importance >= 0.7
+
+
+class TestGarbageDetection:
+    """Test meta-memory and garbage content filtering"""
+
+    def test_filters_meta_memories_about_memory_system(self):
+        """Should reject memories about the memory system itself"""
+        from memory_system.session_consolidator import _is_garbage_content
+
+        meta_examples = [
+            "Correction: plenty for 3-pass extraction",
+            "The memory system consolidation is running",
+            "Total Recall extraction found 5 memories",
+            "FSRS scheduling algorithm works well",
+            "semantic search returned relevant results",
+            "session consolidator extracted the learning",
+            "intelligence.db stores all the metadata",
+            "memory_ts_client.save() writes the file"
+        ]
+
+        for text in meta_examples:
+            assert _is_garbage_content(text), f"Should filter meta-memory: {text}"
+
+    def test_allows_legitimate_memories_with_similar_words(self):
+        """Should allow memories that mention memory/extraction in normal context"""
+        from memory_system.session_consolidator import _is_garbage_content
+
+        legitimate = [
+            "Client had trouble remembering the pricing model, so we created a memory aid with visual anchors",
+            "The data extraction API endpoint was returning 404 errors - fixed by updating the route handler",
+            "User wants a system that helps them consolidate their weekly learnings into a digest"
+        ]
+
+        for text in legitimate:
+            assert not _is_garbage_content(text), f"Should allow legitimate memory: {text}"
+
+    def test_filters_tool_call_artifacts(self):
+        """Should reject tool call JSON fragments"""
+        from memory_system.session_consolidator import _is_garbage_content
+
+        artifacts = [
+            "toolu_abc123 called with input: {'query': 'test'}",
+            "tool_use: read_file with {'path': '/some/file'}",
+            "'input': {'content': 'testing'}"
+        ]
+
+        for text in artifacts:
+            assert _is_garbage_content(text), f"Should filter artifact: {text}"
+
+    def test_filters_short_fragments(self):
+        """Should reject fragments under 30 characters"""
+        from memory_system.session_consolidator import _is_garbage_content
+
+        assert _is_garbage_content("Short")
+        assert _is_garbage_content("Too brief to be useful")
+        assert not _is_garbage_content("This is long enough to be a legitimate memory with substance")
