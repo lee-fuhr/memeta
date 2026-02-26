@@ -40,14 +40,30 @@ _TOOL_CALL_MARKERS = ('toolu_', 'tool_use', 'tool_result', "'input': {", '"input
 _LINE_NUMBER_PATTERN = re.compile(r'\d+[→\t].*\d+[→\t].*\d+[→\t]')
 _JSON_CHARS = set('{}[]\'"')
 
+# Meta-memory keywords - prevent memories about the memory system itself
+# Use phrases to avoid false positives (e.g. "memory extraction" not just "extraction")
+_META_KEYWORDS = (
+    'memory system', 'memory-system', 'total recall', 'memory extraction',
+    'session consolidat', '3-pass', 'embedding', 'fsrs', 'semantic search',
+    'hybrid search', 'memory consolidat', 'llm extract', 'importance scor',
+    'memory file', 'memory.md', 'intelligence.db', 'memory_ts_client',
+    'session consolidator', 'memoryts'
+)
+
 
 def _is_garbage_content(text: str) -> bool:
-    """Check if extracted content is garbage (tool calls, JSON, line numbers)."""
+    """Check if extracted content is garbage (tool calls, JSON, line numbers, meta-memories)."""
     if not text:
         return True
     stripped = text.strip()
     if len(stripped) < 30:
         return True
+
+    # Meta-memories (about the memory system itself)
+    lower_text = stripped.lower()
+    if any(keyword in lower_text for keyword in _META_KEYWORDS):
+        return True
+
     # Tool call artifacts
     for marker in _TOOL_CALL_MARKERS:
         if marker in stripped:
