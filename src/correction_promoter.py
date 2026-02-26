@@ -16,6 +16,9 @@ import os
 from pathlib import Path
 from datetime import datetime
 from typing import Optional
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 # Tool keywords that trigger promotion
@@ -110,7 +113,7 @@ def promote_to_tools_md(
         date = datetime.now().strftime('%Y-%m-%d')
 
     if not TOOLS_MD_PATH.exists():
-        print(f"⚠️  TOOLS.md not found at {TOOLS_MD_PATH}")
+        logger.warning(f"⚠️  TOOLS.md not found at {TOOLS_MD_PATH}")
         return False
 
     try:
@@ -167,9 +170,9 @@ def promote_to_tools_md(
         # Write back
         TOOLS_MD_PATH.write_text(tools_md)
 
-        print(f"✅ Promoted to TOOLS.md: {title_text}")
+        logger.info(f"✅ Promoted to TOOLS.md: {title_text}")
         return True
 
     except Exception as e:
-        print(f"❌ Failed to promote to TOOLS.md: {e}")
+        logger.error(f"❌ Failed to promote to TOOLS.md: {e}")
         return False

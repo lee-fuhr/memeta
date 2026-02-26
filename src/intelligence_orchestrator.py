@@ -17,7 +17,7 @@ Usage:
 
     orch = IntelligenceOrchestrator()
     text = orch.get_formatted_briefing()
-    print(text)
+    logger.info(text)
 
 CLI:
     python -m memory_system.intelligence_orchestrator
@@ -31,7 +31,9 @@ from datetime import datetime, timezone
 from enum import Enum
 from pathlib import Path
 from typing import Optional
+import logging
 
+logger = logging.getLogger(__name__)
 
 INTELLIGENCE_DB = Path(__file__).parent.parent / "intelligence.db"
 
@@ -406,13 +408,13 @@ def main():
     briefing = orch.generate_briefing(max_signals=args.max, store=args.store)
 
     if args.json:
-        print(json.dumps({
+        logger.info(json.dumps({
             "signals": [s.to_dict() for s in briefing.signals],
             "generated_at": briefing.generated_at.isoformat(),
             "signal_count": briefing.signal_count,
         }, indent=2))
     else:
-        print(format_daily_briefing(briefing))
+        logger.info(format_daily_briefing(briefing))
 
 
 if __name__ == "__main__":

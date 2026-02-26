@@ -17,7 +17,7 @@ Usage:
     # {'relationship': 1, 'chunk': 1, 'decision': 0, 'synthesis': 0, 'total': 2}
 
     if rc.is_protected("mem-abc123"):
-        print("Memory has references — skip archival")
+        logger.info("Memory has references — skip archival")
 
     orphans = rc.get_zero_ref_memories()
     # ['mem-old1', 'mem-old2']  — candidates for GC
@@ -26,6 +26,9 @@ Usage:
 import sqlite3
 from datetime import datetime, timezone
 from typing import Optional
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 # Canonical ref types

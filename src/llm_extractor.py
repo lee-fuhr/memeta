@@ -14,6 +14,9 @@ from typing import List, Optional
 
 from .circuit_breaker import get_breaker, CircuitBreakerOpenError
 from .session_consolidator import SessionMemory
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 MAX_CONVERSATION_LENGTH = 15000  # Chars to send to LLM
@@ -217,40 +220,40 @@ def ask_claude(prompt: str, timeout: int = 30, max_retries: int = 3) -> str:
             # Non-zero return code
             if attempt < max_retries - 1:
                 delay = retry_delays[min(attempt, len(retry_delays) - 1)]
-                print(f"LLM call failed (attempt {attempt + 1}/{max_retries}), retrying in {delay}s with {current_timeout + timeout_increases[attempt + 1]}s timeout...")
+                logger.info(f"LLM call failed (attempt {attempt + 1}/{max_retries}), retrying in {delay}s with {current_timeout + timeout_increases[attempt + 1]}s timeout...")
                 time.sleep(delay)
                 continue
             else:
                 breaker.record_failure()
-                print(f"LLM call failed after {max_retries} attempts")
+                logger.info(f"LLM call failed after {max_retries} attempts")
                 return ""
 
         except subprocess.TimeoutExpired:
             if attempt < max_retries - 1:
                 delay = retry_delays[min(attempt, len(retry_delays) - 1)]
                 next_timeout = timeout + timeout_increases[min(attempt + 1, len(timeout_increases) - 1)]
-                print(f"LLM timeout after {current_timeout}s (attempt {attempt + 1}/{max_retries}), retrying in {delay}s with {next_timeout}s timeout...")
+                logger.info(f"LLM timeout after {current_timeout}s (attempt {attempt + 1}/{max_retries}), retrying in {delay}s with {next_timeout}s timeout...")
                 time.sleep(delay)
                 continue
             else:
                 breaker.record_failure()
-                print(f"LLM timeout after {max_retries} attempts (final timeout: {current_timeout}s)")
+                logger.info(f"LLM timeout after {max_retries} attempts (final timeout: {current_timeout}s)")
                 return ""
 
         except FileNotFoundError:
             # Claude CLI not found - don't retry, don't trip breaker (install issue)
-            print(f"Claude CLI not found (is it installed?)")
+            logger.info(f"Claude CLI not found (is it installed?)")
             return ""
 
         except Exception as e:
             if attempt < max_retries - 1:
                 delay = retry_delays[min(attempt, len(retry_delays) - 1)]
-                print(f"LLM error: {e} (attempt {attempt + 1}/{max_retries}), retrying in {delay}s...")
+                logger.info(f"LLM error: {e} (attempt {attempt + 1}/{max_retries}), retrying in {delay}s...")
                 time.sleep(delay)
                 continue
             else:
                 breaker.record_failure()
-                print(f"LLM error after {max_retries} attempts: {e}")
+                logger.info(f"LLM error after {max_retries} attempts: {e}")
                 return ""
 
     return ""

@@ -14,7 +14,7 @@ Usage:
 
     st = SelfTest()
     report = st.run_all()
-    print(st.get_report_text())
+    logger.info(st.get_report_text())
 """
 
 import sqlite3
@@ -25,6 +25,9 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from memory_system.config import MemorySystemConfig, cfg
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def _check_result(

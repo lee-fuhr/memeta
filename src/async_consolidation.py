@@ -24,8 +24,11 @@ from pathlib import Path
 from datetime import datetime
 from typing import Optional, Dict
 import time
+import logging
 
 from memory_system.db_pool import get_connection
+
+logger = logging.getLogger(__name__)
 
 
 class ConsolidationQueue:
@@ -229,7 +232,7 @@ def process_consolidation_queue(max_sessions: int = 10, timeout_per_session: int
         session_path = session['session_path']
         retry_count = session['retry_count']
 
-        print(f"🔄 Processing: {session_id} (attempt {retry_count + 1})")
+        logger.info(f"🔄 Processing: {session_id} (attempt {retry_count + 1})")
 
         try:
             # Process with timeout
@@ -242,15 +245,15 @@ def process_consolidation_queue(max_sessions: int = 10, timeout_per_session: int
 
             duration = time.time() - start_time
 
-            print(f"✅ Completed: {session_id} ({duration:.1f}s)")
-            print(f"   Extracted: {result.new_count} new, {result.updated_count} updated, {result.duplicate_count} duplicates")
+            logger.info(f"✅ Completed: {session_id} ({duration:.1f}s)")
+            logger.info(f"   Extracted: {result.new_count} new, {result.updated_count} updated, {result.duplicate_count} duplicates")
 
             queue.mark_completed(session_id)
             processed += 1
 
         except Exception as e:
             error_msg = str(e)
-            print(f"❌ Failed: {session_id} - {error_msg}")
+            logger.error(f"❌ Failed: {session_id} - {error_msg}")
 
             # Exponential backoff: 5min, 15min, 45min, 2h, 6h
             retry_delays = [300, 900, 2700, 7200, 21600]
@@ -265,17 +268,17 @@ if __name__ == "__main__":
     # Process queue
     queue = ConsolidationQueue()
 
-    print("\n📊 Queue Stats:")
+    logger.info("\n📊 Queue Stats:")
     stats = queue.get_stats()
     for key, value in stats.items():
-        print(f"   {key}: {value}")
+        logger.info(f"   {key}: {value}")
 
-    print("\n🔄 Processing queue...")
+    logger.info("\n🔄 Processing queue...")
     processed = process_consolidation_queue(max_sessions=10)
 
-    print(f"\n✅ Processed {processed} sessions")
+    logger.info(f"\n✅ Processed {processed} sessions")
 
-    print("\n📊 Final Queue Stats:")
+    logger.info("\n📊 Final Queue Stats:")
     stats = queue.get_stats()
     for key, value in stats.items():
-        print(f"   {key}: {value}")
+        logger.info(f"   {key}: {value}")

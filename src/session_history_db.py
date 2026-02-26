@@ -30,6 +30,9 @@ from datetime import datetime
 
 from memory_system.config import cfg
 from memory_system.db_pool import get_connection
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 SESSION_DB_PATH = cfg.session_db_path
@@ -179,7 +182,7 @@ def save_session(
         return True
 
     except Exception as e:
-        print(f"❌ Failed to save session {session_id}: {e}")
+        logger.info(f"❌ Failed to save session {session_id}: {e}")
         return False
 
 

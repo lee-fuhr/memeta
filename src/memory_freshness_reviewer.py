@@ -34,6 +34,9 @@ from pathlib import Path
 from typing import Optional
 
 from .memory_ts_client import MemoryTSClient, Memory
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 # ---------------------------------------------------------------------------
@@ -172,7 +175,7 @@ def send_freshness_notification(summary: str) -> bool:
             poke_path = Path("/Users/lee/CC/LFI/_ Operations/poke/send_poke_pushover.py")
 
         if not poke_path.exists():
-            print(f"Pushover script not found at {poke_path}", file=sys.stderr)
+            logger.error(f"Pushover script not found at {poke_path}")
             return False
 
         # Import and call directly
@@ -183,7 +186,7 @@ def send_freshness_notification(summary: str) -> bool:
         mod.send_poke(summary, title="Memory Freshness Review")
         return True
     except Exception as e:
-        print(f"Notification failed: {e}", file=sys.stderr)
+        logger.error(f"Notification failed: {e}")
         return False
 
 
@@ -199,51 +202,51 @@ def interactive_review(
     result = ReviewResult()
     to_review = stale[:max_review]
 
-    print(f"\n{'='*60}")
-    print(f"Memory freshness review — {len(to_review)} of {len(stale)} stale memories")
-    print(f"{'='*60}\n")
+    logger.info(f"\n{'='*60}")
+    logger.info(f"Memory freshness review — {len(to_review)} of {len(stale)} stale memories")
+    logger.info(f"{'='*60}\n")
 
     for i, s in enumerate(to_review, 1):
         m = s.memory
-        print(f"[{i}/{len(to_review)}] {m.knowledge_domain} · {s.days_since_update}d old · importance {m.importance:.2f}")
-        print(f"Tags: {', '.join(m.tags[:5])}")
-        print(f"---")
+        logger.info(f"[{i}/{len(to_review)}] {m.knowledge_domain} · {s.days_since_update}d old · importance {m.importance:.2f}")
+        logger.info(f"Tags: {', '.join(m.tags[:5])}")
+        logger.info(f"---")
         # Show first 300 chars of content
         preview = m.content[:300].strip()
-        print(preview)
+        logger.info(preview)
         if len(m.content) > 300:
-            print("…")
-        print()
+            logger.info("…")
+        logger.info()
 
         while True:
             choice = input("  [r]efresh  [a]rchive  [s]kip  [q]uit → ").strip().lower()
             if choice in ("r", "a", "s", "q"):
                 break
-            print("  Invalid choice. Use r/a/s/q.")
+            logger.info("  Invalid choice. Use r/a/s/q.")
 
         if choice == "q":
-            print("\nReview session ended early.")
+            logger.info("\nReview session ended early.")
             break
         elif choice == "r":
             refresh_memory(m.id, memory_dir=memory_dir)
             result.refreshed += 1
             result.details.append({"id": m.id, "action": "refreshed"})
-            print("  → Refreshed (timestamp updated)\n")
+            logger.info("  → Refreshed (timestamp updated)\n")
         elif choice == "a":
             archive_memory(m.id, memory_dir=memory_dir)
             result.archived += 1
             result.details.append({"id": m.id, "action": "archived"})
-            print("  → Archived\n")
+            logger.info("  → Archived\n")
         else:
             result.skipped += 1
             result.details.append({"id": m.id, "action": "skipped"})
-            print("  → Skipped\n")
+            logger.info("  → Skipped\n")
 
         result.reviewed += 1
 
-    print(f"\n{'='*60}")
-    print(f"Review complete: {result.refreshed} refreshed, {result.archived} archived, {result.skipped} skipped")
-    print(f"{'='*60}\n")
+    logger.info(f"\n{'='*60}")
+    logger.info(f"Review complete: {result.refreshed} refreshed, {result.archived} archived, {result.skipped} skipped")
+    logger.info(f"{'='*60}\n")
 
     return result
 
@@ -302,24 +305,24 @@ def main():
     )
 
     if args.scan:
-        print(f"\nFound {len(stale)} stale memories (>{args.days} days, importance ≤{DEFAULT_MIN_IMPORTANCE}):\n")
+        logger.info(f"\nFound {len(stale)} stale memories (>{args.days} days, importance ≤{DEFAULT_MIN_IMPORTANCE}):\n")
         for s in stale[:20]:
-            print(f"  {s.summary}")
+            logger.info(f"  {s.summary}")
         if len(stale) > 20:
-            print(f"  …and {len(stale) - 20} more")
-        print()
+            logger.info(f"  …and {len(stale) - 20} more")
+        logger.info()
 
     if args.notify:
         summary = generate_review_summary(stale)
         if send_freshness_notification(summary):
-            print("Notification sent.")
+            logger.info("Notification sent.")
         else:
-            print("Notification failed — printing summary instead:")
-            print(summary)
+            logger.info("Notification failed — printing summary instead:")
+            logger.info(summary)
 
     if args.review:
         if not stale:
-            print("No stale memories to review.")
+            logger.info("No stale memories to review.")
             return
         interactive_review(stale, max_review=args.max)
 

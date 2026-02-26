@@ -13,6 +13,7 @@ from pathlib import Path
 from datetime import datetime
 from typing import List, Dict, Optional, Tuple
 from dataclasses import dataclass
+import logging
 
 import numpy as np
 from sklearn.cluster import KMeans
@@ -20,6 +21,8 @@ from sklearn.metrics import silhouette_score
 
 from memory_system.db_pool import get_connection
 from memory_system import semantic_search
+
+logger = logging.getLogger(__name__)
 
 # Import ask_claude dynamically to avoid relative import issues
 def _ask_claude(prompt: str, timeout: int = 30) -> str:
@@ -64,7 +67,7 @@ class MemoryClustering:
         # Cluster all memories
         clusters = clustering.cluster_memories()
         for c in clusters:
-            print(f"{c.topic_label} ({c.member_count} memories)")
+            logger.info(f"{c.topic_label} ({c.member_count} memories)")
 
         # Get memories in a cluster
         members = clustering.get_cluster_members(cluster_id=1)

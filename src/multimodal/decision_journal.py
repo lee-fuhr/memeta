@@ -13,6 +13,9 @@ from typing import List, Optional, Dict
 
 from ..intelligence_db import IntelligenceDB
 from ..memory_ts_client import MemoryTSClient
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 # Try to import ea_brain commitment tracker (optional integration)
@@ -78,7 +81,7 @@ class DecisionJournal:
                 ea_brain_db = Path(__file__).parent.parent.parent.parent / "ea_brain" / "ea_brain.db"
                 self.commitment_tracker = CommitmentTracker(str(ea_brain_db))
             except Exception as e:
-                print(f"Warning: ea_brain integration unavailable: {e}")
+                logger.info(f"Warning: ea_brain integration unavailable: {e}")
                 self.commitment_tracker = None
         else:
             self.commitment_tracker = None
@@ -138,7 +141,7 @@ class DecisionJournal:
                 )
                 dec.commitment_id = commitment_id
             except Exception as e:
-                print(f"Warning: Failed to link to ea_brain: {e}")
+                logger.info(f"Warning: Failed to link to ea_brain: {e}")
 
         # Save to intelligence DB
         cursor = self.db.conn.cursor()
@@ -186,7 +189,7 @@ Rationale: {rationale}
                     session_id=session_id
                 )
             except Exception as e:
-                print(f"Warning: Failed to save to memory-ts: {e}")
+                logger.info(f"Warning: Failed to save to memory-ts: {e}")
 
         return dec
 
@@ -249,7 +252,7 @@ Success: {"Yes" if success else "No"}
                     session_id=decision_dict['session_id']
                 )
             except Exception as e:
-                print(f"Warning: Failed to save outcome to memory-ts: {e}")
+                logger.info(f"Warning: Failed to save outcome to memory-ts: {e}")
 
         return decision_dict
 

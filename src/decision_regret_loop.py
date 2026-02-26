@@ -19,11 +19,14 @@ Usage:
     # Check before making a decision
     warning = loop.check_decision("Skip testing for speed")
     if warning:
-        print(format_regret_warning(warning))
+        logger.info(format_regret_warning(warning))
 
     # Get summary for dashboard
     summary = loop.get_summary()
 """
+import logging
+
+logger = logging.getLogger(__name__)
 
 import re
 import sqlite3

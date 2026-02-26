@@ -22,6 +22,9 @@ except ImportError:
     SemanticSearch = None
 from ..importance_engine import calculate_importance
 from ..memory_ts_client import MemoryTSClient
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -133,7 +136,7 @@ class CodeMemoryLibrary:
                 )
                 embedding = json.dumps(embedding_vector.tolist())
             except Exception as e:
-                print(f"Warning: Failed to generate embedding: {e}")
+                logger.info(f"Warning: Failed to generate embedding: {e}")
 
         # Save to intelligence DB
         cursor = self.db.conn.cursor()
@@ -150,7 +153,7 @@ class CodeMemoryLibrary:
                     session_id=session_id
                 )
             except Exception as e:
-                print(f"Warning: Failed to save to memory-ts: {e}")
+                logger.info(f"Warning: Failed to save to memory-ts: {e}")
 
         cursor.execute("""
             INSERT INTO code_memories

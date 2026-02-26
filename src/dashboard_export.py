@@ -9,7 +9,10 @@ import json
 import sqlite3
 from datetime import datetime
 from pathlib import Path
+import logging
 from memory_system.db_pool import get_connection
+
+logger = logging.getLogger(__name__)
 
 
 def export_dashboard_data(
@@ -184,7 +187,7 @@ if __name__ == "__main__":
         hook_log=base / "hooks/hook_events.jsonl",
         output=base / "memory-system-v1/fsrs-status.json",
     )
-    print(
+    logger.info(
         f"Exported: {result['totals']['tracked']} tracked, "
         f"{result['totals']['promoted']} promoted, "
         f"{result['totals']['pending_promotion']} pending, "

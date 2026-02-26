@@ -31,6 +31,9 @@ from memory_system.db_pool import get_connection
 from typing import List, Dict, Optional, Set, Tuple
 from collections import defaultdict, Counter
 import re
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -239,11 +242,11 @@ class DreamSynthesizer:
                     created_at=mem.created
                 ))
 
-            print(f"📊 Dream Mode: Selected {len(nodes)} memories (from {len(all_memories)} total)")
+            logger.info(f"📊 Dream Mode: Selected {len(nodes)} memories (from {len(all_memories)} total)")
             return nodes
 
         except Exception as e:
-            print(f"⚠️  Failed to load memories: {e}")
+            logger.info(f"⚠️  Failed to load memories: {e}")
             return []
 
     def _discover_semantic_connections(self, memories: List[MemoryNode]) -> List[Connection]:

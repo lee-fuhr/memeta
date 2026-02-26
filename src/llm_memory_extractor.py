@@ -9,6 +9,9 @@ import json
 from pathlib import Path
 from typing import List, Dict, Any
 from dataclasses import dataclass
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -100,8 +103,8 @@ def extract_learnings_interactive(session_file: Path) -> List[ExtractedLearning]
     # Save marker for results
     results_file = review_dir / f"{session_file.stem}-extracted-learnings.json"
 
-    print(f"Extraction prompt saved to: {review_file}")
-    print(f"After Claude analyzes, save JSON to: {results_file}")
+    logger.info(f"Extraction prompt saved to: {review_file}")
+    logger.info(f"After Claude analyzes, save JSON to: {results_file}")
 
     # Check if results already exist
     if results_file.exists():
@@ -133,4 +136,4 @@ def save_extracted_learnings(learnings: List[Dict[str, Any]], output_file: Path)
     """
     output_file.parent.mkdir(parents=True, exist_ok=True)
     output_file.write_text(json.dumps(learnings, indent=2))
-    print(f"Saved {len(learnings)} learnings to: {output_file}")
+    logger.info(f"Saved {len(learnings)} learnings to: {output_file}")

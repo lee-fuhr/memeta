@@ -1,7 +1,7 @@
 # Ralph loop status
 
 **Last updated:** 2026-02-19
-**Status:** v0.19.0 complete — 29 features merged, 2,031 tests
+**Status:** v0.19.1 on main — 29 features + quality pass, 2,035 tests
 
 ---
 
@@ -84,6 +84,43 @@ All 10 features create new files only — no conflicts expected.
 - [ ] Fix any regressions
 - [ ] Remove worktree: `git worktree remove ../memory-system-v1-[name]`
 - [ ] Delete branch: `git branch -d feature/[name]`
+
+---
+
+## v0.19.1 quality pass — complete
+
+5 parallel Ralphs, 15 fixes across 15 source files:
+- R1: Schema conflict (intelligence_db, temporal_predictor) — removed duplicate `memory_access_log`
+- R2: Connection leaks (encoding_depth, emotional_tagging, generational_gc, retrieval_forgetting) + dead code + false positives
+- R3: memory_health field mismatch + api.py TTL cache + exception logging
+- R4: Dead code (directed_forgetting, memory_pagerank, reference_counter) + validation
+- R5: Triggers connection reuse + may disambiguation + schema_classifier persist param + interview dedup
+
+**Result:** 2,035 tests passing, pushed as `5e4494d`
+
+---
+
+## v0.20 fix plan — READY FOR EXECUTION
+
+**Plan:** `_notes/v0.20-fix-plan.md`
+**Open-source research:** `_notes/` (8 documents from research agent)
+
+Two adversarial review teams (5 agents each) completed. Cross-examined, steelmanned. Results:
+- **Performance:** 8 survivors, 11 killed
+- **Reliability:** 10 survivors, 7 killed
+- **Cross-team confirmation:** Both teams independently found PooledConnection wrapping bug
+
+**15 fixes across 11 Ralphs in 6 sprints:**
+1. Sprint 1: Correctness bugs (4 Ralphs parallel) — pool leak, importance logic, async pipeline, dead module
+2. Sprint 2: Maintenance refactor (2 Ralphs) — consolidate 4× file reads, atomic VectorStore
+3. Sprint 3: Pool migration (1 Ralph) — 7 intelligence.db modules
+4. Sprint 4: Rename + attribution (1 Ralph) — 16 files, ~63 lines
+5. Sprint 5: Metadata index (1 Ralph) — O(n) → O(log n) for search/list
+6. Sprint 6: Dedup + test coverage (2 Ralphs) — 85 dupes, 4 priority test modules
+
+### Still pending (not in fix plan)
+- **Matt's projects** — colleague posted ClownPeanuts (security honeypot framework), PingTing, SecretSquirrels on GitHub. Worth a look/response.
+- **Final QA pass** — after all fixes land
 
 ---
 

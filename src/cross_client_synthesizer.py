@@ -16,13 +16,16 @@ Usage:
 
     synth = CrossClientSynthesizer()
     report = synth.synthesize()
-    print(synth.get_formatted_report())
+    logger.info(synth.get_formatted_report())
 """
 
 import json
 import re
 import sqlite3
 import time
+import logging
+
+logger = logging.getLogger(__name__)
 import uuid
 from collections import defaultdict
 from dataclasses import dataclass, field

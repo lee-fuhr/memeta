@@ -21,6 +21,9 @@ import json
 import hashlib
 from datetime import datetime
 from collections import OrderedDict
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class EmbeddingManager:
@@ -203,10 +206,10 @@ class EmbeddingManager:
         ]
 
         if not to_compute:
-            print(f"All {len(contents)} embeddings already exist")
+            logger.info(f"All {len(contents)} embeddings already exist")
             return {}
 
-        print(f"Computing {len(to_compute)} new embeddings (skipping {len(existing_hashes)} existing)...")
+        logger.info(f"Computing {len(to_compute)} new embeddings (skipping {len(existing_hashes)} existing)...")
 
         # Batch compute
         model = self._get_model()
@@ -246,7 +249,7 @@ class EmbeddingManager:
             if len(self._session_cache) > self._CACHE_MAX_SIZE:
                 self._session_cache.popitem(last=False)
 
-        print(f"✅ Computed and saved {len(result)} embeddings")
+        logger.info(f"✅ Computed and saved {len(result)} embeddings")
         return result
 
     def precompute_all_memories(self):
@@ -257,19 +260,19 @@ class EmbeddingManager:
         """
         from memory_ts_client import MemoryTSClient
 
-        print("🔄 Pre-computing embeddings for all memories...")
+        logger.info("🔄 Pre-computing embeddings for all memories...")
 
         client = MemoryTSClient(project_id="LFI")
         memories = client.search()  # Get all memories
 
         if not memories:
-            print("No memories found")
+            logger.info("No memories found")
             return
 
         contents = [m.content for m in memories if m.content]
         self.batch_compute_embeddings(contents, show_progress=True)
 
-        print(f"✅ Pre-computation complete for {len(contents)} memories")
+        logger.info(f"✅ Pre-computation complete for {len(contents)} memories")
 
     def semantic_search(
         self,
@@ -366,7 +369,7 @@ class EmbeddingManager:
             ).rowcount
             conn.commit()
 
-        print(f"🗑️  Cleaned up {deleted} old embeddings (not accessed in {days} days)")
+        logger.info(f"🗑️  Cleaned up {deleted} old embeddings (not accessed in {days} days)")
         return deleted
 
     def get_stats(self) -> Dict:
@@ -420,9 +423,9 @@ if __name__ == "__main__":
 
     # Show stats
     stats = manager.get_stats()
-    print(f"\n📊 Embedding Stats:")
+    logger.info(f"\n📊 Embedding Stats:")
     for key, value in stats.items():
-        print(f"   {key}: {value}")
+        logger.info(f"   {key}: {value}")
 
     # Pre-compute all memories
     manager.precompute_all_memories()
