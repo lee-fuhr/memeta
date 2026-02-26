@@ -10,7 +10,6 @@ Covers:
 - Integration: save-then-search, multiple-save ordering
 """
 
-import sys
 import os
 import time
 import tempfile
@@ -18,26 +17,6 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Dict, Optional
 from unittest.mock import patch, MagicMock
-
-# Ensure this worktree's src/ is used for memory_system imports,
-# regardless of which editable install is active.
-_THIS_DIR = Path(__file__).resolve().parent
-_SRC_DIR = str(_THIS_DIR.parent / "src")
-# Remove any stale memory_system entries so our path wins
-for key in list(sys.modules.keys()):
-    if key == "memory_system" or key.startswith("memory_system."):
-        del sys.modules[key]
-sys.path.insert(0, str(_THIS_DIR.parent))
-# Register memory_system as a package alias for src/
-import importlib
-import importlib.util
-_spec = importlib.util.spec_from_file_location(
-    "memory_system", os.path.join(_SRC_DIR, "__init__.py"),
-    submodule_search_locations=[_SRC_DIR],
-)
-_mod = importlib.util.module_from_spec(_spec)
-sys.modules["memory_system"] = _mod
-_spec.loader.exec_module(_mod)
 
 import pytest
 

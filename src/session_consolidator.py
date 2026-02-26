@@ -8,74 +8,17 @@ Future enhancement: Use Anthropic API for LLM-powered extraction.
 """
 
 import json
-import re
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import List, Dict, Any, Optional
-from datetime import datetime
 
 from .config import cfg
 from .memory_ts_client import MemoryTSClient
 from .importance_engine import calculate_importance, get_importance_score
-
-# Pre-compiled regex patterns for memory extraction
-_LEARNING_PATTERNS = [
-    re.compile(r"(?:learned|discovered|realized|found out|noticed) that ([^.!?]+[.!?])", re.IGNORECASE),
-    re.compile(r"(?:key insight|important to note|worth remembering):? ([^.!?]+[.!?])", re.IGNORECASE),
-    re.compile(r"(?:pattern|trend) (?:I noticed|observed|saw):? ([^.!?]+[.!?])", re.IGNORECASE),
-]
-_CORRECTION_PATTERNS = [
-    re.compile(r"user:.*?(?:actually|correction|no,|wrong|mistake|should be|meant to say) ([^.!?]+[.!?])", re.IGNORECASE | re.DOTALL),
-    re.compile(r"user:.*?(?:better way|instead try|prefer) ([^.!?]+[.!?])", re.IGNORECASE | re.DOTALL),
-]
-_PROBLEM_SOLUTION_PATTERN = re.compile(
-    r"(?:problem|issue|challenge):.*?([^.!?]+[.!?]).*?(?:solution|fix|approach):.*?([^.!?]+[.!?])",
-    re.IGNORECASE | re.DOTALL,
-)
-_ASSISTANT_INSIGHT_PATTERN = re.compile(r"assistant:.*?([A-Z][^.!?]{30,}[.!?])", re.DOTALL)
-_NORMALIZE_PATTERN = re.compile(r'[^\w\s]')
-
-# Garbage detection patterns
-_TOOL_CALL_MARKERS = ('toolu_', 'tool_use', 'tool_result', "'input': {", '"input": {', "'name': '")
-_LINE_NUMBER_PATTERN = re.compile(r'\d+[→\t].*\d+[→\t].*\d+[→\t]')
-_JSON_CHARS = set('{}[]\'"')
-
-# Meta-memory keywords - prevent memories about the memory system itself
-# Use phrases to avoid false positives (e.g. "memory extraction" not just "extraction")
-_META_KEYWORDS = (
-    'memory system', 'memory-system', 'total recall', 'memory extraction',
-    'session consolidat', '3-pass', 'embedding', 'fsrs', 'semantic search',
-    'hybrid search', 'memory consolidat', 'llm extract', 'importance scor',
-    'memory file', 'memory.md', 'intelligence.db', 'memory_ts_client',
-    'session consolidator', 'memoryts'
-)
-
-
-def _is_garbage_content(text: str) -> bool:
-    """Check if extracted content is garbage (tool calls, JSON, line numbers, meta-memories)."""
-    if not text:
-        return True
-    stripped = text.strip()
-    if len(stripped) < 30:
-        return True
-
-    # Meta-memories (about the memory system itself)
-    lower_text = stripped.lower()
-    if any(keyword in lower_text for keyword in _META_KEYWORDS):
-        return True
-
-    # Tool call artifacts
-    for marker in _TOOL_CALL_MARKERS:
-        if marker in stripped:
-            return True
-    # Line number dumps (3+ consecutive)
-    if _LINE_NUMBER_PATTERN.search(stripped):
-        return True
-    # High ratio of JSON-like characters (>20%)
-    json_count = sum(1 for c in stripped if c in _JSON_CHARS)
-    if json_count / len(stripped) > 0.20:
-        return True
-    return False
+from .extraction_patterns import is_garbage_content as _is_garbage_content
+from .extraction_patterns import extract_memories_patterns as _extract_patterns
+from .dedup import deduplicate as _deduplicate_memories
+from .dedup import smart_dedup_decision as _smart_dedup_decision
 
 
 @dataclass
@@ -108,6 +51,11 @@ class ConsolidationResult:
     all_extracted: List[SessionMemory] = field(default_factory=list)
     extracted_memories: List[SessionMemory] = field(default_factory=list)  # Alias for compatibility
     contradictions_resolved: int = 0  # Number of contradictions auto-resolved
+
+
+def _session_memory_factory(content: str, importance: float, project_id: str) -> SessionMemory:
+    """Factory function for creating SessionMemory instances from extraction patterns."""
+    return SessionMemory(content=content, importance=importance, project_id=project_id)
 
 
 class SessionConsolidator:
@@ -234,18 +182,16 @@ class SessionConsolidator:
         Returns:
             List of extracted SessionMemory objects
         """
-        memories = []
-
         # Skip if conversation is too short/trivial
         if len(conversation) < 50:
-            return memories
+            return []
 
         # LLM extraction if requested
         if use_llm:
             return self._extract_memories_llm(conversation)
 
         # Otherwise use pattern-based extraction
-        return self._extract_memories_patterns(conversation)
+        return _extract_patterns(conversation, self.project_id, _session_memory_factory)
 
     def _extract_memories_llm(self, conversation: str) -> List[SessionMemory]:
         """
@@ -264,136 +210,13 @@ class SessionConsolidator:
         Returns:
             List of extracted SessionMemory objects
         """
-        # Prepare extraction prompt
-        prompt = f"""Analyze this Claude Code session and extract learnings worth remembering.
-
-CONVERSATION:
-{conversation[:10000]}  # Limit to first 10k chars to avoid token limits
-
-EXTRACT:
-- User preferences ("I prefer X", "Don't do Y")
-- Corrections (user corrected me about something)
-- Technical insights (patterns, solutions, approaches)
-- Process learnings (workflows that worked/failed)
-- Client-specific patterns (if mentioned)
-
-FORMAT each learning as JSON:
-{{
-  "content": "The actual learning in 1-2 sentences",
-  "importance": 0.5-0.95 (0.5=minor, 0.7=useful, 0.9=critical),
-  "reason": "Why this is worth remembering"
-}}
-
-Return ONLY a JSON array of learnings, nothing else.
-If no significant learnings, return empty array []."""
-
         try:
             # Future enhancement: Use Task tool for LLM-powered extraction
             # For now, pattern-based extraction works well
-            return self._extract_memories_patterns(conversation)
+            return _extract_patterns(conversation, self.project_id, _session_memory_factory)
         except Exception:
             # Fall back to pattern extraction on any error
-            return self._extract_memories_patterns(conversation)
-
-    def _extract_memories_patterns(self, conversation: str) -> List[SessionMemory]:
-        """
-        Pattern-based memory extraction (fast, deterministic)
-
-        Uses regex patterns to identify learning moments:
-        - Corrections (user corrects assistant)
-        - Explicit learnings ("I learned that...", "discovered that...")
-        - Patterns across multiple exchanges
-        - Problem-solution pairs
-
-        Args:
-            conversation: Full conversation text
-
-        Returns:
-            List of extracted SessionMemory objects
-        """
-        memories = []
-
-        # Pattern 1: Explicit learning statements (pre-compiled)
-        for pattern in _LEARNING_PATTERNS:
-            matches = pattern.finditer(conversation)
-            for match in matches:
-                learning_content = match.group(1).strip()
-                if len(learning_content) > 50 and len(learning_content) < 2000 and not _is_garbage_content(learning_content):
-                    importance = calculate_importance(learning_content)
-                    if importance >= 0.5:  # Threshold for saving
-                        memories.append(SessionMemory(
-                            content=learning_content,
-                            importance=importance,
-                            project_id=self.project_id
-                        ))
-
-        # Pattern 2: User corrections (important signals, pre-compiled)
-        for pattern in _CORRECTION_PATTERNS:
-            matches = pattern.finditer(conversation)
-            for match in matches:
-                correction_content = match.group(1).strip()
-                if len(correction_content) > 50 and len(correction_content) < 2000 and not _is_garbage_content(correction_content):
-                    # Corrections get boosted importance
-                    base_importance = calculate_importance(correction_content)
-                    boosted_importance = min(0.95, base_importance * 1.2)
-                    memories.append(SessionMemory(
-                        content=f"Correction: {correction_content}",
-                        importance=boosted_importance,
-                        project_id=self.project_id
-                    ))
-
-        # Pattern 3: Problem-solution pairs (pre-compiled)
-        matches = _PROBLEM_SOLUTION_PATTERN.finditer(conversation)
-        for match in matches:
-            problem = match.group(1).strip()
-            solution = match.group(2).strip()
-            if len(problem) > 20 and len(solution) > 20 and not _is_garbage_content(problem) and not _is_garbage_content(solution):
-                content = f"Problem: {problem} Solution: {solution}"
-                importance = calculate_importance(content)
-                if importance >= 0.6:
-                    memories.append(SessionMemory(
-                        content=content,
-                        importance=importance,
-                        project_id=self.project_id
-                    ))
-
-        # Pattern 4: Assistant insights in response to questions (pre-compiled)
-        assistant_insights = _ASSISTANT_INSIGHT_PATTERN.finditer(conversation)
-
-        insight_count = 0
-        for match in assistant_insights:
-            if insight_count >= 3:  # Limit to top insights per session
-                break
-
-            insight = match.group(1).strip()
-
-            # Filter out trivial responses and garbage
-            if _is_garbage_content(insight):
-                continue
-            if len(insight) > 2000:
-                continue
-            if any(phrase in insight.lower() for phrase in [
-                "let me", "i'll", "here's", "sure", "okay", "got it"
-            ]):
-                continue
-
-            # Check for learning indicators (expanded list)
-            if any(indicator in insight.lower() for indicator in [
-                "better to", "key is", "important", "pattern", "approach",
-                "when you", "if you", "works well", "effective", "i've found",
-                "rather than", "instead of", "acknowledge", "reframe", "ask",
-                "often hide", "surface", "recommend"
-            ]):
-                importance = calculate_importance(insight)
-                if importance >= 0.5:  # Lower threshold to catch more insights
-                    memories.append(SessionMemory(
-                        content=insight,
-                        importance=importance,
-                        project_id=self.project_id
-                    ))
-                    insight_count += 1
-
-        return memories
+            return _extract_patterns(conversation, self.project_id, _session_memory_factory)
 
     def _smart_dedup_decision(
         self,
@@ -401,56 +224,8 @@ If no significant learnings, return empty array []."""
         existing_content: str,
         similarity: float
     ) -> str:
-        """
-        LLM-powered dedup decision for gray area (50-90% similarity).
-
-        With fallback: If LLM times out, use stricter similarity threshold (>0.75 = duplicate).
-
-        Args:
-            new_content: New memory content
-            existing_content: Existing memory content
-            similarity: Word overlap similarity (0.0-1.0)
-
-        Returns:
-            "DUPLICATE" | "UPDATE" | "NEW"
-        """
-        # Fast path: obvious cases
-        if similarity < 0.5:
-            return "NEW"
-        if similarity > 0.9:
-            return "DUPLICATE"
-
-        # Gray area (50-90%) - ask LLM with fallback
-        from .llm_extractor import ask_claude
-
-        prompt = f"""Compare these two memories:
-
-New: {new_content}
-Existing: {existing_content}
-
-Is the new memory:
-- DUPLICATE (same fact, skip it)
-- UPDATE (refinement or replacement of existing)
-- NEW (genuinely new information)
-
-Answer with ONE WORD ONLY."""
-
-        decision = ask_claude(prompt, timeout=30, max_retries=2).strip().upper()
-
-        # LLM fallback: Use stricter similarity threshold when LLM fails
-        if not decision:
-            # Timeout or failure - use conservative similarity-based decision
-            if similarity > 0.75:
-                return "DUPLICATE"
-            else:
-                return "NEW"
-
-        if "DUPLICATE" in decision:
-            return "DUPLICATE"
-        elif "UPDATE" in decision:
-            return "UPDATE"
-        else:
-            return "NEW"
+        """Delegate to dedup module. Kept for backward compatibility."""
+        return _smart_dedup_decision(new_content, existing_content, similarity)
 
     def deduplicate(
         self,
@@ -470,66 +245,7 @@ Answer with ONE WORD ONLY."""
             Deduplicated list
         """
         existing_memories = self.memory_client.search(project_id=self.project_id)
-
-        # Pre-compute normalized word sets and content mapping
-        existing_data = []
-        for existing in existing_memories:
-            text_clean = _NORMALIZE_PATTERN.sub(' ', existing.content.lower())
-            words = frozenset(w for w in text_clean.split() if w)
-            if words:
-                existing_data.append({
-                    'words': words,
-                    'content': existing.content,
-                    'id': existing.id
-                })
-
-        unique_memories = []
-
-        for new_mem in new_memories:
-            text_clean = _NORMALIZE_PATTERN.sub(' ', new_mem.content.lower())
-            new_words = frozenset(w for w in text_clean.split() if w)
-
-            # Skip empty memories
-            if not new_words:
-                continue
-
-            is_duplicate = False
-            new_len = len(new_words)
-            best_match_similarity = 0.0
-            best_match_content = None
-
-            for existing in existing_data:
-                # Calculate bidirectional similarity
-                overlap = len(new_words & existing['words'])
-                new_similarity = overlap / new_len
-                existing_similarity = overlap / len(existing['words'])
-                max_similarity = max(new_similarity, existing_similarity)
-
-                # Track best match for LLM decision
-                if max_similarity > best_match_similarity:
-                    best_match_similarity = max_similarity
-                    best_match_content = existing['content']
-
-                # Definite duplicate if >90% similar
-                if max_similarity >= 0.9:
-                    is_duplicate = True
-                    break
-
-            # Gray area (50-90%) - use LLM if enabled
-            if not is_duplicate and use_llm_dedup and best_match_similarity >= 0.5:
-                decision = self._smart_dedup_decision(
-                    new_mem.content,
-                    best_match_content,
-                    best_match_similarity
-                )
-
-                if decision == "DUPLICATE":
-                    is_duplicate = True
-
-            if not is_duplicate:
-                unique_memories.append(new_mem)
-
-        return unique_memories
+        return _deduplicate_memories(new_memories, existing_memories, use_llm_dedup)
 
     def consolidate_session(
         self,
@@ -540,7 +256,7 @@ Answer with ONE WORD ONLY."""
         """
         Complete consolidation pipeline for a session
 
-        Reads session → extracts memories (patterns + LLM) → deduplicates → saves
+        Reads session -> extracts memories (patterns + LLM) -> deduplicates -> saves
 
         Args:
             session_file: Path to session JSONL file
