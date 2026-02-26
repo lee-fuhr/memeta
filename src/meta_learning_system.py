@@ -19,6 +19,9 @@ from .intelligence_db import IntelligenceDB
 from .memory_ts_client import MemoryTSClient
 from .pattern_detector import PatternDetector
 from .llm_extractor import extract_with_llm
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -228,7 +231,7 @@ class CrossSystemLearning:
                     importance=0.7
                 )
             except Exception as e:
-                print(f"Warning: Failed to save to memory-ts: {e}")
+                logger.info(f"Warning: Failed to save to memory-ts: {e}")
 
         return import_id
 
@@ -333,7 +336,7 @@ class DreamMode:
                 )
                 patterns.extend(pattern_matches)
         except Exception as e:
-            print(f"Warning: Pattern detection failed: {e}")
+            logger.info(f"Warning: Pattern detection failed: {e}")
 
         # Deduplicate patterns
         unique_patterns = list({p['pattern']: p for p in patterns}.values())

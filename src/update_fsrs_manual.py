@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+import logging
+
+logger = logging.getLogger(__name__)
 """Manual update to add connection pooling to fsrs_scheduler.py"""
 
 # Read original file
@@ -81,4 +84,4 @@ while i < len(lines):
 with open('fsrs_scheduler.py', 'w') as f:
     f.writelines(output)
 
-print("✅ Updated fsrs_scheduler.py")
+logger.info("✅ Updated fsrs_scheduler.py")

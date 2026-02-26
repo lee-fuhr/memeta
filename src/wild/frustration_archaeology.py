@@ -18,6 +18,9 @@ import json
 import sqlite3
 import time
 import re
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -62,7 +65,7 @@ class FrustrationArchaeologist:
         arch = FrustrationArchaeologist(db_path="intelligence.db")
         patterns = arch.analyze(days=90)
         report = arch.generate_report(patterns)
-        print(report)
+        logger.info(report)
     """
 
     # Recommendation templates by signal type

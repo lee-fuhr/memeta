@@ -13,9 +13,12 @@ import sqlite3
 from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Optional
+import logging
 
 from .config import cfg
 from .llm_extractor import ask_claude
+
+logger = logging.getLogger(__name__)
 
 
 # Default output directory for daily summaries
@@ -211,4 +214,4 @@ def load_daily_context() -> str:
 if __name__ == "__main__":
     summary = DailyEpisodicSummary()
     path = summary.generate()
-    print(f"Daily summary written to {path}")
+    logger.info(f"Daily summary written to {path}")

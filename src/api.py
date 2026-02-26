@@ -325,36 +325,36 @@ def main():
             session_id=args.session_id,
             check_contradictions=not args.no_contradiction_check,
         )
-        print(f"Saved memory {memory.id}")
-        print(f"  Content: {memory.content[:80]}")
-        print(f"  Tags: {memory.tags}")
-        print(f"  Importance: {memory.importance}")
+        logger.info(f"Saved memory {memory.id}")
+        logger.info(f"  Content: {memory.content[:80]}")
+        logger.info(f"  Tags: {memory.tags}")
+        logger.info(f"  Importance: {memory.importance}")
 
     elif args.command == "search":
         results = ms.search(args.query, top_k=args.top_k)
         if not results:
-            print("No results found.")
+            logger.info("No results found.")
         else:
             for i, r in enumerate(results, 1):
                 score = r.get("hybrid_score", 0)
                 content = r.get("content", "")[:80]
-                print(f"{i}. [{score:.3f}] {content}")
+                logger.info(f"{i}. [{score:.3f}] {content}")
 
     elif args.command == "recent":
         memories = ms.get_recent(n=args.count)
         if not memories:
-            print("No memories found.")
+            logger.info("No memories found.")
         else:
             for m in memories:
-                print(f"  [{m.created[:10]}] {m.content[:80]}")
+                logger.info(f"  [{m.created[:10]}] {m.content[:80]}")
 
     elif args.command == "stats":
         stats = ms.get_stats()
-        print(json.dumps(stats, indent=2))
+        logger.info(json.dumps(stats, indent=2))
 
     elif args.command == "maintain":
         result = ms.run_maintenance(dry_run=args.dry_run)
-        print(json.dumps(result, indent=2, default=str))
+        logger.info(json.dumps(result, indent=2, default=str))
 
 
 if __name__ == "__main__":

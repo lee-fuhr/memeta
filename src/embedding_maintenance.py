@@ -187,6 +187,6 @@ if __name__ == "__main__":
     runner = EmbeddingMaintenanceRunner()
     result = runner.run()
 
-    print(f"\nEmbedding maintenance results:")
+    logger.info(f"\nEmbedding maintenance results:")
     for key, value in result.items():
-        print(f"  {key}: {value}")
+        logger.info(f"  {key}: {value}")

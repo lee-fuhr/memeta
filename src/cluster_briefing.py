@@ -12,12 +12,12 @@ Usage:
 
     cb = ClusterBriefing()
     text = cb.get_formatted_briefing()
-    print(text)
+    logger.info(text)
 
     # Or get structured data
     briefing = cb.get_briefing()
     for item in briefing.items:
-        print(f"{item.topic}: {item.member_count} memories")
+        logger.info(f"{item.topic}: {item.member_count} memories")
 """
 
 import json
@@ -26,6 +26,9 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
+import logging
+
+logger = logging.getLogger(__name__)
 
 MEMORY_DIR = Path.home() / ".local/share/memory/LFI/memories"
 INTELLIGENCE_DB = Path(__file__).parent / "intelligence.db"

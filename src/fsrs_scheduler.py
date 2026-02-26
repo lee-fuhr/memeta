@@ -89,7 +89,6 @@ class FSRSScheduler:
         """Get pooled database connection
 
         Note: Returns connection from pool. Caller must close() when done.
-        TODO: Refactor to use context manager pattern for auto-return to pool.
         """
         from memory_system.db_pool import get_pool
         pool = get_pool(self.db_path)

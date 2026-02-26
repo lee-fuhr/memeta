@@ -9,15 +9,18 @@ Usage:
 
     loader = EnergyAwareLoader()
     memories = loader.load_context()
-    print(loader.explain_loading())
+    logger.info(loader.explain_loading())
 """
 
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional
+import logging
 
 from .memory_ts_client import MemoryTSClient, Memory
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass

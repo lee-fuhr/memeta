@@ -16,6 +16,9 @@ from ..intelligence_db import IntelligenceDB
 from ..llm_extractor import extract_with_llm
 from ..importance_engine import calculate_importance
 from ..memory_ts_client import MemoryTSClient
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -239,7 +242,7 @@ Return a list of distinct insights, one per line."""
                     )
                 except Exception as e:
                     # Log but don't fail on memory-ts errors
-                    print(f"Warning: Failed to save to memory-ts: {e}")
+                    logger.info(f"Warning: Failed to save to memory-ts: {e}")
 
             # Save to intelligence DB
             cursor.execute("""

@@ -16,6 +16,9 @@ from typing import List, Optional, Dict
 from ..intelligence_db import IntelligenceDB
 from ..importance_engine import calculate_importance
 from ..memory_ts_client import MemoryTSClient
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -260,7 +263,7 @@ class ImageCapture:
                         session_id=session_id
                     )
                 except Exception as e:
-                    print(f"Warning: Failed to save to memory-ts: {e}")
+                    logger.info(f"Warning: Failed to save to memory-ts: {e}")
 
             # Save to intelligence DB
             cursor.execute("""

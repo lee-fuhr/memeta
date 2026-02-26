@@ -14,8 +14,11 @@ from pathlib import Path
 from typing import List, Tuple
 from dataclasses import dataclass
 import re
+import logging
 
 from memory_system.memory_ts_client import Memory
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -42,8 +45,8 @@ class QualityScoring:
         
         assessment = scorer.assess_memory(memory)
         if assessment.score < 0.5:
-            print(f"Low quality: {assessment.issues}")
-            print(f"Suggestions: {assessment.suggestions}")
+            logger.info(f"Low quality: {assessment.issues}")
+            logger.info(f"Suggestions: {assessment.suggestions}")
     """
 
     # Vague words that indicate low quality
