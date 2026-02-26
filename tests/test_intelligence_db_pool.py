@@ -6,24 +6,6 @@ instead of raw sqlite3.connect() calls, while maintaining full
 backward compatibility with existing code that uses db.conn.
 """
 
-import sys
-import os
-
-# In a git worktree setup, the editable install may resolve to the main
-# worktree's src/ instead of this worktree's src/. Patch the editable
-# finder to use this worktree's source before any memory_system imports.
-_this_src = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "src")
-try:
-    import __editable___total_rekall_0_18_0_finder as _finder
-    _finder.MAPPING["memory_system"] = _this_src
-except ImportError:
-    pass
-
-# Clear any cached memory_system imports so they reload from the patched path
-for _mod in list(sys.modules):
-    if _mod.startswith("memory_system"):
-        del sys.modules[_mod]
-
 import sqlite3
 import tempfile
 import threading

@@ -3,19 +3,9 @@ Tests for confidence persistence — ConfidenceManager + Memory field round-trip
 """
 
 import os
-import sys
 import tempfile
 import shutil
 from pathlib import Path
-
-# Force imports from THIS worktree's src/ via the memory_system symlink.
-# Other worktrees may have editable installs competing for the same package name.
-_worktree_root = str(Path(__file__).resolve().parent.parent)
-# Remove any stale memory_system entries so our path takes priority
-for _key in list(sys.modules.keys()):
-    if _key.startswith("memory_system"):
-        del sys.modules[_key]
-sys.path.insert(0, _worktree_root)
 
 import pytest
 
