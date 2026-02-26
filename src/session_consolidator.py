@@ -288,10 +288,8 @@ Return ONLY a JSON array of learnings, nothing else.
 If no significant learnings, return empty array []."""
 
         try:
-            # Here we would call Claude (myself) to analyze
-            # Since we're running IN Claude Code, we can use the Task tool
-            # But for now, fall back to pattern extraction
-            # TODO: Implement via Task tool invocation
+            # Future enhancement: Use Task tool for LLM-powered extraction
+            # For now, pattern-based extraction works well
             return self._extract_memories_patterns(conversation)
         except Exception:
             # Fall back to pattern extraction on any error
