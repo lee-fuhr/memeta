@@ -40,10 +40,15 @@ clusters.db
 # Working/internal docs
 _working/
 _internal/
+_notes/
 PLAN.md
 ORCHESTRATION.md
 STATUS.md
 HANDOFF*.md
+CRUSADE-*.md
+
+# Claude Code artifacts
+.claude/
 
 # Runtime artifacts
 fsrs-status.json
