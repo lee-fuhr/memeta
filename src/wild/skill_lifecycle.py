@@ -34,6 +34,7 @@ from memory_system.wild.skill_action_tracker import SkillActionTracker
 from memory_system.wild.skill_registry_scanner import SkillRegistryScanner
 from memory_system.wild.skill_decay_scorer import SkillDecayScorer
 from memory_system.wild.skill_proposal_engine import SkillProposalEngine
+from memory_system.wild.skill_self_improver import SkillSelfImprover
 
 logger = logging.getLogger(__name__)
 
@@ -87,6 +88,10 @@ class SkillLifecycleManager:
             self.proposal_engine = SkillProposalEngine(
                 db_path=resolved_db, state_path=resolved_state
             )
+
+        self.self_improver = SkillSelfImprover(
+            db_path=resolved_db, skills_dir=resolved_skills_dir
+        )
 
     # ── Daily maintenance pipeline ───────────────────────────────────────
 
@@ -145,11 +150,27 @@ class SkillLifecycleManager:
             except Exception:
                 logger.exception("Failed to create proposal: %s", proposal.proposed_name)
 
+        # Step 6: self-improvement — extract learnings from outcomes
+        try:
+            learning_result = self.self_improver.run_learning_extraction()
+        except Exception:
+            logger.exception("Learning extraction failed")
+            learning_result = {"skills_processed": 0, "learnings_created": 0}
+
+        # Step 7: self-improvement — generate refinement proposals
+        try:
+            refinement_result = self.self_improver.run_proposal_generation()
+        except Exception:
+            logger.exception("Refinement proposal generation failed")
+            refinement_result = {"skills_evaluated": 0, "proposals_created": 0}
+
         return {
             "skills_synced": sync_result,
             "decay_scores_updated": len(decay_scores),
             "newly_flagged": newly_flagged,
             "new_proposals": persisted_proposals,
+            "learnings_extracted": learning_result,
+            "refinements_proposed": refinement_result,
         }
 
     # ── Usage recording ──────────────────────────────────────────────────
@@ -283,3 +304,31 @@ class SkillLifecycleManager:
         """Get action patterns as list of dicts. Delegates to action tracker."""
         patterns = self.tracker.get_patterns(min_frequency=min_frequency)
         return [asdict(p) for p in patterns]
+
+    # ── Self-improvement delegation ───────────────────────────────────────
+
+    def get_skill_health(self, skill_name: str) -> dict:
+        """Get health summary for a skill. Delegates to self-improver."""
+        return self.self_improver.get_skill_health(skill_name)
+
+    def get_all_skills_health(self) -> list:
+        """Get health summaries for all skills. Delegates to self-improver."""
+        return self.self_improver.get_all_skills_health()
+
+    def get_refinement_proposals(self, skill_name: str = None) -> list:
+        """Get pending refinement proposals. Delegates to self-improver."""
+        return self.self_improver.get_pending_proposals(skill_name)
+
+    def get_skill_learnings(self, skill_name: str) -> list:
+        """Get active learnings for a skill."""
+        cursor = self.self_improver.db.conn.cursor()
+        cursor.execute("""
+            SELECT * FROM skill_learnings
+            WHERE skill_name = ? AND status = 'active'
+            ORDER BY evidence_count DESC
+        """, (skill_name,))
+        return [dict(row) for row in cursor.fetchall()]
+
+    def preview_refinement(self, proposal_id: int) -> str:
+        """Preview a refinement proposal as a unified diff."""
+        return self.self_improver.apply_proposal(proposal_id)

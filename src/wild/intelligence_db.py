@@ -379,6 +379,62 @@ class IntelligenceDB:
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_skill_usage_session ON skill_usage_events(session_id)")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_skill_usage_time ON skill_usage_events(used_at)")
 
+        # Skill Self-Improvement: Invocation Outcomes
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS skill_invocation_outcomes (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                skill_name TEXT NOT NULL,
+                session_id TEXT,
+                invoked_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                outcome TEXT NOT NULL CHECK(outcome IN ('success', 'partial', 'failure', 'unknown')),
+                outcome_signals TEXT,
+                context_snippet TEXT,
+                args_used TEXT,
+                assessed_at TEXT
+            )
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_invocation_skill ON skill_invocation_outcomes(skill_name)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_invocation_session ON skill_invocation_outcomes(session_id)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_invocation_outcome ON skill_invocation_outcomes(outcome)")
+
+        # Skill Self-Improvement: Learnings
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS skill_learnings (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                skill_name TEXT NOT NULL,
+                learning_type TEXT NOT NULL CHECK(learning_type IN ('common_mistake', 'best_practice', 'usage_pattern', 'edge_case', 'workaround', 'context_tip')),
+                content TEXT NOT NULL,
+                evidence_count INTEGER NOT NULL DEFAULT 1,
+                source_sessions TEXT,
+                first_observed TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                last_observed TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                confidence REAL NOT NULL DEFAULT 0.5,
+                status TEXT NOT NULL DEFAULT 'active' CHECK(status IN ('active', 'promoted', 'dismissed'))
+            )
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_learning_skill ON skill_learnings(skill_name)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_learning_type ON skill_learnings(learning_type)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_learning_status ON skill_learnings(status)")
+
+        # Skill Self-Improvement: Refinement Proposals
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS skill_refinement_proposals (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                skill_name TEXT NOT NULL,
+                proposal_type TEXT NOT NULL CHECK(proposal_type IN ('add_mistake', 'add_best_practice', 'update_when_to_use', 'add_edge_case', 'add_workaround', 'refine_content')),
+                section_target TEXT,
+                proposed_content TEXT NOT NULL,
+                rationale TEXT,
+                supporting_learning_ids TEXT,
+                evidence_strength REAL NOT NULL DEFAULT 0.0,
+                status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending', 'approved', 'rejected', 'applied')),
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                resolved_at TEXT
+            )
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_refinement_skill ON skill_refinement_proposals(skill_name)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_refinement_status ON skill_refinement_proposals(status)")
+
         self.conn.commit()
 
     def close(self):

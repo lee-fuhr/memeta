@@ -2,7 +2,7 @@
 
 **Every memory technique that works. Every approach from the meta. All coexisting additively. And then predicting the next features and building those too.**
 
-![Python](https://img.shields.io/badge/python-3.11%2B-blue) ![Tests](https://img.shields.io/badge/tests-1256%20passing-brightgreen) ![Version](https://img.shields.io/badge/version-0.17.0-blue) ![License](https://img.shields.io/badge/license-MIT-green)
+![Python](https://img.shields.io/badge/python-3.11%2B-blue) ![Tests](https://img.shields.io/badge/tests-2%2C037%20passing-brightgreen) ![Version](https://img.shields.io/badge/version-0.20.0-blue) ![License](https://img.shields.io/badge/license-MIT-green)
 
 ---
 
@@ -31,7 +31,7 @@ Claude Code ships with a native "auto memory" feature. It's a black box: Claude 
 | Search | Not available | Semantic + BM25 hybrid, cached |
 | Quality grading | None | A/B/C/D by importance weight |
 | Spaced repetition | None | FSRS-6 — science-backed retention |
-| Pattern detection | None | 68 features including dream synthesis |
+| Pattern detection | None | 102 features including dream synthesis |
 | Self-improvement | None | Overnight consolidation, prompt evolution |
 | Methodology count | 1 (proprietary) | All of them (open, additive) |
 | Control | None | Full — you decide what persists |
@@ -41,22 +41,22 @@ Claude Code ships with a native "auto memory" feature. It's a black box: Claude 
 
 ## What's inside
 
-68 features across 6 layers, all additive:
+102 features across 6 layers, all additive:
 
 ### Foundation — the basics done right
-Contradiction detection · provenance tracking · memory versioning · decision journal · quality auto-grading · FSRS-6 spaced repetition · importance scoring with auto-tuning
+Contradiction detection · provenance tracking · memory versioning · decision journal · quality auto-grading · FSRS-6 spaced repetition · importance scoring with auto-tuning · confidence persistence · directed forgetting · encoding depth · entity extraction · emotional tagging
 
 ### Intelligence — the compounding layer
-Hybrid search (70% semantic + 30% BM25) · cache-aware search with multi-factor ranking · semantic clustering · relationship mapping · smart alerts · quality scoring
+Hybrid search (70% semantic + 30% BM25) · cache-aware search with multi-factor ranking · semantic clustering · relationship mapping · smart alerts · quality scoring · temporal knowledge graph · memory PageRank · schema classifier · retrieval-induced forgetting
 
 ### Autonomous — the system that works while you sleep
-Dream mode synthesis · frustration early warning · momentum tracking · energy-aware scheduling · decision regret warnings · pattern transfer across projects · prompt evolution via genetic algorithm · context pre-loading before meetings
+Dream mode synthesis · frustration early warning · momentum tracking · energy-aware scheduling · decision regret warnings · pattern transfer across projects · prompt evolution via genetic algorithm · context pre-loading before meetings · compaction triggers · frustration archaeology · memory interview · persona filter · memory compressor · memory health scoring
 
 ### Dashboard — see what your memory knows
 Overview with heatmap · searchable memory library · session replay · knowledge map · export (JSON/CSV) · freshness indicators · intelligence briefing · cross-client patterns
 
 ### Infrastructure
-Circuit breaker for LLM calls · FAISS vector store with dual-write · centralized config · async consolidation · GitHub Actions CI
+Circuit breaker for LLM calls · FAISS vector store with dual-write · centralized config · async consolidation · GitHub Actions CI · intelligence DB pool · content hash dedup · access tracker · event stream · unified API · self-test diagnostics
 
 **Full feature list with implementation details:** [`FEATURES.md`](FEATURES.md)
 
@@ -219,4 +219,4 @@ MIT — see [LICENSE](LICENSE)
 
 ---
 
-*68 features · 1,256 tests · every methodology · all additive*
+*102 features · 2,037 tests · every methodology · all additive*

@@ -248,6 +248,23 @@ def process_consolidation_queue(max_sessions: int = 10, timeout_per_session: int
             logger.info(f"✅ Completed: {session_id} ({duration:.1f}s)")
             logger.info(f"   Extracted: {result.new_count} new, {result.updated_count} updated, {result.duplicate_count} duplicates")
 
+            # Assess skill outcomes from this session
+            try:
+                from memory_system.wild.skill_self_improver import SkillSelfImprover
+                improver = SkillSelfImprover()
+                session_file = Path(session_path)
+                if session_file.exists():
+                    import json as _json
+                    messages = []
+                    for line in session_file.read_text().splitlines():
+                        if line.strip():
+                            messages.append(_json.loads(line))
+                    assessments = improver.assess_session_outcomes(session_id, messages)
+                    if assessments:
+                        logger.info(f"   Skill outcomes: {len(assessments)} assessed")
+            except Exception:
+                logger.debug("Skill outcome assessment skipped (module not available)")
+
             queue.mark_completed(session_id)
             processed += 1
 

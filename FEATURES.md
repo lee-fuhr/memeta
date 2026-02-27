@@ -2,7 +2,7 @@
 
 Every feature in Total Rekall, organized by layer. Each one coexists additively — adding feature N+1 makes features 1 through N better.
 
-**Current:** v0.19.1 · 2,035 tests passing · 101 features shipped
+**Current:** v0.20.0 · 2,037 tests passing · 102 features shipped
 
 ---
 
@@ -85,6 +85,7 @@ Every feature in Total Rekall, organized by layer. Each one coexists additively 
 | Mistake cascade detection | Tracks mistake cascades to prevent compound errors | `src/wild/mistake_cascade.py` |
 | Learning intervention | Detects repeated questions, suggests learning resources | `src/wild/learning_interventioner.py` |
 | Skill lifecycle management | Tracks action patterns, proposes new skills, flags stale skills with frequency-aware decay scoring | `src/wild/skill_lifecycle.py` |
+| Skill self-improvement | Captures invocation outcomes, accumulates learnings, proposes evidence-based SKILL.md refinements | `src/wild/skill_self_improver.py` |
 | A/B testing | Test extraction and ranking strategies against live corpus | `src/wild/ab_tester.py` |
 | Quality grading | Grade memories A/B/C/D, learns quality patterns over time | `src/wild/quality_grader.py` |
 | Conflict prediction | Pre-save contradiction detection with confidence scoring | `src/wild/conflict_predictor.py` |

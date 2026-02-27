@@ -6,6 +6,17 @@ Where Total Rekall has been, where it is, and where it's going.
 
 ## Shipped
 
+### v0.19.1 — Code quality pass (Feb 2026)
+Schema conflict resolution, connection leak fixes, TTL cache for API, false positive reduction.
+
+### v0.19.0 — Mega sprint (Feb 2026)
+29 features in two batches. 952 new tests.
+- **Batch 1** (19 system features) — compaction triggers, frustration archaeology, memory interview, energy-aware loading, cross-project sharing, persona filter, memory compressor, health scoring, event stream, access tracker, entity extractor, context budget optimizer, temporal knowledge graph, embedding maintenance, unified API, confidence persistence, relevance explanation, self-test diagnostics, intelligence DB pool
+- **Batch 2** (10 cognitive psychology) — generational GC, directed forgetting, encoding depth, prospective triggers, content hash dedup, memory PageRank, retrieval-induced forgetting, emotional tagging, schema classifier, reference counter
+
+### v0.18.0 — Build sprint (Feb 2026)
+5 features bridging intelligence and automation layers.
+
 ### v0.17.0 — Intelligence layer (Feb 2026)
 The "brain stem" that wires all features into a coherent system.
 - **FAISS vector store** — indexed similarity search replacing brute-force cosine
@@ -52,15 +63,14 @@ Making the dashboard actually useful.
 
 ---
 
-## Phase 4: Deeper autonomy (next)
+## Phase 4: Self-improving skills + deeper lifecycle (next)
 
 [View milestone →](https://github.com/lee-fuhr/total-rekall/milestone/4)
 
-- Energy-aware memory loading — morning sessions get strategic memories, afternoon gets operational
-- Frustration archaeology — 90-day pattern analysis, not just 20-minute detection
-- Memory interview — structured 10-minute weekly review that doesn't feel like chores
-- Persona-aware filtering (business vs health vs personal context)
-- Dashboard notifications panel
+- Skill self-improvement — outcome tracking, learning extraction, SKILL.md refinement proposals
+- Skill lifecycle maturation — decay, discovery, health monitoring
+- Memory consolidation quality tracking — which extractions are actually useful
+- Automated SKILL.md updates from accumulated learnings
 
 ## Phase 5: Community + packaging
 
