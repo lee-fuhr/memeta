@@ -329,6 +329,56 @@ class IntelligenceDB:
         """)
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_cascade_root ON mistake_cascades(root_mistake_id)")
 
+        # Skill Lifecycle: Skill Registry
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS skill_registry (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                skill_name TEXT NOT NULL UNIQUE,
+                skill_path TEXT,
+                description TEXT,
+                keywords TEXT,
+                first_seen TEXT NOT NULL,
+                last_used TEXT,
+                use_count INTEGER NOT NULL DEFAULT 0,
+                decay_score REAL NOT NULL DEFAULT 0.0,
+                flagged_for_review INTEGER NOT NULL DEFAULT 0,
+                flag_dismissed_at TEXT,
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_skill_registry_name ON skill_registry(skill_name)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_skill_registry_decay ON skill_registry(decay_score DESC)")
+
+        # Skill Lifecycle: Skill Proposals
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS skill_proposals (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                proposed_name TEXT NOT NULL,
+                action_signature TEXT NOT NULL,
+                trigger_reason TEXT NOT NULL CHECK(trigger_reason IN ('daily_burst', 'sustained_pattern')),
+                confidence REAL NOT NULL,
+                status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending', 'approved', 'rejected', 'implemented')),
+                mapped_pattern_id TEXT,
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                resolved_at TEXT
+            )
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_skill_proposals_status ON skill_proposals(status)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_skill_proposals_name ON skill_proposals(proposed_name)")
+
+        # Skill Lifecycle: Skill Usage Events
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS skill_usage_events (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                skill_name TEXT NOT NULL,
+                session_id TEXT,
+                used_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_skill_usage_skill ON skill_usage_events(skill_name)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_skill_usage_session ON skill_usage_events(session_id)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_skill_usage_time ON skill_usage_events(used_at)")
+
         self.conn.commit()
 
     def close(self):

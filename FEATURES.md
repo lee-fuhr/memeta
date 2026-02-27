@@ -84,6 +84,7 @@ Every feature in Total Rekall, organized by layer. Each one coexists additively 
 | Expertise mapping | Maps agent expertise by domain for intelligent routing | `src/wild/expertise_mapper.py` |
 | Mistake cascade detection | Tracks mistake cascades to prevent compound errors | `src/wild/mistake_cascade.py` |
 | Learning intervention | Detects repeated questions, suggests learning resources | `src/wild/learning_interventioner.py` |
+| Skill lifecycle management | Tracks action patterns, proposes new skills, flags stale skills with frequency-aware decay scoring | `src/wild/skill_lifecycle.py` |
 | A/B testing | Test extraction and ranking strategies against live corpus | `src/wild/ab_tester.py` |
 | Quality grading | Grade memories A/B/C/D, learns quality patterns over time | `src/wild/quality_grader.py` |
 | Conflict prediction | Pre-save contradiction detection with confidence scoring | `src/wild/conflict_predictor.py` |
@@ -119,6 +120,7 @@ Every feature in Total Rekall, organized by layer. Each one coexists additively 
 | Cross-client patterns | Transfer hypotheses across projects | `/api/cross-client` |
 | Regret check | Real-time decision regret warnings | `/api/regret-check` |
 | Notifications | Alert feed with badge count, dismissable | `/api/notifications` |
+| Skill lifecycle dashboard | Overview, proposals, flagged skills, decay scores, action patterns | `/api/skill-lifecycle/*` |
 
 ---
 

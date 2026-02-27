@@ -935,6 +935,116 @@ def api_dismiss_all():
 
 
 # ---------------------------------------------------------------------------
+# Skill lifecycle API
+# ---------------------------------------------------------------------------
+
+@app.route("/api/skill-lifecycle")
+def api_skill_lifecycle():
+    """Skill lifecycle overview — summary stats."""
+    try:
+        from memory_system.wild.skill_decay_scorer import SkillDecayScorer
+        from memory_system.wild.skill_proposal_engine import SkillProposalEngine
+        from memory_system.wild.skill_registry_scanner import SkillRegistryScanner
+
+        intel_db = Path(__file__).parent.parent / "intelligence.db"
+
+        scorer = SkillDecayScorer(db_path=intel_db)
+        engine = SkillProposalEngine(db_path=intel_db)
+        scanner = SkillRegistryScanner(db_path=intel_db)
+
+        all_skills = scanner.get_all_skills()
+        pending = engine.get_pending_proposals()
+        flagged = scorer.get_flagged_skills()
+
+        return jsonify({
+            "total_skills": len(all_skills),
+            "pending_proposals": len(pending),
+            "flagged_for_review": len(flagged),
+        })
+    except ImportError:
+        return jsonify({"error": "skill_lifecycle modules not available",
+                        "total_skills": 0, "pending_proposals": 0,
+                        "flagged_for_review": 0})
+    except Exception as e:
+        return jsonify({"error": str(e), "total_skills": 0,
+                        "pending_proposals": 0, "flagged_for_review": 0})
+
+
+@app.route("/api/skill-lifecycle/proposals")
+def api_skill_proposals():
+    """Pending skill proposals."""
+    try:
+        from memory_system.wild.skill_proposal_engine import SkillProposalEngine
+        intel_db = Path(__file__).parent.parent / "intelligence.db"
+        engine = SkillProposalEngine(db_path=intel_db)
+        proposals = engine.get_pending_proposals()
+        return jsonify({"proposals": proposals, "total": len(proposals)})
+    except ImportError:
+        return jsonify({"proposals": [], "total": 0,
+                        "error": "module not available"})
+    except Exception as e:
+        return jsonify({"proposals": [], "total": 0, "error": str(e)})
+
+
+@app.route("/api/skill-lifecycle/flagged")
+def api_skill_flagged():
+    """Skills flagged for review (stale/unused)."""
+    try:
+        from memory_system.wild.skill_decay_scorer import SkillDecayScorer
+        intel_db = Path(__file__).parent.parent / "intelligence.db"
+        scorer = SkillDecayScorer(db_path=intel_db)
+        flagged = scorer.get_flagged_skills()
+        return jsonify({"flagged": flagged, "total": len(flagged)})
+    except ImportError:
+        return jsonify({"flagged": [], "total": 0,
+                        "error": "module not available"})
+    except Exception as e:
+        return jsonify({"flagged": [], "total": 0, "error": str(e)})
+
+
+@app.route("/api/skill-lifecycle/decay")
+def api_skill_decay():
+    """Decay scores for all tracked skills."""
+    try:
+        from memory_system.wild.skill_decay_scorer import SkillDecayScorer
+        intel_db = Path(__file__).parent.parent / "intelligence.db"
+        scorer = SkillDecayScorer(db_path=intel_db)
+        scores = scorer.compute_all_decay_scores()
+        return jsonify({"scores": scores, "total": len(scores)})
+    except ImportError:
+        return jsonify({"scores": [], "total": 0,
+                        "error": "module not available"})
+    except Exception as e:
+        return jsonify({"scores": [], "total": 0, "error": str(e)})
+
+
+@app.route("/api/skill-lifecycle/patterns")
+def api_skill_patterns():
+    """Action patterns from skill action tracker."""
+    try:
+        from memory_system.wild.skill_action_tracker import SkillActionTracker
+        tracker = SkillActionTracker()
+        patterns = tracker.get_patterns()
+        result = []
+        for p in patterns:
+            result.append({
+                "id": p.id,
+                "action_signature": p.action_signature,
+                "canonical_form": p.canonical_form,
+                "frequency": p.frequency,
+                "first_seen": p.first_seen,
+                "last_seen": p.last_seen,
+                "mapped_skill": p.mapped_skill,
+            })
+        return jsonify({"patterns": result, "total": len(result)})
+    except ImportError:
+        return jsonify({"patterns": [], "total": 0,
+                        "error": "module not available"})
+    except Exception as e:
+        return jsonify({"patterns": [], "total": 0, "error": str(e)})
+
+
+# ---------------------------------------------------------------------------
 # Entry point
 # ---------------------------------------------------------------------------
 
