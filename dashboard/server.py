@@ -1045,6 +1045,95 @@ def api_skill_patterns():
 
 
 # ---------------------------------------------------------------------------
+# Skill self-improvement API
+# ---------------------------------------------------------------------------
+
+@app.route("/api/skill-lifecycle/health")
+def api_skill_health_all():
+    """Health summaries for all skills with invocation outcomes."""
+    try:
+        from memory_system.wild.skill_self_improver import SkillSelfImprover
+        intel_db = Path(__file__).parent.parent / "intelligence.db"
+        improver = SkillSelfImprover(db_path=intel_db)
+        health = improver.get_all_skills_health()
+        return jsonify({"skills": health, "total": len(health)})
+    except ImportError:
+        return jsonify({"skills": [], "total": 0,
+                        "error": "module not available"})
+    except Exception as e:
+        return jsonify({"skills": [], "total": 0, "error": str(e)})
+
+
+@app.route("/api/skill-lifecycle/health/<skill_name>")
+def api_skill_health_detail(skill_name):
+    """Detailed health summary for a specific skill."""
+    try:
+        from memory_system.wild.skill_self_improver import SkillSelfImprover
+        intel_db = Path(__file__).parent.parent / "intelligence.db"
+        improver = SkillSelfImprover(db_path=intel_db)
+        health = improver.get_skill_health(skill_name)
+        return jsonify(health)
+    except ImportError:
+        return jsonify({"error": "module not available"})
+    except Exception as e:
+        return jsonify({"error": str(e)})
+
+
+@app.route("/api/skill-lifecycle/refinements")
+def api_skill_refinements():
+    """Pending SKILL.md refinement proposals."""
+    try:
+        from memory_system.wild.skill_self_improver import SkillSelfImprover
+        intel_db = Path(__file__).parent.parent / "intelligence.db"
+        improver = SkillSelfImprover(db_path=intel_db)
+        skill_name = request.args.get("skill")
+        proposals = improver.get_pending_proposals(skill_name)
+        return jsonify({"proposals": proposals, "total": len(proposals)})
+    except ImportError:
+        return jsonify({"proposals": [], "total": 0,
+                        "error": "module not available"})
+    except Exception as e:
+        return jsonify({"proposals": [], "total": 0, "error": str(e)})
+
+
+@app.route("/api/skill-lifecycle/refinements/<int:proposal_id>/preview")
+def api_skill_refinement_preview(proposal_id):
+    """Preview a refinement proposal as a unified diff."""
+    try:
+        from memory_system.wild.skill_self_improver import SkillSelfImprover
+        intel_db = Path(__file__).parent.parent / "intelligence.db"
+        improver = SkillSelfImprover(db_path=intel_db)
+        diff = improver.apply_proposal(proposal_id)
+        return jsonify({"proposal_id": proposal_id, "diff": diff})
+    except ImportError:
+        return jsonify({"error": "module not available"})
+    except Exception as e:
+        return jsonify({"error": str(e)})
+
+
+@app.route("/api/skill-lifecycle/learnings/<skill_name>")
+def api_skill_learnings(skill_name):
+    """Active learnings for a specific skill."""
+    try:
+        from memory_system.wild.skill_self_improver import SkillSelfImprover
+        intel_db = Path(__file__).parent.parent / "intelligence.db"
+        improver = SkillSelfImprover(db_path=intel_db)
+        cursor = improver.db.conn.cursor()
+        cursor.execute("""
+            SELECT * FROM skill_learnings
+            WHERE skill_name = ? AND status = 'active'
+            ORDER BY evidence_count DESC
+        """, (skill_name,))
+        learnings = [dict(row) for row in cursor.fetchall()]
+        return jsonify({"learnings": learnings, "total": len(learnings)})
+    except ImportError:
+        return jsonify({"learnings": [], "total": 0,
+                        "error": "module not available"})
+    except Exception as e:
+        return jsonify({"learnings": [], "total": 0, "error": str(e)})
+
+
+# ---------------------------------------------------------------------------
 # Entry point
 # ---------------------------------------------------------------------------
 

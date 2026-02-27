@@ -8,6 +8,10 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
 
+---
+
+## [0.20.0] - 2026-02-27
+
 ### Added
 - **Skill lifecycle management** (experimental/wild) — tracks action patterns, proposes new skills, flags stale skills for review
   - 5 new modules: action tracker, registry scanner, decay scorer, proposal engine, facade
@@ -19,6 +23,26 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
   - Decay formula: `adjusted_half_life = 30 * (1 + log2(max(1, use_count)))`, flags at >= 0.8
   - Conservative v1: propose only (never auto-create), flag only (never auto-delete)
   - 135+ tests across 5 test files
+- **Skill self-improvement** — captures invocation outcomes, accumulates learnings, proposes SKILL.md refinements
+  - New module: `src/wild/skill_self_improver.py` (~730 lines)
+  - 3 new DB tables: `skill_invocation_outcomes`, `skill_learnings`, `skill_refinement_proposals`
+  - Outcome capture: heuristic assessment of skill invocations from session messages
+  - Learning accumulation: Jaccard-based deduplication, evidence counting, confidence tracking
+  - SKILL.md refinement: evidence-based proposals with conservative thresholds, unified diff preview
+  - Health monitoring: per-skill success rates, trend detection, aggregated health dashboard
+  - Dashboard: 5 new endpoints (`/api/skill-lifecycle/health`, `/health/<name>`, `/refinements`, `/refinements/<id>/preview`, `/learnings/<name>`)
+  - Intelligence orchestrator: new signal collector for declining success rates + pending refinements
+  - Async consolidation: automatic outcome assessment after session memory extraction
+  - Lifecycle facade: integrated as 6th sub-module with daily maintenance pipeline
+  - 34 tests in `tests/wild/test_skill_self_improver.py`
+
+### Changed
+- Documentation brought up to date: README badges, feature counts, ROADMAP shipped versions, FEATURES.md stats
+- GitHub releases published for v0.19.0 and v0.19.1
+
+### Tests
+- **Core suite:** 2,037 passing
+- **Wild suite:** 456 passing (34 new for skill self-improvement)
 
 ---
 

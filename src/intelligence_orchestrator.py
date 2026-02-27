@@ -264,6 +264,43 @@ def _collect_skill_lifecycle_signals(db_path: Path) -> list[Signal]:
         return []
 
 
+def _collect_skill_health_signals(db_path: Path) -> list[Signal]:
+    """Collect signals from skill self-improvement (health + refinements)."""
+    try:
+        from memory_system.wild.skill_self_improver import SkillSelfImprover
+
+        improver = SkillSelfImprover(db_path=db_path)
+        signals = []
+
+        # Check for declining success rates
+        all_health = improver.get_all_skills_health()
+        for h in all_health:
+            if h["total_invocations"] >= 5 and h["success_rate"] < 0.5:
+                signals.append(Signal(
+                    signal_type=SignalType.WARNING,
+                    priority="medium",
+                    title=f"Skill '{h['skill_name']}' underperforming",
+                    detail=f"{h['success_rate']:.0%} success rate across {h['total_invocations']} invocations",
+                    source="skill_self_improver",
+                ))
+
+        # Check for pending refinement proposals
+        pending = improver.get_pending_proposals()
+        if pending:
+            names = ", ".join(set(p["skill_name"] for p in pending[:3]))
+            signals.append(Signal(
+                signal_type=SignalType.SUGGESTION,
+                priority="low",
+                title="SKILL.md refinements pending",
+                detail=f"{len(pending)} proposal(s) ready for review: {names}",
+                source="skill_self_improver",
+            ))
+
+        return signals
+    except Exception:
+        return []
+
+
 # ---------------------------------------------------------------------------
 # Core functions
 # ---------------------------------------------------------------------------
@@ -282,6 +319,7 @@ def collect_signals(db_path: Optional[Path] = None) -> list[Signal]:
         _collect_regret_signals,
         _collect_frustration_signals,
         _collect_skill_lifecycle_signals,
+        _collect_skill_health_signals,
     ]
 
     all_signals = []

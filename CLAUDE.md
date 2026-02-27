@@ -1,13 +1,13 @@
 # Total Rekall — project instructions
 
-**Version:** 0.19.0
-**Last updated:** 2026-02-19
+**Version:** 0.20.0
+**Last updated:** 2026-02-27
 
 ---
 
 ## What this is
 
-Intelligent memory system for Claude Code. 72 features, 1,079 tests, Python 3.11+. Extracts knowledge from sessions, grades it, searches it semantically, and synthesizes insights across projects.
+Intelligent memory system for Claude Code. 102 features, 2,037 tests, Python 3.11+. Extracts knowledge from sessions, grades it, searches it semantically, and synthesizes insights across projects.
 
 **Architecture:** Memory files (YAML frontmatter + markdown) at `~/.local/share/memory/LFI/memories/`. Intelligence layer in `intelligence.db` (SQLite). FAISS vector store for semantic search. Flask dashboard at localhost:8766.
 
@@ -125,7 +125,7 @@ Co-Authored-By: Claude <model> <noreply@anthropic.com>
 | Document | Purpose | Audience |
 |----------|---------|----------|
 | README.md | Project homepage, install, overview | Visitors |
-| FEATURES.md | Complete feature reference (all 68) | Visitors + devs |
+| FEATURES.md | Complete feature reference (all 101) | Visitors + devs |
 | ROADMAP.md | Timeline narrative + phase milestones | Visitors |
 | CHANGELOG.md | Semantic versioned release notes | Devs |
 | CONTRIBUTING.md | How to contribute | Contributors |
@@ -157,6 +157,20 @@ Co-Authored-By: Claude <model> <noreply@anthropic.com>
 | `src/intelligence/vector_store.py` | FAISS IndexFlatIP wrapper with persistence |
 | `dashboard/server.py` | Flask dashboard with 13+ API endpoints |
 | `hooks/session-memory-consolidation-async.py` | Claude Code hook for automatic memory extraction |
+| `src/wild/skill_self_improver.py` | Skill self-improvement — outcome tracking, learning extraction, SKILL.md proposals |
+| `src/wild/skill_lifecycle.py` | Skill lifecycle facade — orchestrates all skill sub-modules |
+
+---
+
+### Release checklist (mandatory for version bumps)
+1. pyproject.toml — bump version
+2. CHANGELOG.md — move [Unreleased] to new version
+3. README.md — update badge (version, test count), feature count, footer
+4. CLAUDE.md — update version, date, feature/test counts
+5. FEATURES.md — update header stats
+6. ROADMAP.md — add to "Shipped" section
+7. git tag v{X.Y.Z}
+8. gh release create v{X.Y.Z} with notes from CHANGELOG
 
 ---
 
