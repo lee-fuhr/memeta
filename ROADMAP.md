@@ -6,6 +6,9 @@ Where Memeta has been, where it is, and where it's going.
 
 ## Shipped
 
+### v0.20.1 — Rename to Memeta (Feb 2026)
+Project renamed from Total Rekall to Memeta across GitHub repo, source code, docs, tests, and dashboard.
+
 ### v0.19.1 — Code quality pass (Feb 2026)
 Schema conflict resolution, connection leak fixes, TTL cache for API, false positive reduction.
 

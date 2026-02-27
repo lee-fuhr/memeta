@@ -10,6 +10,13 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ---
 
+## [0.20.1] - 2026-02-27
+
+### Changed
+- **Project renamed to Memeta** — GitHub repo, pyproject.toml, all documentation, source code, tests, and dashboard updated from "Total Rekall" to "Memeta"
+
+---
+
 ## [0.20.0] - 2026-02-27
 
 ### Added
