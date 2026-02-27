@@ -3,7 +3,7 @@ requires = ["setuptools>=64", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "total-rekall"
+name = "memeta"
 version = "0.20.0"
 description = "Intelligent memory system for Claude Code — extract, grade, search, and synthesize knowledge across sessions"
 readme = "README.md"
@@ -37,9 +37,9 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/lee-fuhr/total-rekall"
-Repository = "https://github.com/lee-fuhr/total-rekall"
-Issues = "https://github.com/lee-fuhr/total-rekall/issues"
+Homepage = "https://github.com/lee-fuhr/memeta"
+Repository = "https://github.com/lee-fuhr/memeta"
+Issues = "https://github.com/lee-fuhr/memeta/issues"
 
 [project.optional-dependencies]
 ml = [

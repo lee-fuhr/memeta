@@ -30,7 +30,7 @@ TOOL_PATTERNS: List[str] = [
 
 PROJECT_PATTERNS: List[str] = [
     "Connection Lab", "Cogent Analytics", "ZeroArc", "Imply",
-    "PowerTrack", "Total Rekall", "LFI",
+    "PowerTrack", "Memeta", "LFI",
 ]
 
 # Words that commonly start sentences but are not person names.

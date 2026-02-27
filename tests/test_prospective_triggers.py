@@ -304,12 +304,12 @@ class TestCheckTriggers:
         conn.execute(
             "INSERT INTO prospective_triggers (memory_id, trigger_type, condition, status, created_at) "
             "VALUES (?, ?, ?, ?, ?)",
-            ("mem-205", "event", json.dumps({"project": "total-rekall"}), "pending",
+            ("mem-205", "event", json.dumps({"project": "memeta"}), "pending",
              datetime.now(timezone.utc).isoformat()),
         )
         conn.commit()
         conn.close()
-        matched = manager.check_triggers({"project": "total-rekall"})
+        matched = manager.check_triggers({"project": "memeta"})
         assert len(matched) >= 1
         assert any(t.memory_id == "mem-205" for t in matched)
 
@@ -318,7 +318,7 @@ class TestCheckTriggers:
         conn.execute(
             "INSERT INTO prospective_triggers (memory_id, trigger_type, condition, status, created_at) "
             "VALUES (?, ?, ?, ?, ?)",
-            ("mem-206", "event", json.dumps({"project": "total-rekall"}), "pending",
+            ("mem-206", "event", json.dumps({"project": "memeta"}), "pending",
              datetime.now(timezone.utc).isoformat()),
         )
         conn.commit()

@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to Total Rekall.
+All notable changes to Memeta.
 
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 

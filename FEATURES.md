@@ -1,6 +1,6 @@
 # Features
 
-Every feature in Total Rekall, organized by layer. Each one coexists additively — adding feature N+1 makes features 1 through N better.
+Every feature in Memeta, organized by layer. Each one coexists additively — adding feature N+1 makes features 1 through N better.
 
 **Current:** v0.20.0 · 2,037 tests passing · 102 features shipped
 
