@@ -346,7 +346,7 @@ class TestGetReportText:
         st.run_all()
         text = st.get_report_text()
 
-        assert "Total Rekall self-test report" in text
+        assert "Memeta self-test report" in text
         assert "memory_readwrite" in text
         assert "db_accessible" in text
         assert "embeddings_fresh" in text
@@ -363,7 +363,7 @@ class TestGetReportText:
 
         st = SelfTest(config)
         text = st.get_report_text()  # No prior run_all()
-        assert "Total Rekall self-test report" in text
+        assert "Memeta self-test report" in text
 
     def test_report_shows_pass_fail_labels(self, tmp_path):
         config = _make_config()

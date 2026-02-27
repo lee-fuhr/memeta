@@ -1,6 +1,6 @@
 # Roadmap
 
-Where Total Rekall has been, where it is, and where it's going.
+Where Memeta has been, where it is, and where it's going.
 
 ---
 
@@ -39,7 +39,7 @@ Making the dashboard actually useful.
 
 ### v0.14.0 — Circuit breaker + rename (Feb 2026)
 - **Circuit breaker** for LLM calls — 3-failure threshold, auto-recovery
-- Renamed project to Total Rekall
+- Renamed project to Memeta
 
 ### v0.13.0 — Dashboard (Feb 2026)
 - Full Flask dashboard: overview, memories, sessions, knowledge map
@@ -65,7 +65,7 @@ Making the dashboard actually useful.
 
 ## Phase 4: Self-improving skills + deeper lifecycle (next)
 
-[View milestone →](https://github.com/lee-fuhr/total-rekall/milestone/4)
+[View milestone →](https://github.com/lee-fuhr/memeta/milestone/4)
 
 - Skill self-improvement — outcome tracking, learning extraction, SKILL.md refinement proposals
 - Skill lifecycle maturation — decay, discovery, health monitoring
@@ -74,7 +74,7 @@ Making the dashboard actually useful.
 
 ## Phase 5: Community + packaging
 
-[View milestone →](https://github.com/lee-fuhr/total-rekall/milestone/5)
+[View milestone →](https://github.com/lee-fuhr/memeta/milestone/5)
 
 - PyPI packaging
 - Memory relationship graph visualization

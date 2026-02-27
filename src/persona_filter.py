@@ -31,7 +31,7 @@ DEFAULT_PERSONAS: Dict[str, List[str]] = {
     ],
     "technical": [
         "memory-system",
-        "total-rekall",
+        "memeta",
     ],
     "personal": [
         "health",

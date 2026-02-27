@@ -1,6 +1,6 @@
 # 🏰 The Holy Order - Memory System Audit Report
 
-**Project:** Memory System v1 (Total Rekall)
+**Project:** Memory System v1 (Memeta)
 **Date:** 2026-02-25
 **Files analyzed:** 225 (122 source modules, 103 tests)
 **Test status:** 2023 passing, 14 failing (99.3% pass rate)

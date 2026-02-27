@@ -1,5 +1,5 @@
 """
-Self-test diagnostic system for Total Rekall.
+Self-test diagnostic system for Memeta.
 
 Runs a suite of health checks against the memory system:
 - Memory read/write (temp file round-trip)
@@ -363,7 +363,7 @@ class SelfTest:
 
         report = self._last_report
         lines: List[str] = []
-        lines.append("=== Total Rekall self-test report ===")
+        lines.append("=== Memeta self-test report ===")
         lines.append(f"Timestamp: {report['timestamp']}")
         lines.append(f"Result: {report['summary']}")
         lines.append("")

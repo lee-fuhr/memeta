@@ -109,11 +109,11 @@ class TestExtractEntities:
 
     def test_extract_project_names(self, extractor):
         """Extracts known project names."""
-        text = "The Connection Lab and Total Rekall projects are progressing."
+        text = "The Connection Lab and Memeta projects are progressing."
         entities = extractor.extract_entities(text)
         project_names = [e["name"] for e in entities if e["type"] == "project"]
         assert "Connection Lab" in project_names
-        assert "Total Rekall" in project_names
+        assert "Memeta" in project_names
 
     def test_extract_entities_returns_position(self, extractor):
         """Each extracted entity has a position (character offset)."""
@@ -329,7 +329,7 @@ class TestEdgeCases:
 
     def test_multiple_entity_types_in_one_text(self, extractor):
         """All entity types can coexist in one extraction."""
-        text = "Russell Hamilton used Python to build Total Rekall."
+        text = "Russell Hamilton used Python to build Memeta."
         entities = extractor.extract_entities(text)
         types = {e["type"] for e in entities}
         assert "person" in types
