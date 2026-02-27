@@ -225,6 +225,45 @@ def _collect_frustration_signals(db_path: Path) -> list[Signal]:
         return []
 
 
+def _collect_skill_lifecycle_signals(db_path: Path) -> list[Signal]:
+    """Collect signals from skill lifecycle (proposals + decay)."""
+    try:
+        from memory_system.wild.skill_proposal_engine import SkillProposalEngine
+        from memory_system.wild.skill_decay_scorer import SkillDecayScorer
+
+        signals = []
+
+        # Check for pending proposals
+        engine = SkillProposalEngine(db_path=db_path)
+        pending = engine.get_pending_proposals()
+        if pending:
+            names = ", ".join(p["proposed_name"] for p in pending[:3])
+            signals.append(Signal(
+                signal_type=SignalType.SUGGESTION,
+                priority="medium",
+                title="Skill proposals awaiting review",
+                detail=f"{len(pending)} pattern(s) detected that could become skills: {names}",
+                source="skill_lifecycle",
+            ))
+
+        # Check for flagged-for-review skills
+        scorer = SkillDecayScorer(db_path=db_path)
+        flagged = scorer.get_flagged_skills()
+        if flagged:
+            names = ", ".join(f["skill_name"] for f in flagged[:3])
+            signals.append(Signal(
+                signal_type=SignalType.WARNING,
+                priority="low",
+                title="Stale skills flagged for review",
+                detail=f"{len(flagged)} skill(s) haven't been used recently: {names}",
+                source="skill_lifecycle",
+            ))
+
+        return signals
+    except Exception:
+        return []
+
+
 # ---------------------------------------------------------------------------
 # Core functions
 # ---------------------------------------------------------------------------
@@ -242,6 +281,7 @@ def collect_signals(db_path: Optional[Path] = None) -> list[Signal]:
         _collect_energy_signals,
         _collect_regret_signals,
         _collect_frustration_signals,
+        _collect_skill_lifecycle_signals,
     ]
 
     all_signals = []

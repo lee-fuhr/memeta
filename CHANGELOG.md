@@ -6,6 +6,22 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ---
 
+## [Unreleased]
+
+### Added
+- **Skill lifecycle management** (experimental/wild) — tracks action patterns, proposes new skills, flags stale skills for review
+  - 5 new modules: action tracker, registry scanner, decay scorer, proposal engine, facade
+  - 3 new DB tables: `skill_registry`, `skill_proposals`, `skill_usage_events`
+  - Dashboard endpoints: `/api/skill-lifecycle/*` (overview, proposals, flagged, decay, patterns)
+  - Intelligence orchestrator integration (signals for proposals + flagged skills)
+  - Config: 2 new properties (`skill_lifecycle_state_path`, `skills_dir`)
+  - Proposal triggers: daily burst (3+/day), sustained pattern (7+ distinct days)
+  - Decay formula: `adjusted_half_life = 30 * (1 + log2(max(1, use_count)))`, flags at >= 0.8
+  - Conservative v1: propose only (never auto-create), flag only (never auto-delete)
+  - 135+ tests across 5 test files
+
+---
+
 ## [0.19.1] - 2026-02-19
 
 ### Fixed — code quality pass

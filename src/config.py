@@ -102,6 +102,21 @@ class MemorySystemConfig:
             Path.home() / ".local/share/memory" / "clusters.db",
         )
 
+    # ── Skill lifecycle ─────────────────────────────────────────────────
+    @property
+    def skill_lifecycle_state_path(self) -> Path:
+        return _path(
+            "MEMORY_SYSTEM_SKILL_LIFECYCLE_STATE",
+            self.memory_dir / "skill-lifecycle" / "action-patterns.json",
+        )
+
+    @property
+    def skills_dir(self) -> Path:
+        return _path(
+            "MEMORY_SYSTEM_SKILLS_DIR",
+            Path.home() / "CC/.agents/skills",
+        )
+
     # ── Tunable constants ─────────────────────────────────────────────────
     max_pre_compaction_facts: int = field(
         default_factory=lambda: int(_env("MEMORY_SYSTEM_MAX_FACTS", "5"))
