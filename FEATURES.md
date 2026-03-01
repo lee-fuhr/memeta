@@ -2,7 +2,7 @@
 
 Every feature in Memeta, organized by layer. Each one coexists additively — adding feature N+1 makes features 1 through N better.
 
-**Current:** v0.24.0 · 2,267 tests passing · 118 features shipped
+**Current:** v0.25.0 · 2,435 tests passing · 124 features shipped
 
 ---
 
@@ -170,6 +170,12 @@ Every feature in Memeta, organized by layer. Each one coexists additively — ad
 | Consolidation worker | Background LaunchAgent runs consolidation queue every 15 minutes | `launch-agents/com.lfi.consolidation-worker.plist` |
 | Search index auto-rebuild | Background LaunchAgent rebuilds BM25 search index every 30 minutes | `launch-agents/com.lfi.search-index-rebuild.plist` |
 | Extraction evolution | Epsilon-greedy prompt variant selection with quality tracking for self-improving extraction | `src/wild/prompt_evolver.py` |
+| CLI entry point | `memeta` command with argparse subcommands: init, search, import, generate | `src/cli.py` |
+| Search CLI | Terminal search with BM25 + importance-weighted ranking, domain/tag filters, multiple output formats | `src/search_cli.py` |
+| Setup wizard | `memeta init` with 7 environment checks, directory creation, dependency validation, non-interactive mode | `src/setup_wizard.py` |
+| Markdown importer | Bulk import from markdown directories with frontmatter parsing, cached dedup, importance guessing | `src/importers/markdown_importer.py` |
+| CLAUDE.md importer | Section-aware CLAUDE.md parsing into searchable memories with heading hierarchy extraction | `src/importers/claude_md_importer.py` |
+| Learnings generator | Auto-generates curated CLAUDE.md sections from top memories with strip-and-regenerate pattern | `src/learnings_generator.py` |
 
 ---
 

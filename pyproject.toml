@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "memeta"
-version = "0.24.0"
+version = "0.25.0"
 description = "Intelligent memory system for Claude Code — extract, grade, search, and synthesize knowledge across sessions"
 readme = "README.md"
 license = { text = "MIT" }
@@ -41,6 +41,9 @@ Homepage = "https://github.com/lee-fuhr/memeta"
 Repository = "https://github.com/lee-fuhr/memeta"
 Issues = "https://github.com/lee-fuhr/memeta/issues"
 
+[project.scripts]
+memeta = "memory_system.cli:main"
+
 [project.optional-dependencies]
 ml = [
     "sentence-transformers",
@@ -59,6 +62,7 @@ test = [
 "memory_system.automation" = "src/automation"
 "memory_system.multimodal" = "src/multimodal"
 "memory_system.wild" = "src/wild"
+"memory_system.importers" = "src/importers"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
