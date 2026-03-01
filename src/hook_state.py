@@ -18,12 +18,29 @@ Design decisions:
 import json
 import os
 import random
+import re
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Optional
 
 DEFAULT_STATE_FILE: Path = Path.home() / ".claude" / "hook-state.json"
 DEFAULT_INJECTION_INTERVAL: int = 10
+
+FRUSTRATION_TRIGGER_PATTERNS = [
+    r"you should know",
+    r"we('ve| have) (done|discussed|talked about|covered)",
+    r"i('ve| have) (already|previously) (told|said|mentioned)",
+    r"i already (told|said)",
+    r"remember when",
+    r"as (i|we) (said|discussed)",
+    r"like (i|we) (said|discussed|mentioned)",
+    r"this (isn't|is not) new",
+    r"we went (over|through) this",
+    r"i already told you",
+    r"you('ve| have) forgotten",
+    r"how (many|do|can) (times|i|you)",
+    r"pay attention",
+]
 
 _DEFAULT_SESSION_SCHEMA: dict = {
     "exchange_count": 0,
@@ -234,3 +251,46 @@ def cleanup_stale_sessions(
         save_state(state, state_file)
 
     return len(to_remove)
+
+
+def detect_memory_signal(prompt_text: str) -> bool:
+    """Detect if user prompt contains frustration signals about forgotten context.
+
+    Args:
+        prompt_text: The user's prompt text to check for frustration patterns.
+
+    Returns:
+        True if any frustration pattern matches, False otherwise.
+    """
+    text = prompt_text.lower()
+    return any(re.search(p, text) for p in FRUSTRATION_TRIGGER_PATTERNS)
+
+
+def should_inject_immediately(prompt_text: str) -> bool:
+    """Check if this prompt should trigger immediate memory injection, bypassing the interval gate.
+
+    Args:
+        prompt_text: The user's prompt text to check.
+
+    Returns:
+        True if frustration signals detected, False otherwise.
+    """
+    return detect_memory_signal(prompt_text)
+
+
+def reduce_injection_interval(
+    session_id: Optional[str] = None,
+    state_file: Optional[Path] = None,
+) -> None:
+    """Reduce injection interval from 10 to 5 for rest of session after frustration detected.
+
+    Args:
+        session_id: Session to update. Defaults to current session from env.
+        state_file: Path to state file. Defaults to DEFAULT_STATE_FILE.
+    """
+    sid = session_id or get_session_id()
+    update_session_state(
+        {"injection_interval": 5},
+        session_id=sid,
+        state_file=state_file,
+    )

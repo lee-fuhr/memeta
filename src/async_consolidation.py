@@ -27,6 +27,7 @@ import time
 import logging
 
 from memory_system.db_pool import get_connection
+from memory_system.memory_injector import build_search_index
 
 logger = logging.getLogger(__name__)
 
@@ -277,6 +278,16 @@ def process_consolidation_queue(max_sessions: int = 10, timeout_per_session: int
             retry_delay = retry_delays[min(retry_count, len(retry_delays) - 1)]
 
             queue.mark_failed(session_id, error_msg, retry_delay)
+
+    # Rebuild search index after processing sessions (so new memories are searchable)
+    if processed > 0:
+        try:
+            logger.info("🔍 Rebuilding BM25 search index...")
+            indexed_count = build_search_index()
+            logger.info(f"✅ Search index rebuilt: {indexed_count} memories indexed")
+        except Exception as e:
+            logger.error(f"⚠️  Search index rebuild failed: {e}")
+            # Don't fail consolidation if index rebuild fails
 
     return processed
 

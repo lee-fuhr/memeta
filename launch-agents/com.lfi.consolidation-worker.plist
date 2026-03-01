@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.lfi.consolidation-worker</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Users/lee/.local/venvs/memory-system/bin/python3</string>
+        <string>/Users/lee/CC/LFI/_ Operations/memory-system-v1/src/async_consolidation.py</string>
+    </array>
+    <key>WorkingDirectory</key>
+    <string>/Users/lee/CC/LFI/_ Operations/memory-system-v1/</string>
+    <key>StartInterval</key>
+    <integer>900</integer>
+    <key>StandardOutPath</key>
+    <string>/Users/lee/Library/Logs/consolidation-worker.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/lee/Library/Logs/consolidation-worker.log</string>
+    <key>KeepAlive</key>
+    <false/>
+</dict>
+</plist>

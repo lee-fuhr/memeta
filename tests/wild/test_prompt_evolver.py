@@ -126,21 +126,23 @@ def test_calculate_fitness(evolver):
 
 
 def test_get_best_prompt(evolver):
-    """Test retrieving best performing prompt"""
+    """Test retrieving best performing prompt returns content string of highest-fitness prompt"""
     evolver.initialize_population()
 
-    # Set fitness scores
+    # Set fitness scores and get the expected best prompt content
     with sqlite3.connect(evolver.db_path) as conn:
-        prompts = conn.execute("SELECT id FROM extraction_prompts WHERE generation = 0").fetchall()
+        prompts = conn.execute("SELECT id, content FROM extraction_prompts WHERE generation = 0").fetchall()
         best_id = prompts[0][0]
+        best_content = prompts[0][1]
 
         conn.execute("UPDATE extraction_prompts SET fitness_score = 0.95 WHERE id = ?", (best_id,))
         conn.execute("UPDATE extraction_prompts SET fitness_score = 0.5 WHERE id != ?", (best_id,))
 
-    best = evolver.get_best_prompt()
+    # get_best_prompt returns prompt content as string (epsilon=0 forces exploit)
+    best = evolver.get_best_prompt(epsilon=0.0)
     assert best is not None
-    assert best.id == best_id
-    assert best.fitness_score == 0.95
+    assert isinstance(best, str)
+    assert best == best_content
 
 
 def test_evolve_generation(evolver):

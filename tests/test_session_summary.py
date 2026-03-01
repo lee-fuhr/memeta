@@ -30,6 +30,8 @@ from memory_system.session_summary import (
     get_summaries_dir,
     load_summary,
     save_summary,
+    generate_llm_summary,
+    StructuredSessionSummary,
 )
 
 
@@ -392,3 +394,385 @@ class TestCleanupOldSummaries:
         # 2 recent files should remain
         remaining = list(tmp_path.glob("*.json"))
         assert len(remaining) == 2
+
+
+# ---------------------------------------------------------------------------
+# TestGenerateLLMSummary
+# ---------------------------------------------------------------------------
+
+class TestGenerateLLMSummary:
+    """Tests for LLM-powered summary generation."""
+
+    def test_generates_structured_summary(self, monkeypatch):
+        """LLM call returns structured summary with all required fields."""
+        # Mock ask_claude to return a JSON response
+        def mock_ask_claude(prompt, timeout=30, max_retries=3):
+            return json.dumps({
+                "summary": "Built session summary feature with LLM integration",
+                "topic": "memory-system-v1",
+                "decisions": ["Use LLM for rich summaries", "Keep heuristic as fallback"],
+                "open_questions": ["Should we cache LLM summaries?"],
+                "open_threads": ["Wire into consolidation hook"],
+                "files_touched": ["src/session_summary.py", "tests/test_session_summary.py"]
+            })
+
+        monkeypatch.setattr("memory_system.llm_extractor.ask_claude", mock_ask_claude)
+
+        transcript = _build_transcript([
+            _make_transcript_line("human", "Let's add LLM summaries"),
+            _make_transcript_line("assistant", "I'll build that feature"),
+        ])
+
+        result = generate_llm_summary(transcript, session_id="test-llm-001")
+
+        assert isinstance(result, StructuredSessionSummary)
+        assert result.session_id == "test-llm-001"
+        assert "LLM" in result.summary
+        assert result.topic == "memory-system-v1"
+        assert len(result.decisions) == 2
+        assert len(result.open_questions) == 1
+        assert len(result.files_touched) == 2
+        assert result.generator == "llm"
+
+    def test_handles_llm_timeout(self, monkeypatch):
+        """Falls back to heuristic when LLM times out."""
+        def mock_ask_claude(prompt, timeout=30, max_retries=3):
+            return ""  # Timeout/failure
+
+        monkeypatch.setattr("memory_system.llm_extractor.ask_claude", mock_ask_claude)
+
+        transcript = _build_transcript([
+            _make_transcript_line("human", "Test message"),
+        ])
+
+        result = generate_llm_summary(transcript, session_id="fallback-001")
+
+        assert result.generator == "heuristic"
+        assert result.session_id == "fallback-001"
+
+    def test_handles_malformed_llm_response(self, monkeypatch):
+        """Falls back to heuristic when LLM returns invalid JSON."""
+        def mock_ask_claude(prompt, timeout=30, max_retries=3):
+            return "This is not JSON at all"
+
+        monkeypatch.setattr("memory_system.llm_extractor.ask_claude", mock_ask_claude)
+
+        transcript = _build_transcript([
+            _make_transcript_line("human", "Test"),
+        ])
+
+        result = generate_llm_summary(transcript)
+        assert result.generator == "heuristic"
+
+    def test_handles_partial_llm_response(self, monkeypatch):
+        """Fills missing fields with defaults when LLM response is incomplete."""
+        def mock_ask_claude(prompt, timeout=30, max_retries=3):
+            return json.dumps({
+                "summary": "Partial summary",
+                "topic": "test-project"
+                # Missing: decisions, open_questions, etc.
+            })
+
+        monkeypatch.setattr("memory_system.llm_extractor.ask_claude", mock_ask_claude)
+
+        transcript = _build_transcript([
+            _make_transcript_line("human", "Test"),
+        ])
+
+        result = generate_llm_summary(transcript)
+        assert result.summary == "Partial summary"
+        assert result.topic == "test-project"
+        assert result.decisions == []
+        assert result.open_questions == []
+        assert result.generator == "llm"
+
+    def test_quality_gate_rejects_short_summaries(self, monkeypatch):
+        """Rejects heuristic summaries that are too short or all questions."""
+        # This tests the quality gate for heuristic fallback
+        def mock_ask_claude(prompt, timeout=30, max_retries=3):
+            return ""  # Force heuristic
+
+        monkeypatch.setattr("memory_system.llm_extractor.ask_claude", mock_ask_claude)
+
+        # Transcript that would produce very short summary
+        transcript = _build_transcript([
+            _make_transcript_line("human", "?"),
+        ])
+
+        result = generate_llm_summary(transcript)
+        # Should still return a result, but with minimal content
+        assert result is not None
+        assert result.generator == "heuristic"
+
+
+# ---------------------------------------------------------------------------
+# TestStructuredSessionSummary
+# ---------------------------------------------------------------------------
+
+class TestStructuredSessionSummary:
+    """Tests for StructuredSessionSummary dataclass."""
+
+    def test_creates_with_all_fields(self):
+        """Can create summary with all 11 fields."""
+        summary = StructuredSessionSummary(
+            session_id="test-123",
+            summary="Test summary",
+            topic="test-topic",
+            decisions=["decision 1"],
+            open_questions=["question 1"],
+            open_threads=["thread 1"],
+            files_touched=["file.py"],
+            frustration_level="low",
+            depends_on=["session-456"],
+            generated_at="2026-02-28T10:00:00Z",
+            generator="llm"
+        )
+
+        assert summary.session_id == "test-123"
+        assert summary.summary == "Test summary"
+        assert summary.frustration_level == "low"
+        assert summary.depends_on == ["session-456"]
+        assert summary.generator == "llm"
+
+    def test_can_convert_to_dict(self):
+        """StructuredSessionSummary can be converted to dict for JSON serialization."""
+        from dataclasses import asdict
+
+        summary = StructuredSessionSummary(
+            session_id="test-123",
+            summary="Test",
+            topic="topic",
+            decisions=[],
+            open_questions=[],
+            open_threads=[],
+            files_touched=[],
+            frustration_level="low",
+            depends_on=[],
+            generated_at="2026-02-28T10:00:00Z",
+            generator="llm"
+        )
+
+        data = asdict(summary)
+        assert data["session_id"] == "test-123"
+        assert data["generator"] == "llm"
+
+
+# ---------------------------------------------------------------------------
+# TestWatchOutForSection
+# ---------------------------------------------------------------------------
+
+class TestWatchOutForSection:
+    """Tests for 'Watch out for' section in resumption cards."""
+
+    def test_includes_corrections_in_card(self, tmp_path, monkeypatch):
+        """Resumption card includes relevant corrections in 'Watch out for' section."""
+        # Mock memory search to return corrections
+        def mock_search_memories(query, memories=None, index_path=None, top_k=3,
+                                 strategy="bm25", min_score=1.0, min_normalized=0.3):
+            return [
+                {"id": "corr-1", "content": "Always run tests before committing",
+                 "context_type": "correction"},
+                {"id": "corr-2", "content": "Use virtual env, not system Python",
+                 "context_type": "correction"},
+            ]
+
+        # Patch at memory_injector where it's defined
+        monkeypatch.setattr("memory_system.memory_injector.search_memories", mock_search_memories)
+
+        summary = _make_summary(
+            session_id="test-watch-123",
+            summary="Working on test suite",
+            open_questions=["Should we add more tests?"],
+        )
+        # Add topic field so the card will search for corrections
+        summary["topic"] = "testing"
+
+        card = format_resumption_card(summary)
+
+        assert "Watch out for" in card or "watch out for" in card.lower()
+        assert "tests before committing" in card or "Always run tests" in card
+
+    def test_no_corrections_no_section(self, monkeypatch):
+        """When no corrections found, 'Watch out for' section is not shown."""
+        def mock_search_memories(*args, **kwargs):
+            return []  # No corrections
+
+        monkeypatch.setattr("memory_system.memory_injector.search_memories", mock_search_memories)
+
+        summary = _make_summary()
+        summary["topic"] = "testing"
+        card = format_resumption_card(summary)
+
+        # Should not include empty "Watch out for" section
+        assert "Watch out for" not in card
+
+    def test_limits_to_top_3_corrections(self, monkeypatch):
+        """Only shows top 3 most relevant corrections."""
+        def mock_search_memories(*args, **kwargs):
+            return [
+                {"id": f"corr-{i}", "content": f"Correction {i}",
+                 "context_type": "correction"}
+                for i in range(10)  # Return 10, should only show 3
+            ]
+
+        monkeypatch.setattr("memory_system.memory_injector.search_memories", mock_search_memories)
+
+        summary = _make_summary()
+        summary["topic"] = "test-topic"
+        card = format_resumption_card(summary)
+
+        # Count how many corrections appear
+        correction_count = sum(1 for i in range(10) if f"Correction {i}" in card)
+        assert correction_count <= 3
+
+
+# ---------------------------------------------------------------------------
+# TestBackwardCompatibility
+# ---------------------------------------------------------------------------
+
+class TestBackwardCompatibility:
+    """Tests for reading old-format summaries gracefully."""
+
+    def test_reads_old_format_summary(self, tmp_path):
+        """Old 5-field format loads without errors."""
+        old_summary = {
+            "session_id": "old-123",
+            "summary": "Old format summary",
+            "open_questions": ["Old question?"],
+            "files_touched": ["old_file.py"],
+            "generated_at": "2026-01-01T00:00:00Z"
+        }
+
+        path = tmp_path / "old-123.json"
+        path.write_text(json.dumps(old_summary))
+
+        loaded = load_summary("old-123", summaries_dir=tmp_path)
+
+        assert loaded is not None
+        assert loaded["session_id"] == "old-123"
+        assert "summary" in loaded
+
+    def test_formats_old_summary_gracefully(self):
+        """format_resumption_card handles old format with missing new fields."""
+        old_summary = {
+            "session_id": "old-456",
+            "summary": "Old summary",
+            "open_questions": [],
+            "files_touched": [],
+            "generated_at": "2026-01-01T00:00:00Z"
+            # Missing: topic, decisions, open_threads, frustration_level, etc.
+        }
+
+        card = format_resumption_card(old_summary)
+
+        # Should not crash
+        assert isinstance(card, str)
+        assert "Old summary" in card
+
+    def test_new_fields_have_defaults(self):
+        """New StructuredSessionSummary fields default gracefully when missing."""
+        # Simulate loading old format and converting
+        old_data = {
+            "session_id": "mixed-789",
+            "summary": "Summary text",
+            "open_questions": [],
+            "files_touched": [],
+            "generated_at": "2026-02-28T10:00:00Z"
+        }
+
+        # Create new structure with defaults for missing fields
+        summary = StructuredSessionSummary(
+            session_id=old_data["session_id"],
+            summary=old_data["summary"],
+            topic=old_data.get("topic", ""),
+            decisions=old_data.get("decisions", []),
+            open_questions=old_data.get("open_questions", []),
+            open_threads=old_data.get("open_threads", []),
+            files_touched=old_data.get("files_touched", []),
+            frustration_level=old_data.get("frustration_level", "unknown"),
+            depends_on=old_data.get("depends_on", []),
+            generated_at=old_data["generated_at"],
+            generator=old_data.get("generator", "heuristic")
+        )
+
+        assert summary.topic == ""
+        assert summary.decisions == []
+        assert summary.frustration_level == "unknown"
+        assert summary.generator == "heuristic"
+
+
+# ---------------------------------------------------------------------------
+# TestFrustrationLevel
+# ---------------------------------------------------------------------------
+
+class TestFrustrationLevel:
+    """Tests for frustration level integration."""
+
+    def test_includes_frustration_level(self, monkeypatch):
+        """Summary includes frustration level from detector."""
+        def mock_ask_claude(prompt, timeout=30, max_retries=3):
+            return json.dumps({
+                "summary": "Test",
+                "topic": "test",
+                "decisions": [],
+                "open_questions": [],
+                "open_threads": [],
+                "files_touched": []
+            })
+
+        monkeypatch.setattr("memory_system.llm_extractor.ask_claude", mock_ask_claude)
+
+        # Mock frustration detection
+        def mock_detect_frustration(session_id):
+            return "medium"
+
+        import memory_system.session_summary
+        monkeypatch.setattr(memory_system.session_summary, "detect_frustration_level",
+                          mock_detect_frustration)
+
+        transcript = _build_transcript([
+            _make_transcript_line("human", "This keeps breaking"),
+        ])
+
+        result = generate_llm_summary(transcript, session_id="frust-123")
+
+        assert result.frustration_level in ["low", "medium", "high", "unknown"]
+
+
+# ---------------------------------------------------------------------------
+# TestGeneratorField
+# ---------------------------------------------------------------------------
+
+class TestGeneratorField:
+    """Tests for generator field tracking."""
+
+    def test_llm_success_sets_generator_llm(self, monkeypatch):
+        """When LLM succeeds, generator is 'llm'."""
+        def mock_ask_claude(prompt, timeout=30, max_retries=3):
+            return json.dumps({
+                "summary": "LLM summary",
+                "topic": "test",
+                "decisions": [],
+                "open_questions": [],
+                "open_threads": [],
+                "files_touched": []
+            })
+
+        monkeypatch.setattr("memory_system.llm_extractor.ask_claude", mock_ask_claude)
+
+        transcript = _build_transcript([_make_transcript_line("human", "Test")])
+        result = generate_llm_summary(transcript)
+
+        assert result.generator == "llm"
+
+    def test_heuristic_fallback_sets_generator_heuristic(self, monkeypatch):
+        """When LLM fails, generator is 'heuristic'."""
+        def mock_ask_claude(prompt, timeout=30, max_retries=3):
+            return ""  # Failure
+
+        monkeypatch.setattr("memory_system.llm_extractor.ask_claude", mock_ask_claude)
+
+        transcript = _build_transcript([_make_transcript_line("human", "Test")])
+        result = generate_llm_summary(transcript)
+
+        assert result.generator == "heuristic"

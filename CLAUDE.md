@@ -1,13 +1,13 @@
 # Memeta — project instructions
 
-**Version:** 0.23.0
+**Version:** 0.24.0
 **Last updated:** 2026-02-28
 
 ---
 
 ## What this is
 
-Intelligent memory system for Claude Code. 110 features, 2,184 tests, Python 3.11+. Extracts knowledge from sessions, grades it, searches it semantically, and synthesizes insights across projects.
+Intelligent memory system for Claude Code. 118 features, 2,267 tests, Python 3.11+. Extracts knowledge from sessions, grades it, searches it semantically, and synthesizes insights across projects.
 
 **Architecture:** Memory files (YAML frontmatter + markdown) at `~/.local/share/memory/LFI/memories/`. Intelligence layer in `intelligence.db` (SQLite). FAISS vector store for semantic search. Flask dashboard at localhost:8766.
 
@@ -159,10 +159,12 @@ Co-Authored-By: Claude <model> <noreply@anthropic.com>
 | `hooks/session-memory-consolidation-async.py` | Claude Code hook for automatic memory extraction |
 | `src/wild/skill_self_improver.py` | Skill self-improvement — outcome tracking, learning extraction, SKILL.md proposals |
 | `src/wild/skill_lifecycle.py` | Skill lifecycle facade — orchestrates all skill sub-modules |
-| `src/hook_state.py` | Session-scoped hook coordination via `~/.claude/hook-state.json` |
+| `src/hook_state.py` | Session-scoped hook coordination + frustration detection via `~/.claude/hook-state.json` |
 | `src/memory_injector.py` | BM25-only memory search for in-session injection (hook-safe, ~50ms) |
-| `src/session_summary.py` | Heuristic "Where was I?" resumption cards |
-| `hooks/memory-injection.py` | UserPromptSubmit hook — exchange-gated memory injection |
+| `src/session_summary.py` | LLM-powered structured session summaries + "Watch out for" correction surfacing |
+| `src/agent_context.py` | `get_context_for_agent()` — memory-aware context for conductor delegations |
+| `src/memory_feedback.py` | Human feedback mechanism for memory quality grading |
+| `hooks/memory-injection.py` | UserPromptSubmit hook — exchange-gated + frustration-triggered memory injection |
 
 ---
 

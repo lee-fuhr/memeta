@@ -2,12 +2,13 @@
 Session summary module — "Where was I?" resumption cards.
 
 Extracts structured summaries from Claude Code session transcripts using
-simple heuristics (no LLM). Summaries are stored as JSON and rendered as
-prose resumption cards at session start.
+LLM-powered extraction (with heuristic fallback). Summaries are stored as
+JSON and rendered as prose resumption cards at session start.
 
 Architecture:
 - Structured JSON at ~/.claude/session-summaries/{session_id}.json
-- Five fields: session_id, summary, open_questions, files_touched, generated_at
+- Eleven fields: session_id, summary, topic, decisions, open_questions,
+  open_threads, files_touched, frustration_level, depends_on, generated_at, generator
 - Written at session end by the consolidation hook
 - Read at session start by session-context.py
 """
@@ -16,8 +17,10 @@ import json
 import re
 import time
 import uuid
+from dataclasses import dataclass, asdict
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Optional
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -54,6 +57,44 @@ _FILE_PATH_RE = re.compile(
     """,
     re.VERBOSE,
 )
+
+
+# ---------------------------------------------------------------------------
+# Data structures
+# ---------------------------------------------------------------------------
+
+@dataclass
+class StructuredSessionSummary:
+    """Rich session summary with LLM-extracted fields.
+
+    11 fields total:
+    - session_id: Unique session identifier
+    - summary: 2-3 sentence overview of what was done
+    - topic: Main topic/project being worked on
+    - decisions: List of decisions made during session
+    - open_questions: Unresolved questions
+    - open_threads: In-progress work not yet completed
+    - files_touched: Key files that were modified
+    - frustration_level: "low" | "medium" | "high" | "unknown"
+    - depends_on: List of related session IDs (linked sessions)
+    - generated_at: ISO 8601 timestamp
+    - generator: "llm" | "heuristic" (tracks what produced this summary)
+    """
+    session_id: str
+    summary: str
+    topic: str
+    decisions: list[str]
+    open_questions: list[str]
+    open_threads: list[str]
+    files_touched: list[str]
+    frustration_level: str
+    depends_on: list[str]
+    generated_at: str
+    generator: str
+
+    def to_dict(self) -> dict:
+        """Convert to dict for JSON serialization."""
+        return asdict(self)
 
 
 # ---------------------------------------------------------------------------
@@ -222,6 +263,192 @@ def _extract_files_touched(messages: list[dict]) -> list[str]:
     return files
 
 
+def detect_frustration_level(session_id: str) -> str:
+    """Detect frustration level for a session.
+
+    Placeholder for integration with frustration_detector.py.
+    Returns "unknown" until integrated.
+
+    Args:
+        session_id: Session identifier
+
+    Returns:
+        "low" | "medium" | "high" | "unknown"
+    """
+    # TODO: Integrate with src/wild/frustration_detector.py
+    # For now, return unknown
+    return "unknown"
+
+
+# ---------------------------------------------------------------------------
+# LLM-powered summary generation
+# ---------------------------------------------------------------------------
+
+def generate_llm_summary(
+    session_transcript: str,
+    session_id: str | None = None,
+) -> StructuredSessionSummary:
+    """Generate a rich summary using LLM extraction with heuristic fallback.
+
+    Calls ask_claude() to extract structured information from the transcript.
+    Falls back to heuristic extraction if LLM fails or times out.
+
+    Quality gate for heuristic: Rejects summaries <50 chars or all questions.
+
+    Args:
+        session_transcript: JSONL string of the session transcript.
+        session_id: Optional session identifier. Generated if None.
+
+    Returns:
+        StructuredSessionSummary with all 11 fields populated.
+    """
+    from memory_system.llm_extractor import ask_claude
+
+    if session_id is None:
+        session_id = uuid.uuid4().hex[:16]
+
+    # Truncate huge transcripts (same as heuristic path)
+    if len(session_transcript) > MAX_TRANSCRIPT_BYTES:
+        session_transcript = session_transcript[-MAX_TRANSCRIPT_BYTES:]
+        first_newline = session_transcript.find("\n")
+        if first_newline != -1:
+            session_transcript = session_transcript[first_newline + 1:]
+
+    messages = _parse_transcript(session_transcript)
+
+    # Try LLM extraction first
+    llm_result = _try_llm_extraction(messages, session_id)
+    if llm_result is not None:
+        return llm_result
+
+    # Fall back to heuristic extraction
+    return _heuristic_summary(messages, session_id)
+
+
+def _try_llm_extraction(
+    messages: list[dict],
+    session_id: str,
+) -> Optional[StructuredSessionSummary]:
+    """Attempt LLM extraction. Returns None on failure.
+
+    Args:
+        messages: Parsed transcript messages
+        session_id: Session identifier
+
+    Returns:
+        StructuredSessionSummary or None if LLM fails
+    """
+    from memory_system.llm_extractor import ask_claude
+
+    # Build prompt for LLM
+    # Take last 20 messages for context (same as heuristic)
+    recent = messages[-20:] if len(messages) > 20 else messages
+    conversation_text = "\n\n".join([
+        f"{m['role'].upper()}: {m['text']}"
+        for m in recent
+    ])
+
+    prompt = f"""Analyze this Claude Code session conversation and extract a structured summary.
+
+CONVERSATION:
+{conversation_text}
+
+Extract the following fields:
+
+1. **summary**: 2-3 sentence overview of what was accomplished
+2. **topic**: Main topic/project (e.g., "memory-system-v1", "client-website")
+3. **decisions**: List of decisions made (as array of strings)
+4. **open_questions**: Unresolved questions (as array of strings)
+5. **open_threads**: In-progress work not yet completed (as array of strings)
+6. **files_touched**: Key files mentioned/modified (as array of strings)
+
+Return ONLY a JSON object with these exact keys:
+{{"summary": "...", "topic": "...", "decisions": [...], "open_questions": [...], "open_threads": [...], "files_touched": [...]}}"""
+
+    # Call LLM with timeout
+    response = ask_claude(prompt, timeout=30, max_retries=2)
+
+    if not response or not response.strip():
+        return None
+
+    # Parse JSON response
+    try:
+        data = json.loads(response.strip())
+    except json.JSONDecodeError:
+        # Try to extract JSON from markdown code fence
+        if "```json" in response:
+            try:
+                json_start = response.find("```json") + 7
+                json_end = response.find("```", json_start)
+                json_text = response[json_start:json_end].strip()
+                data = json.loads(json_text)
+            except (json.JSONDecodeError, ValueError):
+                return None
+        else:
+            return None
+
+    # Build StructuredSessionSummary from LLM response
+    return StructuredSessionSummary(
+        session_id=session_id,
+        summary=data.get("summary", ""),
+        topic=data.get("topic", ""),
+        decisions=data.get("decisions", []),
+        open_questions=data.get("open_questions", []),
+        open_threads=data.get("open_threads", []),
+        files_touched=data.get("files_touched", []),
+        frustration_level=detect_frustration_level(session_id),
+        depends_on=[],  # TODO: Extract linked sessions from transcript
+        generated_at=datetime.now(timezone.utc).isoformat(),
+        generator="llm"
+    )
+
+
+def _heuristic_summary(
+    messages: list[dict],
+    session_id: str,
+) -> StructuredSessionSummary:
+    """Generate summary using heuristic extraction.
+
+    Uses existing heuristic functions to extract summary, questions, files.
+    Applies quality gate: rejects if summary is <50 chars or all questions.
+
+    Args:
+        messages: Parsed transcript messages
+        session_id: Session identifier
+
+    Returns:
+        StructuredSessionSummary with heuristic-extracted content
+    """
+    summary_text = _extract_summary_text(messages)
+    open_questions = _extract_open_questions(messages)
+    files_touched = _extract_files_touched(messages)
+
+    # Quality gate: check if summary is too short or all questions
+    passes_quality_gate = True
+    if len(summary_text) < 50:
+        passes_quality_gate = False
+    if summary_text and all(c in "?.!" for c in summary_text if not c.isspace()):
+        passes_quality_gate = False
+
+    # If quality gate fails, use a default summary
+    if not passes_quality_gate:
+        summary_text = "Session summary unavailable (transcript too short or incomplete)"
+
+    return StructuredSessionSummary(
+        session_id=session_id,
+        summary=summary_text,
+        topic="",  # Heuristic can't reliably extract topic
+        decisions=[],  # Heuristic can't extract decisions
+        open_questions=open_questions,
+        open_threads=[],  # Heuristic can't distinguish threads from questions
+        files_touched=files_touched,
+        frustration_level=detect_frustration_level(session_id),
+        depends_on=[],
+        generated_at=datetime.now(timezone.utc).isoformat(),
+        generator="heuristic"
+    )
+
+
 # ---------------------------------------------------------------------------
 # Core API
 # ---------------------------------------------------------------------------
@@ -372,18 +599,22 @@ def format_resumption_card(summary: dict) -> str:
     """Format a summary as a human-readable resumption card.
 
     Produces a markdown block suitable for injection into session context.
+    Includes "Watch out for" section with relevant corrections from memory.
 
     Args:
-        summary: The summary dict.
+        summary: The summary dict (supports both old and new formats).
 
     Returns:
         Formatted string.
     """
+    from memory_system.memory_injector import search_memories
+
     session_id = summary.get("session_id", "unknown")
     generated_at = summary.get("generated_at", "unknown")
     summary_text = summary.get("summary", "No summary available.")
     open_questions = summary.get("open_questions", [])
     files_touched = summary.get("files_touched", [])
+    topic = summary.get("topic", "")
 
     # Truncate session_id for display
     sid_display = session_id[:12] if len(session_id) > 12 else session_id
@@ -393,6 +624,38 @@ def format_resumption_card(summary: dict) -> str:
         f"**Last session:** {generated_at} `{sid_display}`",
         f"**What was done:** {summary_text or 'No summary available.'}",
     ]
+
+    # Search for relevant corrections to surface
+    corrections = []
+    if topic:
+        # Search using topic as query
+        try:
+            results = search_memories(
+                query=topic,
+                top_k=3,
+                min_score=0.5,
+                min_normalized=0.2,
+            )
+            # Filter to only corrections
+            corrections = [
+                r for r in results
+                if r.get("context_type") == "correction"
+            ][:3]  # Max 3
+        except Exception:
+            # Silently fail if search fails (hook context, don't crash)
+            pass
+
+    # Add "Watch out for" section if we have corrections
+    if corrections:
+        lines.append("")
+        lines.append("## Watch out for")
+        for i, corr in enumerate(corrections, 1):
+            content = corr.get("content", "")
+            # Strip "Correction: " prefix if present
+            if content.lower().startswith("correction: "):
+                content = content[len("correction: "):]
+            lines.append(f"- {content}")
+        lines.append("")
 
     if open_questions:
         lines.append(f"**Open questions:** {'; '.join(open_questions)}")

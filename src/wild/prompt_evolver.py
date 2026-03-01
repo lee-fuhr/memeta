@@ -88,16 +88,33 @@ class ExtractionPromptEvolver:
     CROSSOVER_RATE = 0.6
 
     # Base prompt (generation 0)
-    BASE_PROMPT = """Extract key learnings and insights from this session.
+    BASE_PROMPT = """Analyze this Claude Code session and extract learnings worth remembering.
 
-Focus on:
-- Concrete, actionable patterns that can be reused
-- Technical solutions that worked
-- Mistakes to avoid in the future
-- Client-specific insights
-- Process improvements
+CONVERSATION:
+{CONVERSATION}
 
-Be specific. Avoid vague generalizations. Include evidence."""
+Extract learnings in these categories:
+1. **Preferences** - User stated preferences ("I prefer X", "Don't do Y")
+2. **Corrections** - User corrected the assistant about something
+3. **Technical** - Solutions, patterns, approaches that worked
+4. **Process** - Workflows, sequences, methods that were effective
+5. **Client-specific** - Patterns specific to a client/project mentioned
+
+For each learning:
+- Write 1-2 clear, specific, actionable sentences
+- Rate importance: 0.5=minor tip, 0.7=useful pattern, 0.85=critical insight, 0.95=game-changer
+- Explain why it matters in 1 sentence
+- Assign a category
+
+QUALITY BARS:
+- Only extract genuinely useful insights
+- Skip generic advice ("test thoroughly", "be clear")
+- Corrections get 0.8+ importance
+- Preferences get 0.7+ importance
+- If no significant learnings, return empty array []
+
+Return ONLY a JSON array:
+[{{"content": "Specific learning", "importance": 0.75, "reasoning": "Why this matters", "category": "preference"}}]"""
 
     # Mutation operators
     MUTATIONS = {
@@ -202,24 +219,61 @@ Be specific. Avoid vague generalizations. Include evidence."""
         """
         Test a prompt on a session and return results.
 
+        Uses real extraction and quality grading to evaluate prompt performance.
+
         Args:
             prompt: Prompt to test
-            session_data: Session data with 'id', 'messages', 'extracted_memories'
+            session_data: Session data with 'id', 'conversation' (or 'messages')
 
         Returns:
             PromptTestResult with test outcomes
         """
-        # In real implementation, would run extraction with this prompt
-        # For now, simulate based on session data
+        from memory_system.wild.quality_grader import MemoryQualityGrader
+        from memory_system.llm_extractor import parse_llm_response
+        import subprocess
 
         session_id = session_data['id']
-        memories = session_data.get('extracted_memories', [])
+        conversation = session_data.get('conversation', '')
+
+        # If no conversation string, try to build from messages
+        if not conversation and 'messages' in session_data:
+            conversation = '\n'.join(
+                f"{m.get('role', 'user')}: {m.get('content', '')}"
+                for m in session_data['messages']
+            )
+
+        # Fill prompt template with conversation
+        filled_prompt = prompt.content.format(CONVERSATION=conversation[-15000:])
+
+        # Extract memories using this prompt via LLM
+        try:
+            result = subprocess.run(
+                ["claude", "-p", filled_prompt],
+                capture_output=True,
+                text=True,
+                timeout=30
+            )
+            if result.returncode == 0:
+                memories = parse_llm_response(result.stdout, project_id="test")
+            else:
+                memories = []
+        except (subprocess.TimeoutExpired, FileNotFoundError, Exception):
+            memories = []
+
+        # Grade each memory
+        grader = MemoryQualityGrader(db_path=self.db_path)
+        quality_scores = []
+
+        for i, memory in enumerate(memories):
+            memory_id = f"{session_id}-{prompt.id}-{i}"
+            grade = grader.grade_memory(memory_id, memory.content, memory.importance)
+            quality_scores.append(grade.score)
 
         # Calculate metrics
         memories_count = len(memories)
-        avg_quality = sum(m.get('quality_score', 0.5) for m in memories) / max(1, memories_count)
-        dedup_count = session_data.get('dedup_count', 0)
-        correction_count = session_data.get('correction_count', 0)
+        avg_quality = sum(quality_scores) / max(1, len(quality_scores))
+        dedup_count = 0  # TODO: implement deduplication detection
+        correction_count = 0  # TODO: implement correction detection
 
         result = PromptTestResult(
             prompt_id=prompt.id,
@@ -368,24 +422,32 @@ Be specific. Avoid vague generalizations. Include evidence."""
 
         return next_gen
 
-    def get_best_prompt(self) -> ExtractionPrompt:
-        """Get current best-performing prompt"""
-        with sqlite3.connect(self.db_path) as conn:
-            row = conn.execute("""
-                SELECT id, generation, content, parent_ids, mutations,
-                       fitness_score, avg_quality, extraction_yield,
-                       dedup_rate, correction_rate, sessions_tested,
-                       created_at, last_tested
-                FROM extraction_prompts
-                WHERE is_active = 1
-                ORDER BY fitness_score DESC
-                LIMIT 1
-            """).fetchone()
+    def get_best_prompt(self, epsilon: float = 0.1) -> str:
+        """
+        Get current best-performing prompt with epsilon-greedy exploration.
 
-        if not row:
-            return None
+        Args:
+            epsilon: Exploration rate (0.0 = always exploit, 1.0 = always explore)
+                     Default 0.1 = 90% exploit, 10% explore
 
-        return self._row_to_prompt(row)
+        Returns:
+            Prompt text as string
+        """
+        # Fallback if no population exists
+        prompts = self._get_active_prompts()
+        if not prompts:
+            return self.BASE_PROMPT
+
+        # Epsilon-greedy selection
+        if random.random() < epsilon:
+            # Explore: random prompt
+            selected = random.choice(prompts)
+        else:
+            # Exploit: best prompt
+            prompts_sorted = sorted(prompts, key=lambda p: p.fitness_score, reverse=True)
+            selected = prompts_sorted[0]
+
+        return selected.content
 
     def _mutate_prompt(self, parent: ExtractionPrompt, generation: int, variant_num: int) -> ExtractionPrompt:
         """Apply random mutation to create variant"""

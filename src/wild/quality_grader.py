@@ -107,7 +107,7 @@ class MemoryQualityGrader:
                 CREATE TABLE IF NOT EXISTS quality_validation_events (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     memory_id TEXT NOT NULL,
-                    event_type TEXT NOT NULL CHECK(event_type IN ('reinforcement', 'correction', 'cross_project', 'contradiction')),
+                    event_type TEXT NOT NULL CHECK(event_type IN ('reinforcement', 'correction', 'cross_project', 'contradiction', 'injection')),
                     session_id TEXT,
                     evidence TEXT,
                     timestamp TEXT NOT NULL,
@@ -224,7 +224,7 @@ class MemoryQualityGrader:
         imperative_score = min(1.0, imperative_count * 0.3)
         example_score = 0.3 if has_examples else 0.0
 
-        return action_score + imperative_score + example_score
+        return min(1.0, action_score + imperative_score + example_score)
 
     def _score_evidence(self, content: str) -> float:
         """Score how well-evidenced the memory is (0.0-1.0)"""
@@ -244,7 +244,7 @@ class MemoryQualityGrader:
         data_score = 0.3 if has_numbers else 0.0
         reference_score = 0.3 if has_references else 0.0
 
-        return evidence_marker_score + data_score + reference_score
+        return min(1.0, evidence_marker_score + data_score + reference_score)
 
     def update_grade_from_validation(self, memory_id: str, event_type: str, session_id: str = None, evidence: str = None):
         """
