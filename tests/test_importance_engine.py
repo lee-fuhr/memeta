@@ -197,3 +197,49 @@ class TestGetImportanceScore:
         score = get_importance_score(content, metadata)
         # Should be higher than purely decayed score
         assert score > 0.3
+
+
+class TestApplyDecayTemporalRelevance:
+    """Test temporal_relevance parameter on apply_decay"""
+
+    def test_apply_decay_permanent_no_decay(self):
+        """temporal_relevance='permanent' returns importance unchanged after 100 days"""
+        original = 0.85
+        result = apply_decay(original, 100, temporal_relevance="permanent")
+        assert result == original
+
+    def test_apply_decay_persistent_decays(self):
+        """temporal_relevance='persistent' still decays normally (existing behavior)"""
+        original = 0.85
+        result = apply_decay(original, 30, temporal_relevance="persistent")
+        expected = original * (0.99 ** 30)
+        assert abs(result - expected) < 0.001
+        assert result < original
+
+    def test_apply_decay_default_is_persistent(self):
+        """No temporal_relevance param = decays normally (backward compatible)"""
+        original = 0.85
+        # Call without temporal_relevance — should behave like persistent
+        result_default = apply_decay(original, 30)
+        result_persistent = apply_decay(original, 30, temporal_relevance="persistent")
+        assert result_default == result_persistent
+
+    def test_get_importance_score_permanent(self):
+        """Permanent memories don't decay in the full pipeline"""
+        content = "Client preferred direct language over marketing-speak"
+        created = (datetime.now() - timedelta(days=100)).isoformat()
+        last_accessed = (datetime.now() - timedelta(days=100)).isoformat()
+        metadata = {
+            "created": created,
+            "last_accessed": last_accessed,
+        }
+        # Score WITHOUT permanent — should decay
+        score_decayed = get_importance_score(content, metadata)
+
+        # Score WITH permanent — should NOT decay
+        score_permanent = get_importance_score(
+            content, metadata, temporal_relevance="permanent"
+        )
+
+        # Permanent score should be higher because no decay was applied
+        assert score_permanent > score_decayed

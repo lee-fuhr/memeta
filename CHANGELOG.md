@@ -10,6 +10,41 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ---
 
+## [0.23.0] - 2026-02-28
+
+### Correction pipeline (Phase 2)
+
+The feature that makes AI assistants stop being annoying. When Lee corrects Claude once, the system detects it, stores it as a high-importance correction memory, reinforces it across sessions, and graduates confirmed corrections to permanent CLAUDE.md rules.
+
+**Added**
+- **Correction detection** (`src/extraction_patterns.py`) — 3 new pattern categories: explicit corrections ("actually", "should be"), behavioral directives ("always/never do X"), frustration signals ("I told you", "stop doing"). New `detect_corrections()` seam returns typed dicts with pattern classification. Correction importance boost: 1.5x with 0.9 floor and 1.0 cap
+- **Correction graduation** (`src/correction_graduator.py`) — full pipeline: find candidates (context_type=correction, confirmations >= 3, not already graduated), format as imperative rules, strip-and-regenerate CLAUDE.md within `<!-- AUTO-GENERATED: corrections -->` markers, mark graduated with `#graduated` tag. Preserves previously graduated rules across runs
+- **Correction reinforcement** (`src/session_consolidator.py`) — `reinforce_corrections()` increments confirmations on existing corrections when same correction appears across different sessions; word overlap > 0.7 matching; same-session dedup via `source_session_id` prevents gaming
+- **Correction injection** (`src/memory_injector.py`) — corrections surfaced first at session start in dedicated `=== ACTIVE CORRECTIONS ===` block; `context_type` added to BM25 search index; max 3 corrections, sorted by importance, filtered by project
+- **Skill-aware memory tagging** (`src/session_consolidator.py`) — reads `active_skills` from hook_state at consolidation time; tags all memories with `#skill:{name}` for skill-specific surfacing
+- **Temporal relevance on decay** (`src/importance_engine.py`) — `temporal_relevance="permanent"` parameter on `apply_decay()` exempts corrections from importance decay
+
+**Architecture decisions (from adversarial debate)**
+- Regular Memory with metadata (context_type, temporal_relevance, confirmations) — not a new CorrectionMemory subclass
+- Detection-only seam (detect_corrections returns dicts, not objects) — clean separation from memory creation
+- Flat list in CLAUDE.md, imperative rules, no categories — simpler and more extensible
+- Same-session dedup prevents single verbose sessions from gaming graduation threshold
+- BM25-only injection maintained — corrections at session start only, no mid-session injection
+- Skill tags at memory level, not correction level — all memories benefit from skill context
+
+**Fixed**
+- **Critical: strip-and-regenerate data loss** — graduation would destroy previously graduated rules on second run. Fixed by combining previously graduated + new candidates before regenerating CLAUDE.md. Regression test added
+
+### Tests
+- **Core suite:** 2,184 passing (+59 new, 0 regressions)
+- 12 extraction pattern tests (behavioral directives, frustration signals, boost values)
+- 4 importance engine tests (permanent no-decay, backward compat)
+- 11 session consolidator tests (correction metadata, skill tags, reinforcement, dedup)
+- 21 correction graduator tests (full pipeline, edge cases, cross-run preservation)
+- 11 memory injector tests (corrections block, sorting, filtering, project scoping)
+
+---
+
 ## [0.22.0] - 2026-02-28
 
 ### Memory injection + hook infrastructure (Phase 1)

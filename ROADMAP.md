@@ -6,6 +6,16 @@ Where Memeta has been, where it is, and where it's going.
 
 ## Shipped
 
+### v0.23.0 — Correction pipeline (Feb 2026)
+Phase 2: When Lee corrects Claude once, the system detects it, stores it as a high-importance correction memory, reinforces it across sessions, and graduates confirmed corrections to permanent CLAUDE.md rules.
+- **Correction detection** (`src/extraction_patterns.py`) — 3 pattern categories: explicit corrections, behavioral directives, frustration signals; `detect_corrections()` seam with typed classification; 1.5x importance boost (0.9 floor, 1.0 cap)
+- **Correction graduation** (`src/correction_graduator.py`) — find candidates → format imperative rules → strip-and-regenerate CLAUDE.md → mark graduated; preserves previously graduated rules across runs
+- **Correction reinforcement** (`src/session_consolidator.py`) — cross-session confirmation tracking; word-overlap > 0.7 matching; same-session dedup via source_session_id
+- **Correction injection** (`src/memory_injector.py`) — corrections surfaced first at session start; context_type in BM25 index; max 3, sorted by importance
+- **Skill-aware memory tagging** — active skills tagged on all memories as `#skill:{name}`
+- **Temporal relevance on decay** — permanent memories exempt from importance decay
+- **59 new tests** — 2,184 total passing
+
 ### v0.22.0 — Memory injection + hook infrastructure (Feb 2026)
 Phase 1: Close the biggest open loop — memories go in at session end but nothing comes out during sessions. This release makes Memeta read-write.
 - **Hook shared state** (`src/hook_state.py`) — session-scoped JSON coordination between hooks; atomic writes; probabilistic stale cleanup
@@ -92,14 +102,9 @@ Completed Feb 28, 2026. See v0.21.0 in Shipped section above.
 
 Completed Feb 28, 2026. See v0.22.0 in Shipped section above.
 
-## Phase 2: Correction pipeline (~2-3 weeks)
+## Phase 2: Correction pipeline — SHIPPED (v0.23.0)
 
-The feature that makes AI assistants stop being annoying. When Lee corrects Claude once, the system learns permanently.
-
-- **Correction detection in session_consolidator.py** — detect patterns like "no, always do X", "I told you", "never do Y"; store corrections as memory type `correction` with high importance (0.9+) and reinforcement_count metadata
-- **Correction persistence as high-importance memories** — memory injection hook gives corrections highest priority when surfacing; corrections compound across sessions
-- **Correction graduation to CLAUDE.md** — demarcated auto-generated section (`<!-- AUTO-GENERATED: corrections -->`); generator reads correction memories with reinforcement_count >= 3, formats as compact rules; triggers after consolidation when a correction passes graduation threshold; extends existing promotion_executor.py
-- **Skill-aware memory tagging** — consolidation hook reads skill-registry.json or hook-state.json for active skills; tags extracted memories with skill names; enables skill-specific memory surfacing
+Completed Feb 28, 2026. See v0.23.0 in Shipped section above.
 
 ## Phase 3: Extraction evolution + system integration (~3-4 weeks)
 

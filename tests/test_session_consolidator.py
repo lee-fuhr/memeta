@@ -428,3 +428,302 @@ class TestGarbageDetection:
         assert _is_garbage_content("Short")
         assert _is_garbage_content("Too brief to be useful")
         assert not _is_garbage_content("This is long enough to be a legitimate memory with substance")
+
+
+class TestCorrectionMetadata:
+    """Test correction detection + metadata tagging in consolidation pipeline"""
+
+    @pytest.fixture
+    def consolidator_with_session(self, temp_dirs):
+        """Create consolidator + sample session file with a correction in it"""
+        session_dir, memory_dir = temp_dirs
+        consolidator = SessionConsolidator(
+            session_dir=session_dir,
+            memory_dir=memory_dir
+        )
+
+        session_file = Path(session_dir) / "test-correction-session.jsonl"
+        # "No, you should actually ..." triggers the correction regex pattern:
+        # user:.*?(?:actually|...) ([^.!?]+[.!?])
+        messages = [
+            {"role": "user", "content": "No, you should actually validate inputs before processing them in the pipeline workflow system."},
+            {"role": "assistant", "content": "Understood, I'll validate inputs before processing. When you validate inputs first, it prevents cascading failures downstream in the pipeline workflow system."},
+            {"role": "user", "content": "How should we handle errors?"},
+            {"role": "assistant", "content": "When handling errors in production, it's better to fail fast and log context rather than swallowing exceptions silently in distributed systems."},
+        ]
+        with open(session_file, 'w') as f:
+            for msg in messages:
+                f.write(json.dumps(msg) + '\n')
+
+        return consolidator, session_file
+
+    def test_correction_memory_gets_correction_tag(self, consolidator_with_session):
+        """Memory with 'Correction: ...' content gets #correction tag"""
+        consolidator, session_file = consolidator_with_session
+        result = consolidator.consolidate_session(session_file, use_llm=False)
+
+        correction_memories = [
+            m for m in result.saved_memories
+            if m.content.startswith("Correction: ")
+        ]
+        # There should be at least one correction memory
+        assert len(correction_memories) > 0, "No correction memories found"
+        for mem in correction_memories:
+            assert "#correction" in mem.tags, f"Missing #correction tag on: {mem.content}"
+
+    def test_correction_memory_gets_context_type_correction(self, consolidator_with_session):
+        """Correction memory saved with context_type='correction'"""
+        consolidator, session_file = consolidator_with_session
+        result = consolidator.consolidate_session(session_file, use_llm=False)
+
+        from memory_system.memory_ts_client import MemoryTSClient
+        client = MemoryTSClient(memory_dir=consolidator.memory_dir)
+
+        correction_memories = [
+            m for m in result.saved_memories
+            if m.content.startswith("Correction: ")
+        ]
+        assert len(correction_memories) > 0, "No correction memories found"
+
+        # Read the saved memory from disk to check context_type
+        for mem in correction_memories:
+            saved = client.get(mem.id)
+            assert saved.context_type == "correction", (
+                f"Expected context_type='correction', got '{saved.context_type}'"
+            )
+
+    def test_correction_memory_gets_permanent_temporal(self, consolidator_with_session):
+        """Correction memory saved with temporal_relevance='permanent'"""
+        consolidator, session_file = consolidator_with_session
+        result = consolidator.consolidate_session(session_file, use_llm=False)
+
+        from memory_system.memory_ts_client import MemoryTSClient
+        client = MemoryTSClient(memory_dir=consolidator.memory_dir)
+
+        correction_memories = [
+            m for m in result.saved_memories
+            if m.content.startswith("Correction: ")
+        ]
+        assert len(correction_memories) > 0, "No correction memories found"
+
+        for mem in correction_memories:
+            saved = client.get(mem.id)
+            assert saved.temporal_relevance == "permanent", (
+                f"Expected temporal_relevance='permanent', got '{saved.temporal_relevance}'"
+            )
+
+    def test_non_correction_memory_no_correction_metadata(self, consolidator_with_session):
+        """Regular (non-correction) memory does NOT get correction metadata"""
+        consolidator, session_file = consolidator_with_session
+        result = consolidator.consolidate_session(session_file, use_llm=False)
+
+        from memory_system.memory_ts_client import MemoryTSClient
+        client = MemoryTSClient(memory_dir=consolidator.memory_dir)
+
+        non_correction = [
+            m for m in result.saved_memories
+            if not m.content.startswith("Correction: ")
+        ]
+
+        for mem in non_correction:
+            assert "#correction" not in mem.tags
+            saved = client.get(mem.id)
+            assert saved.context_type != "correction", (
+                f"Non-correction memory has context_type='correction': {mem.content}"
+            )
+
+    def test_correction_importance_floor_preserved(self, consolidator_with_session):
+        """Corrections maintain >= 0.9 importance"""
+        consolidator, session_file = consolidator_with_session
+        result = consolidator.consolidate_session(session_file, use_llm=False)
+
+        correction_memories = [
+            m for m in result.saved_memories
+            if m.content.startswith("Correction: ")
+        ]
+        assert len(correction_memories) > 0, "No correction memories found"
+
+        for mem in correction_memories:
+            assert mem.importance >= 0.9, (
+                f"Correction importance {mem.importance} below 0.9 floor"
+            )
+
+
+class TestSkillTagging:
+    """Test skill tag injection during consolidation"""
+
+    @pytest.fixture
+    def session_with_skills(self, temp_dirs):
+        """Create consolidator + session + mock hook state with active skills"""
+        session_dir, memory_dir = temp_dirs
+        consolidator = SessionConsolidator(
+            session_dir=session_dir,
+            memory_dir=memory_dir
+        )
+
+        session_file = Path(session_dir) / "skill-session.jsonl"
+        messages = [
+            {"role": "user", "content": "How do I write better headlines?"},
+            {"role": "assistant", "content": "When writing headlines, it's better to lead with the benefit rather than the feature to capture attention immediately in your marketing copy."},
+        ]
+        with open(session_file, 'w') as f:
+            for msg in messages:
+                f.write(json.dumps(msg) + '\n')
+
+        return consolidator, session_file
+
+    def test_skill_tags_added_to_all_memories(self, session_with_skills, monkeypatch):
+        """When active_skills=['copywriting'], all memories get #skill:copywriting"""
+        consolidator, session_file = session_with_skills
+
+        # Mock get_session_state to return active skills
+        def mock_get_session_state(session_id):
+            return {"active_skills": ["copywriting"]}
+
+        monkeypatch.setattr(
+            "memory_system.session_consolidator.get_session_state",
+            mock_get_session_state,
+        )
+
+        result = consolidator.consolidate_session(session_file, use_llm=False)
+
+        assert result.memories_saved > 0, "No memories saved"
+        for mem in result.saved_memories:
+            assert "#skill:copywriting" in mem.tags, (
+                f"Missing #skill:copywriting on: {mem.content}, tags={mem.tags}"
+            )
+
+    def test_skill_tags_empty_when_no_skills(self, session_with_skills, monkeypatch):
+        """No active skills = no skill tags added"""
+        consolidator, session_file = session_with_skills
+
+        def mock_get_session_state(session_id):
+            return {"active_skills": []}
+
+        monkeypatch.setattr(
+            "memory_system.session_consolidator.get_session_state",
+            mock_get_session_state,
+        )
+
+        result = consolidator.consolidate_session(session_file, use_llm=False)
+
+        for mem in result.saved_memories:
+            skill_tags = [t for t in mem.tags if t.startswith("#skill:")]
+            assert len(skill_tags) == 0, (
+                f"Unexpected skill tags on: {mem.content}, tags={mem.tags}"
+            )
+
+    def test_multiple_skill_tags(self, session_with_skills, monkeypatch):
+        """active_skills=['copywriting', 'seo'] adds both tags"""
+        consolidator, session_file = session_with_skills
+
+        def mock_get_session_state(session_id):
+            return {"active_skills": ["copywriting", "seo"]}
+
+        monkeypatch.setattr(
+            "memory_system.session_consolidator.get_session_state",
+            mock_get_session_state,
+        )
+
+        result = consolidator.consolidate_session(session_file, use_llm=False)
+
+        assert result.memories_saved > 0, "No memories saved"
+        for mem in result.saved_memories:
+            assert "#skill:copywriting" in mem.tags, f"Missing #skill:copywriting"
+            assert "#skill:seo" in mem.tags, f"Missing #skill:seo"
+
+
+class TestCorrectionReinforcement:
+    """Test correction reinforcement across sessions"""
+
+    @pytest.fixture
+    def consolidator_with_existing_correction(self, temp_dirs):
+        """Create consolidator with a pre-existing correction memory"""
+        session_dir, memory_dir = temp_dirs
+        consolidator = SessionConsolidator(
+            session_dir=session_dir,
+            memory_dir=memory_dir
+        )
+
+        # Pre-create an existing correction memory from a prior session
+        existing = consolidator.memory_client.create(
+            content="Correction: validate inputs before processing them in the pipeline workflow system",
+            project_id="LFI",
+            tags=["#learning", "#correction"],
+            importance=0.9,
+            scope="project",
+            context_type="correction",
+            temporal_relevance="permanent",
+            source_session_id="old-session-123",
+            confirmations=0,
+        )
+
+        return consolidator, existing
+
+    def test_reinforce_corrections_increments_count(self, consolidator_with_existing_correction):
+        """Existing correction gets confirmations+1 when same correction appears again"""
+        consolidator, existing = consolidator_with_existing_correction
+
+        new_corrections = [
+            SessionMemory(
+                content="Correction: validate inputs before processing them in the pipeline workflow system",
+                importance=0.9,
+                project_id="LFI",
+                tags=["#learning", "#correction"],
+                session_id="new-session-456",
+            )
+        ]
+
+        reinforced = consolidator.reinforce_corrections(new_corrections, session_id="new-session-456")
+
+        # The existing memory's confirmations should be incremented
+        updated = consolidator.memory_client.get(existing.id)
+        assert updated.confirmations >= 1, (
+            f"Expected confirmations >= 1, got {updated.confirmations}"
+        )
+        assert reinforced >= 1, f"Expected at least 1 reinforced, got {reinforced}"
+
+    def test_reinforce_corrections_same_session_dedup(self, consolidator_with_existing_correction):
+        """Correction from same session NOT reinforced (same-session dedup)"""
+        consolidator, existing = consolidator_with_existing_correction
+
+        new_corrections = [
+            SessionMemory(
+                content="Correction: validate inputs before processing them in the pipeline workflow system",
+                importance=0.9,
+                project_id="LFI",
+                tags=["#learning", "#correction"],
+                session_id="old-session-123",  # Same session as the existing memory
+            )
+        ]
+
+        reinforced = consolidator.reinforce_corrections(new_corrections, session_id="old-session-123")
+
+        # Should NOT reinforce because same session
+        updated = consolidator.memory_client.get(existing.id)
+        assert updated.confirmations == 0, (
+            f"Should not reinforce same-session correction, got confirmations={updated.confirmations}"
+        )
+        assert reinforced == 0, f"Expected 0 reinforced (same session), got {reinforced}"
+
+    def test_reinforce_corrections_different_session_reinforced(self, consolidator_with_existing_correction):
+        """Correction from different session IS reinforced"""
+        consolidator, existing = consolidator_with_existing_correction
+
+        new_corrections = [
+            SessionMemory(
+                content="Correction: validate inputs before processing them in the pipeline workflow system",
+                importance=0.9,
+                project_id="LFI",
+                tags=["#learning", "#correction"],
+                session_id="different-session-789",
+            )
+        ]
+
+        reinforced = consolidator.reinforce_corrections(new_corrections, session_id="different-session-789")
+
+        updated = consolidator.memory_client.get(existing.id)
+        assert updated.confirmations == 1, (
+            f"Expected confirmations=1 from cross-session reinforcement, got {updated.confirmations}"
+        )
+        assert reinforced == 1
