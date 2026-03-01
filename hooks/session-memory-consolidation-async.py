@@ -26,6 +26,7 @@ Usage:
 import sys
 import os
 import json
+from pathlib import Path
 
 from memory_system.async_consolidation import ConsolidationQueue
 
@@ -64,6 +65,17 @@ def main():
             print(f"✅ Session queued for consolidation: {session_id[:8]}")
         else:
             print(f"ℹ️  Session already queued: {session_id[:8]}")
+
+        # Generate and save session summary (best-effort)
+        try:
+            from memory_system.session_summary import generate_summary, save_summary
+
+            transcript = session_path.read_text()
+            summary = generate_summary(transcript, session_id)
+            save_summary(summary, session_id)
+            print(f"✅ Session summary saved: {session_id[:8]}")
+        except Exception as e:
+            print(f"⚠️  Summary generation skipped: {e}", file=sys.stderr)
 
         return 0
 

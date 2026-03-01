@@ -10,6 +10,64 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ---
 
+## [0.22.0] - 2026-02-28
+
+### Memory injection + hook infrastructure (Phase 1)
+
+The biggest open loop in the system: memories went in at session end but nothing came out during sessions. This release makes Memeta read-write.
+
+**Added**
+- **Hook shared state** (`src/hook_state.py`) — session-scoped JSON coordination between hooks; stores exchange count, detected project, last injection timestamp; atomic writes with os.replace; probabilistic cleanup of stale sessions (1-in-10 chance); 29 tests
+- **Memory injector** (`src/memory_injector.py`) — BM25-only search for hook-safe performance (~50ms); pre-built search index (`memory-search-index.json`); dual relevance gate (absolute BM25 floor of 1.0 + normalized threshold of 0.3); importance-weighted ranking; session start uses lower thresholds for broader context; 29 tests
+- **Session summary** (`src/session_summary.py`) — heuristic-based "Where was I?" resumption cards; extracts topics, decisions, open questions, and file paths from last 5 messages; mtime-based cleanup of old summaries; 27 tests
+- **Memory injection hook** (`hooks/memory-injection.py`) — UserPromptSubmit hook; exchange-gated (every 10 exchanges via hook_state.py); queries BM25 search with user prompt; injects top 3 memories above threshold; tracks injected memory IDs to prevent duplicates
+- **Session start integration** — `session-context.py` extended to call `inject_at_session_start()` with detected project and format top relevant memories
+- **Session resumption card** — `session-context.py` loads previous session summary (by session ID or latest) and formats as prose resumption block
+- **Session summary generation** — consolidation hook generates and saves structured session summary alongside memory extraction
+
+**Architecture decisions (from adversarial debate)**
+- BM25-only search (no model loading) — hooks have 2-10s timeout budget
+- Pre-built search index vs per-query file scan — index rebuilt periodically, loaded in ~50ms
+- Single JSON state file with session ID keys — simpler than SQLite for hook use case
+- Absolute + normalized threshold gating — prevents both weak matches and empty-corpus false positives
+- Heuristic session summaries (regex + string matching) — no LLM dependency in hook path
+
+### Tests
+- **Core suite:** 2,125 passing (+88 new, no regressions)
+
+---
+
+## [0.21.0] - 2026-02-28
+
+### Infrastructure stabilization (Phase 0)
+
+The system audit revealed failing LaunchAgents, a Granola retry storm, undocumented hooks, and documentation sprawl. This release fixes the foundation before building features.
+
+**Fixed**
+- **LaunchAgent: memory-maintenance** — interpreter changed from system Python to `~/.local/venvs/memory-system/bin/python3`; script path updated from `run_daily_maintenance.py` to `scripts/run_daily_maintenance.py`
+- **LaunchAgent: memory-weekly-synthesis** — interpreter fixed; added missing `WorkingDirectory` key
+- **`scripts/run_daily_maintenance.py`** — `sys.path.insert` pointed to `scripts/` instead of project root after file move; fixed to `parent.parent`
+- **`scripts/weekly_synthesis_runner.py`** — `project_root` variable used but never defined; added `project_root = Path(__file__).parent.parent`
+- **Granola retry storm** — 5 documents in infinite 404 retry loop (~240 failed API calls/day). Added circuit breaker: after 10 consecutive failures per document, marks as permanently failed and stops retrying
+
+**Removed**
+- **LaunchAgent: nightly-optimizer** — dead import (`nightly_maintenance_master.py`), literally could not run. Archived.
+- **LaunchAgent: daily-episodic-summary** — redundant with session-end consolidation hook. Archived.
+
+**Added**
+- **Hook system documentation** — `_ Operations/hooks/README.md` v2.0.0 with WHY documentation for all 28 hooks across 6 events. Includes probation table, support files, known issues.
+- **Python interpreter audit** — cataloged all 26 scripts using non-standard interpreters with migration plan
+
+**Changed**
+- **`_ System/` reduced from 87 to ~50 items** — 33 unreferenced files archived (one-time artifacts, redundant docs, dead references)
+- **5 documentation clusters collapsed** — skill recommendation (8 files → 2), mistake docs (7 → 1), file organization (3 → 1), CLAUDE.md review ritual (3 → 0), quality system (8 → 3). Total: 22 files archived.
+- Granola `failed_syncs.json` entries marked `permanently_failed: true`
+
+### Tests
+- **Core suite:** 2,037 passing (no regressions)
+
+---
+
 ## [0.20.1] - 2026-02-27
 
 ### Changed

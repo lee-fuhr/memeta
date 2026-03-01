@@ -15,6 +15,7 @@ from memory_system.promotion_executor import PromotionExecutor
 
 
 def main():
+    project_root = Path(__file__).parent.parent
     memory_dir = Path.home() / ".local/share/memory/LFI/memories"
     fsrs_db = project_root / "fsrs.db"
     cluster_db = project_root / "clusters.db"

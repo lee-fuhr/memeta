@@ -12,7 +12,7 @@ import argparse
 from pathlib import Path
 
 # Add src to path
-sys.path.insert(0, str(Path(__file__).parent))
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from src.daily_memory_maintenance import run_daily_maintenance
 

@@ -2,7 +2,7 @@
 
 Every feature in Memeta, organized by layer. Each one coexists additively — adding feature N+1 makes features 1 through N better.
 
-**Current:** v0.20.1 · 2,037 tests passing · 102 features shipped
+**Current:** v0.22.0 · 2,125 tests passing · 106 features shipped
 
 ---
 
@@ -134,6 +134,10 @@ Every feature in Memeta, organized by layer. Each one coexists additively — ad
 | Centralized config | All paths and constants overridable via `MEMORY_SYSTEM_*` environment variables | `src/config.py` |
 | Async consolidation | Queue-based background memory extraction (<1s to queue) | `src/async_consolidation.py` |
 | Session end hook | Automatic memory extraction on every session close | `hooks/session-memory-consolidation-async.py` |
+| Hook shared state | Session-scoped JSON coordination between hooks with atomic writes and stale cleanup | `src/hook_state.py` |
+| Memory injection | BM25-only search with pre-built index for fast in-session memory surfacing | `src/memory_injector.py` |
+| Session summary | Heuristic "Where was I?" resumption cards with topic/decision/question extraction | `src/session_summary.py` |
+| Memory injection hook | Exchange-gated UserPromptSubmit hook that injects relevant memories during sessions | `hooks/memory-injection.py` |
 | GitHub Actions CI | Pytest on push/PR, Python 3.11/3.12/3.13 matrix | `.github/workflows/test.yml` |
 | Memory freshness review | Weekly scan/refresh/archive cycle with notification summary | `src/memory_freshness_reviewer.py` |
 | Intelligence orchestrator | Central "brain stem" wiring all features into coherent signals | `src/intelligence_orchestrator.py` |

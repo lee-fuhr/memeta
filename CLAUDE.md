@@ -1,13 +1,13 @@
 # Memeta — project instructions
 
-**Version:** 0.20.1
-**Last updated:** 2026-02-27
+**Version:** 0.22.0
+**Last updated:** 2026-02-28
 
 ---
 
 ## What this is
 
-Intelligent memory system for Claude Code. 102 features, 2,037 tests, Python 3.11+. Extracts knowledge from sessions, grades it, searches it semantically, and synthesizes insights across projects.
+Intelligent memory system for Claude Code. 106 features, 2,125 tests, Python 3.11+. Extracts knowledge from sessions, grades it, searches it semantically, and synthesizes insights across projects.
 
 **Architecture:** Memory files (YAML frontmatter + markdown) at `~/.local/share/memory/LFI/memories/`. Intelligence layer in `intelligence.db` (SQLite). FAISS vector store for semantic search. Flask dashboard at localhost:8766.
 
@@ -159,6 +159,10 @@ Co-Authored-By: Claude <model> <noreply@anthropic.com>
 | `hooks/session-memory-consolidation-async.py` | Claude Code hook for automatic memory extraction |
 | `src/wild/skill_self_improver.py` | Skill self-improvement — outcome tracking, learning extraction, SKILL.md proposals |
 | `src/wild/skill_lifecycle.py` | Skill lifecycle facade — orchestrates all skill sub-modules |
+| `src/hook_state.py` | Session-scoped hook coordination via `~/.claude/hook-state.json` |
+| `src/memory_injector.py` | BM25-only memory search for in-session injection (hook-safe, ~50ms) |
+| `src/session_summary.py` | Heuristic "Where was I?" resumption cards |
+| `hooks/memory-injection.py` | UserPromptSubmit hook — exchange-gated memory injection |
 
 ---
 
