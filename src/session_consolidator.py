@@ -17,8 +17,16 @@ from .memory_ts_client import MemoryTSClient
 from .importance_engine import calculate_importance, get_importance_score
 from .extraction_patterns import is_garbage_content as _is_garbage_content
 from .extraction_patterns import extract_memories_patterns as _extract_patterns
+from .extraction_patterns import NORMALIZE_PATTERN
 from .dedup import deduplicate as _deduplicate_memories
 from .dedup import smart_dedup_decision as _smart_dedup_decision
+
+# Imported at module level so monkeypatch can target it for tests
+try:
+    from .hook_state import get_session_state
+except ImportError:
+    def get_session_state(session_id):  # type: ignore[misc]
+        return {"active_skills": []}
 
 
 @dataclass
@@ -247,6 +255,63 @@ class SessionConsolidator:
         existing_memories = self.memory_client.search(project_id=self.project_id)
         return _deduplicate_memories(new_memories, existing_memories, use_llm_dedup)
 
+    def reinforce_corrections(
+        self,
+        new_corrections: List[SessionMemory],
+        session_id: str,
+    ) -> int:
+        """
+        Increment confirmations on existing correction memories when the same
+        correction appears in a new session. Same-session dedup prevents gaming.
+
+        Args:
+            new_corrections: List of newly extracted correction memories
+            session_id: Current session ID (for same-session dedup)
+
+        Returns:
+            Count of reinforced corrections
+        """
+        reinforced_count = 0
+
+        # Search for existing correction memories
+        existing_corrections = [
+            m for m in self.memory_client.search(project_id=self.project_id)
+            if m.context_type == "correction"
+        ]
+
+        if not existing_corrections:
+            return 0
+
+        for new_mem in new_corrections:
+            for existing in existing_corrections:
+                # Same-session dedup: skip if existing was created in this session
+                if existing.source_session_id == session_id:
+                    continue
+
+                # Check similarity via word overlap (same approach as dedup.py)
+                new_words = set(
+                    NORMALIZE_PATTERN.sub('', new_mem.content.lower()).split()
+                )
+                existing_words = set(
+                    NORMALIZE_PATTERN.sub('', existing.content.lower()).split()
+                )
+                if not new_words or not existing_words:
+                    continue
+                overlap = len(new_words & existing_words)
+                total = len(new_words | existing_words)
+                similarity = overlap / total if total else 0.0
+
+                if similarity > 0.7:
+                    # Reinforce: increment confirmations
+                    self.memory_client.update(
+                        existing.id,
+                        confirmations=existing.confirmations + 1,
+                    )
+                    reinforced_count += 1
+                    break  # Only reinforce one match per new correction
+
+        return reinforced_count
+
     def consolidate_session(
         self,
         session_file: Path,
@@ -285,11 +350,29 @@ class SessionConsolidator:
         else:
             extracted_memories = pattern_memories
 
+        # Resolve session ID and load active skills from hook state
+        session_id = session_file.stem
+
+        try:
+            session_state = get_session_state(session_id)
+            active_skills = session_state.get("active_skills", [])
+        except Exception:
+            active_skills = []
+
+        # Reinforce existing corrections before dedup (cross-session confirmation)
+        correction_memories = [
+            m for m in extracted_memories if m.content.startswith("Correction: ")
+        ]
+        reinforced_count = 0
+        if correction_memories:
+            reinforced_count = self.reinforce_corrections(
+                correction_memories, session_id=session_id
+            )
+
         # Deduplicate against existing memories
         unique_memories = self.deduplicate(extracted_memories)
 
         # Save to memory-ts (unless skip_save=True)
-        session_id = session_file.stem
         saved_count = 0
         saved_list = []
         replaced_count = 0
@@ -300,6 +383,19 @@ class SessionConsolidator:
 
             for memory in unique_memories:
                 memory.session_id = session_id
+
+                # Determine if this is a correction memory
+                is_correction = memory.content.startswith("Correction: ")
+
+                # Build tags list: copy original + correction tag + skill tags
+                tags = list(memory.tags)
+                if is_correction and "#correction" not in tags:
+                    tags.append("#correction")
+                for skill in active_skills:
+                    skill_tag = f"#skill:{skill}"
+                    if skill_tag not in tags:
+                        tags.append(skill_tag)
+                memory.tags = tags
 
                 # Check for contradictions with existing memories
                 existing = self.memory_client.search(
@@ -328,15 +424,22 @@ class SessionConsolidator:
                     except Exception:
                         pass  # Continue even if archive fails
 
+                # Build extra kwargs for correction memories
+                extra_kwargs = {}
+                if is_correction:
+                    extra_kwargs["context_type"] = "correction"
+                    extra_kwargs["temporal_relevance"] = "permanent"
+
                 # Save new memory (whether replacing or not)
                 created_memory = self.memory_client.create(
                     content=memory.content,
                     project_id=memory.project_id,
-                    tags=memory.tags,
+                    tags=tags,
                     importance=memory.importance,
                     scope="project",  # New memories start as project-scope
                     session_id=session_id,  # Track provenance (legacy field)
-                    source_session_id=session_id  # Track provenance (new field)
+                    source_session_id=session_id,  # Track provenance (new field)
+                    **extra_kwargs,
                 )
                 memory.id = created_memory.id
                 saved_list.append(memory)

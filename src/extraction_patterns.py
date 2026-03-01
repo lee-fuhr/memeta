@@ -19,6 +19,22 @@ LEARNING_PATTERNS = [
 CORRECTION_PATTERNS = [
     re.compile(r"user:.*?(?:actually|correction|no,|wrong|mistake|should be|meant to say) ([^.!?]+[.!?])", re.IGNORECASE | re.DOTALL),
     re.compile(r"user:.*?(?:better way|instead try|prefer) ([^.!?]+[.!?])", re.IGNORECASE | re.DOTALL),
+    # Behavioral directives (user telling Claude what to always/never do)
+    re.compile(r"user:.*?(?:always|never)\s+(?:do|use|make|create|write|add|put|include|format|name)\s+([^.!?]+[.!?])", re.IGNORECASE | re.DOTALL),
+    # Frustration signals (user repeating themselves)
+    re.compile(r"user:.*?(?:I told you|stop doing|don't ever|for the \w+ time|how many times)[,;:]?\s+([^.!?]+[.!?])", re.IGNORECASE | re.DOTALL),
+]
+
+# Categorized patterns for detect_corrections() — maps pattern to pattern_type
+_EXPLICIT_CORRECTION_PATTERNS = [
+    re.compile(r"user:.*?(?:actually|correction|no,|wrong|mistake|should be|meant to say) ([^.!?]+[.!?])", re.IGNORECASE | re.DOTALL),
+    re.compile(r"user:.*?(?:better way|instead try|prefer) ([^.!?]+[.!?])", re.IGNORECASE | re.DOTALL),
+]
+_BEHAVIORAL_DIRECTIVE_PATTERNS = [
+    re.compile(r"user:.*?(?:always|never)\s+(?:do|use|make|create|write|add|put|include|format|name)\s+([^.!?]+[.!?])", re.IGNORECASE | re.DOTALL),
+]
+_FRUSTRATION_SIGNAL_PATTERNS = [
+    re.compile(r"user:.*?(?:I told you|stop doing|don't ever|for the \w+ time|how many times)[,;:]?\s+([^.!?]+[.!?])", re.IGNORECASE | re.DOTALL),
 ]
 PROBLEM_SOLUTION_PATTERN = re.compile(
     r"(?:problem|issue|challenge):.*?([^.!?]+[.!?]).*?(?:solution|fix|approach):.*?([^.!?]+[.!?])",
@@ -70,6 +86,56 @@ def is_garbage_content(text: str) -> bool:
     return False
 
 
+def detect_corrections(conversation: str) -> list[dict]:
+    """
+    Detect correction patterns in conversation text.
+
+    Returns list of correction dicts with content, importance, and pattern_type.
+    This is a detection-only seam — does not create SessionMemory objects.
+
+    Pattern types:
+    - "explicit_correction": User correcting a factual mistake (actually, correction, wrong, etc.)
+    - "behavioral_directive": User telling Claude what to always/never do
+    - "frustration_signal": User repeating themselves with frustration markers
+
+    Args:
+        conversation: Full conversation text
+
+    Returns:
+        List of dicts with keys: content, importance, pattern_type
+    """
+    if not conversation:
+        return []
+
+    results = []
+    seen_contents = set()
+
+    categorized_patterns = [
+        (_EXPLICIT_CORRECTION_PATTERNS, "explicit_correction"),
+        (_BEHAVIORAL_DIRECTIVE_PATTERNS, "behavioral_directive"),
+        (_FRUSTRATION_SIGNAL_PATTERNS, "frustration_signal"),
+    ]
+
+    for patterns, pattern_type in categorized_patterns:
+        for pattern in patterns:
+            for match in pattern.finditer(conversation):
+                content = match.group(1).strip()
+                if content in seen_contents:
+                    continue
+                seen_contents.add(content)
+
+                base_importance = calculate_importance(content)
+                boosted_importance = max(0.9, min(1.0, base_importance * 1.5))
+
+                results.append({
+                    "content": content,
+                    "importance": boosted_importance,
+                    "pattern_type": pattern_type,
+                })
+
+    return results
+
+
 def extract_memories_patterns(
     conversation: str,
     project_id: str,
@@ -115,9 +181,9 @@ def extract_memories_patterns(
         for match in matches:
             correction_content = match.group(1).strip()
             if len(correction_content) > 50 and len(correction_content) < 2000 and not is_garbage_content(correction_content):
-                # Corrections get boosted importance
+                # Corrections get boosted importance (1.5x, floor 0.9, cap 1.0)
                 base_importance = calculate_importance(correction_content)
-                boosted_importance = min(0.95, base_importance * 1.2)
+                boosted_importance = max(0.9, min(1.0, base_importance * 1.5))
                 memories.append(memory_factory(
                     content=f"Correction: {correction_content}",
                     importance=boosted_importance,

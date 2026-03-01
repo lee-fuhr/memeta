@@ -2,7 +2,7 @@
 
 Every feature in Memeta, organized by layer. Each one coexists additively — adding feature N+1 makes features 1 through N better.
 
-**Current:** v0.22.0 · 2,125 tests passing · 106 features shipped
+**Current:** v0.23.0 · 2,184 tests passing · 110 features shipped
 
 ---
 
@@ -138,6 +138,10 @@ Every feature in Memeta, organized by layer. Each one coexists additively — ad
 | Memory injection | BM25-only search with pre-built index for fast in-session memory surfacing | `src/memory_injector.py` |
 | Session summary | Heuristic "Where was I?" resumption cards with topic/decision/question extraction | `src/session_summary.py` |
 | Memory injection hook | Exchange-gated UserPromptSubmit hook that injects relevant memories during sessions | `hooks/memory-injection.py` |
+| Correction detection | 3 pattern categories (explicit, behavioral, frustration) with typed classification and 1.5x importance boost | `src/extraction_patterns.py` |
+| Correction graduation | Pipeline to promote confirmed corrections (3+ sessions) to permanent CLAUDE.md rules with strip-and-regenerate | `src/correction_graduator.py` |
+| Correction reinforcement | Cross-session confirmation tracking with word-overlap matching and same-session dedup | `src/session_consolidator.py` |
+| Skill-aware memory tagging | Tags all memories with active skills at consolidation time for skill-specific surfacing | `src/session_consolidator.py` |
 | GitHub Actions CI | Pytest on push/PR, Python 3.11/3.12/3.13 matrix | `.github/workflows/test.yml` |
 | Memory freshness review | Weekly scan/refresh/archive cycle with notification summary | `src/memory_freshness_reviewer.py` |
 | Intelligence orchestrator | Central "brain stem" wiring all features into coherent signals | `src/intelligence_orchestrator.py` |

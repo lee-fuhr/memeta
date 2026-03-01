@@ -89,20 +89,26 @@ def calculate_importance(content: str) -> float:
     return min(1.0, max(0.3, score))
 
 
-def apply_decay(importance: float, days_since: int) -> float:
+def apply_decay(importance: float, days_since: int, temporal_relevance: str = "persistent") -> float:
     """
     Apply decay formula: importance × (0.99 ^ days_since)
 
     Memories naturally decay over time unless reinforced.
     Stanford spaced repetition decay rate.
 
+    Permanent memories (temporal_relevance="permanent") skip decay entirely.
+
     Args:
         importance: Current importance score
         days_since: Days since last access
+        temporal_relevance: "permanent" skips decay, "persistent" (default) decays normally
 
     Returns:
         Decayed importance score (>= 0)
     """
+    if temporal_relevance == "permanent":
+        return importance
+
     if days_since < 0:
         days_since = 0
 
@@ -160,13 +166,13 @@ def detect_trigger_words(content: str) -> List[str]:
     return detected
 
 
-def get_importance_score(content: str, metadata: Dict[str, Any]) -> float:
+def get_importance_score(content: str, metadata: Dict[str, Any], temporal_relevance: str = "persistent") -> float:
     """
     Complete importance scoring pipeline
 
     Combines:
     1. Base importance from content
-    2. Decay based on age
+    2. Decay based on age (skipped for permanent memories)
     3. Reinforcement from recent access
     4. Trigger word boost
 
@@ -176,6 +182,7 @@ def get_importance_score(content: str, metadata: Dict[str, Any]) -> float:
             - created: ISO datetime string
             - last_accessed: ISO datetime string
             - access_count: (optional) number of accesses
+        temporal_relevance: "permanent" skips decay, "persistent" (default) decays normally
 
     Returns:
         Final importance score (0.0-1.0)
@@ -188,7 +195,7 @@ def get_importance_score(content: str, metadata: Dict[str, Any]) -> float:
     last_accessed = datetime.fromisoformat(metadata.get("last_accessed", datetime.now().isoformat()))
 
     days_since_access = (datetime.now() - last_accessed).days
-    score_with_decay = apply_decay(base_score, days_since_access)
+    score_with_decay = apply_decay(base_score, days_since_access, temporal_relevance=temporal_relevance)
 
     # Apply reinforcement if recently accessed or accessed multiple times
     access_count = metadata.get("access_count", 0)

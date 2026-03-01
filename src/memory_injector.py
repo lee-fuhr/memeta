@@ -137,6 +137,7 @@ def build_search_index(
                 "importance": meta.get("importance_weight", meta.get("importance", 0.5)),
                 "tags": meta.get("semantic_tags", meta.get("tags", [])),
                 "project_id": meta.get("project_id", ""),
+                "context_type": meta.get("context_type", "knowledge"),
             }
 
             if entry["content"]:
@@ -274,6 +275,28 @@ def _truncate(text: str, max_len: int = MAX_CONTENT_DISPLAY) -> str:
     return text[:max_len - 3] + "..."
 
 
+def _format_corrections(corrections: list[dict]) -> str:
+    """Format correction memories in a separate block for session start.
+
+    Args:
+        corrections: List of correction memory dicts with 'content' key.
+
+    Returns:
+        Formatted corrections block, or empty string if no corrections.
+    """
+    if not corrections:
+        return ""
+    lines = ["=== ACTIVE CORRECTIONS ==="]
+    for i, mem in enumerate(corrections, 1):
+        content = _truncate(mem.get("content", ""))
+        # Strip "Correction: " prefix for cleaner display
+        if content.lower().startswith("correction: "):
+            content = content[len("correction: "):]
+        lines.append(f"[{i}] {content}")
+    lines.append("===========================")
+    return "\n".join(lines)
+
+
 def _format_session(memories: list[dict]) -> str:
     """Format memories in rich session-start format."""
     lines = ["=== RELEVANT MEMORIES ==="]
@@ -300,7 +323,7 @@ def inject_at_session_start(
     High-level function for SessionStart hook.
 
     Searches for project-relevant memories and recent high-importance ones.
-    Returns formatted injection string.
+    Surfaces correction memories in a separate block before regular memories.
 
     Args:
         project: Project ID to filter memories (e.g., "LFI").
@@ -309,11 +332,33 @@ def inject_at_session_start(
     Returns:
         Formatted injection string, or empty string if no relevant memories.
     """
-    memories = load_search_index(index_path)
-    if not memories:
+    all_memories = load_search_index(index_path)
+    if not all_memories:
         return ""
 
-    # Build a query from project context
+    # Separate corrections from regular memories
+    corrections = [
+        m for m in all_memories
+        if m.get("context_type") == "correction"
+    ]
+    regular_memories = [
+        m for m in all_memories
+        if m.get("context_type") != "correction"
+    ]
+
+    # Filter corrections by project if specified
+    if project and corrections:
+        corrections = [
+            c for c in corrections
+            if c.get("project_id", "") == project
+        ]
+
+    # Format corrections block (top 3 by importance)
+    corrections.sort(key=lambda m: m.get("importance", 0), reverse=True)
+    corrections_block = _format_corrections(corrections[:3])
+
+    # --- Regular memories logic (unchanged from original) ---
+    memories = regular_memories
     query_parts = []
     if project:
         query_parts.append(project)
@@ -330,9 +375,6 @@ def inject_at_session_start(
         m for m in memories
         if m.get("importance", 0) >= 0.8
     ]
-
-    if not high_importance and not query_parts:
-        return ""
 
     # Search with project as query, or use high-importance directly
     if query_parts:
@@ -354,8 +396,16 @@ def inject_at_session_start(
             seen_ids.add(mem.get("id"))
 
     results = results[:DEFAULT_TOP_K]
+    regular_block = format_injection(results, context="session")
 
-    return format_injection(results, context="session")
+    # Combine: corrections first, then regular memories
+    parts = []
+    if corrections_block:
+        parts.append(corrections_block)
+    if regular_block:
+        parts.append(regular_block)
+
+    return "\n\n".join(parts)
 
 
 def inject_for_prompt(
