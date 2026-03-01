@@ -6,6 +6,17 @@ Where Memeta has been, where it is, and where it's going.
 
 ## Shipped
 
+### v0.25.0 — Setup + ecosystem (Mar 2026)
+Phase 4: On-ramp features and developer tools. The system can't grow if nobody can install it.
+- **CLI entry point** (`src/cli.py`) — `memeta` command with argparse subcommands: init, search, import, generate; proper exit codes; dispatches to real handler classes
+- **Search CLI** (`src/search_cli.py`) — `memeta search` with BM25 + importance-weighted ranking; domain/tag/context-type filters; table, JSON, IDs-only, full output modes
+- **Setup wizard** (`src/setup_wizard.py`) — `memeta init` with 7 environment checks; auto-creates directories; `--yes` for non-interactive; structured InitResult
+- **Markdown importer** (`src/importers/`) — recursive directory scan; YAML frontmatter (safe parsing, no eval); cached dedup; importance guessing; progress callbacks
+- **CLAUDE.md importer** (`src/importers/claude_md_importer.py`) — section-aware parsing; heading hierarchy; rule/directive detection
+- **Learnings generator** (`src/learnings_generator.py`) — auto-generates CLAUDE.md learnings section from top memories; strip-and-regenerate pattern; dry-run mode
+- **6 adversarial review fixes** — CLI handler rewrites, O(n*m)→O(n+m) dedup cache, safe frontmatter parsing, sentence case headings
+- **168 new tests** — 2,435 total passing
+
 ### v0.24.0 — Extraction evolution + system integration (Feb 2026)
 Phase 3: Make the extraction pipeline self-improving, wire memory awareness into the conductor pattern, and make the system responsive to user frustration.
 - **Frustration-triggered injection** (`src/hook_state.py`) — 13 regex patterns detect user frustration ("you should know this", "I already told you", etc.); bypasses 10-exchange interval gate; reduces interval to 5 for rest of session; surfaces 5 memories instead of 3
@@ -122,14 +133,9 @@ Completed Feb 28, 2026. See v0.23.0 in Shipped section above.
 
 Completed Feb 28, 2026. See v0.24.0 in Shipped section above.
 
-## Phase 4: Setup + ecosystem (~3-4 weeks)
+## Phase 4: Setup + ecosystem — SHIPPED (v0.25.0)
 
-On-ramp features and developer tools. The system can't grow if nobody can install it.
-
-- **Setup wizard** (`memeta init`) — smooth first-run experience; detect environment, create directories, configure hooks, verify dependencies
-- **Memory import from other systems** — eliminate switching costs; import from existing memory files, session histories, or structured notes
-- **Memory search CLI** (`memeta search`) — standalone terminal search; table stakes for developer tools
-- **CLAUDE.md generator from accumulated learnings** — auto-generate curated CLAUDE.md sections from top memories; low-infrastructure alternative to injection hooks for users who don't want hooks
+Completed Mar 1, 2026. See v0.25.0 in Shipped section above.
 
 ## Phase 5: Advanced intelligence (backlog)
 

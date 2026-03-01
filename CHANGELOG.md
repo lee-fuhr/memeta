@@ -10,6 +10,53 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ---
 
+## [0.25.0] - 2026-03-01
+
+### Setup + ecosystem (Phase 4)
+
+The on-ramp release. Memeta can now be installed, configured, and populated without reading source code. Setup wizard validates your environment, importers bring in existing knowledge, search CLI gives instant terminal access, and the learnings generator writes curated CLAUDE.md sections from your best memories.
+
+**What you get from this:**
+- `memeta init` walks through environment validation, directory creation, and dependency checking — smooth first-run experience
+- `memeta search "python tips" --domain engineering --tag dev` gives terminal search with relevance scoring, snippet highlighting, and multiple output formats (table, JSON, IDs-only)
+- `memeta import markdown /path/to/notes` bulk-imports a directory of markdown files with frontmatter parsing, duplicate detection, and importance guessing
+- `memeta import claude-md /path/to/CLAUDE.md` parses existing CLAUDE.md files into searchable memories
+- `memeta generate claude-md` auto-generates a curated learnings section from your highest-quality memories using strip-and-regenerate (idempotent, safe to run repeatedly)
+
+**Added**
+- **CLI entry point** (`src/cli.py`) — argparse-based `memeta` command with subcommands: init, search, import, generate; dispatches to real handler classes; returns proper exit codes. 27 tests (parsing + integration)
+- **Search CLI** (`src/search_cli.py`, `src/search_utils.py`) — `memeta search` with BM25 + importance-weighted ranking; filters by domain, tags, context type, min-importance; output modes: table (default), JSON, IDs-only, full content; shared search utilities for scoring and formatting. 44 tests
+- **Setup wizard** (`src/setup_wizard.py`) — `memeta init` with 7 environment checks (Python version, memory dir, config, dependencies, search index, hook integration, dashboard); auto-creates directories; `--yes` flag for non-interactive mode; returns structured `InitResult` with checks, warnings, errors. 37 tests
+- **Markdown importer** (`src/importers/markdown_importer.py`, `src/importers/base.py`) — recursive directory scanning; YAML frontmatter parsing (safe, no eval); importance guessing from content characteristics; filename-based tag extraction; cached duplicate detection; dry-run preview; progress callbacks. 28 tests
+- **CLAUDE.md importer** (`src/importers/claude_md_importer.py`) — section-aware parsing; heading hierarchy extraction; rule and directive detection; section-based tagging; dry-run preview. 20 tests
+- **Learnings generator** (`src/learnings_generator.py`) — selects memories by importance/confidence/status; deduplicates via content hash; groups by knowledge domain; formats as CLAUDE.md section with `<!-- AUTO-GENERATED: learnings -->` markers; strip-and-regenerate pattern for idempotent updates; dry-run mode. 12 tests
+
+**Fixed (from adversarial review)**
+- **Critical: CLI handler functions called non-existent wrappers** — rewrote `_cmd_init`, `_cmd_import`, `_cmd_generate` to instantiate actual classes (InitWizard, importers, LearningsGenerator)
+- **Critical: O(n*m) duplicate detection** — `_is_duplicate()` called `list()` per file; added hash cache so `list()` is called exactly once
+- **Critical: relative import in learnings_generator** — changed to absolute `from memory_system.X` matching all other Phase 4 modules
+- **Critical: double select_memories() in apply_to_claude_md** — rewrote to call once, reuse result
+- **Important: ast.literal_eval on untrusted frontmatter** — replaced with safe bracket/comma parsing; restricted numeric conversion to known fields only
+- **Important: .title() violated sentence case** — domain headings now capitalize first letter only
+
+**Architecture decisions (from adversarial debate)**
+- Safe frontmatter parsing (no eval, no yaml dependency) — bracket splitting + known-field-only numeric conversion
+- Cached dedup (hash set on first call) — O(n+m) instead of O(n*m) for large imports
+- CLI dispatches to real classes — no wrapper functions, no import indirection
+- Strip-and-regenerate for learnings — same proven pattern as correction_graduator
+- BM25-only search in CLI — matches hook search for consistency and performance
+
+### Tests
+- **Core suite:** 2,435 passing (+168 new, 0 regressions)
+- 27 CLI tests (argument parsing, dispatching, integration with real handlers)
+- 44 search CLI tests (query building, output formatting, relevance scoring, edge cases)
+- 37 setup wizard tests (environment checks, directory creation, error handling)
+- 28 markdown importer tests (frontmatter, recursion, dedup, edge cases, cache performance, safe parsing)
+- 20 CLAUDE.md importer tests (section parsing, heading hierarchy, directive detection)
+- 12 learnings generator tests (selection, dedup, grouping, formatting, sentence case, performance)
+
+---
+
 ## [0.24.0] - 2026-02-28
 
 ### Extraction evolution + system integration (Phase 3)

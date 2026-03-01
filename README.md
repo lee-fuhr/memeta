@@ -2,7 +2,7 @@
 
 **Every memory technique that works. Every approach from the meta. All coexisting additively. And then predicting the next features and building those too.**
 
-![Python](https://img.shields.io/badge/python-3.11%2B-blue) ![Tests](https://img.shields.io/badge/tests-2%2C267%20passing-brightgreen) ![Version](https://img.shields.io/badge/version-0.24.0-blue) ![License](https://img.shields.io/badge/license-MIT-green)
+![Python](https://img.shields.io/badge/python-3.11%2B-blue) ![Tests](https://img.shields.io/badge/tests-2%2C435%20passing-brightgreen) ![Version](https://img.shields.io/badge/version-0.25.0-blue) ![License](https://img.shields.io/badge/license-MIT-green)
 
 ---
 
@@ -31,7 +31,7 @@ Claude Code ships with a native "auto memory" feature. It's a black box: Claude 
 | Search | Not available | Semantic + BM25 hybrid, cached |
 | Quality grading | None | A/B/C/D by importance weight |
 | Spaced repetition | None | FSRS-6 — science-backed retention |
-| Pattern detection | None | 118 features including dream synthesis |
+| Pattern detection | None | 124 features including dream synthesis |
 | Self-improvement | None | Overnight consolidation, prompt evolution |
 | Methodology count | 1 (proprietary) | All of them (open, additive) |
 | Control | None | Full — you decide what persists |
@@ -41,7 +41,7 @@ Claude Code ships with a native "auto memory" feature. It's a black box: Claude 
 
 ## What's inside
 
-118 features across 6 layers, all additive:
+124 features across 6 layers, all additive:
 
 ### Foundation — the basics done right
 Contradiction detection · provenance tracking · memory versioning · decision journal · quality auto-grading · FSRS-6 spaced repetition · importance scoring with auto-tuning · confidence persistence · directed forgetting · encoding depth · entity extraction · emotional tagging
@@ -54,6 +54,9 @@ Dream mode synthesis · frustration early warning · momentum tracking · energy
 
 ### Dashboard — see what your memory knows
 Overview with heatmap · searchable memory library · session replay · knowledge map · export (JSON/CSV) · freshness indicators · intelligence briefing · cross-client patterns
+
+### Ecosystem — install, import, search, generate
+`memeta init` setup wizard · `memeta search` terminal search · markdown directory importer · CLAUDE.md importer · learnings generator for CLAUDE.md
 
 ### Infrastructure
 Circuit breaker for LLM calls · FAISS vector store with dual-write · centralized config · async consolidation · GitHub Actions CI · intelligence DB pool · content hash dedup · access tracker · event stream · unified API · self-test diagnostics
