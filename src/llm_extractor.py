@@ -26,6 +26,9 @@ def generate_extraction_prompt(conversation: str) -> str:
     """
     Generate the extraction prompt for Claude CLI
 
+    Uses PromptEvolver to get best prompt from genetic algorithm.
+    Falls back to hardcoded prompt if evolver unavailable.
+
     Args:
         conversation: Full conversation text
 
@@ -35,6 +38,17 @@ def generate_extraction_prompt(conversation: str) -> str:
     # Truncate to last N chars (most recent = most relevant)
     sample = conversation[-MAX_CONVERSATION_LENGTH:]
 
+    # Try to use evolved prompt
+    try:
+        from memory_system.wild.prompt_evolver import ExtractionPromptEvolver
+        evolver = ExtractionPromptEvolver()
+        template = evolver.get_best_prompt(epsilon=0.1)
+        return template.format(CONVERSATION=sample)
+    except Exception:
+        # Fall back to hardcoded prompt
+        pass
+
+    # Hardcoded fallback
     return f"""Analyze this Claude Code session and extract learnings worth remembering.
 
 CONVERSATION:

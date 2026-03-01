@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.lfi.search-index-rebuild</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Users/lee/.local/venvs/memory-system/bin/python3</string>
+        <string>-c</string>
+        <string>from memory_system.memory_injector import build_search_index; build_search_index()</string>
+    </array>
+    <key>WorkingDirectory</key>
+    <string>/Users/lee/CC/LFI/_ Operations/memory-system-v1/</string>
+    <key>StartInterval</key>
+    <integer>1800</integer>
+    <key>StandardOutPath</key>
+    <string>/Users/lee/Library/Logs/search-index-rebuild.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/lee/Library/Logs/search-index-rebuild.log</string>
+    <key>KeepAlive</key>
+    <false/>
+</dict>
+</plist>

@@ -1815,6 +1815,19 @@ body::before {
         <div class="grade-legend" id="grade-legend"></div>
       </div>
 
+      <!-- Memory quality check -->
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;margin-bottom:24px" id="quality-check-card">
+        <div class="section-head">
+          <span class="section-title">Memory quality check</span>
+          <span class="section-count" id="feedback-stats">—</span>
+        </div>
+        <p style="color:var(--text-2);font-size:13px;margin:8px 0 16px">Rate recent memories to improve extraction quality</p>
+        <button style="background:var(--amber);color:var(--bg);border:none;padding:8px 16px;border-radius:var(--radius);font-weight:500;cursor:pointer;font-size:13px" id="load-quality-check">
+          Review memories
+        </button>
+        <div id="quality-check-container" style="display:none;margin-top:16px"></div>
+      </div>
+
       <div class="two-col">
         <div class="col-block">
           <div class="section-head">
@@ -3306,6 +3319,124 @@ document.getElementById('activity-dismiss-all').addEventListener('click', async 
 });
 
 // -----------------------------------------------------------------------
+// Memory quality check
+// -----------------------------------------------------------------------
+
+let qualityCheckState = {
+  memories: [],
+  currentIndex: 0
+};
+
+async function loadQualityCheckStats() {
+  try {
+    const res = await fetch('/api/human-feedback/stats');
+    const stats = await res.json();
+    const rate = (stats.positive_rate * 100).toFixed(0);
+    document.getElementById('feedback-stats').textContent =
+      stats.total > 0 ? `${stats.good}/${stats.total} (${rate}% good)` : 'No feedback yet';
+  } catch (err) {
+    document.getElementById('feedback-stats').textContent = '—';
+  }
+}
+
+async function loadQualityCheck() {
+  const btn = document.getElementById('load-quality-check');
+  const container = document.getElementById('quality-check-container');
+
+  btn.disabled = true;
+  btn.textContent = 'Loading...';
+
+  try {
+    const res = await fetch('/api/memory-quality-check', { method: 'POST' });
+    const data = await res.json();
+
+    qualityCheckState.memories = data.memories || [];
+    qualityCheckState.currentIndex = 0;
+
+    if (qualityCheckState.memories.length === 0) {
+      container.innerHTML = '<p style="color:var(--text-2);font-size:13px;margin-top:12px">No unreviewed memories available</p>';
+      container.style.display = 'block';
+      btn.style.display = 'none';
+      return;
+    }
+
+    container.style.display = 'block';
+    btn.style.display = 'none';
+    renderCurrentMemory();
+  } catch (err) {
+    console.error('Failed to load quality check:', err);
+    alert('Failed to load memories for review');
+    btn.disabled = false;
+    btn.textContent = 'Review memories';
+  }
+}
+
+function renderCurrentMemory() {
+  const container = document.getElementById('quality-check-container');
+  const mem = qualityCheckState.memories[qualityCheckState.currentIndex];
+
+  if (!mem) {
+    container.innerHTML = '<p style="color:var(--green);font-size:13px">All done! Thank you for your feedback.</p>';
+    loadQualityCheckStats();
+    return;
+  }
+
+  const html = `
+    <div style="border:1px solid var(--border);border-radius:var(--radius);padding:16px;background:var(--bg-2)">
+      <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:12px">
+        <div style="flex:1">
+          <div style="font-size:12px;color:var(--text-3);margin-bottom:4px">
+            Memory ${qualityCheckState.currentIndex + 1} of ${qualityCheckState.memories.length}
+          </div>
+          <div style="font-size:13px;line-height:1.5;color:var(--text-1)">
+            ${mem.content}
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button onclick="submitFeedback('good')"
+                style="flex:1;background:var(--green);color:var(--bg);border:none;padding:8px;border-radius:var(--radius);font-weight:500;cursor:pointer;font-size:13px">
+          👍 Good
+        </button>
+        <button onclick="submitFeedback('bad')"
+                style="flex:1;background:var(--rose);color:var(--bg);border:none;padding:8px;border-radius:var(--radius);font-weight:500;cursor:pointer;font-size:13px">
+          👎 Needs improvement
+        </button>
+      </div>
+    </div>
+  `;
+
+  container.innerHTML = html;
+}
+
+async function submitFeedback(feedback) {
+  const mem = qualityCheckState.memories[qualityCheckState.currentIndex];
+
+  try {
+    await fetch('/api/memory-feedback', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        memory_id: mem.id,
+        feedback: feedback
+      })
+    });
+
+    // Move to next memory
+    qualityCheckState.currentIndex++;
+    renderCurrentMemory();
+  } catch (err) {
+    console.error('Failed to submit feedback:', err);
+    alert('Failed to submit feedback. Please try again.');
+  }
+}
+
+// Make submitFeedback available globally
+window.submitFeedback = submitFeedback;
+
+document.getElementById('load-quality-check').addEventListener('click', loadQualityCheck);
+
+// -----------------------------------------------------------------------
 // Boot
 // -----------------------------------------------------------------------
 
@@ -3316,6 +3447,9 @@ document.getElementById('activity-dismiss-all').addEventListener('click', async 
     if (project) document.getElementById('project-label').textContent = project;
     // Pre-load memories so Memories tab is instant — guard prevents race
     setTimeout(loadMemories, 800);
+
+    // Load quality check stats
+    loadQualityCheckStats();
 
     // Initial notification poll
     pollNotifications();

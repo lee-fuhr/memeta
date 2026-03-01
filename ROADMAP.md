@@ -6,6 +6,18 @@ Where Memeta has been, where it is, and where it's going.
 
 ## Shipped
 
+### v0.24.0 — Extraction evolution + system integration (Feb 2026)
+Phase 3: Make the extraction pipeline self-improving, wire memory awareness into the conductor pattern, and make the system responsive to user frustration.
+- **Frustration-triggered injection** (`src/hook_state.py`) — 13 regex patterns detect user frustration ("you should know this", "I already told you", etc.); bypasses 10-exchange interval gate; reduces interval to 5 for rest of session; surfaces 5 memories instead of 3
+- **Consolidation worker LaunchAgent** — background worker runs every 15 minutes; triggers search index rebuild after processing
+- **Search index auto-rebuild** — dedicated LaunchAgent rebuilds BM25 index every 30 minutes for fresh search results
+- **LLM session summaries** (`src/session_summary.py`) — `StructuredSessionSummary` dataclass (11 fields); `generate_llm_summary()` via Claude API; "Watch out for" correction surfacing; heuristic fallback with quality gate
+- **Extraction evolution loop** (`src/wild/prompt_evolver.py`) — prompt template with `{CONVERSATION}` placeholder; epsilon-greedy selection (90/10 exploit/explore); real `test_prompt()` with extraction + grading; quality tracking in intelligence.db
+- **Agent context function** (`src/agent_context.py`) — `get_context_for_agent(agent_type, task_description)` with hybrid search; tag boosting for 7 agent types; corrections always surface with priority
+- **Human feedback mechanism** (`src/memory_feedback.py`) — dashboard-based quality voting on random memory batches; quality metrics tracking; triggers every ~20 sessions
+- **Score clamping fix** (`src/wild/quality_grader.py`) — `_score_actionability()` and `_score_evidence()` could return >1.0; fixed with `min(1.0, ...)` clamp
+- **83 new tests** — 2,267 total passing
+
 ### v0.23.0 — Correction pipeline (Feb 2026)
 Phase 2: When Lee corrects Claude once, the system detects it, stores it as a high-importance correction memory, reinforces it across sessions, and graduates confirmed corrections to permanent CLAUDE.md rules.
 - **Correction detection** (`src/extraction_patterns.py`) — 3 pattern categories: explicit corrections, behavioral directives, frustration signals; `detect_corrections()` seam with typed classification; 1.5x importance boost (0.9 floor, 1.0 cap)
@@ -106,14 +118,9 @@ Completed Feb 28, 2026. See v0.22.0 in Shipped section above.
 
 Completed Feb 28, 2026. See v0.23.0 in Shipped section above.
 
-## Phase 3: Extraction evolution + system integration (~3-4 weeks)
+## Phase 3: Extraction evolution + system integration — SHIPPED (v0.24.0)
 
-Make the extraction pipeline self-improving and wire memory awareness into the conductor pattern.
-
-- **Extraction-quality evolution loop** — quality tracking table in intelligence.db (prompt_variant, quality_grade, timestamp); 3-5 extraction prompt variants compete via epsilon-greedy selection; consolidation hook uses the winning variant; dashboard visualizes quality trends
-- **Session-context v2 (richer context card)** — replace garbage _state.md captures with structured session summaries; consolidation hook writes topic, decisions, open questions; session-context formats as rich resumption experience
-- **Conductor memory context for agent delegations** — new function `get_context_for_agent(agent_type, task_description)` in `src/agent_context.py`; calls hybrid_search filtered by agent-relevant tags; conductor injects relevant memories into Task prompts; one change in one place, benefits all agents
-- **LaunchAgent health monitoring upgrade** — add auto-discovery (enumerate all com.lfi.*.plist files); add exit code checking (not just "is it running?" but "did it succeed?"); surface critical failures in session-context output
+Completed Feb 28, 2026. See v0.24.0 in Shipped section above.
 
 ## Phase 4: Setup + ecosystem (~3-4 weeks)
 

@@ -10,6 +10,50 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ---
 
+## [0.24.0] - 2026-02-28
+
+### Extraction evolution + system integration (Phase 3)
+
+The system now improves its own extraction quality, responds to user frustration in real-time, provides rich structured session resumption, and wires memory awareness into agent delegations.
+
+**What you get from this:**
+- When you're frustrated ("I already told you this"), the system immediately surfaces relevant memories instead of waiting for the next 10-exchange cycle
+- Session resumption cards now include LLM-generated summaries with decisions, open questions, and "Watch out for" warnings from past corrections
+- The extraction pipeline self-improves: prompt variants compete via epsilon-greedy selection, and the best-performing prompts win
+- Every agent delegation can now include relevant memories — the conductor pattern becomes memory-aware
+
+**Added**
+- **Frustration-triggered injection** (`src/hook_state.py`) — 13 regex patterns detect user frustration ("you should know this", "I already told you", "we've discussed this", etc.); bypasses 10-exchange interval gate for immediate memory surfacing; reduces injection interval from 10→5 for rest of session; uses top_k=5 instead of 3 when frustrated. 17 new tests
+- **Consolidation worker LaunchAgent** (`launch-agents/com.lfi.consolidation-worker.plist`) — runs `async_consolidation.py` every 15 minutes; triggers `build_search_index()` after processing for fresh BM25 results
+- **Search index auto-rebuild** (`launch-agents/com.lfi.search-index-rebuild.plist`) — dedicated LaunchAgent rebuilds BM25 search index every 30 minutes
+- **LLM session summaries** (`src/session_summary.py`) — `StructuredSessionSummary` dataclass with 11 fields (session_id, summary, topic, decisions, open_questions, open_threads, files_touched, frustration_level, depends_on, generated_at, generator); `generate_llm_summary()` via Claude API; heuristic fallback with quality gate (<50 chars rejected); backward compatibility with old-format summaries. 22 new tests
+- **"Watch out for" correction surfacing** (`src/session_summary.py`) — resumption cards now search correction memories and surface top 3 as warnings; helps prevent repeating past mistakes
+- **Extraction evolution loop** (`src/wild/prompt_evolver.py`) — prompt template with `{CONVERSATION}` placeholder; epsilon-greedy `get_best_prompt()` (90% exploit best variant, 10% explore others); `test_prompt()` rewritten from simulation stub to real extraction + grading pipeline. 14 new tests
+- **Agent context function** (`src/agent_context.py`) — `get_context_for_agent(agent_type, task_description, top_k=5)` returns formatted context string + source IDs; `AGENT_TAG_MAP` with 7 agent types (dev, brand, copywriter, seo, designer, researcher, relationship); hybrid search with tag boosting (not hard filtering); corrections always surface with ⚠️ markers, prioritized by importance. 17 new tests
+- **Human feedback mechanism** (`src/memory_feedback.py`) — dashboard-based quality voting on random memory batches; `get_quality_check_batch()` samples 5 random memories; `save_feedback()` with thumbs up/down + optional notes; triggers every ~20 sessions; quality metrics tracking. 16 new tests
+- **Dashboard quality check UI** (`dashboard/index.html`, `dashboard/server.py`) — quality check card with feedback voting interface; 4 new API endpoints (`/api/memory-quality-check`, `/api/human-feedback/stats`, `/api/memory-feedback`, `/api/memory-quality-metrics`)
+
+**Fixed**
+- **Critical: quality grader score overflow** (`src/wild/quality_grader.py`) — `_score_actionability()` could return >1.0 via unbounded sum of action_score + imperative_score + example_score; `_score_evidence()` could return up to 1.6. Both fixed with `min(1.0, ...)` clamp
+- **quality_grader event type** (`src/wild/quality_grader.py`) — added `'injection'` to CHECK constraint event types for memory injection quality tracking
+
+**Architecture decisions (from adversarial debate)**
+- Frustration-triggered injection is a bypass gate, not a separate pipeline — reuses existing injection infrastructure
+- LLM summaries with heuristic fallback — if Claude API is down, system degrades gracefully
+- Epsilon-greedy over pure A/B testing — simpler, well-understood, no statistical significance issues
+- Agent context uses tag boosting not filtering — ensures agents still see broadly relevant memories
+- Human feedback as lightweight dashboard feature, not heavyweight UI — avoids survey fatigue
+
+### Tests
+- **Core suite:** 2,267 passing (+83 new, 0 regressions)
+- 17 frustration detection tests (pattern matching, false positive prevention, gate bypass, interval reduction)
+- 22 session summary tests (LLM summary, schema, backward compat, correction surfacing, quality gate)
+- 14 extraction evolution tests (evolver integration, epsilon-greedy, prompt template, quality grading)
+- 17 agent context tests (tag boosting, correction priority, hybrid search, formatting)
+- 16 memory feedback tests (batch sampling, feedback saving, metrics, triggers)
+
+---
+
 ## [0.23.0] - 2026-02-28
 
 ### Correction pipeline (Phase 2)

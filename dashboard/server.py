@@ -1137,6 +1137,166 @@ def api_skill_learnings(skill_name):
 # Entry point
 # ---------------------------------------------------------------------------
 
+# ---------------------------------------------------------------------------
+# Memory feedback API (production version - replaces wild/human_feedback)
+# ---------------------------------------------------------------------------
+
+@app.route("/api/memory-quality-check", methods=["POST"])
+def api_memory_quality_check():
+    """Get random batch of recent memories for quality review."""
+    try:
+        from memory_system.wild.human_feedback import HumanFeedback
+
+        # Get count from request (default 5)
+        data = request.get_json() or {}
+        batch_size = data.get("count", 5)
+        days_back = data.get("days_back", 30)
+
+        feedback_db = HumanFeedback()
+        memories = feedback_db.get_random_recent_memories(
+            count=batch_size,
+            days_back=days_back
+        )
+
+        return jsonify({
+            "success": True,
+            "memories": memories,
+            "count": len(memories)
+        })
+    except ImportError:
+        return jsonify({
+            "success": False,
+            "memories": [],
+            "error": "module not available"
+        })
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "memories": [],
+            "error": str(e)
+        })
+
+
+@app.route("/api/human-feedback/stats")
+def api_human_feedback_stats():
+    """Get human feedback statistics."""
+    try:
+        from memory_system.wild.human_feedback import HumanFeedback
+
+        feedback = HumanFeedback()
+        stats = feedback.get_stats()
+
+        return jsonify(stats)
+    except Exception as e:
+        return jsonify({
+            "total": 0,
+            "good": 0,
+            "bad": 0,
+            "positive_rate": 0.0,
+            "error": str(e)
+        })
+
+
+@app.route("/api/memory-feedback", methods=["POST"])
+def api_memory_feedback():
+    """Save human feedback for a memory (good/bad)."""
+    try:
+        from memory_system.wild.human_feedback import HumanFeedback
+
+        data = request.get_json() or {}
+
+        memory_id = data.get("memory_id")
+        feedback_value = data.get("feedback")
+        session_context = data.get("session_context", "")
+
+        # Validate required fields
+        if not memory_id:
+            return jsonify({
+                "success": False,
+                "error": "memory_id is required"
+            }), 400
+
+        if not feedback_value:
+            return jsonify({
+                "success": False,
+                "error": "feedback is required"
+            }), 400
+
+        # Validate feedback value
+        if feedback_value not in ('good', 'bad'):
+            return jsonify({
+                "success": False,
+                "error": "feedback must be 'good' or 'bad'"
+            }), 400
+
+        # Save the feedback
+        feedback_db = HumanFeedback()
+        success = feedback_db.record_feedback(
+            memory_id=memory_id,
+            feedback=feedback_value,
+            session_context=session_context
+        )
+
+        return jsonify({
+            "success": success,
+            "memory_id": memory_id,
+            "feedback": feedback_value
+        })
+
+    except ValueError as e:
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 400
+    except ImportError:
+        return jsonify({
+            "success": False,
+            "error": "module not available"
+        }), 500
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+
+
+@app.route("/api/memory-quality-metrics")
+def api_memory_quality_metrics():
+    """Get quality metrics from feedback data."""
+    try:
+        from memory_system.memory_feedback import get_quality_metrics
+        from memory_system.config import MemorySystemConfig
+
+        cfg = MemorySystemConfig()
+        days_back = request.args.get("days_back")
+
+        if days_back:
+            days_back = int(days_back)
+
+        metrics = get_quality_metrics(
+            db_path=cfg.intelligence_db,
+            days_back=days_back
+        )
+
+        return jsonify(metrics)
+    except ImportError:
+        return jsonify({
+            "total_feedback": 0,
+            "good_count": 0,
+            "bad_count": 0,
+            "quality_score": 0.0,
+            "error": "module not available"
+        })
+    except Exception as e:
+        return jsonify({
+            "total_feedback": 0,
+            "good_count": 0,
+            "bad_count": 0,
+            "quality_score": 0.0,
+            "error": str(e)
+        })
+
+
 if __name__ == "__main__":
     args = _parse_args()
     memory_base = Path(args.memory_base)

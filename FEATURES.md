@@ -2,7 +2,7 @@
 
 Every feature in Memeta, organized by layer. Each one coexists additively — adding feature N+1 makes features 1 through N better.
 
-**Current:** v0.23.0 · 2,184 tests passing · 110 features shipped
+**Current:** v0.24.0 · 2,267 tests passing · 118 features shipped
 
 ---
 
@@ -58,6 +58,7 @@ Every feature in Memeta, organized by layer. Each one coexists additively — ad
 | Memory PageRank | Iterative PageRank on relationship graph for structural importance | `src/memory_pagerank.py` |
 | Schema classifier | Classifies new memories as assimilation/extension/accommodation (Bartlett) | `src/schema_classifier.py` |
 | Retrieval-induced forgetting | Detects retrieval blind spots where few memories dominate search (Gini) | `src/retrieval_forgetting.py` |
+| Human feedback | Dashboard-based memory quality voting with batch sampling and quality metrics | `src/memory_feedback.py` |
 
 ---
 
@@ -74,7 +75,7 @@ Every feature in Memeta, organized by layer. Each one coexists additively — ad
 | Decision regret loop | Real-time fuzzy matching against regret database before decisions | `src/decision_regret_loop.py` |
 | Pattern transfer | Solutions from one project surface for similar problems elsewhere | `src/wild/pattern_transfer.py` |
 | Cross-client synthesis | Reads consent-tagged memories across projects, generates transfer hypotheses | `src/cross_client_synthesizer.py` |
-| Prompt evolution | Genetic algorithm optimizes extraction prompts using quality grades | `src/wild/prompt_evolver.py` |
+| Prompt evolution | Genetic algorithm with epsilon-greedy selection optimizes extraction prompts using quality grades | `src/wild/prompt_evolver.py` |
 | Context pre-loading | Checks calendar, pre-loads relevant context before meetings | `src/wild/context_preloader.py` |
 | Temporal prediction | Predicts what you'll need from memory access patterns | `src/wild/temporal_predictor.py` |
 | Context decay prediction | Predicts staleness before it happens | `src/wild/decay_predictor.py` |
@@ -91,6 +92,7 @@ Every feature in Memeta, organized by layer. Each one coexists additively — ad
 | Conflict prediction | Pre-save contradiction detection with confidence scoring | `src/wild/conflict_predictor.py` |
 | Memory lifespan prediction | Predicts how long a memory will stay relevant, flags for review | `src/wild/lifespan_integration.py` |
 | Meta-learning | A/B testing memory strategies on live corpus | `src/meta_learning_system.py` |
+| Frustration-triggered injection | Detects 13 frustration patterns, bypasses injection interval gate, surfaces memories immediately when user is frustrated | `src/hook_state.py` |
 
 ---
 
@@ -122,6 +124,7 @@ Every feature in Memeta, organized by layer. Each one coexists additively — ad
 | Regret check | Real-time decision regret warnings | `/api/regret-check` |
 | Notifications | Alert feed with badge count, dismissable | `/api/notifications` |
 | Skill lifecycle dashboard | Overview, proposals, flagged skills, decay scores, action patterns | `/api/skill-lifecycle/*` |
+| Memory quality check | Human feedback voting on random memory batches with quality metrics | `/api/memory-quality-check` |
 
 ---
 
@@ -136,8 +139,8 @@ Every feature in Memeta, organized by layer. Each one coexists additively — ad
 | Session end hook | Automatic memory extraction on every session close | `hooks/session-memory-consolidation-async.py` |
 | Hook shared state | Session-scoped JSON coordination between hooks with atomic writes and stale cleanup | `src/hook_state.py` |
 | Memory injection | BM25-only search with pre-built index for fast in-session memory surfacing | `src/memory_injector.py` |
-| Session summary | Heuristic "Where was I?" resumption cards with topic/decision/question extraction | `src/session_summary.py` |
-| Memory injection hook | Exchange-gated UserPromptSubmit hook that injects relevant memories during sessions | `hooks/memory-injection.py` |
+| Session summary | LLM-powered structured summaries with "Watch out for" correction surfacing + heuristic fallback | `src/session_summary.py` |
+| Memory injection hook | Exchange-gated + frustration-triggered UserPromptSubmit hook that injects relevant memories during sessions | `hooks/memory-injection.py` |
 | Correction detection | 3 pattern categories (explicit, behavioral, frustration) with typed classification and 1.5x importance boost | `src/extraction_patterns.py` |
 | Correction graduation | Pipeline to promote confirmed corrections (3+ sessions) to permanent CLAUDE.md rules with strip-and-regenerate | `src/correction_graduator.py` |
 | Correction reinforcement | Cross-session confirmation tracking with word-overlap matching and same-session dedup | `src/session_consolidator.py` |
@@ -163,6 +166,10 @@ Every feature in Memeta, organized by layer. Each one coexists additively — ad
 | Generational GC | Three-generation memory lifecycle with graduated collection (Ungar 1984) | `src/generational_gc.py` |
 | Content hash dedup | Multi-level deduplication: exact, normalized, semantic hash | `src/content_dedup.py` |
 | Reference counter | Tracks memory dependency counts, protects referenced memories from archival | `src/reference_counter.py` |
+| Agent context | Memory-aware context injection for conductor delegations with tag boosting and correction prioritization | `src/agent_context.py` |
+| Consolidation worker | Background LaunchAgent runs consolidation queue every 15 minutes | `launch-agents/com.lfi.consolidation-worker.plist` |
+| Search index auto-rebuild | Background LaunchAgent rebuilds BM25 search index every 30 minutes | `launch-agents/com.lfi.search-index-rebuild.plist` |
+| Extraction evolution | Epsilon-greedy prompt variant selection with quality tracking for self-improving extraction | `src/wild/prompt_evolver.py` |
 
 ---
 

@@ -416,3 +416,147 @@ class TestCleanupStaleSessions:
         assert "recent" in remaining
         assert "old-1" not in remaining
         assert "old-2" not in remaining
+
+
+# ---------------------------------------------------------------------------
+# TestFrustrationDetection
+# ---------------------------------------------------------------------------
+
+class TestFrustrationDetection:
+    def test_you_should_know_pattern(self):
+        """Detects 'you should know' pattern."""
+        from memory_system.hook_state import detect_memory_signal
+        assert detect_memory_signal("you should know this already") is True
+        assert detect_memory_signal("You should know about the API key") is True
+
+    def test_weve_done_this_pattern(self):
+        """Detects 'we've done this' pattern."""
+        from memory_system.hook_state import detect_memory_signal
+        assert detect_memory_signal("we've done this before") is True
+        assert detect_memory_signal("we have discussed this already") is True
+        assert detect_memory_signal("we have talked about this") is True
+
+    def test_ive_told_you_pattern(self):
+        """Detects 'I've told you' pattern."""
+        from memory_system.hook_state import detect_memory_signal
+        assert detect_memory_signal("I've already told you") is True
+        assert detect_memory_signal("I have previously mentioned this") is True
+        assert detect_memory_signal("I already said this") is True
+
+    def test_remember_when_pattern(self):
+        """Detects 'remember when' pattern."""
+        from memory_system.hook_state import detect_memory_signal
+        assert detect_memory_signal("remember when we fixed this?") is True
+
+    def test_as_i_said_pattern(self):
+        """Detects 'as I said' pattern."""
+        from memory_system.hook_state import detect_memory_signal
+        assert detect_memory_signal("as I said earlier") is True
+        assert detect_memory_signal("as we discussed") is True
+        assert detect_memory_signal("like we mentioned") is True
+
+    def test_this_isnt_new_pattern(self):
+        """Detects 'this isn't new' pattern."""
+        from memory_system.hook_state import detect_memory_signal
+        assert detect_memory_signal("this isn't new information") is True
+        assert detect_memory_signal("this is not new") is True
+
+    def test_we_went_over_pattern(self):
+        """Detects 'we went over this' pattern."""
+        from memory_system.hook_state import detect_memory_signal
+        assert detect_memory_signal("we went over this yesterday") is True
+        assert detect_memory_signal("we went through this already") is True
+
+    def test_youve_forgotten_pattern(self):
+        """Detects 'you've forgotten' pattern."""
+        from memory_system.hook_state import detect_memory_signal
+        assert detect_memory_signal("you've forgotten about that") is True
+        assert detect_memory_signal("you have forgotten") is True
+
+    def test_how_many_times_pattern(self):
+        """Detects 'how many times' pattern."""
+        from memory_system.hook_state import detect_memory_signal
+        assert detect_memory_signal("how many times do I have to tell you") is True
+        assert detect_memory_signal("how do I explain this") is True
+        assert detect_memory_signal("how can I make this clearer") is True
+
+    def test_pay_attention_pattern(self):
+        """Detects 'pay attention' pattern."""
+        from memory_system.hook_state import detect_memory_signal
+        assert detect_memory_signal("pay attention to what I'm saying") is True
+
+    def test_false_positives_normal_conversation(self):
+        """Does NOT match normal conversation without frustration."""
+        from memory_system.hook_state import detect_memory_signal
+        assert detect_memory_signal("Can you help me with this?") is False
+        assert detect_memory_signal("What should I do next?") is False
+        assert detect_memory_signal("Let's review the documentation") is False
+        assert detect_memory_signal("I need to understand this better") is False
+        assert detect_memory_signal("Could you explain how this works?") is False
+
+    def test_case_insensitive_matching(self):
+        """Matches patterns case-insensitively."""
+        from memory_system.hook_state import detect_memory_signal
+        assert detect_memory_signal("YOU SHOULD KNOW THIS") is True
+        assert detect_memory_signal("We've Done This Before") is True
+
+    def test_should_inject_immediately_true(self):
+        """should_inject_immediately returns True for frustration signals."""
+        from memory_system.hook_state import should_inject_immediately
+        assert should_inject_immediately("you should know this") is True
+        assert should_inject_immediately("we've done this before") is True
+
+    def test_should_inject_immediately_false(self):
+        """should_inject_immediately returns False for normal prompts."""
+        from memory_system.hook_state import should_inject_immediately
+        assert should_inject_immediately("Can you help me?") is False
+        assert should_inject_immediately("What is the solution?") is False
+
+
+# ---------------------------------------------------------------------------
+# TestIntervalReduction
+# ---------------------------------------------------------------------------
+
+class TestIntervalReduction:
+    def test_reduces_interval_from_10_to_5(self, state_file):
+        """Reduces injection_interval from 10 to 5 after frustration."""
+        from memory_system.hook_state import reduce_injection_interval
+        get_session_state(session_id="sess-1", state_file=state_file)
+        # Initial interval should be 10
+        state = get_session_state(session_id="sess-1", state_file=state_file)
+        assert state["injection_interval"] == 10
+
+        # Reduce interval
+        reduce_injection_interval(session_id="sess-1", state_file=state_file)
+
+        # Interval should now be 5
+        state = get_session_state(session_id="sess-1", state_file=state_file)
+        assert state["injection_interval"] == 5
+
+    def test_reduced_interval_persists(self, state_file):
+        """Reduced interval persists for the session."""
+        from memory_system.hook_state import reduce_injection_interval
+        get_session_state(session_id="sess-1", state_file=state_file)
+        reduce_injection_interval(session_id="sess-1", state_file=state_file)
+
+        # Simulate more exchanges
+        update_session_state(
+            {"exchange_count": 20},
+            session_id="sess-1",
+            state_file=state_file,
+        )
+
+        # Interval should still be 5
+        state = get_session_state(session_id="sess-1", state_file=state_file)
+        assert state["injection_interval"] == 5
+
+    def test_interval_reduction_idempotent(self, state_file):
+        """Multiple calls to reduce_injection_interval don't reduce below 5."""
+        from memory_system.hook_state import reduce_injection_interval
+        get_session_state(session_id="sess-1", state_file=state_file)
+        reduce_injection_interval(session_id="sess-1", state_file=state_file)
+        reduce_injection_interval(session_id="sess-1", state_file=state_file)
+        reduce_injection_interval(session_id="sess-1", state_file=state_file)
+
+        state = get_session_state(session_id="sess-1", state_file=state_file)
+        assert state["injection_interval"] == 5

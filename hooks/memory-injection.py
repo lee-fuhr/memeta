@@ -37,17 +37,23 @@ def main() -> None:
     # Late import — exit silently if memory_system isn't installed
     try:
         from hook_state import (get_session_id, get_session_state,
-                                increment_exchange, record_injection, should_inject)
+                                increment_exchange, record_injection, should_inject,
+                                should_inject_immediately, reduce_injection_interval)
         from memory_injector import format_injection, load_search_index, search_memories
     except ImportError:
         return
 
     sid = session_id or get_session_id()
 
-    # Always increment; most calls exit at should_inject check
+    # Always increment; check for frustration signal to bypass gate
     increment_exchange(session_id=sid)
-    if not should_inject(session_id=sid):
+    immediate = should_inject_immediately(content)
+    if not immediate and not should_inject(session_id=sid):
         return
+
+    # When frustration detected, reduce interval for rest of session
+    if immediate:
+        reduce_injection_interval(session_id=sid)
 
     # Load index — skip silently if not built yet
     memories = load_search_index()
@@ -62,8 +68,9 @@ def main() -> None:
     if not memories:
         return
 
-    # Search, format, and inject
-    results = search_memories(query=content, memories=memories)
+    # Search with higher top_k if frustration detected (broader coverage)
+    top_k = 5 if immediate else 3
+    results = search_memories(query=content, memories=memories, top_k=top_k)
     if not results:
         return
 
