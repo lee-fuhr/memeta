@@ -10,6 +10,37 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ---
 
+## [0.26.0] - 2026-03-02
+
+### Advanced intelligence (Phase 5)
+
+The proactive release. Memeta stops waiting to be asked — it anticipates what you need, nudges you about forgotten commitments, surfaces past solutions when you hit a problem, and auto-generates CLAUDE.md rules from your own patterns.
+
+**What you get from this:**
+- Session start shows your overdue commitments ranked by urgency — "Don't let me forget" actually works now
+- Hit an error you've solved before? Memeta surfaces the past solution automatically via BM25 search
+- CLAUDE.md rules auto-generate from 5 signal sources: corrections, directives, frustrations, preferences, workflows
+- Recurring frustration patterns (5+ occurrences, 3+ sessions) auto-propose new skills
+- Full decision journal with file-based archaeology — "what decisions affected this file?"
+- Confidence calibration tracks predicted vs actual to build future calibration curves
+
+**Added**
+- **Commitment nudger** (`src/commitment_nudger.py`) — extends ProspectiveTriggerManager with 4 new patterns ("I should", "need to", "let's make sure", "follow up on"); priority scoring (time overdue > topic match > event); deduplication by memory_id; formatted commitment blocks for session start. 20 tests
+- **Pattern recall** (`src/pattern_recall.py`) — multi-signal problem detection (error messages, stack traces, frustration, help requests); meta-reference suppression prevents false positives on "implement error handling"; BM25-only past solution search within ~50ms hook budget; 5-exchange cooldown. 22 tests
+- **CLAUDE.md synthesizer** (`src/claudemd_synthesizer.py`) — 5 pluggable RuleSource implementations (corrections, directives, frustrations, preferences, workflows); word-overlap deduplication (>0.7 threshold); category-grouped formatting; strip-and-regenerate with `<!-- AUTO-GENERATED: learnings -->` markers (distinct from correction_graduator's `corrections` markers). 22 tests
+- **Frustration-to-skill pipeline** (`src/wild/skill_proposal_engine.py`) — frustration topic aggregation from sentiment_patterns table; threshold filtering (5+ occurrences AND 3+ sessions); dedup against existing proposals; SQLite schema migration for trigger_reason constraint. 13 tests
+- **Decision store** (`src/decision_journal.py`) — full rewrite from 39-line stub to persistent SQLite store; Decision dataclass; CRUD with file-based archaeology (exact + prefix match); session queries; outcome tracking; backward-compatible legacy wrapper functions preserved. 16 tests
+- **Confidence calibration** (`src/confidence_calibration.py`) — CalibrationEvent/CalibrationBin dataclasses; binned statistics (configurable bin size); implicit usage detection via word overlap heuristic (>0.3 after stopword removal). 11 tests
+
+**Adversarial review findings:** All 10 checks passed with zero issues. Import correctness verified (both absolute and relative consistent with codebase convention). No circular imports, no marker collisions, no API drift, no false positives, no PTM coupling violations.
+
+### Tests
+- **Core suite:** 2,526 passing (+91 new, 0 regressions)
+- **Wild suite:** 13 new frustration-to-skill tests
+- **Total:** 2,539 passing (104 new tests across 6 features)
+
+---
+
 ## [0.25.0] - 2026-03-01
 
 ### Setup + ecosystem (Phase 4)

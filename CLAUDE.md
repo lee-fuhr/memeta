@@ -1,13 +1,13 @@
 # Memeta — project instructions
 
-**Version:** 0.25.0
-**Last updated:** 2026-03-01
+**Version:** 0.26.0
+**Last updated:** 2026-03-02
 
 ---
 
 ## What this is
 
-Intelligent memory system for Claude Code. 124 features, 2,435 tests, Python 3.11+. Extracts knowledge from sessions, grades it, searches it semantically, and synthesizes insights across projects.
+Intelligent memory system for Claude Code. 130 features, 2,539 tests, Python 3.11+. Extracts knowledge from sessions, grades it, searches it semantically, and synthesizes insights across projects.
 
 **Architecture:** Memory files (YAML frontmatter + markdown) at `~/.local/share/memory/LFI/memories/`. Intelligence layer in `intelligence.db` (SQLite). FAISS vector store for semantic search. Flask dashboard at localhost:8766.
 

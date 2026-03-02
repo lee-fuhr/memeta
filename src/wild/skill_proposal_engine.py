@@ -4,9 +4,13 @@ Evaluates recurring action patterns tracked by SkillActionTracker and generates
 proposals for new skills when patterns exceed frequency thresholds. Checks against
 the existing skill registry to avoid proposing skills that already exist.
 
+Also evaluates frustration patterns from sentiment_patterns to propose skills
+that address recurring pain points.
+
 Trigger rules:
 - Daily burst: 3+ occurrences in a single day -> confidence 0.6
 - Sustained pattern: 7+ distinct days -> confidence 0.7
+- Frustration pattern: 5+ occurrences across 3+ sessions -> confidence 0.7
 - When both triggers are met, sustained_pattern wins (higher confidence)
 
 Usage:
@@ -17,11 +21,16 @@ Usage:
     for p in proposals:
         print(f"Proposed: {p.proposed_name} ({p.trigger_reason}, conf={p.confidence})")
         engine.create_proposal(p)
+
+    # Frustration-based proposals
+    frustration_proposals = engine.evaluate_frustration_patterns()
+    for p in frustration_proposals:
+        engine.create_proposal(p)
 """
 
 import json
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 from memory_system.config import cfg
@@ -33,6 +42,7 @@ DAILY_BURST_THRESHOLD = 3
 SUSTAINED_DAYS_THRESHOLD = 7
 DAILY_BURST_CONFIDENCE = 0.6
 SUSTAINED_CONFIDENCE = 0.7
+FRUSTRATION_CONFIDENCE = 0.7
 COVERAGE_OVERLAP_THRESHOLD = 0.6
 
 VALID_STATUSES = {"approved", "rejected", "implemented"}
@@ -43,10 +53,20 @@ class SkillProposal:
     """A proposed new skill."""
     proposed_name: str
     action_signature: str
-    trigger_reason: str  # 'daily_burst' or 'sustained_pattern'
+    trigger_reason: str  # 'daily_burst', 'sustained_pattern', or 'frustration_pattern'
     confidence: float
     status: str = "pending"  # pending/approved/rejected/implemented
     mapped_pattern_id: Optional[str] = None
+
+
+@dataclass
+class FrustrationAggregate:
+    """Aggregated frustration data for a single topic."""
+    topic: str
+    occurrence_count: int
+    session_count: int
+    latest_timestamp: str
+    sample_evidence: list[str]  # up to 3 sample trigger_words/contexts
 
 
 class SkillProposalEngine:
@@ -55,6 +75,7 @@ class SkillProposalEngine:
     def __init__(self, db_path=None, state_path=None):
         self.db = IntelligenceDB(db_path)
         self.tracker = SkillActionTracker(state_path=state_path, db_path=db_path)
+        self._migrate_frustration_trigger()
 
     def evaluate_patterns(self) -> list[SkillProposal]:
         """Evaluate all action patterns and generate proposals.
@@ -244,3 +265,138 @@ class SkillProposalEngine:
         Prefix with 'auto-' to indicate it was auto-proposed.
         """
         return f"auto-{canonical_form.replace('_', '-')}"
+
+    # --- Frustration-to-skill pipeline ---
+
+    def _migrate_frustration_trigger(self):
+        """Migrate skill_proposals table to allow 'frustration_pattern' trigger_reason.
+
+        SQLite doesn't support ALTER TABLE for CHECK constraints, so we recreate
+        the table if the constraint doesn't already include frustration_pattern.
+        """
+        cursor = self.db.conn.cursor()
+        # Check current table schema
+        row = cursor.execute(
+            "SELECT sql FROM sqlite_master WHERE type='table' AND name='skill_proposals'"
+        ).fetchone()
+        if row is None:
+            return
+        schema_sql = row[0] if isinstance(row, (tuple, list)) else row["sql"]
+        if "frustration_pattern" in schema_sql:
+            return  # Already migrated
+
+        cursor.execute("ALTER TABLE skill_proposals RENAME TO skill_proposals_old")
+        cursor.execute("""
+            CREATE TABLE skill_proposals (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                proposed_name TEXT NOT NULL,
+                action_signature TEXT NOT NULL,
+                trigger_reason TEXT NOT NULL CHECK(trigger_reason IN ('daily_burst', 'sustained_pattern', 'frustration_pattern')),
+                confidence REAL NOT NULL,
+                status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending', 'approved', 'rejected', 'implemented')),
+                mapped_pattern_id TEXT,
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                resolved_at TEXT
+            )
+        """)
+        cursor.execute("""
+            INSERT INTO skill_proposals (id, proposed_name, action_signature, trigger_reason,
+                                        confidence, status, mapped_pattern_id, created_at, resolved_at)
+            SELECT id, proposed_name, action_signature, trigger_reason,
+                   confidence, status, mapped_pattern_id, created_at, resolved_at
+            FROM skill_proposals_old
+        """)
+        cursor.execute("DROP TABLE skill_proposals_old")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_skill_proposals_status ON skill_proposals(status)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_skill_proposals_name ON skill_proposals(proposed_name)")
+        self.db.conn.commit()
+
+    def evaluate_frustration_patterns(
+        self, min_occurrences: int = 5, min_sessions: int = 3
+    ) -> list[SkillProposal]:
+        """Evaluate frustration patterns and propose skills.
+
+        1. Aggregate frustration topics from sentiment_patterns table
+        2. Filter by thresholds (min_occurrences AND min_sessions)
+        3. Check for existing proposals (dedup)
+        4. Create SkillProposals with trigger_reason='frustration_pattern'
+        """
+        aggregated = self._aggregate_frustration_topics()
+        proposals: list[SkillProposal] = []
+
+        for topic, agg in aggregated.items():
+            if agg.occurrence_count < min_occurrences:
+                continue
+            if agg.session_count < min_sessions:
+                continue
+            if self._has_frustration_proposal(topic):
+                continue
+
+            action_sig = f"frustration:{topic}"
+            proposed_name = f"auto-fix-{topic.replace(' ', '-').lower()}"
+
+            proposals.append(SkillProposal(
+                proposed_name=proposed_name,
+                action_signature=action_sig,
+                trigger_reason="frustration_pattern",
+                confidence=FRUSTRATION_CONFIDENCE,
+            ))
+
+        return proposals
+
+    def _aggregate_frustration_topics(self, days_back: int = 90) -> dict[str, FrustrationAggregate]:
+        """Aggregate frustration records by topic/trigger_words.
+
+        Queries sentiment_patterns WHERE sentiment='frustrated'.
+        Groups by trigger_words (or context if trigger_words is NULL).
+        Returns dict mapping topic -> FrustrationAggregate.
+        """
+        cutoff = (datetime.now(timezone.utc) - timedelta(days=days_back)).isoformat()
+        cursor = self.db.conn.cursor()
+        rows = cursor.execute(
+            "SELECT session_id, timestamp, trigger_words, context "
+            "FROM sentiment_patterns "
+            "WHERE sentiment = 'frustrated' AND timestamp >= ? "
+            "ORDER BY timestamp DESC",
+            (cutoff,),
+        ).fetchall()
+
+        topics: dict[str, dict] = {}
+        for row in rows:
+            topic = row["trigger_words"] or row["context"]
+            if not topic:
+                continue
+
+            if topic not in topics:
+                topics[topic] = {
+                    "sessions": set(),
+                    "count": 0,
+                    "latest": row["timestamp"],
+                    "evidence": [],
+                }
+
+            topics[topic]["sessions"].add(row["session_id"])
+            topics[topic]["count"] += 1
+
+            evidence_item = row["context"] or row["trigger_words"]
+            if evidence_item and len(topics[topic]["evidence"]) < 3:
+                topics[topic]["evidence"].append(evidence_item)
+
+        return {
+            topic: FrustrationAggregate(
+                topic=topic,
+                occurrence_count=data["count"],
+                session_count=len(data["sessions"]),
+                latest_timestamp=data["latest"],
+                sample_evidence=data["evidence"],
+            )
+            for topic, data in topics.items()
+        }
+
+    def _has_frustration_proposal(self, topic: str) -> bool:
+        """Check if a pending proposal already exists for this frustration topic.
+
+        Uses action_signature matching with 'frustration:' prefix.
+        """
+        action_sig = f"frustration:{topic}"
+        return self._has_pending_proposal(action_sig)

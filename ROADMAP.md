@@ -6,6 +6,17 @@ Where Memeta has been, where it is, and where it's going.
 
 ## Shipped
 
+### v0.26.0 — Advanced intelligence (Mar 2026)
+Phase 5: Proactive intelligence. The system anticipates what you need instead of waiting to be asked.
+- **Commitment nudger** (`src/commitment_nudger.py`) — "Don't let me forget" triggers surface at session start, ranked by urgency (time overdue > topic match > event)
+- **Pattern recall** (`src/pattern_recall.py`) — detects problem-solving context, surfaces past solutions via BM25; multi-signal gating prevents false positives
+- **CLAUDE.md synthesizer** (`src/claudemd_synthesizer.py`) — auto-generates rules from 5 signal sources (corrections, directives, frustrations, preferences, workflows)
+- **Frustration-to-skill pipeline** (`src/wild/skill_proposal_engine.py`) — recurring frustration patterns (5+/3+) auto-propose new skills
+- **Decision store** (`src/decision_journal.py`) — persistent journal with file-based archaeology and outcome tracking
+- **Confidence calibration** (`src/confidence_calibration.py`) — predicted vs actual tracking with binned statistics
+- **0 adversarial review issues** — all 10 checks passed clean
+- **104 new tests** — 2,539 total passing
+
 ### v0.25.0 — Setup + ecosystem (Mar 2026)
 Phase 4: On-ramp features and developer tools. The system can't grow if nobody can install it.
 - **CLI entry point** (`src/cli.py`) — `memeta` command with argparse subcommands: init, search, import, generate; proper exit codes; dispatches to real handler classes

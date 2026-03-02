@@ -2,7 +2,7 @@
 
 Every feature in Memeta, organized by layer. Each one coexists additively — adding feature N+1 makes features 1 through N better.
 
-**Current:** v0.25.0 · 2,435 tests passing · 124 features shipped
+**Current:** v0.26.0 · 2,539 tests passing · 130 features shipped
 
 ---
 
@@ -17,7 +17,7 @@ Every feature in Memeta, organized by layer. Each one coexists additively — ad
 | Daily maintenance | Nightly VACUUM, ANALYZE, backups with 7-day retention | `src/daily_memory_maintenance.py` |
 | File-based storage | Markdown files with YAML frontmatter — readable, portable, yours | `src/memory_ts_client.py` |
 | Provenance tracking | Every memory traces back to its source session via `source_session_id` | `src/memory_ts_client.py` |
-| Decision journal | Records decisions, rationale, outcomes for future reference | `src/decision_journal.py` |
+| Decision store | Persistent decision journal with file-based archaeology queries, outcome tracking, and session-scoped retrieval | `src/decision_journal.py` |
 | Session history | Tracks every session: message counts, tool usage, memory links | `src/session_history_db.py` |
 | Importance auto-tuning | Learns what makes a good memory by watching which ones actually help | `src/importance_auto_tuning.py` |
 | Memory versioning | Full edit history per memory with diff and rollback | `src/memory_versioning.py` |
@@ -93,6 +93,11 @@ Every feature in Memeta, organized by layer. Each one coexists additively — ad
 | Memory lifespan prediction | Predicts how long a memory will stay relevant, flags for review | `src/wild/lifespan_integration.py` |
 | Meta-learning | A/B testing memory strategies on live corpus | `src/meta_learning_system.py` |
 | Frustration-triggered injection | Detects 13 frustration patterns, bypasses injection interval gate, surfaces memories immediately when user is frustrated | `src/hook_state.py` |
+| Commitment nudger | Surfaces overdue commitments at session start ranked by urgency (time > topic > event); extends ProspectiveTriggerManager with 4 new patterns | `src/commitment_nudger.py` |
+| Pattern recall | Detects problem-solving context and proactively surfaces past solutions via BM25 search; multi-signal gating with meta-reference suppression | `src/pattern_recall.py` |
+| CLAUDE.md synthesizer | Auto-generates CLAUDE.md rules from 5 signal sources (corrections, directives, frustrations, preferences, workflows) with strip-and-regenerate | `src/claudemd_synthesizer.py` |
+| Frustration-to-skill pipeline | Recurring frustration patterns (5+ occurrences, 3+ sessions) auto-propose new skills via SkillProposalEngine extension | `src/wild/skill_proposal_engine.py` |
+| Confidence calibration | Tracks predicted vs actual confidence with binned statistics and implicit usage detection for future calibration curves | `src/confidence_calibration.py` |
 
 ---
 
