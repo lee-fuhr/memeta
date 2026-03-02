@@ -172,7 +172,7 @@ def send_freshness_notification(summary: str) -> bool:
         poke_path = Path(__file__).parent.parent.parent / "poke" / "send_poke_pushover.py"
         if not poke_path.exists():
             # Try alternate path
-            poke_path = Path("/Users/lee/CC/LFI/_ Operations/poke/send_poke_pushover.py")
+            poke_path = Path("/Users/lee/CC/Work/LFI/_ Operations/poke/send_poke_pushover.py")
 
         if not poke_path.exists():
             logger.error(f"Pushover script not found at {poke_path}")

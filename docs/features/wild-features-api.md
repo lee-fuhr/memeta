@@ -414,7 +414,7 @@ memories = extract_memories_from_meeting(meeting_id=456)
 ### Integration with Transcripts DB
 ```python
 # The system automatically connects to:
-# ~/CC/LFI/_ Operations/meeting-intelligence/transcripts.db
+# ~/CC/Work/LFI/_ Operations/meeting-intelligence/transcripts.db
 # Which contains 1,900+ indexed meeting transcripts
 
 # Memories are linked with:
@@ -648,7 +648,7 @@ print(f"""
 ## Support
 
 **Issues:**
-- Check `/Users/lee/CC/LFI/_ Operations/memory-system-v1/intelligence.db` exists
+- Check `/Users/lee/CC/Work/_ Infrastructure/memory-system-v1/intelligence.db` exists
 - Verify transcripts.db at `_ Operations/meeting-intelligence/transcripts.db`
 - Run `pytest tests/wild/` to validate installation
 

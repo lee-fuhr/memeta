@@ -658,6 +658,6 @@ pytest tests/wild/ -v
 ---
 
 **Status:** 6 HIGH PRIORITY features complete and production-ready
-**Code:** `/Users/lee/CC/LFI/_ Operations/memory-system-v1/src/wild/`
-**Tests:** `/Users/lee/CC/LFI/_ Operations/memory-system-v1/tests/wild/`
+**Code:** `/Users/lee/CC/Work/_ Infrastructure/memory-system-v1/src/wild/`
+**Tests:** `/Users/lee/CC/Work/_ Infrastructure/memory-system-v1/tests/wild/`
 **Database:** `intelligence.db` (auto-created on first use)

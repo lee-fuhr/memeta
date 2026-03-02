@@ -743,7 +743,7 @@ Create `~/Library/LaunchAgents/com.lfi.dream-mode.plist`:
     <key>ProgramArguments</key>
     <array>
         <string>/opt/homebrew/bin/python3</string>
-        <string>/Users/lee/CC/LFI/_ Operations/memory-system-v1/scripts/dream_mode_runner.py</string>
+        <string>/Users/lee/CC/Work/_ Infrastructure/memory-system-v1/scripts/dream_mode_runner.py</string>
     </array>
     <key>StartCalendarInterval</key>
     <dict>
@@ -794,7 +794,7 @@ launchctl load ~/Library/LaunchAgents/com.lfi.dream-mode.plist
 ## Troubleshooting
 
 **Voice capture fails:**
-- Check MacWhisper is installed: `ls -la /Users/lee/CC/LFI/_ Operations/macwhisper/`
+- Check MacWhisper is installed: `ls -la /Users/lee/CC/Work/LFI/_ Operations/macwhisper/`
 - Try fallback: Create `.txt` file with same name as audio file
 
 **Image vision analysis unavailable:**

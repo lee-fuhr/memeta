@@ -68,7 +68,7 @@ _internal/                  # Dev planning docs (gitignored — gap analysis, sp
 
 **Run all tests:**
 ```bash
-cd /Users/lee/CC/LFI/_ Operations/memory-system-v1
+cd /Users/lee/CC/Work/_ Infrastructure/memory-system-v1
 ~/.local/venvs/memory-system/bin/python3 -m pytest tests/ -q --ignore=tests/wild --tb=short
 ```
 

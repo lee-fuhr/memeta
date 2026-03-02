@@ -7,10 +7,10 @@
     <key>ProgramArguments</key>
     <array>
         <string>/Users/lee/.local/venvs/memory-system/bin/python3</string>
-        <string>/Users/lee/CC/LFI/_ Operations/memory-system-v1/src/async_consolidation.py</string>
+        <string>/Users/lee/CC/Work/_ Infrastructure/memory-system-v1/src/async_consolidation.py</string>
     </array>
     <key>WorkingDirectory</key>
-    <string>/Users/lee/CC/LFI/_ Operations/memory-system-v1/</string>
+    <string>/Users/lee/CC/Work/_ Infrastructure/memory-system-v1/</string>
     <key>StartInterval</key>
     <integer>900</integer>
     <key>StandardOutPath</key>
