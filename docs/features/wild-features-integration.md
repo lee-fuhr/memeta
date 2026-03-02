@@ -9,7 +9,7 @@
 Wild features are already integrated into the codebase. No external dependencies required.
 
 ```bash
-cd /Users/lee/CC/LFI/_\ Operations/memory-system-v1
+cd /Users/lee/CC/Work/LFI/_\ Operations/memory-system-v1
 
 # Verify installation
 python3 -c "from src.wild import FrustrationDetector; print('✅ Wild features ready')"
@@ -171,7 +171,7 @@ if __name__ == '__main__':
     <key>ProgramArguments</key>
     <array>
         <string>/usr/bin/python3</string>
-        <string>/Users/lee/CC/LFI/_ Operations/memory-system-v1/run_nightly_wild_features.py</string>
+        <string>/Users/lee/CC/Work/_ Infrastructure/memory-system-v1/run_nightly_wild_features.py</string>
     </array>
     <key>StartCalendarInterval</key>
     <dict>
