@@ -197,7 +197,7 @@ launchctl load ~/Library/LaunchAgents/com.memeta.wild-features-nightly.plist
 
 ### 3. Morning Triage Integration
 
-**File:** `_ Operations/triage_data.py`
+**File:** `triage_data.py` (external integration)
 
 Add dream synthesis briefing:
 

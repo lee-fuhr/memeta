@@ -22,7 +22,7 @@ Usage:
     # Full cycle: scan → notify → (user reviews later via CLI or dashboard)
     python -m memory_system.memory_freshness_reviewer --scan --notify
 
-Weekly LaunchAgent: com.lfi.memory-freshness-review (Sundays 9am)
+Weekly LaunchAgent: com.memeta.memory-freshness-review (Sundays 9am)
 """
 
 import argparse

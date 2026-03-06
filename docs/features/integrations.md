@@ -25,7 +25,7 @@
 - Used single shared database (`intelligence.db`) for cross-feature queries
 - Reused existing patterns: `MemoryTSClient`, `llm_extractor`, contradiction detection
 - Feature 36 wraps existing `lifespan_prediction.py` rather than duplicating code
-- Feature 42 integrates with existing `transcripts.db` at `_ Operations/meeting-intelligence/`
+- Feature 42 integrates with existing meeting transcript database
 - All integrations (Obsidian/Notion/Roam) use sync state tracking for bidirectional support
 
 **Status:** Features 33-42 implementation COMPLETE. Next: comprehensive test suite + integration examples (est. 2 hours).

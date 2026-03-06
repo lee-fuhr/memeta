@@ -108,7 +108,7 @@ voice.close()
 
 ### Integration Points
 
-- **MacWhisper:** `_ Operations/macwhisper/` for transcription
+- **MacWhisper:** local transcription service
 - **LLM Extractor:** `src/llm_extractor.py` for memory extraction
 - **Importance Engine:** `src/importance_engine.py` for scoring
 - **Memory-TS:** `src/memory_ts_client.py` for storage
