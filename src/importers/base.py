@@ -27,7 +27,7 @@ class ImportPreview:
 class BaseImporter(ABC):
     """Abstract base for memory importers."""
 
-    def __init__(self, memory_dir: Optional[Path] = None, project_id: str = "LFI"):
+    def __init__(self, memory_dir: Optional[Path] = None, project_id: str = "default"):
         from memory_system.memory_ts_client import MemoryTSClient, DEFAULT_MEMORY_DIR
         self.memory_dir = memory_dir or DEFAULT_MEMORY_DIR
         self.project_id = project_id

@@ -42,7 +42,7 @@ temporal_relevance: persistent
 knowledge_domain: testing
 status: {status}
 scope: project
-project_id: LFI
+project_id: test-project
 session_id: test-session
 semantic_tags: {tags_str}
 retrieval_weight: {importance}
@@ -86,7 +86,7 @@ def _setup_decision_db(db_path: Path, decisions: list[dict]) -> None:
                 d.get('chosen_option', 'A'),
                 d.get('rationale', 'seemed right'),
                 d.get('context', 'test context'),
-                d.get('project_id', 'LFI'),
+                d.get('project_id', 'test-project'),
                 d.get('session_id', 'test-session'),
                 d.get('decided_at', '2025-01-01'),
                 d.get('outcome', None),

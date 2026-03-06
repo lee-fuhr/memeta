@@ -262,7 +262,7 @@ class EmbeddingManager:
 
         logger.info("🔄 Pre-computing embeddings for all memories...")
 
-        client = MemoryTSClient(project_id="LFI")
+        client = MemoryTSClient(project_id="default")
         memories = client.search()  # Get all memories
 
         if not memories:

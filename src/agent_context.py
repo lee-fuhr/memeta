@@ -42,7 +42,7 @@ def get_context_for_agent(
         task_description: Description of the task the agent will perform
         memories: Optional list of memory dicts. If None, loads from search index.
         top_k: Maximum number of memories to return (default: 5)
-        project_id: Optional project filter (e.g., "LFI")
+        project_id: Optional project filter (e.g., "my-project")
 
     Returns:
         Tuple of (formatted_context_string, list_of_memory_ids)

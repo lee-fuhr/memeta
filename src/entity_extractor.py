@@ -29,8 +29,8 @@ TOOL_PATTERNS: List[str] = [
 ]
 
 PROJECT_PATTERNS: List[str] = [
-    "Connection Lab", "Cogent Analytics", "ZeroArc", "Imply",
-    "PowerTrack", "Memeta", "LFI",
+    # Add your own project names here for entity extraction
+    # e.g. "MyProject", "Backend", "Client-X"
 ]
 
 # Words that commonly start sentences but are not person names.

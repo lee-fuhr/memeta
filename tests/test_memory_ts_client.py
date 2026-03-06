@@ -42,20 +42,20 @@ class TestMemoryCreation:
         """Create memory with required fields"""
         memory = client.create(
             content="Test learning about patterns",
-            project_id="LFI",
+            project_id="test-project",
             tags=["#learning", "#test"]
         )
 
         assert memory.id is not None
         assert "Test learning" in memory.content
-        assert memory.project_id == "LFI"
+        assert memory.project_id == "test-project"
         assert "#learning" in memory.tags
 
     def test_create_memory_with_importance(self, client):
         """Create memory with custom importance"""
         memory = client.create(
             content="Important pattern",
-            project_id="LFI",
+            project_id="test-project",
             importance=0.85,
             tags=["#learning"]
         )
@@ -66,7 +66,7 @@ class TestMemoryCreation:
         """Create memory with scope (project/global)"""
         memory = client.create(
             content="Project-specific pattern",
-            project_id="LFI",
+            project_id="test-project",
             scope="project",
             tags=["#learning"]
         )
@@ -77,7 +77,7 @@ class TestMemoryCreation:
         """Memory ID is auto-generated timestamp-based"""
         memory = client.create(
             content="Test",
-            project_id="LFI",
+            project_id="test-project",
             tags=["#test"]
         )
 
@@ -90,7 +90,7 @@ class TestMemoryCreation:
         """Memory is written to disk as markdown file"""
         memory = client.create(
             content="Test content",
-            project_id="LFI",
+            project_id="test-project",
             tags=["#test"]
         )
 
@@ -111,8 +111,8 @@ class TestMemorySearch:
     def test_search_by_tag(self, client):
         """Search memories by tag"""
         # Create some test memories
-        client.create(content="Pattern 1", project_id="LFI", tags=["#learning", "#pattern"])
-        client.create(content="Pattern 2", project_id="LFI", tags=["#learning", "#bug"])
+        client.create(content="Pattern 1", project_id="test-project", tags=["#learning", "#pattern"])
+        client.create(content="Pattern 2", project_id="test-project", tags=["#learning", "#bug"])
 
         results = client.search(tags=["#pattern"])
         assert len(results) == 1
@@ -120,8 +120,8 @@ class TestMemorySearch:
 
     def test_search_by_content(self, client):
         """Search memories by content text"""
-        client.create(content="Client preferred direct language", project_id="LFI", tags=["#learning"])
-        client.create(content="Updated button color", project_id="LFI", tags=["#learning"])
+        client.create(content="Client preferred direct language", project_id="test-project", tags=["#learning"])
+        client.create(content="Updated button color", project_id="test-project", tags=["#learning"])
 
         results = client.search(content="direct language")
         assert len(results) == 1
@@ -129,8 +129,8 @@ class TestMemorySearch:
 
     def test_search_by_scope(self, client):
         """Search memories by scope"""
-        client.create(content="Project pattern", project_id="LFI", scope="project", tags=["#learning"])
-        client.create(content="Global pattern", project_id="LFI", scope="global", tags=["#learning"])
+        client.create(content="Project pattern", project_id="test-project", scope="project", tags=["#learning"])
+        client.create(content="Global pattern", project_id="test-project", scope="global", tags=["#learning"])
 
         results = client.search(scope="global")
         assert len(results) == 1
@@ -138,12 +138,12 @@ class TestMemorySearch:
 
     def test_search_by_project(self, client):
         """Search memories by project_id"""
-        client.create(content="LFI pattern", project_id="LFI", tags=["#learning"])
+        client.create(content="Test pattern", project_id="test-project", tags=["#learning"])
         client.create(content="Other pattern", project_id="OtherProject", tags=["#learning"])
 
-        results = client.search(project_id="LFI")
+        results = client.search(project_id="test-project")
         assert len(results) == 1
-        assert "LFI pattern" in results[0].content
+        assert "Test pattern" in results[0].content
 
     def test_search_returns_empty_for_no_matches(self, client):
         """Search returns empty list when nothing matches"""
@@ -158,7 +158,7 @@ class TestMemoryRetrieval:
         """Get specific memory by ID"""
         created = client.create(
             content="Specific memory",
-            project_id="LFI",
+            project_id="test-project",
             tags=["#test"]
         )
 
@@ -179,7 +179,7 @@ class TestMemoryUpdate:
         """Update memory importance score"""
         memory = client.create(
             content="Test pattern",
-            project_id="LFI",
+            project_id="test-project",
             importance=0.7,
             tags=["#learning"]
         )
@@ -191,7 +191,7 @@ class TestMemoryUpdate:
         """Update memory scope (promote project → global)"""
         memory = client.create(
             content="Pattern",
-            project_id="LFI",
+            project_id="test-project",
             scope="project",
             tags=["#learning"]
         )
@@ -203,7 +203,7 @@ class TestMemoryUpdate:
         """Update memory tags (add #promoted)"""
         memory = client.create(
             content="Pattern",
-            project_id="LFI",
+            project_id="test-project",
             tags=["#learning"]
         )
 
@@ -214,7 +214,7 @@ class TestMemoryUpdate:
         """Update memory content"""
         memory = client.create(
             content="Original content",
-            project_id="LFI",
+            project_id="test-project",
             tags=["#test"]
         )
 
@@ -234,7 +234,7 @@ class TestMemoryModel:
         """Memory object has all required fields"""
         memory = client.create(
             content="Test",
-            project_id="LFI",
+            project_id="test-project",
             tags=["#test"]
         )
 
@@ -251,7 +251,7 @@ class TestMemoryModel:
         """Memory timestamps are ISO 8601 formatted"""
         memory = client.create(
             content="Test",
-            project_id="LFI",
+            project_id="test-project",
             tags=["#test"]
         )
 
@@ -265,7 +265,7 @@ class TestMemoryModel:
         """New memories default to project scope"""
         memory = client.create(
             content="Test",
-            project_id="LFI",
+            project_id="test-project",
             tags=["#test"]
         )
 
@@ -275,7 +275,7 @@ class TestMemoryModel:
         """New memories get default importance if not specified"""
         memory = client.create(
             content="Test",
-            project_id="LFI",
+            project_id="test-project",
             tags=["#test"]
         )
 
@@ -333,7 +333,7 @@ class TestFileCorruption:
         client = MemoryTSClient(memory_dir=temp_memory_dir)
 
         # Create one good memory
-        client.create(content="Valid memory", project_id="LFI", tags=["#test"])
+        client.create(content="Valid memory", project_id="test-project", tags=["#test"])
 
         # Create one corrupt file
         bad_file = Path(temp_memory_dir) / "corrupt.md"
@@ -351,7 +351,7 @@ class TestSourceSessionIdProvenance:
         """Save with source_session_id, verify it round-trips through write/read"""
         memory = client.create(
             content="Learning from session abc-123",
-            project_id="LFI",
+            project_id="test-project",
             tags=["#learning"],
             source_session_id="abc-123-def-456"
         )
@@ -363,7 +363,7 @@ class TestSourceSessionIdProvenance:
         """Save without source_session_id, verify field is None (not error)"""
         memory = client.create(
             content="Learning without provenance",
-            project_id="LFI",
+            project_id="test-project",
             tags=["#learning"]
         )
 
@@ -388,7 +388,7 @@ temporal_relevance: persistent
 knowledge_domain: learnings
 semantic_tags: ['#learning']
 session_id: unknown
-project_id: LFI
+project_id: test-project
 status: active
 scope: project
 retrieval_weight: 0.7
@@ -406,7 +406,7 @@ This is a legacy memory without source_session_id.
         """Update a memory, verify source_session_id is preserved"""
         memory = client.create(
             content="Original content with provenance",
-            project_id="LFI",
+            project_id="test-project",
             tags=["#learning"],
             source_session_id="session-xyz-789"
         )
@@ -426,7 +426,7 @@ This is a legacy memory without source_session_id.
         for i in range(3):
             mem = client.create(
                 content=f"Memory number {i} from batch session",
-                project_id="LFI",
+                project_id="test-project",
                 tags=["#learning"],
                 source_session_id=session
             )
@@ -441,7 +441,7 @@ This is a legacy memory without source_session_id.
         session = "cycle-session-99"
         memory = client.create(
             content="Memory to survive full cycle with provenance",
-            project_id="LFI",
+            project_id="test-project",
             tags=["#cycle-test"],
             source_session_id=session
         )
@@ -459,7 +459,7 @@ This is a legacy memory without source_session_id.
         """When source_session_id is None, the field is omitted from YAML (not written as null)"""
         memory = client.create(
             content="Memory without provenance tracking",
-            project_id="LFI",
+            project_id="test-project",
             tags=["#learning"]
         )
 
@@ -472,7 +472,7 @@ This is a legacy memory without source_session_id.
         """When source_session_id is provided, it appears in YAML frontmatter"""
         memory = client.create(
             content="Memory with provenance tracking",
-            project_id="LFI",
+            project_id="test-project",
             tags=["#learning"],
             source_session_id="written-session-abc"
         )
@@ -487,7 +487,7 @@ This is a legacy memory without source_session_id.
         uuid_session = "550e8400-e29b-41d4-a716-446655440000"
         memory = client.create(
             content="Memory with UUID session ID",
-            project_id="LFI",
+            project_id="test-project",
             tags=["#learning"],
             source_session_id=uuid_session
         )
@@ -499,7 +499,7 @@ This is a legacy memory without source_session_id.
         """source_session_id persists through YAML while session_id is a runtime field"""
         memory = client.create(
             content="Memory with both session fields",
-            project_id="LFI",
+            project_id="test-project",
             tags=["#learning"],
             session_id="legacy-session-1",
             source_session_id="provenance-session-2"

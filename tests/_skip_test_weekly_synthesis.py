@@ -74,7 +74,7 @@ def synthesis(memory_dir, db_path, cluster_db_path, output_dir, scheduler, memor
     )
 
 
-def create_promoted_memory(memory_client, scheduler, content, project_id="LFI"):
+def create_promoted_memory(memory_client, scheduler, content, project_id="test-project"):
     """Helper: create and promote a memory through the full pipeline"""
     mem = memory_client.create(
         content=content,

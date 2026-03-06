@@ -57,7 +57,7 @@ class TestResponseParsing:
         response = json.dumps([
             {"content": "Use tabs", "importance": 0.7, "reasoning": "User preference", "category": "preference"}
         ])
-        memories = parse_llm_response(response, project_id="LFI")
+        memories = parse_llm_response(response, project_id="test-project")
         assert len(memories) == 1
         assert memories[0].content == "Use tabs"
         assert memories[0].importance == 0.7
@@ -65,23 +65,23 @@ class TestResponseParsing:
     def test_parse_json_with_markdown_fencing(self):
         """Should handle ```json fenced responses"""
         response = '```json\n[{"content": "Test", "importance": 0.8, "reasoning": "x", "category": "technical"}]\n```'
-        memories = parse_llm_response(response, project_id="LFI")
+        memories = parse_llm_response(response, project_id="test-project")
         assert len(memories) == 1
         assert memories[0].content == "Test"
 
     def test_parse_empty_array(self):
         """Should handle empty array (no learnings)"""
-        memories = parse_llm_response("[]", project_id="LFI")
+        memories = parse_llm_response("[]", project_id="test-project")
         assert len(memories) == 0
 
     def test_parse_malformed_response(self):
         """Should return empty list for non-JSON response"""
-        memories = parse_llm_response("I couldn't find any learnings.", project_id="LFI")
+        memories = parse_llm_response("I couldn't find any learnings.", project_id="test-project")
         assert len(memories) == 0
 
     def test_parse_empty_response(self):
         """Should handle empty string"""
-        memories = parse_llm_response("", project_id="LFI")
+        memories = parse_llm_response("", project_id="test-project")
         assert len(memories) == 0
 
     def test_importance_clamped_to_valid_range(self):
@@ -90,7 +90,7 @@ class TestResponseParsing:
             {"content": "Test high", "importance": 1.5, "reasoning": "x", "category": "technical"},
             {"content": "Test low", "importance": -0.1, "reasoning": "x", "category": "technical"},
         ])
-        memories = parse_llm_response(response, project_id="LFI")
+        memories = parse_llm_response(response, project_id="test-project")
         assert memories[0].importance == 1.0
         assert memories[1].importance == 0.0
 
@@ -99,7 +99,7 @@ class TestResponseParsing:
         response = json.dumps([
             {"content": "Test", "importance": 0.7, "reasoning": "x", "category": "technical"}
         ])
-        memories = parse_llm_response(response, project_id="LFI")
+        memories = parse_llm_response(response, project_id="test-project")
         assert "#llm-extracted" in memories[0].tags
 
     def test_learning_tag_also_present(self):
@@ -107,7 +107,7 @@ class TestResponseParsing:
         response = json.dumps([
             {"content": "Test", "importance": 0.7, "reasoning": "x", "category": "technical"}
         ])
-        memories = parse_llm_response(response, project_id="LFI")
+        memories = parse_llm_response(response, project_id="test-project")
         assert "#learning" in memories[0].tags
 
     def test_skips_entries_missing_content(self):
@@ -116,7 +116,7 @@ class TestResponseParsing:
             {"importance": 0.7, "reasoning": "x", "category": "technical"},
             {"content": "Valid", "importance": 0.7, "reasoning": "x", "category": "technical"},
         ])
-        memories = parse_llm_response(response, project_id="LFI")
+        memories = parse_llm_response(response, project_id="test-project")
         assert len(memories) == 1
         assert memories[0].content == "Valid"
 
@@ -127,10 +127,10 @@ class TestCombineExtractions:
     def test_combine_both_sources(self):
         """Should merge memories from both methods"""
         pattern_memories = [
-            SessionMemory(content="Pattern finding 1", importance=0.6, project_id="LFI"),
+            SessionMemory(content="Pattern finding 1", importance=0.6, project_id="test-project"),
         ]
         llm_memories = [
-            SessionMemory(content="LLM finding 1", importance=0.8, project_id="LFI",
+            SessionMemory(content="LLM finding 1", importance=0.8, project_id="test-project",
                          tags=["#learning", "#llm-extracted"]),
         ]
         combined = combine_extractions(pattern_memories, llm_memories)
@@ -140,11 +140,11 @@ class TestCombineExtractions:
         """Should remove duplicates between pattern and LLM results"""
         pattern_memories = [
             SessionMemory(content="User prefers tabs over spaces for indentation",
-                         importance=0.6, project_id="LFI"),
+                         importance=0.6, project_id="test-project"),
         ]
         llm_memories = [
             SessionMemory(content="User prefers tabs over spaces for code indentation",
-                         importance=0.8, project_id="LFI",
+                         importance=0.8, project_id="test-project",
                          tags=["#learning", "#llm-extracted"]),
         ]
         combined = combine_extractions(pattern_memories, llm_memories)
@@ -155,11 +155,11 @@ class TestCombineExtractions:
         """When deduplicated, keep the higher-importance version"""
         pattern_memories = [
             SessionMemory(content="Use tabs for indentation always",
-                         importance=0.5, project_id="LFI"),
+                         importance=0.5, project_id="test-project"),
         ]
         llm_memories = [
             SessionMemory(content="Use tabs for indentation always in Python code",
-                         importance=0.8, project_id="LFI",
+                         importance=0.8, project_id="test-project",
                          tags=["#learning", "#llm-extracted"]),
         ]
         combined = combine_extractions(pattern_memories, llm_memories)
@@ -169,7 +169,7 @@ class TestCombineExtractions:
     def test_combine_empty_llm(self):
         """Should work when LLM returns nothing"""
         pattern_memories = [
-            SessionMemory(content="Finding", importance=0.6, project_id="LFI"),
+            SessionMemory(content="Finding", importance=0.6, project_id="test-project"),
         ]
         combined = combine_extractions(pattern_memories, [])
         assert len(combined) == 1
@@ -177,7 +177,7 @@ class TestCombineExtractions:
     def test_combine_empty_patterns(self):
         """Should work when patterns return nothing"""
         llm_memories = [
-            SessionMemory(content="Finding", importance=0.7, project_id="LFI",
+            SessionMemory(content="Finding", importance=0.7, project_id="test-project",
                          tags=["#learning", "#llm-extracted"]),
         ]
         combined = combine_extractions([], llm_memories)
@@ -195,7 +195,7 @@ class TestExtractWithLLM:
             stdout='[{"content": "Test", "importance": 0.7, "reasoning": "x", "category": "technical"}]',
             stderr=""
         )
-        memories = extract_with_llm("user: hello\nassistant: hi", project_id="LFI")
+        memories = extract_with_llm("user: hello\nassistant: hi", project_id="test-project")
         mock_run.assert_called_once()
         call_args = mock_run.call_args
         assert "claude" in call_args[0][0][0]
@@ -208,7 +208,7 @@ class TestExtractWithLLM:
             stdout='[{"content": "Always validate input", "importance": 0.75, "reasoning": "x", "category": "technical"}]',
             stderr=""
         )
-        memories = extract_with_llm("conversation text", project_id="LFI")
+        memories = extract_with_llm("conversation text", project_id="test-project")
         assert len(memories) == 1
         assert memories[0].content == "Always validate input"
         assert "#llm-extracted" in memories[0].tags
@@ -221,7 +221,7 @@ class TestExtractWithLLM:
             stdout="",
             stderr="Error: not authenticated"
         )
-        memories = extract_with_llm("conversation text", project_id="LFI")
+        memories = extract_with_llm("conversation text", project_id="test-project")
         assert len(memories) == 0
 
     @patch("memory_system.llm_extractor.subprocess.run")
@@ -229,12 +229,12 @@ class TestExtractWithLLM:
         """Should return empty list on timeout"""
         import subprocess
         mock_run.side_effect = subprocess.TimeoutExpired(cmd="claude", timeout=120)
-        memories = extract_with_llm("conversation text", project_id="LFI")
+        memories = extract_with_llm("conversation text", project_id="test-project")
         assert len(memories) == 0
 
     @patch("memory_system.llm_extractor.subprocess.run")
     def test_handles_cli_not_found(self, mock_run):
         """Should return empty list if claude CLI not installed"""
         mock_run.side_effect = FileNotFoundError("claude not found")
-        memories = extract_with_llm("conversation text", project_id="LFI")
+        memories = extract_with_llm("conversation text", project_id="test-project")
         assert len(memories) == 0

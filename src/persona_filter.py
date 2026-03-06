@@ -9,7 +9,7 @@ Usage:
     from memory_system.persona_filter import PersonaFilter
 
     pf = PersonaFilter()
-    persona = pf.detect_persona("LFI")          # -> "business"
+    persona = pf.detect_persona("my-project")    # -> "business"
     relevant = pf.filter_memories(memories, "business")
 """
 
@@ -22,12 +22,7 @@ from memory_system.config import MemorySystemConfig
 
 DEFAULT_PERSONAS: Dict[str, List[str]] = {
     "business": [
-        "LFI",
-        "CogentAnalytics",
-        "ConnectionLab",
-        "ZeroArc",
-        "Imply",
-        "PowerTrack",
+        # Add your business project IDs here
     ],
     "technical": [
         "memory-system",
@@ -68,7 +63,7 @@ class PersonaFilter:
         project does not belong to any registered persona.
 
         Args:
-            project_id: Project identifier (e.g. ``"LFI"``).
+            project_id: Project identifier (e.g. ``"my-project"``).
 
         Returns:
             Persona name or ``'universal'``.

@@ -17,7 +17,7 @@ def _make_memory(
     tags: list | None = None,
     domain: str = "learnings",
     context_type: str = "knowledge",
-    project_id: str = "LFI",
+    project_id: str = "test-project",
 ) -> dict:
     """Helper to create a memory dict for testing."""
     return {

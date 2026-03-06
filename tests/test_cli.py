@@ -155,11 +155,11 @@ class TestCLIImportParsing:
 
     @patch("memory_system.cli._cmd_import")
     def test_import_project_default(self, mock_import):
-        """import defaults project to LFI."""
+        """import defaults project to 'default'."""
         mock_import.return_value = 0
         main(["import", "markdown", "/tmp/notes.md"])
         args = mock_import.call_args[0][0]
-        assert args.project == "LFI"
+        assert args.project == "default"
 
     @patch("memory_system.cli._cmd_import")
     def test_import_dry_run(self, mock_import):

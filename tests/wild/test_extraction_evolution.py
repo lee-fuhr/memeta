@@ -136,12 +136,12 @@ class TestQualityGradingIntegration:
             SessionMemory(
                 content="Use pytest for testing Python code",
                 importance=0.7,
-                project_id="LFI"
+                project_id="test-project"
             ),
             SessionMemory(
                 content="Maybe sometimes check things",
                 importance=0.3,
-                project_id="LFI"
+                project_id="test-project"
             )
         ]
 
@@ -258,8 +258,8 @@ class TestConsolidatorIntegration:
         grader = MemoryQualityGrader(db_path=temp_db)
 
         memories = [
-            SessionMemory(content="Always validate user input before passing to database queries", importance=0.8, project_id="LFI"),
-            SessionMemory(content="Use meaningful variable names that describe intent", importance=0.7, project_id="LFI")
+            SessionMemory(content="Always validate user input before passing to database queries", importance=0.8, project_id="test-project"),
+            SessionMemory(content="Use meaningful variable names that describe intent", importance=0.7, project_id="test-project")
         ]
 
         grades = []

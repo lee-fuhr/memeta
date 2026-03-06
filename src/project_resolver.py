@@ -10,15 +10,9 @@ import re
 
 # Known project directory mappings
 # Keys are the encoded directory names from ~/.claude/projects/
-PROJECT_MAPPING = {
-    "-Users-lee-CC-LFI": "LFI",
-    "-Users-lee-CC-LFI---Operations": "LFI-Ops",
-    "-Users-lee-CC-LFI---Operations-memory-system-v1": "LFI-Ops",
-    "-Users-lee-CC-LFI---Operations-meeting-intelligence": "LFI-Ops",
-    "-Users-lee-CC-Passive-Income": "Passive-Income",
-    "-Users-lee-CC-Personal": "Personal",
-    "-Users-lee-CC-Therapy": "Therapy",
-}
+# (dashes replace path separators, e.g. "/Users/you/Projects/myapp" → "-Users-you-Projects-myapp")
+# Add your own project paths here to give them meaningful IDs.
+PROJECT_MAPPING: dict[str, str] = {}
 
 
 def resolve_project_id(project_dir_name: str) -> str:
@@ -27,18 +21,18 @@ def resolve_project_id(project_dir_name: str) -> str:
 
     Lookup order:
     1. Exact match in PROJECT_MAPPING
-    2. Decode path and extract segment after CC/
-    3. Fallback to "LFI"
+    2. Decode path and extract last meaningful path segment
+    3. Fallback to "default"
 
     Args:
         project_dir_name: The directory name from ~/.claude/projects/
-                         e.g. "-Users-lee-CC-LFI"
+                         e.g. "-Users-you-Projects-myapp"
 
     Returns:
         Meaningful project ID string
     """
     if not project_dir_name:
-        return "LFI"
+        return "default"
 
     # 1. Exact match
     if project_dir_name in PROJECT_MAPPING:
@@ -46,13 +40,13 @@ def resolve_project_id(project_dir_name: str) -> str:
 
     # 2. Decode path and extract segment after CC/
     # Encoded format: dashes replace path separators
-    # e.g. "-Users-lee-CC-SomeProject" → "/Users/lee/CC/SomeProject"
+    # e.g. "-Users-you-Projects-SomeProject" → extract "SomeProject"
     decoded = _decode_project_path(project_dir_name)
     if decoded:
         return decoded
 
     # 3. Fallback
-    return "LFI"
+    return "default"
 
 
 def _decode_project_path(dir_name: str) -> str:
@@ -80,7 +74,7 @@ def _decode_project_path(dir_name: str) -> str:
     # Sub-paths have additional dashes followed by more segments
 
     # Split on pattern that looks like path separator (dash followed by uppercase or underscore)
-    # e.g. "Passive-Income" stays together but "LFI---Operations" splits
+    # e.g. "Passive-Income" stays together but "MyProject---subdir" splits
     parts = re.split(r'---', after_cc, maxsplit=1)
     project_name = parts[0]
 

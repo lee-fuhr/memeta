@@ -219,11 +219,11 @@ class TestSaveSession:
         assert len(parsed) == len(transcript)
 
     def test_save_default_project_id(self, initialized_db):
-        """Default project_id is 'LFI'."""
+        """Default project_id is 'default'."""
         shdb.save_session("sess-005", _make_transcript())
 
         session = shdb.get_session_by_id("sess-005")
-        assert session['project_id'] == "LFI"
+        assert session['project_id'] == "default"
 
     def test_save_custom_project_id(self, initialized_db):
         """Custom project_id is stored."""
@@ -424,7 +424,7 @@ class TestSearchSessions:
         t1 = [{"role": "user", "content": "Flamingo migration patterns"}]
         t2 = [{"role": "user", "content": "Flamingo habitat in Africa"}]
 
-        shdb.save_session("search-proj-1", t1, project_id="LFI")
+        shdb.save_session("search-proj-1", t1, project_id="test-project")
         shdb.save_session("search-proj-2", t2, project_id="ACME")
 
         results = shdb.search_sessions("flamingo", project_id="ACME")
@@ -437,7 +437,7 @@ class TestSearchSessions:
         t1 = [{"role": "user", "content": "Pelican feeding habits"}]
         t2 = [{"role": "user", "content": "Pelican nesting behavior"}]
 
-        shdb.save_session("search-all-1", t1, project_id="LFI")
+        shdb.save_session("search-all-1", t1, project_id="test-project")
         shdb.save_session("search-all-2", t2, project_id="ACME")
 
         results = shdb.search_sessions("pelican")
@@ -500,11 +500,11 @@ class TestGetRecentSessions:
         """get_recent_sessions filters by project_id."""
         t = [{"role": "user", "content": "Hello", "timestamp": 1700000000}]
 
-        shdb.save_session("recent-proj-1", t, project_id="LFI")
+        shdb.save_session("recent-proj-1", t, project_id="test-project")
         shdb.save_session("recent-proj-2", t, project_id="ACME")
-        shdb.save_session("recent-proj-3", t, project_id="LFI")
+        shdb.save_session("recent-proj-3", t, project_id="test-project")
 
-        results = shdb.get_recent_sessions(project_id="LFI")
+        results = shdb.get_recent_sessions(project_id="test-project")
         ids = [r['id'] for r in results]
         assert "recent-proj-1" in ids
         assert "recent-proj-3" in ids

@@ -60,7 +60,7 @@ def tmp_db(tmp_path):
             tool_call_count INTEGER DEFAULT 0,
             memories_extracted INTEGER DEFAULT 0,
             duration_seconds INTEGER,
-            project_id TEXT DEFAULT 'LFI',
+            project_id TEXT DEFAULT 'test-project',
             session_quality REAL DEFAULT 0.0,
             created_at INTEGER DEFAULT (strftime('%s', 'now'))
         )

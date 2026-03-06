@@ -78,7 +78,7 @@ class SessionConsolidator:
         self,
         session_dir: Optional[Path] = None,
         memory_dir: Optional[Path] = None,
-        project_id: str = "LFI"
+        project_id: str = "default"
     ):
         """
         Initialize consolidator
@@ -460,7 +460,7 @@ class SessionConsolidator:
         )
 
 
-def extract_memories_from_session(session_file: Path, project_id: str = "LFI") -> List[SessionMemory]:
+def extract_memories_from_session(session_file: Path, project_id: str = "default") -> List[SessionMemory]:
     """
     Convenience function for extracting memories from session
 

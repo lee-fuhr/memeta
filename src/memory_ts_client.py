@@ -2,7 +2,7 @@
 Memory-ts client - Direct file operations for memory-ts integration
 
 Memory-ts uses markdown files with YAML frontmatter stored at:
-/Users/lee/.local/share/memory/LFI/memories/
+~/.local/share/memory/{project_id}/memories/
 
 Each memory is a file: {id}.md with YAML frontmatter + markdown content
 """
@@ -20,7 +20,7 @@ import time
 
 
 # Default memory directory
-DEFAULT_MEMORY_DIR = Path.home() / ".local/share/memory/LFI/memories"
+DEFAULT_MEMORY_DIR = Path.home() / ".local/share/memory/default/memories"
 
 
 class MemoryTSError(Exception):
@@ -76,7 +76,7 @@ class MemoryTSClient:
         Initialize client
 
         Args:
-            memory_dir: Path to memory storage (defaults to ~/.local/share/memory/LFI/memories)
+            memory_dir: Path to memory storage (defaults to ~/.local/share/memory/default/memories)
         """
         self.memory_dir = Path(memory_dir) if memory_dir else DEFAULT_MEMORY_DIR
         self.memory_dir.mkdir(parents=True, exist_ok=True)
@@ -625,7 +625,7 @@ schema_version: {memory.schema_version}
             content=memory_content,
             importance=metadata.get("importance_weight", 0.5),
             tags=metadata.get("semantic_tags", []),
-            project_id=metadata.get("project_id", "LFI"),
+            project_id=metadata.get("project_id", "default"),
             scope=metadata.get("scope", "project"),
             source_session_id=source_session_id,
             created=metadata.get("created", ""),

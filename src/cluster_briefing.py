@@ -30,7 +30,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-MEMORY_DIR = Path.home() / ".local/share/memory/LFI/memories"
+MEMORY_DIR = Path.home() / ".local/share/memory/default/memories"
 INTELLIGENCE_DB = Path(__file__).parent / "intelligence.db"
 
 

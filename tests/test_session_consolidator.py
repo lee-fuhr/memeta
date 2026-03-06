@@ -140,7 +140,7 @@ class TestDeduplication:
         client = MemoryTSClient(memory_dir=consolidator.memory_dir)
         client.create(
             content="When clients object to pricing, acknowledge their concern and reframe around value",
-            project_id="LFI",
+            project_id="default",
             tags=["#learning"]
         )
 
@@ -150,7 +150,7 @@ class TestDeduplication:
             SessionMemory(
                 content="When clients object to pricing, acknowledge concern and reframe around value",
                 importance=0.7,
-                project_id="LFI"
+                project_id="default"
             )
         ]
 
@@ -166,7 +166,7 @@ class TestDeduplication:
         client = MemoryTSClient(memory_dir=consolidator.memory_dir)
         client.create(
             content="Pricing objection handling",
-            project_id="LFI",
+            project_id="test-project",
             tags=["#learning"]
         )
 
@@ -175,7 +175,7 @@ class TestDeduplication:
             SessionMemory(
                 content="Timeline objections often hide scope confusion",
                 importance=0.7,
-                project_id="LFI"
+                project_id="test-project"
             )
         ]
 
@@ -191,9 +191,9 @@ class TestSessionQuality:
     def test_calculate_quality_score(self):
         """Calculate quality score from extracted memories"""
         memories = [
-            SessionMemory(content="High importance pattern", importance=0.85, project_id="LFI"),
-            SessionMemory(content="Medium importance pattern", importance=0.72, project_id="LFI"),
-            SessionMemory(content="Low importance observation", importance=0.45, project_id="LFI")
+            SessionMemory(content="High importance pattern", importance=0.85, project_id="test-project"),
+            SessionMemory(content="Medium importance pattern", importance=0.72, project_id="test-project"),
+            SessionMemory(content="Low importance observation", importance=0.45, project_id="test-project")
         ]
 
         quality = calculate_session_quality(memories)
@@ -213,7 +213,7 @@ class TestSessionQuality:
     def test_quality_score_high_value_session(self):
         """Session with many high-value memories gets high score"""
         memories = [
-            SessionMemory(content=f"Important pattern {i}", importance=0.85, project_id="LFI")
+            SessionMemory(content=f"Important pattern {i}", importance=0.85, project_id="test-project")
             for i in range(5)
         ]
 
@@ -248,7 +248,7 @@ class TestEndToEndConsolidation:
         # Check created memories have session_id
         from memory_system.memory_ts_client import MemoryTSClient
         client = MemoryTSClient(memory_dir=consolidator.memory_dir)
-        memories = client.search(project_id="LFI")
+        memories = client.search(project_id="test-project")
 
         if len(memories) > 0:
             # Should have session_id in metadata
@@ -263,7 +263,7 @@ class TestSessionMemoryModel:
         memory = SessionMemory(
             content="Test learning",
             importance=0.7,
-            project_id="LFI"
+            project_id="test-project"
         )
 
         assert hasattr(memory, 'content')
@@ -276,7 +276,7 @@ class TestSessionMemoryModel:
         memory = SessionMemory(
             content="Test",
             importance=0.7,
-            project_id="LFI"
+            project_id="test-project"
         )
 
         assert "#learning" in memory.tags
@@ -315,7 +315,7 @@ class TestSavedMemoriesInResult:
 
         for memory in result.saved_memories:
             assert len(memory.content) > 0
-            assert memory.project_id == "LFI"
+            assert memory.project_id == "default"
 
     def test_consolidation_result_default_empty(self):
         """ConsolidationResult defaults saved_memories to empty list"""
@@ -648,7 +648,7 @@ class TestCorrectionReinforcement:
         # Pre-create an existing correction memory from a prior session
         existing = consolidator.memory_client.create(
             content="Correction: validate inputs before processing them in the pipeline workflow system",
-            project_id="LFI",
+            project_id="default",
             tags=["#learning", "#correction"],
             importance=0.9,
             scope="project",
@@ -668,7 +668,7 @@ class TestCorrectionReinforcement:
             SessionMemory(
                 content="Correction: validate inputs before processing them in the pipeline workflow system",
                 importance=0.9,
-                project_id="LFI",
+                project_id="default",
                 tags=["#learning", "#correction"],
                 session_id="new-session-456",
             )
@@ -691,7 +691,7 @@ class TestCorrectionReinforcement:
             SessionMemory(
                 content="Correction: validate inputs before processing them in the pipeline workflow system",
                 importance=0.9,
-                project_id="LFI",
+                project_id="default",
                 tags=["#learning", "#correction"],
                 session_id="old-session-123",  # Same session as the existing memory
             )
@@ -714,7 +714,7 @@ class TestCorrectionReinforcement:
             SessionMemory(
                 content="Correction: validate inputs before processing them in the pipeline workflow system",
                 importance=0.9,
-                project_id="LFI",
+                project_id="default",
                 tags=["#learning", "#correction"],
                 session_id="different-session-789",
             )

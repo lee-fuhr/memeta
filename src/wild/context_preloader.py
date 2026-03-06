@@ -11,7 +11,7 @@ Usage:
     preloader.schedule_preload(
         scheduled_for=datetime.now() + timedelta(hours=1),
         context_type="client_meeting",
-        target_id="Connection Lab"
+        target_id="my-client"
     )
 
     # Get preloaded context

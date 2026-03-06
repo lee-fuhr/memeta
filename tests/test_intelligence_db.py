@@ -81,7 +81,7 @@ class TestVoiceMemoriesTable:
                 "mem_123",
                 120.5,
                 "2026-02-12T10:00:00",
-                "LFI",
+                "test-project",
                 '["#voice-memo"]',
                 0.7
             ))
@@ -115,7 +115,7 @@ class TestImageMemoriesTable:
                 "Vision insights",
                 "mem_456",
                 "2026-02-12T10:00:00",
-                "LFI",
+                "test-project",
                 '["#screenshot"]',
                 0.6
             ))
@@ -150,7 +150,7 @@ class TestCodeMemoriesTable:
                 "/test.py",
                 "sess_789",
                 "2026-02-12T10:00:00",
-                "LFI",
+                "test-project",
                 '["#code-pattern"]',
                 0.5
             ))
@@ -183,7 +183,7 @@ class TestDecisionJournalTable:
                 "SQLite",
                 "Simpler for local use",
                 "Memory system",
-                "LFI",
+                "test-project",
                 "2026-02-12T10:00:00",
                 '["#decision"]'
             ))

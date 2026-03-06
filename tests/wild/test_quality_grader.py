@@ -44,7 +44,7 @@ def test_grade_high_quality_memory(grader):
     """Test grading a high-quality memory (should get A or B)"""
     content = """
     Always run tests before committing code. Found this prevents 90% of bugs.
-    Tested across 3 projects (Connection Lab, Cogent, Russell Hamilton).
+    Tested across 3 projects (Acme Corp, Beta Inc, Jane Smith).
     Example: Caught authentication bug in pre-commit test that would have broken production.
     """
 
@@ -162,14 +162,14 @@ def test_update_grade_from_cross_project(grader):
         memory_id='mem_cross',
         event_type='cross_project',
         session_id='session_other_project',
-        evidence='Applied in Connection Lab project'
+        evidence='Applied in Acme Corp project'
     )
 
     grader.update_grade_from_validation(
         memory_id='mem_cross',
         event_type='cross_project',
         session_id='session_another_project',
-        evidence='Applied in Russell Hamilton project'
+        evidence='Applied in Jane Smith project'
     )
 
     # Retrieve updated grade
@@ -216,7 +216,7 @@ def test_grade_distribution(grader):
     # Create very high quality memory with all scoring factors
     high_quality = """
     Always use pytest fixtures to share test setup across multiple test functions.
-    This approach reduced code duplication by 60% across 50 tests in the Connection Lab project.
+    This approach reduced code duplication by 60% across 50 tests in the Acme Corp project.
     Example: Created a database fixture that initializes test DB, runs migrations, seeds data.
     Measured test execution time decreased from 45s to 12s because setup only runs once.
     Since implementing this pattern, found zero test flakiness from shared state issues.

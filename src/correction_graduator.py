@@ -26,7 +26,7 @@ END_MARKER = "<!-- END AUTO-GENERATED: corrections -->"
 _claude_md_env = os.environ.get("MEMORY_SYSTEM_CLAUDE_MD")
 DEFAULT_CLAUDE_MD_PATH: Optional[Path] = (
     Path(_claude_md_env) if _claude_md_env
-    else Path.home() / "CC" / "LFI" / "CLAUDE.md"
+    else None
 )
 
 
@@ -51,7 +51,7 @@ class CorrectionGraduator:
             memory_client: MemoryTSClient instance (preferred)
             memory_dir: Path to memory files (used if memory_client not provided)
             claude_md_path: Path to CLAUDE.md to update. Defaults to env var
-                MEMORY_SYSTEM_CLAUDE_MD or ~/CC/Work/LFI/CLAUDE.md
+                MEMORY_SYSTEM_CLAUDE_MD (no default path without env var)
             graduation_threshold: Number of confirmations needed (default 3)
         """
         if memory_client is not None:

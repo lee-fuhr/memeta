@@ -46,7 +46,7 @@ logger = logging.getLogger(__name__)
 DEFAULT_STALE_DAYS = 90
 DEFAULT_MIN_IMPORTANCE = 0.3  # Only flag low-importance stale memories
 DEFAULT_MAX_REVIEW = 10  # Max memories per review session
-MEMORY_DIR = Path.home() / ".local/share/memory/LFI/memories"
+MEMORY_DIR = Path.home() / ".local/share/memory/default/memories"
 
 
 # ---------------------------------------------------------------------------
@@ -171,8 +171,9 @@ def send_freshness_notification(summary: str) -> bool:
     try:
         poke_path = Path(__file__).parent.parent.parent / "poke" / "send_poke_pushover.py"
         if not poke_path.exists():
-            # Try alternate path
-            poke_path = Path("/Users/lee/CC/Work/LFI/_ Operations/poke/send_poke_pushover.py")
+            # Try alternate path from env
+            alt = os.environ.get("MEMORY_SYSTEM_POKE_SCRIPT")
+            poke_path = Path(alt) if alt else poke_path
 
         if not poke_path.exists():
             logger.error(f"Pushover script not found at {poke_path}")

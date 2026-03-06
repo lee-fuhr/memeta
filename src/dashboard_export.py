@@ -181,7 +181,7 @@ def export_dashboard_data(
 
 
 if __name__ == "__main__":
-    base = Path.home() / "CC/LFI/_ Operations"
+    base = Path(__file__).parent.parent
     result = export_dashboard_data(
         fsrs_db=base / "memory-system-v1/fsrs.db",
         hook_log=base / "hooks/hook_events.jsonl",

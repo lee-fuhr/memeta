@@ -11,7 +11,7 @@ def extract_from_audio(audio_path: Path) -> List[Dict]:
     """Voice memo → memories."""
     transcript = transcribe_voice_memo(audio_path)
     from llm_extractor import extract_with_llm
-    return extract_with_llm(transcript, project_id="LFI")
+    return extract_with_llm(transcript, project_id="default")
 
 # Feature 45: Image memory
 def ocr_screenshot(image_path: Path) -> str:

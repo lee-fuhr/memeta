@@ -168,7 +168,7 @@ These are not features — they are the system-level pruning and restructuring d
 ### Restructure targets
 
 - **From 62 agents to ~55** — keep seniority spread (Director/Senior/Junior maps to Opus/Sonnet/Haiku cost tiers); only archive true duplicates (project-manager ≈ pm, clarify ≈ questioning protocol, stats-viewer unused, client-success unused) and move 3 target-client persona docs to Resources; wait for usage tracking data before any further pruning
-- **From 2,000+ CLAUDE.md lines to ~1,200** — extract skills table from LFI/CLAUDE.md (replace with pointer to skills directory), extract LinkedIn/CRM/lead-gen/folder-structure from Operations CLAUDE.md to reference files, remove duplicate response format from global
+- **From 2,000+ CLAUDE.md lines to ~1,200** — extract skills table from project CLAUDE.md (replace with pointer to skills directory), extract CRM/lead-gen/folder-structure from Operations CLAUDE.md to reference files, remove duplicate response format from global
 - **From 87 System files to ~50** — ~~archive 25+ one-time artifacts and redundant docs~~ DONE (v0.21.0: 33 archived + 22 from doc clusters)
 - **28 hooks documented with WHY rationale** — all kept; 3 behavioral hooks (delegation-check, questioning-nudge, response-summary-check) on 4-week probation with usage tracking (v0.21.0)
 - **From 5 Python interpreters to 2** — Operations venv and memory-system venv only; 26 scripts audited with migration plan (v0.21.0); migration deferred to Phase 1

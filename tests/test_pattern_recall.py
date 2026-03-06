@@ -30,7 +30,7 @@ def _make_memory_file(
     importance: float = 0.5,
     context_type: str = "knowledge",
     tags: list | None = None,
-    project_id: str = "LFI",
+    project_id: str = "test-project",
 ) -> Path:
     """Create a mock memory file with YAML frontmatter + markdown body."""
     tags_str = json.dumps(tags or [])

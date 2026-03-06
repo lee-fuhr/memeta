@@ -32,7 +32,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional
 
-MEMORY_DIR = Path.home() / ".local/share/memory/LFI/memories"
+MEMORY_DIR = Path.home() / ".local/share/memory/default/memories"
 INTELLIGENCE_DB = Path(__file__).parent.parent / "intelligence.db"
 
 # Tags that mark a memory as eligible for cross-project sharing

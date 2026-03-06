@@ -36,7 +36,7 @@ from typing import Optional
 # ---------------------------------------------------------------------------
 
 DEFAULT_DB_PATH = Path(__file__).parent.parent / "intelligence.db"
-DEFAULT_MEMORY_DIR = Path.home() / ".local/share/memory/LFI/memories"
+DEFAULT_MEMORY_DIR = Path.home() / ".local/share/memory/default/memories"
 DEFAULT_BATCH_SIZE = 5
 DEFAULT_DAYS_BACK = 30
 DEFAULT_TRIGGER_INTERVAL = 20  # sessions

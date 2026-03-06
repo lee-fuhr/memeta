@@ -54,7 +54,7 @@ def executor(memory_dir, scheduler, memory_client):
 
 
 def create_promotable_memory(memory_client, scheduler, memory_id="mem-001",
-                              project_id="LFI"):
+                              project_id="test-project"):
     """Helper: create a memory that meets promotion criteria"""
     # Create memory file
     memory_client.create(
@@ -94,17 +94,17 @@ class TestPromotionCriteria:
         """Should not promote memory with low stability"""
         memory_client.create(
             content="Unstable memory that keeps changing",
-            project_id="LFI",
+            project_id="test-project",
             tags=["#learning"],
             importance=0.8,
             scope="project",
         )
-        memories = memory_client.search(project_id="LFI")
+        memories = memory_client.search(project_id="test-project")
         mem_id = memories[-1].id
 
         # Register but only give it a FAIL review (reduces stability)
-        scheduler.register_memory(mem_id, project_id="LFI")
-        scheduler.record_review(mem_id, ReviewGrade.FAIL, project_id="LFI")
+        scheduler.register_memory(mem_id, project_id="test-project")
+        scheduler.record_review(mem_id, ReviewGrade.FAIL, project_id="test-project")
         scheduler.record_review(mem_id, ReviewGrade.FAIL, project_id="ClientA")
         scheduler.record_review(mem_id, ReviewGrade.FAIL, project_id="ClientB")
 
@@ -116,19 +116,19 @@ class TestPromotionCriteria:
         """Should not promote memory validated in only 1 project"""
         memory_client.create(
             content="Single project insight",
-            project_id="LFI",
+            project_id="test-project",
             tags=["#learning"],
             importance=0.8,
             scope="project",
         )
-        memories = memory_client.search(project_id="LFI")
+        memories = memory_client.search(project_id="test-project")
         mem_id = memories[-1].id
 
-        scheduler.register_memory(mem_id, project_id="LFI")
+        scheduler.register_memory(mem_id, project_id="test-project")
         # All reviews from same project
-        scheduler.record_review(mem_id, ReviewGrade.EASY, project_id="LFI")
-        scheduler.record_review(mem_id, ReviewGrade.EASY, project_id="LFI")
-        scheduler.record_review(mem_id, ReviewGrade.EASY, project_id="LFI")
+        scheduler.record_review(mem_id, ReviewGrade.EASY, project_id="test-project")
+        scheduler.record_review(mem_id, ReviewGrade.EASY, project_id="test-project")
+        scheduler.record_review(mem_id, ReviewGrade.EASY, project_id="test-project")
 
         results = executor.execute_promotions()
         promoted_ids = [r.memory_id for r in results]
@@ -236,15 +236,15 @@ class TestBatchPromotion:
         # Create a second promotable memory
         memory_client.create(
             content="Structured logging with context fields aids debugging",
-            project_id="LFI",
+            project_id="test-project",
             tags=["#learning"],
             importance=0.7,
             scope="project",
         )
         memories = memory_client.search(content="Structured logging")
         mem_id_2 = memories[-1].id
-        scheduler.register_memory(mem_id_2, project_id="LFI")
-        scheduler.record_review(mem_id_2, ReviewGrade.GOOD, project_id="LFI")
+        scheduler.register_memory(mem_id_2, project_id="test-project")
+        scheduler.record_review(mem_id_2, ReviewGrade.GOOD, project_id="test-project")
         scheduler.record_review(mem_id_2, ReviewGrade.EASY, project_id="ClientA")
         scheduler.record_review(mem_id_2, ReviewGrade.EASY, project_id="ClientB")
 
@@ -273,14 +273,14 @@ class TestBatchPromotion:
         """Should return None if specific memory isn't ready"""
         memory_client.create(
             content="Not ready yet",
-            project_id="LFI",
+            project_id="test-project",
             tags=["#learning"],
             importance=0.5,
             scope="project",
         )
         memories = memory_client.search(content="Not ready")
         mem_id = memories[-1].id
-        scheduler.register_memory(mem_id, project_id="LFI")
+        scheduler.register_memory(mem_id, project_id="test-project")
 
         result = executor.promote_single(mem_id)
         assert result is None
@@ -308,7 +308,7 @@ class TestImportanceBoost:
         # Create memory with importance 0.95
         memory_client.create(
             content="Nearly maxed importance memory for testing cap",
-            project_id="LFI",
+            project_id="test-project",
             tags=["#learning"],
             importance=0.95,
             scope="project",
@@ -316,8 +316,8 @@ class TestImportanceBoost:
         memories = memory_client.search(content="Nearly maxed")
         mem_id = memories[-1].id
 
-        scheduler.register_memory(mem_id, project_id="LFI")
-        scheduler.record_review(mem_id, ReviewGrade.GOOD, project_id="LFI")
+        scheduler.register_memory(mem_id, project_id="test-project")
+        scheduler.record_review(mem_id, ReviewGrade.GOOD, project_id="test-project")
         scheduler.record_review(mem_id, ReviewGrade.EASY, project_id="ClientA")
         scheduler.record_review(mem_id, ReviewGrade.EASY, project_id="ClientB")
 

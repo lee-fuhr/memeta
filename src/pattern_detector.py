@@ -135,7 +135,7 @@ class PatternDetector:
 
         for new_mem in new_memories:
             new_content = new_mem.get("content", "")
-            new_project = new_mem.get("project_id", "LFI")
+            new_project = new_mem.get("project_id", "default")
 
             if not new_content:
                 continue

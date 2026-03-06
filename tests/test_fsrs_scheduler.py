@@ -53,7 +53,7 @@ class TestRegisterMemory:
 
     def test_register_new_memory(self, scheduler):
         """Should register a memory with default state"""
-        scheduler.register_memory("mem-001", project_id="LFI")
+        scheduler.register_memory("mem-001", project_id="test-project")
         state = scheduler.get_state("mem-001")
         assert state is not None
         assert state.stability == 1.0
@@ -62,15 +62,15 @@ class TestRegisterMemory:
 
     def test_register_idempotent(self, scheduler):
         """Registering same memory twice should not overwrite"""
-        scheduler.register_memory("mem-001", project_id="LFI")
-        scheduler.record_review("mem-001", ReviewGrade.GOOD, project_id="LFI")
-        scheduler.register_memory("mem-001", project_id="LFI")
+        scheduler.register_memory("mem-001", project_id="test-project")
+        scheduler.record_review("mem-001", ReviewGrade.GOOD, project_id="test-project")
+        scheduler.register_memory("mem-001", project_id="test-project")
         state = scheduler.get_state("mem-001")
         assert state.review_count == 1  # Not reset
 
     def test_register_sets_due_date(self, scheduler):
         """Due date should be set to 1 day from now"""
-        scheduler.register_memory("mem-001", project_id="LFI")
+        scheduler.register_memory("mem-001", project_id="test-project")
         state = scheduler.get_state("mem-001")
         assert state.due_date is not None
         due = datetime.fromisoformat(state.due_date)
@@ -82,20 +82,20 @@ class TestRecordReview:
 
     def test_good_review_increases_stability(self, scheduler):
         """A good review should increase stability"""
-        scheduler.register_memory("mem-001", project_id="LFI")
+        scheduler.register_memory("mem-001", project_id="test-project")
         old_state = scheduler.get_state("mem-001")
 
-        scheduler.record_review("mem-001", ReviewGrade.GOOD, project_id="LFI")
+        scheduler.record_review("mem-001", ReviewGrade.GOOD, project_id="test-project")
         new_state = scheduler.get_state("mem-001")
 
         assert new_state.stability > old_state.stability
 
     def test_easy_review_increases_stability_more(self, scheduler):
         """An easy review (cross-project) should increase more than good"""
-        scheduler.register_memory("mem-001", project_id="LFI")
-        scheduler.register_memory("mem-002", project_id="LFI")
+        scheduler.register_memory("mem-001", project_id="test-project")
+        scheduler.register_memory("mem-002", project_id="test-project")
 
-        scheduler.record_review("mem-001", ReviewGrade.GOOD, project_id="LFI")
+        scheduler.record_review("mem-001", ReviewGrade.GOOD, project_id="test-project")
         scheduler.record_review("mem-002", ReviewGrade.EASY, project_id="ClientA")
 
         state_good = scheduler.get_state("mem-001")
@@ -105,32 +105,32 @@ class TestRecordReview:
 
     def test_hard_review_decreases_stability(self, scheduler):
         """A hard review should decrease stability"""
-        scheduler.register_memory("mem-001", project_id="LFI")
+        scheduler.register_memory("mem-001", project_id="test-project")
         # First make stability > 1
-        scheduler.record_review("mem-001", ReviewGrade.GOOD, project_id="LFI")
-        scheduler.record_review("mem-001", ReviewGrade.GOOD, project_id="LFI")
+        scheduler.record_review("mem-001", ReviewGrade.GOOD, project_id="test-project")
+        scheduler.record_review("mem-001", ReviewGrade.GOOD, project_id="test-project")
         mid_state = scheduler.get_state("mem-001")
 
-        scheduler.record_review("mem-001", ReviewGrade.HARD, project_id="LFI")
+        scheduler.record_review("mem-001", ReviewGrade.HARD, project_id="test-project")
         new_state = scheduler.get_state("mem-001")
 
         assert new_state.stability < mid_state.stability
 
     def test_review_increments_count(self, scheduler):
         """Each review should increment review_count"""
-        scheduler.register_memory("mem-001", project_id="LFI")
-        scheduler.record_review("mem-001", ReviewGrade.GOOD, project_id="LFI")
-        scheduler.record_review("mem-001", ReviewGrade.GOOD, project_id="LFI")
+        scheduler.register_memory("mem-001", project_id="test-project")
+        scheduler.record_review("mem-001", ReviewGrade.GOOD, project_id="test-project")
+        scheduler.record_review("mem-001", ReviewGrade.GOOD, project_id="test-project")
 
         state = scheduler.get_state("mem-001")
         assert state.review_count == 2
 
     def test_review_updates_due_date(self, scheduler):
         """Review should update due date based on new interval"""
-        scheduler.register_memory("mem-001", project_id="LFI")
+        scheduler.register_memory("mem-001", project_id="test-project")
         old_state = scheduler.get_state("mem-001")
 
-        scheduler.record_review("mem-001", ReviewGrade.GOOD, project_id="LFI")
+        scheduler.record_review("mem-001", ReviewGrade.GOOD, project_id="test-project")
         new_state = scheduler.get_state("mem-001")
 
         old_due = datetime.fromisoformat(old_state.due_date)
@@ -139,19 +139,19 @@ class TestRecordReview:
 
     def test_review_tracks_project(self, scheduler):
         """Reviews should track which project validated"""
-        scheduler.register_memory("mem-001", project_id="LFI")
-        scheduler.record_review("mem-001", ReviewGrade.GOOD, project_id="LFI")
+        scheduler.register_memory("mem-001", project_id="test-project")
+        scheduler.record_review("mem-001", ReviewGrade.GOOD, project_id="test-project")
         scheduler.record_review("mem-001", ReviewGrade.EASY, project_id="ClientA")
 
         state = scheduler.get_state("mem-001")
         projects = json.loads(state.projects_validated)
-        assert "LFI" in projects
+        assert "test-project" in projects
         assert "ClientA" in projects
 
     def test_review_logs_event(self, scheduler, db_path):
         """Each review should be logged to review_log table"""
-        scheduler.register_memory("mem-001", project_id="LFI")
-        scheduler.record_review("mem-001", ReviewGrade.GOOD, project_id="LFI")
+        scheduler.register_memory("mem-001", project_id="test-project")
+        scheduler.record_review("mem-001", ReviewGrade.GOOD, project_id="test-project")
 
         conn = sqlite3.connect(db_path)
         cursor = conn.execute("SELECT COUNT(*) FROM review_log WHERE memory_id = 'mem-001'")
@@ -165,7 +165,7 @@ class TestIntervalCalculation:
 
     def test_initial_interval_is_one_day(self, scheduler):
         """First review should set ~1 day interval"""
-        scheduler.register_memory("mem-001", project_id="LFI")
+        scheduler.register_memory("mem-001", project_id="test-project")
         state = scheduler.get_state("mem-001")
         due = datetime.fromisoformat(state.due_date)
         now = datetime.now()
@@ -174,13 +174,13 @@ class TestIntervalCalculation:
 
     def test_intervals_grow_with_stability(self, scheduler):
         """Higher stability should produce longer intervals"""
-        scheduler.register_memory("mem-001", project_id="LFI")
+        scheduler.register_memory("mem-001", project_id="test-project")
 
         # Record several good reviews
         intervals = []
         for _ in range(4):
             old_state = scheduler.get_state("mem-001")
-            scheduler.record_review("mem-001", ReviewGrade.GOOD, project_id="LFI")
+            scheduler.record_review("mem-001", ReviewGrade.GOOD, project_id="test-project")
             new_state = scheduler.get_state("mem-001")
 
             old_due = datetime.fromisoformat(old_state.due_date)
@@ -197,18 +197,18 @@ class TestPromotionReadiness:
 
     def test_not_ready_initially(self, scheduler):
         """New memory should not be promotion-ready"""
-        scheduler.register_memory("mem-001", project_id="LFI")
+        scheduler.register_memory("mem-001", project_id="test-project")
         assert scheduler.is_promotion_ready("mem-001") is False
 
     def test_ready_after_sufficient_reviews(self, scheduler):
         """Should be ready after meeting all criteria"""
-        scheduler.register_memory("mem-001", project_id="LFI")
+        scheduler.register_memory("mem-001", project_id="test-project")
 
         # Build up stability with reviews from multiple projects
-        scheduler.record_review("mem-001", ReviewGrade.GOOD, project_id="LFI")
+        scheduler.record_review("mem-001", ReviewGrade.GOOD, project_id="test-project")
         scheduler.record_review("mem-001", ReviewGrade.EASY, project_id="ClientA")
         scheduler.record_review("mem-001", ReviewGrade.EASY, project_id="ClientB")
-        scheduler.record_review("mem-001", ReviewGrade.GOOD, project_id="LFI")
+        scheduler.record_review("mem-001", ReviewGrade.GOOD, project_id="test-project")
 
         state = scheduler.get_state("mem-001")
         # Should have: review_count >= 2, 2+ projects, stability >= 2.0
@@ -216,24 +216,24 @@ class TestPromotionReadiness:
 
     def test_not_ready_single_project(self, scheduler):
         """Should not promote if only validated in 1 project"""
-        scheduler.register_memory("mem-001", project_id="LFI")
-        scheduler.record_review("mem-001", ReviewGrade.GOOD, project_id="LFI")
-        scheduler.record_review("mem-001", ReviewGrade.GOOD, project_id="LFI")
-        scheduler.record_review("mem-001", ReviewGrade.GOOD, project_id="LFI")
+        scheduler.register_memory("mem-001", project_id="test-project")
+        scheduler.record_review("mem-001", ReviewGrade.GOOD, project_id="test-project")
+        scheduler.record_review("mem-001", ReviewGrade.GOOD, project_id="test-project")
+        scheduler.record_review("mem-001", ReviewGrade.GOOD, project_id="test-project")
 
         assert scheduler.is_promotion_ready("mem-001") is False
 
     def test_get_promotion_candidates(self, scheduler):
         """Should return list of memories ready for promotion"""
         # Register multiple memories
-        scheduler.register_memory("mem-001", project_id="LFI")
-        scheduler.register_memory("mem-002", project_id="LFI")
+        scheduler.register_memory("mem-001", project_id="test-project")
+        scheduler.register_memory("mem-002", project_id="test-project")
 
         # Only mem-001 gets enough reviews
-        scheduler.record_review("mem-001", ReviewGrade.GOOD, project_id="LFI")
+        scheduler.record_review("mem-001", ReviewGrade.GOOD, project_id="test-project")
         scheduler.record_review("mem-001", ReviewGrade.EASY, project_id="ClientA")
         scheduler.record_review("mem-001", ReviewGrade.EASY, project_id="ClientB")
-        scheduler.record_review("mem-001", ReviewGrade.GOOD, project_id="LFI")
+        scheduler.record_review("mem-001", ReviewGrade.GOOD, project_id="test-project")
 
         candidates = scheduler.get_promotion_candidates()
         candidate_ids = [c.memory_id for c in candidates]
@@ -242,7 +242,7 @@ class TestPromotionReadiness:
 
     def test_mark_promoted(self, scheduler):
         """Should mark memory as promoted"""
-        scheduler.register_memory("mem-001", project_id="LFI")
+        scheduler.register_memory("mem-001", project_id="test-project")
         scheduler.mark_promoted("mem-001")
 
         state = scheduler.get_state("mem-001")
@@ -251,7 +251,7 @@ class TestPromotionReadiness:
 
     def test_promoted_excluded_from_candidates(self, scheduler):
         """Already promoted memories should not appear as candidates"""
-        scheduler.register_memory("mem-001", project_id="LFI")
+        scheduler.register_memory("mem-001", project_id="test-project")
         for _ in range(4):
             scheduler.record_review("mem-001", ReviewGrade.EASY, project_id="ClientA")
         scheduler.record_review("mem-001", ReviewGrade.EASY, project_id="ClientB")
@@ -266,7 +266,7 @@ class TestGetDueReviews:
 
     def test_due_reviews_returned(self, scheduler):
         """Should return memories whose due_date has passed"""
-        scheduler.register_memory("mem-001", project_id="LFI")
+        scheduler.register_memory("mem-001", project_id="test-project")
 
         # Manually set due date to yesterday
         conn = sqlite3.connect(scheduler.db_path)
@@ -284,7 +284,7 @@ class TestGetDueReviews:
 
     def test_future_reviews_not_returned(self, scheduler):
         """Should not return memories not yet due"""
-        scheduler.register_memory("mem-001", project_id="LFI")
+        scheduler.register_memory("mem-001", project_id="test-project")
         # Default due date is tomorrow - should not be due yet
         due = scheduler.get_due_reviews()
         due_ids = [d.memory_id for d in due]
@@ -296,34 +296,34 @@ class TestBoundaryConditions:
 
     def test_stability_floor_after_repeated_fails(self, scheduler):
         """Repeated FAILs should never push stability below 0.1"""
-        scheduler.register_memory("mem-floor", project_id="LFI")
+        scheduler.register_memory("mem-floor", project_id="test-project")
         for _ in range(20):
-            scheduler.record_review("mem-floor", ReviewGrade.FAIL, "LFI")
+            scheduler.record_review("mem-floor", ReviewGrade.FAIL, "test-project")
 
         state = scheduler.get_state("mem-floor")
         assert state.stability >= 0.1
 
     def test_stability_ceiling_after_repeated_easy(self, scheduler):
         """Repeated EASY reviews should never push stability above 10.0"""
-        scheduler.register_memory("mem-ceil", project_id="LFI")
+        scheduler.register_memory("mem-ceil", project_id="test-project")
         for _ in range(20):
-            scheduler.record_review("mem-ceil", ReviewGrade.EASY, "LFI")
+            scheduler.record_review("mem-ceil", ReviewGrade.EASY, "test-project")
 
         state = scheduler.get_state("mem-ceil")
         assert state.stability <= 10.0
 
     def test_difficulty_stays_in_range(self, scheduler):
         """Difficulty should always be between 0.0 and 1.0"""
-        scheduler.register_memory("mem-diff", project_id="LFI")
+        scheduler.register_memory("mem-diff", project_id="test-project")
         # Push difficulty down with EASY reviews
         for _ in range(15):
-            scheduler.record_review("mem-diff", ReviewGrade.EASY, "LFI")
+            scheduler.record_review("mem-diff", ReviewGrade.EASY, "test-project")
         state = scheduler.get_state("mem-diff")
         assert 0.0 <= state.difficulty <= 1.0
 
         # Push difficulty up with FAIL reviews
         for _ in range(15):
-            scheduler.record_review("mem-diff", ReviewGrade.FAIL, "LFI")
+            scheduler.record_review("mem-diff", ReviewGrade.FAIL, "test-project")
         state = scheduler.get_state("mem-diff")
         assert 0.0 <= state.difficulty <= 1.0
 
@@ -334,7 +334,7 @@ class TestBoundaryConditions:
 
         def register():
             try:
-                scheduler.register_memory("mem-concurrent", "LFI")
+                scheduler.register_memory("mem-concurrent", "test-project")
             except Exception as e:
                 errors.append(str(e))
 
@@ -354,8 +354,8 @@ class TestBoundaryConditions:
 
     def test_get_promoted_ids_returns_promoted(self, scheduler):
         """Should return set of promoted memory IDs"""
-        scheduler.register_memory("mem-p1", project_id="LFI")
-        scheduler.register_memory("mem-p2", project_id="LFI")
+        scheduler.register_memory("mem-p1", project_id="test-project")
+        scheduler.register_memory("mem-p2", project_id="test-project")
         scheduler.mark_promoted("mem-p1")
 
         ids = scheduler.get_promoted_ids()
@@ -368,19 +368,19 @@ class TestDualPathPromotion:
 
     def test_path_a_promotes_cross_project(self, scheduler):
         """Path A: cross-project with sufficient stability and reviews"""
-        scheduler.register_memory("mem-a", project_id="LFI")
-        scheduler.record_review("mem-a", ReviewGrade.GOOD, project_id="LFI")
+        scheduler.register_memory("mem-a", project_id="test-project")
+        scheduler.record_review("mem-a", ReviewGrade.GOOD, project_id="test-project")
         scheduler.record_review("mem-a", ReviewGrade.EASY, project_id="ClientA")
 
         assert scheduler.is_promotion_ready("mem-a") is True
 
     def test_path_b_promotes_deep_reinforcement(self, scheduler):
         """Path B: deep reinforcement from single project should promote"""
-        scheduler.register_memory("mem-b", project_id="LFI")
+        scheduler.register_memory("mem-b", project_id="test-project")
         # 5 EASY reviews from same project = stability ~ 1.0 * 2.2^5 = 51.5 (capped at 10)
         # and review_count = 5
         for _ in range(5):
-            scheduler.record_review("mem-b", ReviewGrade.EASY, project_id="LFI")
+            scheduler.record_review("mem-b", ReviewGrade.EASY, project_id="test-project")
 
         state = scheduler.get_state("mem-b")
         assert state.stability >= 4.0
@@ -389,15 +389,15 @@ class TestDualPathPromotion:
 
     def test_path_b_rejects_insufficient_stability(self, scheduler):
         """Path B should reject when stability is below 4.0"""
-        scheduler.register_memory("mem-c", project_id="LFI")
+        scheduler.register_memory("mem-c", project_id="test-project")
         # 5 GOOD reviews: stability = 1.0 * 1.5^5 = 7.59 — wait, that's above 4.0
         # Use HARD reviews to keep stability low: 1.0 * 0.8^5 = 0.328
         # Then add GOODs to get reviews to 5 but stability low
-        scheduler.record_review("mem-c", ReviewGrade.HARD, project_id="LFI")
-        scheduler.record_review("mem-c", ReviewGrade.HARD, project_id="LFI")
-        scheduler.record_review("mem-c", ReviewGrade.HARD, project_id="LFI")
-        scheduler.record_review("mem-c", ReviewGrade.GOOD, project_id="LFI")
-        scheduler.record_review("mem-c", ReviewGrade.GOOD, project_id="LFI")
+        scheduler.record_review("mem-c", ReviewGrade.HARD, project_id="test-project")
+        scheduler.record_review("mem-c", ReviewGrade.HARD, project_id="test-project")
+        scheduler.record_review("mem-c", ReviewGrade.HARD, project_id="test-project")
+        scheduler.record_review("mem-c", ReviewGrade.GOOD, project_id="test-project")
+        scheduler.record_review("mem-c", ReviewGrade.GOOD, project_id="test-project")
 
         state = scheduler.get_state("mem-c")
         # stability = 1.0 * 0.8 * 0.8 * 0.8 * 1.5 * 1.5 = 1.152 — below 4.0
@@ -408,10 +408,10 @@ class TestDualPathPromotion:
 
     def test_path_b_rejects_insufficient_reviews(self, scheduler):
         """Path B should reject when review count is below 5"""
-        scheduler.register_memory("mem-d", project_id="LFI")
+        scheduler.register_memory("mem-d", project_id="test-project")
         # 3 EASY reviews: stability = 1.0 * 2.2^3 = 10.648 (capped at 10) but only 3 reviews
         for _ in range(3):
-            scheduler.record_review("mem-d", ReviewGrade.EASY, project_id="LFI")
+            scheduler.record_review("mem-d", ReviewGrade.EASY, project_id="test-project")
 
         state = scheduler.get_state("mem-d")
         assert state.stability >= 4.0
@@ -421,10 +421,10 @@ class TestDualPathPromotion:
 
     def test_existing_single_project_test_still_passes(self, scheduler):
         """Original test: 3 GOOD reviews from single project should NOT promote"""
-        scheduler.register_memory("mem-001", project_id="LFI")
-        scheduler.record_review("mem-001", ReviewGrade.GOOD, project_id="LFI")
-        scheduler.record_review("mem-001", ReviewGrade.GOOD, project_id="LFI")
-        scheduler.record_review("mem-001", ReviewGrade.GOOD, project_id="LFI")
+        scheduler.register_memory("mem-001", project_id="test-project")
+        scheduler.record_review("mem-001", ReviewGrade.GOOD, project_id="test-project")
+        scheduler.record_review("mem-001", ReviewGrade.GOOD, project_id="test-project")
+        scheduler.record_review("mem-001", ReviewGrade.GOOD, project_id="test-project")
 
         # stability = 1.0 * 1.5^3 = 3.375, reviews = 3, projects = 1
         # Path A: fails (1 project < 2)
@@ -433,9 +433,9 @@ class TestDualPathPromotion:
 
     def test_path_b_in_get_promotion_candidates(self, scheduler):
         """get_promotion_candidates should return Path B candidates"""
-        scheduler.register_memory("mem-deep", project_id="LFI")
+        scheduler.register_memory("mem-deep", project_id="test-project")
         for _ in range(5):
-            scheduler.record_review("mem-deep", ReviewGrade.EASY, project_id="LFI")
+            scheduler.record_review("mem-deep", ReviewGrade.EASY, project_id="test-project")
 
         candidates = scheduler.get_promotion_candidates()
         candidate_ids = [c.memory_id for c in candidates]

@@ -13,7 +13,7 @@ def importer(tmp_path):
     """Create a MarkdownDirectoryImporter with mocked client."""
     mem_dir = tmp_path / "memories"
     mem_dir.mkdir()
-    imp = MarkdownDirectoryImporter(memory_dir=mem_dir, project_id="LFI")
+    imp = MarkdownDirectoryImporter(memory_dir=mem_dir, project_id="test-project")
     mock_client = MagicMock()
     mock_client.list.return_value = []
     mock_client.create.return_value = Memory(
@@ -21,7 +21,7 @@ def importer(tmp_path):
         content="test",
         importance=0.5,
         tags=[],
-        project_id="LFI",
+        project_id="test-project",
     )
     imp._client = mock_client
     return imp
@@ -152,7 +152,7 @@ class TestMarkdownDuplicateDetection:
                 content=existing_content,
                 importance=0.5,
                 tags=[],
-                project_id="LFI",
+                project_id="test-project",
             )
         ]
 

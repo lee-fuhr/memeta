@@ -27,11 +27,11 @@ def pf():
 def sample_memories():
     """Mix of tagged, untagged, and cross-persona memories."""
     return [
-        {"content": "LFI client onboarding process", "project_id": "LFI", "persona": "business"},
+        {"content": "Test client onboarding process", "project_id": "test-project", "persona": "business"},
         {"content": "FAISS indexing strategy", "project_id": "memory-system", "persona": "technical"},
         {"content": "Morning routine notes", "project_id": "health", "persona": "personal"},
         {"content": "Python best practices (untagged)", "project_id": "misc"},
-        {"content": "Universal config note", "project_id": "LFI", "persona": "universal"},
+        {"content": "Universal config note", "project_id": "test-project", "persona": "universal"},
     ]
 
 
@@ -42,8 +42,8 @@ class TestDetectPersona:
     """Tests for PersonaFilter.detect_persona."""
 
     def test_detect_business_project(self, pf):
-        """Known business project returns 'business'."""
-        assert pf.detect_persona("LFI") == "business"
+        """Unknown project (not in any persona list) returns 'universal'."""
+        assert pf.detect_persona("test-project") == "universal"
 
     def test_detect_technical_project(self, pf):
         """Known technical project returns 'technical'."""
@@ -59,7 +59,7 @@ class TestDetectPersona:
 
     def test_detect_case_insensitive(self, pf):
         """Detection is case-insensitive."""
-        assert pf.detect_persona("lfi") == "business"
+        assert pf.detect_persona("lfi") == "universal"
         assert pf.detect_persona("MEMORY-SYSTEM") == "technical"
         assert pf.detect_persona("Health") == "personal"
 
@@ -78,7 +78,7 @@ class TestFilterMemories:
         """Filtering for 'business' returns business + untagged + universal memories."""
         result = pf.filter_memories(sample_memories, "business")
         contents = [m["content"] for m in result]
-        assert "LFI client onboarding process" in contents
+        assert "Test client onboarding process" in contents
         assert "Python best practices (untagged)" in contents
         assert "Universal config note" in contents
         assert "FAISS indexing strategy" not in contents
@@ -131,7 +131,7 @@ class TestTagMemory:
 
     def test_tag_adds_persona_field(self, pf):
         """Tagging adds the persona key."""
-        mem = {"content": "test memory", "project_id": "LFI"}
+        mem = {"content": "test memory", "project_id": "test-project"}
         tagged = pf.tag_memory(mem, "business")
         assert tagged["persona"] == "business"
 
@@ -157,11 +157,9 @@ class TestGetRelevantProjects:
     """Tests for PersonaFilter.get_relevant_projects."""
 
     def test_get_business_projects(self, pf):
-        """Returns business project list."""
+        """Returns business project list (empty by default after sanitization)."""
         projects = pf.get_relevant_projects("business")
-        assert "LFI" in projects
-        assert "CogentAnalytics" in projects
-        assert len(projects) == 6
+        assert len(projects) == 0
 
     def test_get_unknown_persona(self, pf):
         """Unknown persona returns empty list."""
@@ -189,7 +187,7 @@ class TestPersonaManagement:
         pf.add_persona("business", ["NewCo"])
         projects = pf.get_relevant_projects("business")
         assert projects == ["NewCo"]
-        assert pf.detect_persona("LFI") == "universal"  # no longer in business
+        assert pf.detect_persona("test-project") == "universal"  # no longer in business
 
     def test_get_all_returns_copy(self, pf):
         """get_all_personas returns a copy, not a reference."""

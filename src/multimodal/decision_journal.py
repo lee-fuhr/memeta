@@ -40,7 +40,7 @@ class Decision:
     chosen_option: str
     rationale: str
     context: Optional[str] = None
-    project_id: str = "LFI"
+    project_id: str = "default"
     session_id: Optional[str] = None
     decided_at: str = None
     outcome: Optional[str] = None
@@ -93,7 +93,7 @@ class DecisionJournal:
         chosen_option: str,
         rationale: str,
         context: Optional[str] = None,
-        project_id: str = "LFI",
+        project_id: str = "default",
         session_id: Optional[str] = None,
         save_to_memory_ts: bool = True,
         link_to_commitment: bool = False

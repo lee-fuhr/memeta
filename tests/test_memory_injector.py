@@ -32,7 +32,7 @@ from memory_system.memory_injector import (
 
 def _make_memory_file(directory: Path, mem_id: str, content: str,
                       importance: float = 0.5, tags: list = None,
-                      project_id: str = "LFI", extra_fields: str = "") -> Path:
+                      project_id: str = "test-project", extra_fields: str = "") -> Path:
     """Create a mock memory file in YAML frontmatter + markdown format."""
     tags_str = json.dumps(tags or [])
     text = f"""---
@@ -362,12 +362,12 @@ class TestInjectAtSessionStart:
         """Should return a formatted string with relevant memories."""
         mock_load.return_value = [
             {"id": "m1", "content": "Python tips", "importance": 0.85,
-             "project_id": "LFI", "tags": ["python"]},
+             "project_id": "test-project", "tags": ["python"]},
         ]
         mock_search.return_value = [
             {"id": "m1", "content": "Python tips", "importance": 0.85},
         ]
-        result = inject_at_session_start(project="LFI")
+        result = inject_at_session_start(project="test-project")
         assert isinstance(result, str)
         assert len(result) > 0
 
@@ -377,7 +377,7 @@ class TestInjectAtSessionStart:
         """No relevant memories should return empty string."""
         mock_load.return_value = []
         mock_search.return_value = []
-        result = inject_at_session_start(project="LFI")
+        result = inject_at_session_start(project="test-project")
         assert result == ""
 
 
@@ -510,14 +510,14 @@ class TestInjectAtSessionStartCorrections:
         """Corrections block appears before regular memories block."""
         memories = [
             {"id": "corr_1", "content": "Correction: use sentence case",
-             "importance": 0.95, "tags": [], "project_id": "LFI",
+             "importance": 0.95, "tags": [], "project_id": "test-project",
              "context_type": "correction"},
             {"id": "mem_1", "content": "Python debugging tips are essential",
-             "importance": 0.85, "tags": ["python"], "project_id": "LFI",
+             "importance": 0.85, "tags": ["python"], "project_id": "test-project",
              "context_type": "knowledge"},
         ]
         index_path = self._build_index_with_corrections(tmp_path, memories)
-        result = inject_at_session_start(project="LFI", index_path=index_path)
+        result = inject_at_session_start(project="test-project", index_path=index_path)
 
         # Both blocks should be present
         assert "=== ACTIVE CORRECTIONS ===" in result
@@ -532,11 +532,11 @@ class TestInjectAtSessionStartCorrections:
         """No correction memories means no corrections block, regular block still works."""
         memories = [
             {"id": "mem_1", "content": "Python debugging tips are essential",
-             "importance": 0.85, "tags": ["python"], "project_id": "LFI",
+             "importance": 0.85, "tags": ["python"], "project_id": "test-project",
              "context_type": "knowledge"},
         ]
         index_path = self._build_index_with_corrections(tmp_path, memories)
-        result = inject_at_session_start(project="LFI", index_path=index_path)
+        result = inject_at_session_start(project="test-project", index_path=index_path)
 
         assert "=== ACTIVE CORRECTIONS ===" not in result
         # Regular block should still work (may or may not appear depending on search)
@@ -546,14 +546,14 @@ class TestInjectAtSessionStartCorrections:
         """If only corrections exist, still get output."""
         memories = [
             {"id": "corr_1", "content": "Correction: always use sentence case",
-             "importance": 0.95, "tags": [], "project_id": "LFI",
+             "importance": 0.95, "tags": [], "project_id": "test-project",
              "context_type": "correction"},
             {"id": "corr_2", "content": "Correction: no title case in headings",
-             "importance": 0.90, "tags": [], "project_id": "LFI",
+             "importance": 0.90, "tags": [], "project_id": "test-project",
              "context_type": "correction"},
         ]
         index_path = self._build_index_with_corrections(tmp_path, memories)
-        result = inject_at_session_start(project="LFI", index_path=index_path)
+        result = inject_at_session_start(project="test-project", index_path=index_path)
 
         assert "=== ACTIVE CORRECTIONS ===" in result
         assert len(result) > 0
@@ -562,17 +562,17 @@ class TestInjectAtSessionStartCorrections:
         """Higher importance corrections appear first."""
         memories = [
             {"id": "corr_low", "content": "Low priority correction",
-             "importance": 0.5, "tags": [], "project_id": "LFI",
+             "importance": 0.5, "tags": [], "project_id": "test-project",
              "context_type": "correction"},
             {"id": "corr_high", "content": "High priority correction",
-             "importance": 0.99, "tags": [], "project_id": "LFI",
+             "importance": 0.99, "tags": [], "project_id": "test-project",
              "context_type": "correction"},
             {"id": "corr_mid", "content": "Medium priority correction",
-             "importance": 0.75, "tags": [], "project_id": "LFI",
+             "importance": 0.75, "tags": [], "project_id": "test-project",
              "context_type": "correction"},
         ]
         index_path = self._build_index_with_corrections(tmp_path, memories)
-        result = inject_at_session_start(project="LFI", index_path=index_path)
+        result = inject_at_session_start(project="test-project", index_path=index_path)
 
         assert "=== ACTIVE CORRECTIONS ===" in result
         # High should come before medium, medium before low
@@ -585,12 +585,12 @@ class TestInjectAtSessionStartCorrections:
         """At most 3 corrections shown even if more exist."""
         memories = [
             {"id": f"corr_{i}", "content": f"Correction number {i}",
-             "importance": 0.9 - i * 0.01, "tags": [], "project_id": "LFI",
+             "importance": 0.9 - i * 0.01, "tags": [], "project_id": "test-project",
              "context_type": "correction"}
             for i in range(5)
         ]
         index_path = self._build_index_with_corrections(tmp_path, memories)
-        result = inject_at_session_start(project="LFI", index_path=index_path)
+        result = inject_at_session_start(project="test-project", index_path=index_path)
 
         assert "=== ACTIVE CORRECTIONS ===" in result
         # Count numbered entries in the corrections block
@@ -607,21 +607,21 @@ class TestInjectAtSessionStartCorrections:
     def test_inject_at_session_start_corrections_filtered_by_project(self, tmp_path):
         """Corrections filtered to project when specified."""
         memories = [
-            {"id": "corr_lfi", "content": "LFI-specific correction",
-             "importance": 0.95, "tags": [], "project_id": "LFI",
+            {"id": "corr_test", "content": "Project-specific correction",
+             "importance": 0.95, "tags": [], "project_id": "test-project",
              "context_type": "correction"},
             {"id": "corr_other", "content": "Other project correction",
              "importance": 0.95, "tags": [], "project_id": "OtherProject",
              "context_type": "correction"},
             {"id": "mem_1", "content": "Python debugging tips are essential",
-             "importance": 0.85, "tags": ["python"], "project_id": "LFI",
+             "importance": 0.85, "tags": ["python"], "project_id": "test-project",
              "context_type": "knowledge"},
         ]
         index_path = self._build_index_with_corrections(tmp_path, memories)
-        result = inject_at_session_start(project="LFI", index_path=index_path)
+        result = inject_at_session_start(project="test-project", index_path=index_path)
 
-        # LFI correction should appear
-        assert "LFI-specific correction" in result
+        # Project correction should appear
+        assert "Project-specific correction" in result
         # Other project correction should NOT appear
         assert "Other project correction" not in result
 
@@ -636,10 +636,10 @@ class TestInjectForPromptUnchanged:
         """inject_for_prompt should NOT include corrections block."""
         mock_load.return_value = [
             {"id": "corr_1", "content": "Correction: use sentence case",
-             "importance": 0.95, "project_id": "LFI",
+             "importance": 0.95, "project_id": "test-project",
              "context_type": "correction"},
             {"id": "mem_1", "content": "Relevant info here",
-             "importance": 0.8, "project_id": "LFI",
+             "importance": 0.8, "project_id": "test-project",
              "context_type": "knowledge"},
         ]
         mock_search.return_value = [

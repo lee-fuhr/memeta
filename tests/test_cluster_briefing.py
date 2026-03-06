@@ -104,7 +104,7 @@ temporal_relevance: persistent
 knowledge_domain: {domain}
 status: active
 scope: project
-project_id: LFI
+project_id: test-project
 session_id: test-session
 semantic_tags: {tags_str}
 schema_version: 2

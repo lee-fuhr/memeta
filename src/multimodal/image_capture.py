@@ -29,7 +29,7 @@ class ImageMemory:
     vision_insights: str
     memories: List[Dict]
     created_at: str = None
-    project_id: str = "LFI"
+    project_id: str = "default"
 
     def __post_init__(self):
         if self.created_at is None:
@@ -171,7 +171,7 @@ class ImageCapture:
         self,
         ocr_text: str,
         vision_insights: str,
-        project_id: str = "LFI",
+        project_id: str = "default",
         session_id: Optional[str] = None
     ) -> List[Dict]:
         """
@@ -213,7 +213,7 @@ class ImageCapture:
     def process_image(
         self,
         image_path: Path,
-        project_id: str = "LFI",
+        project_id: str = "default",
         session_id: Optional[str] = None,
         save_to_memory_ts: bool = True
     ) -> ImageMemory:
