@@ -198,14 +198,14 @@ The biggest open loop in the system: memories went in at session end but nothing
 
 ### Infrastructure stabilization (Phase 0)
 
-The system audit revealed failing LaunchAgents, a Granola retry storm, undocumented hooks, and documentation sprawl. This release fixes the foundation before building features.
+The system audit revealed failing LaunchAgents, a meeting notes service retry storm, undocumented hooks, and documentation sprawl. This release fixes the foundation before building features.
 
 **Fixed**
 - **LaunchAgent: memory-maintenance** — interpreter changed from system Python to `~/.local/venvs/memory-system/bin/python3`; script path updated from `run_daily_maintenance.py` to `scripts/run_daily_maintenance.py`
 - **LaunchAgent: memory-weekly-synthesis** — interpreter fixed; added missing `WorkingDirectory` key
 - **`scripts/run_daily_maintenance.py`** — `sys.path.insert` pointed to `scripts/` instead of project root after file move; fixed to `parent.parent`
 - **`scripts/weekly_synthesis_runner.py`** — `project_root` variable used but never defined; added `project_root = Path(__file__).parent.parent`
-- **Granola retry storm** — 5 documents in infinite 404 retry loop (~240 failed API calls/day). Added circuit breaker: after 10 consecutive failures per document, marks as permanently failed and stops retrying
+- **Meeting notes service retry storm** — 5 documents in infinite 404 retry loop (~240 failed API calls/day). Added circuit breaker: after 10 consecutive failures per document, marks as permanently failed and stops retrying
 
 **Removed**
 - **LaunchAgent: nightly-optimizer** — dead import (`nightly_maintenance_master.py`), literally could not run. Archived.
@@ -218,7 +218,7 @@ The system audit revealed failing LaunchAgents, a Granola retry storm, undocumen
 **Changed**
 - **`_ System/` reduced from 87 to ~50 items** — 33 unreferenced files archived (one-time artifacts, redundant docs, dead references)
 - **5 documentation clusters collapsed** — skill recommendation (8 files → 2), mistake docs (7 → 1), file organization (3 → 1), CLAUDE.md review ritual (3 → 0), quality system (8 → 3). Total: 22 files archived.
-- Granola `failed_syncs.json` entries marked `permanently_failed: true`
+- Meeting notes service `failed_syncs.json` entries marked `permanently_failed: true`
 
 ### Tests
 - **Core suite:** 2,037 passing (no regressions)
@@ -521,7 +521,7 @@ The system audit revealed failing LaunchAgents, a Granola retry storm, undocumen
 - Pre-existing ordering bug in `scripts/nightly_maintenance_master.py` — `SCRIPTS_DIR` used before definition
 
 ### Status
-- **sys.path hacks remaining:** 2 (intentional — `decision_journal.py` optional ea_brain integration, `update_fsrs_manual.py` code generator)
+- **sys.path hacks remaining:** 2 (intentional — `decision_journal.py` optional commitment tracker integration, `update_fsrs_manual.py` code generator)
 - **Test suite:** 1085 passing (was 1086 before fix noted above)
 
 ---

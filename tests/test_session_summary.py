@@ -135,7 +135,7 @@ class TestGenerateSummary:
 
     def test_extracts_files_touched(self):
         transcript = _build_transcript([
-            _make_transcript_line("human", "Edit /Users/lee/project/src/config.py"),
+            _make_transcript_line("human", "Edit /Users/testuser/project/src/config.py"),
             _make_transcript_line("assistant", "I updated src/config.py and tests/test_config.py"),
             _make_transcript_line("human", "Check the README.md too"),
         ])
@@ -177,7 +177,7 @@ class TestGenerateSummary:
         lines = []
         for i in range(20):
             lines.append(
-                _make_transcript_line("human", f"Edit /Users/lee/project/file{i}.py")
+                _make_transcript_line("human", f"Edit /Users/testuser/project/file{i}.py")
             )
         transcript = _build_transcript(lines)
         result = generate_summary(transcript)

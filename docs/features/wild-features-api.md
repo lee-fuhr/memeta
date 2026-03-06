@@ -303,8 +303,8 @@ database_id = "abc123..."
 pages = export_to_notion(database_id)
 
 # Returns Notion API-ready page objects
-# Use with Notion API client (lfi_integrations.notion):
-from lfi_integrations import notion
+# Use with Notion API client:
+from integrations import notion
 for page in pages:
     notion.create_page(database_id, page['properties'])
 ```

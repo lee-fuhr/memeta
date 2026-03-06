@@ -119,7 +119,7 @@ class IntelligenceDB:
                 outcome TEXT,  -- Tracked later
                 outcome_success BOOLEAN,
                 outcome_recorded_at TEXT,
-                commitment_id TEXT,  -- Link to ea_brain if applicable
+                commitment_id TEXT,  -- Link to external commitment tracker if configured
                 tags TEXT  -- JSON array
             )
         """)

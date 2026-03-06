@@ -60,9 +60,9 @@ Phase 1: Close the biggest open loop — memories go in at session end but nothi
 - **85 new tests** — 2,125 total passing
 
 ### v0.21.0 — Infrastructure stabilization (Feb 2026)
-Phase 0: Fix what's broken before building features. System audit found 41 LaunchAgents (16 documented), 5 failing services, Granola retry storm, and documentation sprawl.
+Phase 0: Fix what's broken before building features. System audit found 41 LaunchAgents (16 documented), 5 failing services, meeting notes service retry storm, and documentation sprawl.
 - **4 LaunchAgents fixed** — memory-maintenance (interpreter + path), memory-weekly-synthesis (interpreter + WorkingDirectory), nightly-optimizer (killed — dead import), daily-episodic-summary (killed — redundant)
-- **Granola circuit breaker** — 10-failure threshold stops retry storms, permanently failed documents excluded
+- **Meeting notes service circuit breaker** — 10-failure threshold stops retry storms, permanently failed documents excluded
 - **Hook system documented** — 28 hooks across 6 events, each with WHY rationale, probation table for behavioral hooks
 - **System files pruned** — 87 items → ~50 (33 archived), 5 doc clusters collapsed (22 files archived)
 - **Python interpreter audit** — 26 scripts cataloged with migration plan to 2 standard interpreters
@@ -176,11 +176,11 @@ These are not features — they are the system-level pruning and restructuring d
 
 ### What's kept
 
-- Penny's dossier system (dossier_generator.py + ea_brain/ + meeting-intelligence/)
+- Intelligence layer (dossier generator + meeting intelligence)
 - Session-memory-consolidation hook (the write side of the read-write loop)
 - Session indexing (2,900+ sessions, works independently of hook session ID problem)
 - The conductor pattern (right architecture, enhance with memory context)
-- lfi_integrations.py (one file, four APIs — the integration model)
+- integrations.py (one file, four APIs — the integration model)
 - Core agent roster (~18 specialty agents + dev juniors)
 - Core skill set (~25 skills, wait for usage tracking data before further pruning)
 - Core hooks (7 surviving scripts)
@@ -232,7 +232,7 @@ Features and components killed across both debates. Never-built proposals that l
 - System directory debris (empty directories, aspirational subdirectories)
 
 ### Under evaluation (need usage data before deciding)
-- PromptBase skills (4 skills for a currently dormant side project — may reactivate)
+- Side project skills (4 skills for a currently dormant side project — may reactivate)
 - Behavioral enforcement hooks (delegation-check, questioning-nudge, response-summary-check — 2-week evaluation)
 - Orchestration plugin + dx plugin (conflicts with conductor pattern, but may have niche value)
 - Aspirational skills (browser-automation, build-production-grade, writing-guidelines, github-standards, codex, gepetto, perplexity — wait for usage tracking)

@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 TOOL_KEYWORDS = [
     "email", "gmail", "inbox", "calendar", "todoist", "notion",
     "slack", "github", "google", "drive", "docs", "sheets",
-    "meeting", "transcript", "granola"
+    "meeting", "transcript", "meeting-notes"
 ]
 
 # Path to the project's CLAUDE.md / TOOLS.md for correction promotion.
@@ -80,7 +80,7 @@ def extract_tool_name(correction_text: str) -> str:
         "drive": "Google Drive",
         "sheets": "Google Sheets",
         "meeting": "Meetings",
-        "granola": "Granola",
+        "meeting-notes": "Meeting Notes",
         "transcript": "Transcripts"
     }
 
