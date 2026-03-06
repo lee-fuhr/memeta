@@ -118,9 +118,9 @@ class TestExtractProblemQuery:
 
     def test_strips_long_file_paths(self):
         """File paths longer than 50 chars should be stripped."""
-        prompt = "Error in /Users/lee/very/long/deeply/nested/path/to/some/file.py — not working"
+        prompt = "Error in /Users/testuser/very/long/deeply/nested/path/to/some/file.py — not working"
         query = extract_problem_query(prompt)
-        assert "/Users/lee/very/long" not in query
+        assert "/Users/testuser/very/long" not in query
 
     def test_preserves_problem_description(self):
         """Natural language problem description should remain."""

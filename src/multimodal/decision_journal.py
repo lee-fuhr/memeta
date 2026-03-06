@@ -1,7 +1,7 @@
 """
 Feature 47: Decision journal - Track decisions and outcomes
 
-Integrates with ea_brain/commitment_tracker.py for decision tracking.
+Optionally integrates with an external commitment tracker for decision tracking.
 Learn from decision patterns over time.
 """
 
@@ -18,18 +18,20 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-# Try to import ea_brain commitment tracker (optional integration)
+# External commitment tracker integration (configure path via MEMORY_SYSTEM_COMMITMENT_TRACKER env var)
+COMMITMENT_TRACKER_AVAILABLE = False
 try:
     import sys
-    ea_brain_path = Path(__file__).parent.parent.parent.parent / "ea_brain"
-    if ea_brain_path.exists():
-        sys.path.insert(0, str(ea_brain_path))
-        from commitment_tracker import CommitmentTracker
-        EA_BRAIN_AVAILABLE = True
-    else:
-        EA_BRAIN_AVAILABLE = False
+    import os
+    _tracker_path = os.environ.get("MEMORY_SYSTEM_COMMITMENT_TRACKER")
+    if _tracker_path:
+        _tracker_dir = Path(_tracker_path).parent
+        if _tracker_dir.exists():
+            sys.path.insert(0, str(_tracker_dir))
+            from commitment_tracker import CommitmentTracker
+            COMMITMENT_TRACKER_AVAILABLE = True
 except ImportError:
-    EA_BRAIN_AVAILABLE = False
+    COMMITMENT_TRACKER_AVAILABLE = False
 
 
 @dataclass
@@ -46,7 +48,7 @@ class Decision:
     outcome: Optional[str] = None
     outcome_success: Optional[bool] = None
     outcome_recorded_at: Optional[str] = None
-    commitment_id: Optional[str] = None  # Link to ea_brain
+    commitment_id: Optional[str] = None  # Link to external commitment tracker
     tags: List[str] = field(default_factory=lambda: ['#decision'])
 
     def __post_init__(self):
@@ -60,7 +62,7 @@ class DecisionJournal:
 
     Workflow:
     1. Record decision with options and rationale
-    2. (Optional) Link to ea_brain commitment if applicable
+    2. (Optional) Link to external commitment tracker if configured
     3. Track outcome later
     4. Learn from patterns: what decisions work?
     """
@@ -75,13 +77,14 @@ class DecisionJournal:
         self.db = IntelligenceDB(db_path)
         self.memory_client = MemoryTSClient()
 
-        # Optional ea_brain integration
-        if EA_BRAIN_AVAILABLE:
+        # Optional external commitment tracker integration
+        if COMMITMENT_TRACKER_AVAILABLE:
             try:
-                ea_brain_db = Path(__file__).parent.parent.parent.parent / "ea_brain" / "ea_brain.db"
-                self.commitment_tracker = CommitmentTracker(str(ea_brain_db))
+                _tracker_path = os.environ.get("MEMORY_SYSTEM_COMMITMENT_TRACKER", "")
+                _tracker_db = Path(_tracker_path).parent / "commitments.db"
+                self.commitment_tracker = CommitmentTracker(str(_tracker_db))
             except Exception as e:
-                logger.info(f"Warning: ea_brain integration unavailable: {e}")
+                logger.info(f"Warning: commitment tracker integration unavailable: {e}")
                 self.commitment_tracker = None
         else:
             self.commitment_tracker = None
@@ -110,7 +113,7 @@ class DecisionJournal:
             project_id: Project scope
             session_id: Session where decision was made
             save_to_memory_ts: Also save to memory-ts
-            link_to_commitment: Try to link to ea_brain commitment
+            link_to_commitment: Try to link to external commitment tracker
 
         Returns:
             Decision object
@@ -128,11 +131,11 @@ class DecisionJournal:
             session_id=session_id
         )
 
-        # Try to link to ea_brain commitment
+        # Try to link to external commitment tracker
         commitment_id = None
         if link_to_commitment and self.commitment_tracker:
             try:
-                # Create commitment in ea_brain
+                # Create commitment in external tracker
                 commitment_id = self.commitment_tracker.record(
                     giver="you",
                     commitment=f"Decision: {chosen_option}",
@@ -141,7 +144,7 @@ class DecisionJournal:
                 )
                 dec.commitment_id = commitment_id
             except Exception as e:
-                logger.info(f"Warning: Failed to link to ea_brain: {e}")
+                logger.info(f"Warning: Failed to link to commitment tracker: {e}")
 
         # Save to intelligence DB
         cursor = self.db.conn.cursor()

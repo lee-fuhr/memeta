@@ -288,7 +288,7 @@ decision = journal.record_decision(
     project_id="default",
     session_id="session_123",
     save_to_memory_ts=True,
-    link_to_commitment=False  # ea_brain integration
+    link_to_commitment=False  # external commitment tracker integration
 )
 
 # Later: track outcome
@@ -332,11 +332,11 @@ journal.close()
 - `decided_at`: Timestamp
 - `outcome`: What happened (tracked later)
 - `outcome_success`: Boolean success
-- `commitment_id`: Link to ea_brain (optional)
+- `commitment_id`: Link to external commitment tracker (optional)
 
 ### Integration Points
 
-- **EA Brain:** `_ Operations/ea_brain/commitment_tracker.py` for commitment tracking
+- **Commitment tracker:** External commitment tracking integration (configure via `MEMORY_SYSTEM_COMMITMENT_TRACKER` env var)
 - **Memory-TS:** Storage for decision records
 
 ---

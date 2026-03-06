@@ -31,9 +31,7 @@ Thumbs.db
 *.bak
 
 # Runtime databases (created at runtime, not shipped)
-intelligence.db
-fsrs.db
-clusters.db
+*.db
 *.db-shm
 *.db-wal
 
@@ -66,6 +64,12 @@ _archive/
 htmlcov/
 .coverage
 .coverage.*
+
+# Serialized data
+*.pickle
+
+# Google API credentials
+google_*.json
 
 # Editor swap files
 *.swp
