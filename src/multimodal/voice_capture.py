@@ -2,7 +2,7 @@
 Feature 44: Voice memory capture
 
 Transcribe voice memos → extract insights → tag → save to memory-ts
-Uses MacWhisper integration from _ Operations/macwhisper/
+Uses MacWhisper integration for voice transcription
 """
 
 import json
@@ -62,7 +62,7 @@ class VoiceCapture:
         self.db = IntelligenceDB(db_path)
 
         if macwhisper_dir is None:
-            # Default to _ Operations/macwhisper/
+            # Default to macwhisper/ relative to project root
             macwhisper_dir = Path(__file__).parent.parent.parent.parent / "macwhisper"
         self.macwhisper_dir = Path(macwhisper_dir)
 

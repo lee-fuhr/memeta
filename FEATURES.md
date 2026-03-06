@@ -172,8 +172,8 @@ Every feature in Memeta, organized by layer. Each one coexists additively — ad
 | Content hash dedup | Multi-level deduplication: exact, normalized, semantic hash | `src/content_dedup.py` |
 | Reference counter | Tracks memory dependency counts, protects referenced memories from archival | `src/reference_counter.py` |
 | Agent context | Memory-aware context injection for conductor delegations with tag boosting and correction prioritization | `src/agent_context.py` |
-| Consolidation worker | Background LaunchAgent runs consolidation queue every 15 minutes | `launch-agents/com.lfi.consolidation-worker.plist` |
-| Search index auto-rebuild | Background LaunchAgent rebuilds BM25 search index every 30 minutes | `launch-agents/com.lfi.search-index-rebuild.plist` |
+| Consolidation worker | Background LaunchAgent runs consolidation queue every 15 minutes | `launch-agents/com.memeta.consolidation-worker.plist` |
+| Search index auto-rebuild | Background LaunchAgent rebuilds BM25 search index every 30 minutes | `launch-agents/com.memeta.search-index-rebuild.plist` |
 | Extraction evolution | Epsilon-greedy prompt variant selection with quality tracking for self-improving extraction | `src/wild/prompt_evolver.py` |
 | CLI entry point | `memeta` command with argparse subcommands: init, search, import, generate | `src/cli.py` |
 | Search CLI | Terminal search with BM25 + importance-weighted ranking, domain/tag filters, multiple output formats | `src/search_cli.py` |

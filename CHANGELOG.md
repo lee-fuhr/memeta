@@ -102,8 +102,8 @@ The system now improves its own extraction quality, responds to user frustration
 
 **Added**
 - **Frustration-triggered injection** (`src/hook_state.py`) — 13 regex patterns detect user frustration ("you should know this", "I already told you", "we've discussed this", etc.); bypasses 10-exchange interval gate for immediate memory surfacing; reduces injection interval from 10→5 for rest of session; uses top_k=5 instead of 3 when frustrated. 17 new tests
-- **Consolidation worker LaunchAgent** (`launch-agents/com.lfi.consolidation-worker.plist`) — runs `async_consolidation.py` every 15 minutes; triggers `build_search_index()` after processing for fresh BM25 results
-- **Search index auto-rebuild** (`launch-agents/com.lfi.search-index-rebuild.plist`) — dedicated LaunchAgent rebuilds BM25 search index every 30 minutes
+- **Consolidation worker LaunchAgent** (`launch-agents/com.memeta.consolidation-worker.plist`) — runs `async_consolidation.py` every 15 minutes; triggers `build_search_index()` after processing for fresh BM25 results
+- **Search index auto-rebuild** (`launch-agents/com.memeta.search-index-rebuild.plist`) — dedicated LaunchAgent rebuilds BM25 search index every 30 minutes
 - **LLM session summaries** (`src/session_summary.py`) — `StructuredSessionSummary` dataclass with 11 fields (session_id, summary, topic, decisions, open_questions, open_threads, files_touched, frustration_level, depends_on, generated_at, generator); `generate_llm_summary()` via Claude API; heuristic fallback with quality gate (<50 chars rejected); backward compatibility with old-format summaries. 22 new tests
 - **"Watch out for" correction surfacing** (`src/session_summary.py`) — resumption cards now search correction memories and surface top 3 as warnings; helps prevent repeating past mistakes
 - **Extraction evolution loop** (`src/wild/prompt_evolver.py`) — prompt template with `{CONVERSATION}` placeholder; epsilon-greedy `get_best_prompt()` (90% exploit best variant, 10% explore others); `test_prompt()` rewritten from simulation stub to real extraction + grading pipeline. 14 new tests
@@ -212,11 +212,11 @@ The system audit revealed failing LaunchAgents, a meeting notes service retry st
 - **LaunchAgent: daily-episodic-summary** — redundant with session-end consolidation hook. Archived.
 
 **Added**
-- **Hook system documentation** — `_ Operations/hooks/README.md` v2.0.0 with WHY documentation for all 28 hooks across 6 events. Includes probation table, support files, known issues.
+- **Hook system documentation** — hooks README v2.0.0 with WHY documentation for all 28 hooks across 6 events. Includes probation table, support files, known issues.
 - **Python interpreter audit** — cataloged all 26 scripts using non-standard interpreters with migration plan
 
 **Changed**
-- **`_ System/` reduced from 87 to ~50 items** — 33 unreferenced files archived (one-time artifacts, redundant docs, dead references)
+- **System directory reduced from 87 to ~50 items** — 33 unreferenced files archived (one-time artifacts, redundant docs, dead references)
 - **5 documentation clusters collapsed** — skill recommendation (8 files → 2), mistake docs (7 → 1), file organization (3 → 1), CLAUDE.md review ritual (3 → 0), quality system (8 → 3). Total: 22 files archived.
 - Meeting notes service `failed_syncs.json` entries marked `permanently_failed: true`
 
@@ -448,7 +448,7 @@ The system audit revealed failing LaunchAgents, a meeting notes service retry st
 - **Memory detail modal** — click any memory card to see full content, metadata, tags, and grade info in an overlay
 - **`/api/memory/<id>` endpoint** — returns full body, all metadata for a single memory
 - **Export (JSON + CSV)** — `/api/export?format=json|csv` endpoint + export buttons in Memories tab
-- **LaunchAgent** — `com.lfi.total-recall-dashboard.plist` auto-starts dashboard on login with KeepAlive
+- **LaunchAgent** — `com.memeta.dashboard.plist` auto-starts dashboard on login with KeepAlive
 - **Prioritized backlog** — `BACKLOG.md` with 23 items across 5 tiers (compiled from ideas.md, UX analysis, ROADMAP)
 
 ### Fixed
