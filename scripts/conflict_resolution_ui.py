@@ -12,7 +12,7 @@ from memory_system.memory_ts_client import MemoryTSClient
 from memory_system.contradiction_detector import check_contradictions
 
 
-def review_conflicts(project_id: str = "LFI"):
+def review_conflicts(project_id: str = "default"):
     """
     Interactive conflict review.
 

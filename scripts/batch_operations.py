@@ -18,7 +18,7 @@ from datetime import datetime, timedelta
 from memory_system.memory_ts_client import MemoryTSClient
 
 
-def export_memories(output_file: str, project_id: str = "LFI"):
+def export_memories(output_file: str, project_id: str = "default"):
     """Export all memories to JSON."""
     client = MemoryTSClient(project_id=project_id)
     memories = client.list()
@@ -44,7 +44,7 @@ def export_memories(output_file: str, project_id: str = "LFI"):
     print(f"✅ Exported {len(memory_dicts)} memories to {output_file}")
 
 
-def import_memories(input_file: str, project_id: str = "LFI"):
+def import_memories(input_file: str, project_id: str = "default"):
     """Import memories from JSON."""
     client = MemoryTSClient(project_id=project_id)
 
@@ -69,7 +69,7 @@ def import_memories(input_file: str, project_id: str = "LFI"):
     print(f"✅ Imported {imported}/{len(memory_dicts)} memories")
 
 
-def bulk_tag(tag: str, query: str, project_id: str = "LFI"):
+def bulk_tag(tag: str, query: str, project_id: str = "default"):
     """Add tag to all memories matching query."""
     client = MemoryTSClient(project_id=project_id)
     memories = client.search(query=query, project_id=project_id)
@@ -84,7 +84,7 @@ def bulk_tag(tag: str, query: str, project_id: str = "LFI"):
     print(f"✅ Tagged {tagged} memories with {tag}")
 
 
-def bulk_archive(older_than_days: int, project_id: str = "LFI"):
+def bulk_archive(older_than_days: int, project_id: str = "default"):
     """Archive memories older than N days."""
     client = MemoryTSClient(project_id=project_id)
     all_memories = client.list()
@@ -111,23 +111,23 @@ def main():
     # Export command
     export_parser = subparsers.add_parser('export', help='Export memories to JSON')
     export_parser.add_argument('--output', required=True, help='Output file path')
-    export_parser.add_argument('--project', default='LFI', help='Project ID')
+    export_parser.add_argument('--project', default='default', help='Project ID')
 
     # Import command
     import_parser = subparsers.add_parser('import', help='Import memories from JSON')
     import_parser.add_argument('--input', required=True, help='Input file path')
-    import_parser.add_argument('--project', default='LFI', help='Project ID')
+    import_parser.add_argument('--project', default='default', help='Project ID')
 
     # Tag command
     tag_parser = subparsers.add_parser('tag', help='Add tag to matching memories')
     tag_parser.add_argument('--tag', required=True, help='Tag to add')
     tag_parser.add_argument('--query', required=True, help='Search query')
-    tag_parser.add_argument('--project', default='LFI', help='Project ID')
+    tag_parser.add_argument('--project', default='default', help='Project ID')
 
     # Archive command
     archive_parser = subparsers.add_parser('archive', help='Archive old memories')
     archive_parser.add_argument('--older-than', type=int, required=True, help='Days threshold')
-    archive_parser.add_argument('--project', default='LFI', help='Project ID')
+    archive_parser.add_argument('--project', default='default', help='Project ID')
 
     args = parser.parse_args()
 

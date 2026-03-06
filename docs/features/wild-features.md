@@ -147,7 +147,7 @@ grader = MemoryQualityGrader()
 # Grade a memory
 grade = grader.grade_memory(
     memory_id='mem_123',
-    content='Always run tests before committing - caught 3 bugs this way in Connection Lab project',
+    content='Always run tests before committing - caught 3 bugs this way in ProjectAlpha',
     importance=0.7
 )
 
@@ -159,7 +159,7 @@ grader.update_grade_from_validation(
     memory_id='mem_123',
     event_type='cross_project',  # Saw same pattern in different project
     session_id='session_456',
-    evidence='Applied in Russell Hamilton project'
+    evidence='Applied in ProjectBeta'
 )
 
 # Learn quality patterns
@@ -658,6 +658,6 @@ pytest tests/wild/ -v
 ---
 
 **Status:** 6 HIGH PRIORITY features complete and production-ready
-**Code:** `/Users/lee/CC/Work/_ Infrastructure/memory-system-v1/src/wild/`
-**Tests:** `/Users/lee/CC/Work/_ Infrastructure/memory-system-v1/tests/wild/`
+**Code:** `/path/to/memeta/src/wild/`
+**Tests:** `/path/to/memeta/tests/wild/`
 **Database:** `intelligence.db` (auto-created on first use)

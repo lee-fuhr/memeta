@@ -10,7 +10,7 @@ import sys
 from memory_system.memory_ts_client import MemoryTSClient
 
 
-def search_by_session(session_id: str, project_id: str = "LFI"):
+def search_by_session(session_id: str, project_id: str = "default"):
     """
     Find all memories from a specific session.
 

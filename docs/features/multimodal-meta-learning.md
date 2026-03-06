@@ -71,7 +71,7 @@ voice = VoiceCapture()
 # Process voice memo
 result = voice.process_voice_memo(
     audio_path=Path("/path/to/recording.m4a"),
-    project_id="LFI",
+    project_id="default",
     session_id="session_123",
     save_to_memory_ts=True
 )
@@ -83,7 +83,7 @@ print(f"Duration: {result.duration_seconds}s")
 # Search voice memories
 matches = voice.search_voice_memories(
     query="rate limiting",
-    project_id="LFI",
+    project_id="default",
     min_importance=0.6
 )
 
@@ -137,7 +137,7 @@ images = ImageCapture()
 # Process image
 result = images.process_image(
     image_path=Path("/path/to/screenshot.png"),
-    project_id="LFI",
+    project_id="default",
     session_id="session_123",
     save_to_memory_ts=True
 )
@@ -149,7 +149,7 @@ print(f"Memories: {len(result.memories)}")
 # Search image memories
 matches = images.search_image_memories(
     query="error message",
-    project_id="LFI",
+    project_id="default",
     min_importance=0.5
 )
 
@@ -207,7 +207,7 @@ snippet = code.save_code_snippet(
     description="Async rate limiting implementation",
     context="Prevents API throttling",
     file_path="/src/utils.py",
-    project_id="LFI",
+    project_id="default",
     save_to_memory_ts=True
 )
 
@@ -285,7 +285,7 @@ decision = journal.record_decision(
     chosen_option="SQLite",
     rationale="Simpler for local use, no server needed",
     context="Memory system implementation",
-    project_id="LFI",
+    project_id="default",
     session_id="session_123",
     save_to_memory_ts=True,
     link_to_commitment=False  # ea_brain integration
@@ -300,13 +300,13 @@ journal.track_outcome(
 )
 
 # Learn from decisions
-analysis = journal.learn_from_decisions(project_id="LFI")
+analysis = journal.learn_from_decisions(project_id="default")
 print(f"Success rate: {analysis['success_rate']:.0%}")
 print(f"Top successful approaches: {analysis['top_successful_approaches']}")
 print(f"Approaches to avoid: {analysis['approaches_to_avoid']}")
 
 # Get pending outcomes
-pending = journal.get_pending_outcomes(project_id="LFI")
+pending = journal.get_pending_outcomes(project_id="default")
 
 journal.close()
 ```
@@ -686,7 +686,7 @@ from src.multimodal import VoiceCapture
 with VoiceCapture() as voice:
     result = voice.process_voice_memo(
         audio_path=Path("~/voice_memos/idea_123.m4a"),
-        project_id="LFI",
+        project_id="default",
         save_to_memory_ts=True
     )
 
@@ -731,7 +731,7 @@ with DecisionJournal() as journal:
 
 **Dream mode nightly consolidation:**
 
-Create `~/Library/LaunchAgents/com.lfi.dream-mode.plist`:
+Create `~/Library/LaunchAgents/com.memeta.dream-mode.plist`:
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -739,11 +739,11 @@ Create `~/Library/LaunchAgents/com.lfi.dream-mode.plist`:
 <plist version="1.0">
 <dict>
     <key>Label</key>
-    <string>com.lfi.dream-mode</string>
+    <string>com.memeta.dream-mode</string>
     <key>ProgramArguments</key>
     <array>
         <string>/opt/homebrew/bin/python3</string>
-        <string>/Users/lee/CC/Work/_ Infrastructure/memory-system-v1/scripts/dream_mode_runner.py</string>
+        <string>/path/to/memeta/scripts/dream_mode_runner.py</string>
     </array>
     <key>StartCalendarInterval</key>
     <dict>
@@ -753,16 +753,16 @@ Create `~/Library/LaunchAgents/com.lfi.dream-mode.plist`:
         <integer>0</integer>
     </dict>
     <key>StandardOutPath</key>
-    <string>/Users/lee/Library/Logs/dream-mode.log</string>
+    <string>[YOUR_HOME]/Library/Logs/dream-mode.log</string>
     <key>StandardErrorPath</key>
-    <string>/Users/lee/Library/Logs/dream-mode-error.log</string>
+    <string>[YOUR_HOME]/Library/Logs/dream-mode-error.log</string>
 </dict>
 </plist>
 ```
 
 Load:
 ```bash
-launchctl load ~/Library/LaunchAgents/com.lfi.dream-mode.plist
+launchctl load ~/Library/LaunchAgents/com.memeta.dream-mode.plist
 ```
 
 ---
@@ -794,7 +794,7 @@ launchctl load ~/Library/LaunchAgents/com.lfi.dream-mode.plist
 ## Troubleshooting
 
 **Voice capture fails:**
-- Check MacWhisper is installed: `ls -la /Users/lee/CC/Work/LFI/_ Operations/macwhisper/`
+- Check MacWhisper is installed: `ls -la /path/to/macwhisper/`
 - Try fallback: Create `.txt` file with same name as audio file
 
 **Image vision analysis unavailable:**

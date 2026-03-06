@@ -34,9 +34,9 @@ ROOT_DIR = SCRIPTS_DIR.parent
 DB_PATHS = [
     ROOT_DIR / "intelligence.db",
     ROOT_DIR / "fsrs.db",
-    Path.home() / ".local/share/memory/LFI/session-history.db"
+    Path.home() / ".local/share/memory/default/session-history.db"
 ]
-BACKUP_DIR = Path.home() / ".local/share/memory/LFI/backups"
+BACKUP_DIR = Path.home() / ".local/share/memory/default/backups"
 
 
 def run_script(script_name: str, description: str) -> bool:

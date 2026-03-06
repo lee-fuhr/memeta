@@ -30,7 +30,7 @@ def main():
 
     memories = json.loads(memories_file.read_text())
 
-    memory_dir = Path.home() / ".local/share/memory/LFI/memories"
+    memory_dir = Path.home() / ".local/share/memory/default/memories"
     fsrs_db = project_root / "fsrs.db"
 
     detector = PatternDetector(

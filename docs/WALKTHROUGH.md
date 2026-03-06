@@ -39,7 +39,7 @@ The Memory System is a four-layer architecture that transforms Claude Code sessi
                               ↓
 ┌─────────────────────────────────────────────────────────────────┐
 │  STORAGE LAYER                                                   │
-│  • YAML files: ~/.local/share/memory/LFI/memories/*.md          │
+│  • YAML files: ~/.local/share/memory/{project}/memories/*.md          │
 │  • intelligence.db: Clusters, relationships, analytics          │
 │  • FAISS vectors: Semantic search index                         │
 └─────────────────────────────────────────────────────────────────┘
@@ -86,7 +86,7 @@ def main():
 
     # Add to background queue
     queue = ConsolidationQueue()
-    queue.add(session_file, project_id="LFI")
+    queue.add(session_file, project_id="default")
 ```
 
 **Why async?** Previous versions blocked for 10-30 seconds during LLM extraction, making session end feel slow. The queue-based approach returns instantly.
@@ -233,7 +233,7 @@ def _deduplicate_memories(
     return deduplicated
 ```
 
-**Why deduplicate?** Lee often discusses the same topics across multiple sessions. Without dedup, the system fills with near-duplicates.
+**Why deduplicate?** Users often discuss the same topics across multiple sessions. Without dedup, the system fills with near-duplicates.
 
 ### Step 6: Save to memory-ts
 
@@ -248,7 +248,7 @@ result = self.memory_client.create(
 memory.id = result['id']
 ```
 
-This creates a YAML file at `~/.local/share/memory/LFI/memories/{id}.md`.
+This creates a YAML file at `~/.local/share/memory/{project}/memories/{id}.md`.
 
 ---
 
@@ -258,28 +258,28 @@ The system uses **three storage mechanisms**, each optimized for different acces
 
 ### 1. YAML memory files (source of truth)
 
-**Location:** `~/.local/share/memory/LFI/memories/`
+**Location:** `~/.local/share/memory/{project}/memories/`
 
 Each memory is a markdown file with YAML frontmatter:
 
 ```markdown
 ---
 id: mem_2026-02-25_abc123
-content: "Lee's depression correlates with sensitivity (0.781) but NOT with sleep, steps, RHR, or HRV"
+content: "Deploy frequency correlates with test coverage (0.781) but NOT with team size, sprint length, or meeting count"
 importance: 0.95
 tags:
-  - "#health"
+  - "#engineering"
   - "#data-analysis"
-project_id: LFI
+project_id: default
 scope: project
 session_id: 2822a3f0-465a-44af-a277-1cb1c989d340
 created: 2026-02-25T18:15:00
 updated: 2026-02-25T18:15:00
-reasoning: "Critical health insight from quantitative analysis"
+reasoning: "Critical engineering insight from quantitative analysis"
 confidence_score: 0.9
 context_type: knowledge
 temporal_relevance: persistent
-knowledge_domain: health
+knowledge_domain: engineering
 status: active
 confirmations: 0
 contradictions: 0
@@ -287,7 +287,7 @@ retrieval_weight: 0.95
 schema_version: 2
 ---
 
-Lee's depression correlates with sensitivity (0.781) but NOT with sleep, steps, RHR, or HRV - "just exercise more" is NOT backed by his data.
+Deploy frequency correlates with test coverage (0.781) but NOT with team size, sprint length, or meeting count - "just add more developers" is NOT backed by this data.
 ```
 
 **Why YAML + markdown?** Human-readable, git-friendly, easy to edit manually, works with standard text tools.
@@ -511,13 +511,13 @@ class MemoryClustering:
 
 **Example output:**
 ```
-Cluster 1: "Health data analysis" (47 memories)
-Cluster 2: "Client project patterns" (83 memories)
+Cluster 1: "API design patterns" (47 memories)
+Cluster 2: "Project workflow patterns" (83 memories)
 Cluster 3: "System automation" (62 memories)
 Cluster 4: "Meeting intelligence" (31 memories)
 ```
 
-**Why clustering?** Lee has 2000+ memories. Browsing by topic is much more useful than a flat list.
+**Why clustering?** With 2000+ memories, browsing by topic is much more useful than a flat list.
 
 ### Intelligence orchestrator
 
@@ -656,7 +656,7 @@ class MemorySystemConfig:
     session_dir: Path = Path.home() / ".claude/projects"
 
     # Project
-    project_id: str = "LFI"
+    project_id: str = "default"
 
     # Intelligence
     intelligence_db: Path = Path(__file__).parent / "intelligence.db"

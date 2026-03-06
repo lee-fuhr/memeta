@@ -2,7 +2,7 @@
 
 **Every memory technique that works. Every approach from the meta. All coexisting additively. And then predicting the next features and building those too.**
 
-![Python](https://img.shields.io/badge/python-3.11%2B-blue) ![Tests](https://img.shields.io/badge/tests-2%2C539%20passing-brightgreen) ![Version](https://img.shields.io/badge/version-0.26.0-blue) ![License](https://img.shields.io/badge/license-MIT-green)
+![Python](https://img.shields.io/badge/python-3.11%2B-blue) ![Tests](https://img.shields.io/badge/tests-2%2C526%20passing-brightgreen) ![Version](https://img.shields.io/badge/version-0.26.0-blue) ![License](https://img.shields.io/badge/license-MIT-green)
 
 ---
 
@@ -222,4 +222,4 @@ MIT — see [LICENSE](LICENSE)
 
 ---
 
-*118 features · 2,267 tests · every methodology · all additive*
+*130 features · 2,526 tests · every methodology · all additive*

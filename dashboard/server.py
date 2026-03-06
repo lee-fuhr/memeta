@@ -8,7 +8,7 @@ Serves the dashboard UI and provides JSON API endpoints backed by:
 
 Usage:
     python3 dashboard/server.py
-    python3 dashboard/server.py --port 7860 --project LFI
+    python3 dashboard/server.py --port 7860 --project default
 
 Then open: http://localhost:7860
 """
@@ -42,7 +42,7 @@ except ImportError:
 # ---------------------------------------------------------------------------
 
 DEFAULT_MEMORY_BASE = Path.home() / ".local/share/memory"
-DEFAULT_PROJECT = "LFI"
+DEFAULT_PROJECT = "default"
 DEFAULT_PORT = 7860
 DASHBOARD_DIR = Path(__file__).parent
 

@@ -7,9 +7,9 @@
 
 ## What this is
 
-Intelligent memory system for Claude Code. 130 features, 2,539 tests, Python 3.11+. Extracts knowledge from sessions, grades it, searches it semantically, and synthesizes insights across projects.
+Intelligent memory system for Claude Code. 130 features, 2,526 tests, Python 3.11+. Extracts knowledge from sessions, grades it, searches it semantically, and synthesizes insights across projects.
 
-**Architecture:** Memory files (YAML frontmatter + markdown) at `~/.local/share/memory/LFI/memories/`. Intelligence layer in `intelligence.db` (SQLite). FAISS vector store for semantic search. Flask dashboard at localhost:8766.
+**Architecture:** Memory files (YAML frontmatter + markdown) at `~/.local/share/memory/{project}/memories/`. Intelligence layer in `intelligence.db` (SQLite). FAISS vector store for semantic search. Flask dashboard at localhost:8766.
 
 **Python package:** `memory_system` (mapped to `src/` via pyproject.toml). All imports use `from memory_system.X import Y`.
 
@@ -68,7 +68,7 @@ _internal/                  # Dev planning docs (gitignored — gap analysis, sp
 
 **Run all tests:**
 ```bash
-cd /Users/lee/CC/Work/_ Infrastructure/memory-system-v1
+cd /path/to/memeta
 ~/.local/venvs/memory-system/bin/python3 -m pytest tests/ -q --ignore=tests/wild --tb=short
 ```
 
@@ -183,7 +183,7 @@ Co-Authored-By: Claude <model> <noreply@anthropic.com>
 ## Environment
 
 - **Python venv:** `~/.local/venvs/memory-system/`
-- **Memory files:** `~/.local/share/memory/LFI/memories/`
+- **Memory files:** `~/.local/share/memory/{project}/memories/`
 - **Intelligence DB:** `intelligence.db` (created at runtime, gitignored)
 - **Dashboard:** `http://localhost:8766`
 - **Config override:** All paths overridable via `MEMORY_SYSTEM_*` env vars (see `src/config.py`)
