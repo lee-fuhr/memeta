@@ -138,7 +138,7 @@ class FSRSScheduler:
         conn.commit()
         conn.close()
 
-    def register_memory(self, memory_id: str, project_id: str = "LFI"):
+    def register_memory(self, memory_id: str, project_id: str = "default"):
         """
         Register a memory for FSRS tracking
 
@@ -202,7 +202,7 @@ class FSRSScheduler:
         self,
         memory_id: str,
         grade: ReviewGrade,
-        project_id: str = "LFI",
+        project_id: str = "default",
         session_id: Optional[str] = None
     ):
         """

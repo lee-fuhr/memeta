@@ -227,7 +227,7 @@ class CrossSystemLearning:
                 self.memory_client.create(
                     content=f"Learned from {source_system}: {pattern_description}",
                     tags=['#cross-system-learning', f'#source-{source_system.lower().replace(" ", "-")}'],
-                    project_id="LFI",
+                    project_id="default",
                     importance=0.7
                 )
             except Exception as e:
@@ -332,7 +332,7 @@ class DreamMode:
             for memory in recent_memories[:50]:  # Limit to avoid timeout
                 pattern_matches = self.pattern_detector.find_patterns(
                     memory.get('content', ''),
-                    memory.get('project_id', 'LFI')
+                    memory.get('project_id', 'default')
                 )
                 patterns.extend(pattern_matches)
         except Exception as e:
@@ -359,7 +359,7 @@ What connections exist between seemingly unrelated memories?
 
 Provide 3-5 key insights."""
 
-                deep_insights = extract_with_llm(prompt, project_id="LFI")
+                deep_insights = extract_with_llm(prompt, project_id="default")
             except Exception as e:
                 deep_insights = f"LLM synthesis unavailable: {e}"
 

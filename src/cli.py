@@ -67,7 +67,7 @@ def main(argv: list[str] | None = None) -> int:
     )
     import_parser.add_argument("path", help="Source path")
     import_parser.add_argument(
-        "--project", default="LFI", help="Project ID"
+        "--project", default="default", help="Project ID"
     )
     import_parser.add_argument(
         "--dry-run", action="store_true", help="Preview only"

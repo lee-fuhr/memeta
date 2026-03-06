@@ -37,7 +37,7 @@ class CodeMemory:
     file_path: Optional[str] = None
     session_id: Optional[str] = None
     created_at: str = None
-    project_id: str = "LFI"
+    project_id: str = "default"
     tags: List[str] = None
 
     def __post_init__(self):
@@ -87,7 +87,7 @@ class CodeMemoryLibrary:
         context: str,
         file_path: Optional[str] = None,
         session_id: Optional[str] = None,
-        project_id: str = "LFI",
+        project_id: str = "default",
         save_to_memory_ts: bool = True
     ) -> CodeMemory:
         """

@@ -286,7 +286,7 @@ class TemporalPatternPredictor:
             List of predictions: [
                 {
                     'pattern_id': '...',
-                    'predicted_need': 'Connection Lab context',
+                    'predicted_need': 'client meeting context',
                     'memory_ids': ['mem1', 'mem2'],
                     'confidence': 0.85,
                     'trigger_condition': 'Monday 9:00'

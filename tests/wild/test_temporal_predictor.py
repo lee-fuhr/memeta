@@ -102,7 +102,7 @@ def test_log_memory_access_with_context(predictor):
     log_id = predictor.log_memory_access(
         memory_id='test_mem_2',
         access_type='hook',
-        context_keywords=['messaging', 'framework', 'Connection Lab'],
+        context_keywords=['messaging', 'framework', 'Acme Corp'],
         session_id='test_session_123'
     )
 
@@ -113,7 +113,7 @@ def test_log_memory_access_with_context(predictor):
         ).fetchone()
 
         keywords = json.loads(entry[0])
-        assert keywords == ['messaging', 'framework', 'Connection Lab']
+        assert keywords == ['messaging', 'framework', 'Acme Corp']
         assert entry[1] == 'test_session_123'
 
 
@@ -525,7 +525,7 @@ def test_hook_keyword_extraction():
     topic_resumption_detector = _load_hook_module()
     detect_topic_resumption = topic_resumption_detector.detect_topic_resumption
 
-    message = "We discussed this before - the messaging framework for Connection Lab"
+    message = "We discussed this before - the messaging framework for Acme Corp"
     result = detect_topic_resumption(message)
 
     assert result is not None
@@ -534,7 +534,7 @@ def test_hook_keyword_extraction():
     # Should extract meaningful words
     assert 'messaging' in keywords
     assert 'framework' in keywords
-    assert any('connection' in k.lower() for k in keywords)
+    assert any('acme' in k.lower() for k in keywords)
 
 
 def test_hook_removes_stopwords():
@@ -574,7 +574,7 @@ def test_memory_client_logs_get_access(temp_memory_dir):
         client = MemoryTSClient(memory_dir=temp_memory_dir)
         memory = client.create(
             content="Test memory",
-            project_id="LFI",
+            project_id="test-project",
             tags=["test"],
             importance=0.8
         )
@@ -619,7 +619,7 @@ def test_memory_client_logs_search_access(temp_memory_dir):
         client = MemoryTSClient(memory_dir=temp_memory_dir)
         memory = client.create(
             content="Test messaging framework",
-            project_id="LFI",
+            project_id="test-project",
             tags=["test"],
             importance=0.8
         )
@@ -633,7 +633,7 @@ def test_memory_client_logs_search_access(temp_memory_dir):
         client._predictor = predictor
 
         # Search for the memory (should log)
-        results = client.search(content="messaging", project_id="LFI")
+        results = client.search(content="messaging", project_id="test-project")
 
         # Verify access logged with context
         with sqlite3.connect(db_path) as conn:

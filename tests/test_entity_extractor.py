@@ -86,10 +86,10 @@ class TestExtractEntities:
 
     def test_extract_person_names(self, extractor):
         """Extracts capitalized proper nouns as PERSON entities."""
-        text = "I talked to Russell Hamilton about the project."
+        text = "I talked to Jane Smith about the project."
         entities = extractor.extract_entities(text)
         person_names = [e["name"] for e in entities if e["type"] == "person"]
-        assert "Russell Hamilton" in person_names
+        assert "Jane Smith" in person_names
 
     def test_extract_at_mentions(self, extractor):
         """Extracts @mentions as PERSON entities."""
@@ -108,12 +108,11 @@ class TestExtractEntities:
         assert "FAISS" in tool_names
 
     def test_extract_project_names(self, extractor):
-        """Extracts known project names."""
-        text = "The Connection Lab and Memeta projects are progressing."
+        """With empty PROJECT_PATTERNS, no projects are extracted."""
+        text = "The Acme Corp and Memeta projects are progressing."
         entities = extractor.extract_entities(text)
         project_names = [e["name"] for e in entities if e["type"] == "project"]
-        assert "Connection Lab" in project_names
-        assert "Memeta" in project_names
+        assert len(project_names) == 0
 
     def test_extract_entities_returns_position(self, extractor):
         """Each extracted entity has a position (character offset)."""
@@ -150,13 +149,13 @@ class TestLinkMemory:
 
     def test_link_memory_returns_count(self, extractor):
         """link_memory returns the number of entities linked."""
-        count = extractor.link_memory("mem-001", "Russell Hamilton used Python and React.")
+        count = extractor.link_memory("mem-001", "Jane Smith used Python and React.")
         assert count >= 3  # person + 2 tools
 
     def test_link_memory_creates_entities(self, extractor):
         """After linking, entities exist in the database."""
-        extractor.link_memory("mem-001", "Russell Hamilton used Python.")
-        entity = extractor.get_entity("Russell Hamilton")
+        extractor.link_memory("mem-001", "Jane Smith used Python.")
+        entity = extractor.get_entity("Jane Smith")
         assert entity is not None
         assert entity["type"] == "person"
 
@@ -193,9 +192,9 @@ class TestGetMemoriesByEntity:
 
     def test_get_memories_by_entity(self, extractor):
         """Returns memory IDs linked to an entity."""
-        extractor.link_memory("mem-001", "Russell Hamilton likes Python.")
-        extractor.link_memory("mem-002", "Russell Hamilton also likes React.")
-        memories = extractor.get_memories_by_entity("Russell Hamilton")
+        extractor.link_memory("mem-001", "Jane Smith likes Python.")
+        extractor.link_memory("mem-002", "Jane Smith also likes React.")
+        memories = extractor.get_memories_by_entity("Jane Smith")
         assert "mem-001" in memories
         assert "mem-002" in memories
 
@@ -207,9 +206,9 @@ class TestGetMemoriesByEntity:
 
     def test_get_memories_by_alias(self, extractor):
         """Can find memories by entity alias."""
-        extractor.link_memory("mem-001", "Russell Hamilton said hello.")
-        extractor.add_alias("Russell Hamilton", "Russ")
-        memories = extractor.get_memories_by_entity("Russ")
+        extractor.link_memory("mem-001", "Jane Smith said hello.")
+        extractor.add_alias("Jane Smith", "JS")
+        memories = extractor.get_memories_by_entity("JS")
         assert "mem-001" in memories
 
     def test_get_memories_no_matches(self, extractor):
@@ -223,8 +222,8 @@ class TestAliases:
 
     def test_add_alias(self, extractor):
         """Adding an alias succeeds."""
-        extractor.link_memory("mem-001", "Russell Hamilton is here.")
-        result = extractor.add_alias("Russell Hamilton", "Russ")
+        extractor.link_memory("mem-001", "Jane Smith is here.")
+        result = extractor.add_alias("Jane Smith", "JS")
         assert result is True
 
     def test_add_alias_nonexistent_entity(self, extractor):
@@ -234,10 +233,10 @@ class TestAliases:
 
     def test_alias_stored_in_entity(self, extractor):
         """Alias appears in entity's aliases list."""
-        extractor.link_memory("mem-001", "Russell Hamilton is here.")
-        extractor.add_alias("Russell Hamilton", "Russ")
-        entity = extractor.get_entity("Russell Hamilton")
-        assert "Russ" in entity["aliases"]
+        extractor.link_memory("mem-001", "Jane Smith is here.")
+        extractor.add_alias("Jane Smith", "JS")
+        entity = extractor.get_entity("Jane Smith")
+        assert "JS" in entity["aliases"]
 
 
 class TestGetEntity:
@@ -272,10 +271,10 @@ class TestGetAllEntities:
 
     def test_get_all_entities(self, extractor):
         """Returns all entities in the database."""
-        extractor.link_memory("mem-001", "Russell Hamilton used Python and React.")
+        extractor.link_memory("mem-001", "Jane Smith used Python and React.")
         entities = extractor.get_all_entities()
         names = [e["name"] for e in entities]
-        assert "Russell Hamilton" in names
+        assert "Jane Smith" in names
         assert "Python" in names
         assert "React" in names
 
@@ -290,7 +289,7 @@ class TestGetStats:
 
     def test_stats_structure(self, extractor):
         """Stats dict has expected keys."""
-        extractor.link_memory("mem-001", "Russell Hamilton used Python.")
+        extractor.link_memory("mem-001", "Jane Smith used Python.")
         stats = extractor.get_stats()
         assert "total_entities" in stats
         assert "total_links" in stats
@@ -298,7 +297,7 @@ class TestGetStats:
 
     def test_stats_counts(self, extractor):
         """Stats reflect actual data."""
-        extractor.link_memory("mem-001", "Russell Hamilton used Python and React.")
+        extractor.link_memory("mem-001", "Jane Smith used Python and React.")
         stats = extractor.get_stats()
         assert stats["total_entities"] >= 3
         assert stats["total_links"] >= 3
@@ -328,10 +327,9 @@ class TestEdgeCases:
         assert "sqlite" in tool_names
 
     def test_multiple_entity_types_in_one_text(self, extractor):
-        """All entity types can coexist in one extraction."""
-        text = "Russell Hamilton used Python to build Memeta."
+        """Person and tool types can coexist in one extraction (projects empty after sanitization)."""
+        text = "Jane Smith used Python to build Memeta."
         entities = extractor.extract_entities(text)
         types = {e["type"] for e in entities}
         assert "person" in types
         assert "tool" in types
-        assert "project" in types

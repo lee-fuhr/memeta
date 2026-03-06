@@ -94,7 +94,7 @@ class TestImageCapture:
             INSERT INTO image_memories
             (image_path, ocr_text, vision_analysis, created_at, project_id, importance)
             VALUES (?, ?, ?, ?, ?, ?)
-        """, ("/test.png", "Test OCR content", "Vision analysis", datetime.now().isoformat(), "LFI", 0.7))
+        """, ("/test.png", "Test OCR content", "Vision analysis", datetime.now().isoformat(), "test-project", 0.7))
         image_capture.db.conn.commit()
 
         results = image_capture.search_image_memories("Test OCR")
@@ -366,8 +366,8 @@ class TestDreamMode:
         # Mock memory_client.search
         with patch.object(dream_mode.memory_client, 'search') as mock_search:
             mock_search.return_value = [
-                {'content': 'Test memory 1', 'project_id': 'LFI'},
-                {'content': 'Test memory 2', 'project_id': 'LFI'}
+                {'content': 'Test memory 1', 'project_id': 'test-project'},
+                {'content': 'Test memory 2', 'project_id': 'test-project'}
             ]
 
             result = dream_mode.consolidate_overnight(lookback_days=1, save_insights=False)
@@ -387,7 +387,7 @@ class TestDreamMode:
         with patch.object(dream_mode.memory_client, 'search') as mock_search:
             # Provide some memories so save_insights logic runs
             mock_search.return_value = [
-                {'content': 'Test memory for saving', 'project_id': 'LFI'}
+                {'content': 'Test memory for saving', 'project_id': 'test-project'}
             ]
 
             dream_mode.consolidate_overnight(lookback_days=1, save_insights=True)

@@ -50,7 +50,7 @@ def create_correction(memory_client, content, confirmations=3, tags=None, contex
         tags = ["#correction"]
     mem = memory_client.create(
         content=content,
-        project_id="LFI",
+        project_id="test-project",
         tags=tags,
         importance=0.8,
         context_type=context_type,

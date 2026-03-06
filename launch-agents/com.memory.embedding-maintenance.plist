@@ -6,12 +6,12 @@
     <string>com.memory.embedding-maintenance</string>
     <key>ProgramArguments</key>
     <array>
-        <string>/Users/lee/.local/venvs/memory-system/bin/python3</string>
+        <string>[YOUR_HOME]/.local/venvs/memory-system/bin/python3</string>
         <string>-m</string>
         <string>memory_system.embedding_maintenance</string>
     </array>
     <key>WorkingDirectory</key>
-    <string>/Users/lee/CC/Work/_ Infrastructure/memory-system-v1</string>
+    <string>[YOUR_HOME]/CC/Work/_ Infrastructure/memory-system-v1</string>
     <key>StartCalendarInterval</key>
     <dict>
         <key>Hour</key>
@@ -20,8 +20,8 @@
         <integer>0</integer>
     </dict>
     <key>StandardOutPath</key>
-    <string>/Users/lee/Library/Logs/memory-embedding-maintenance.log</string>
+    <string>[YOUR_HOME]/Library/Logs/memory-embedding-maintenance.log</string>
     <key>StandardErrorPath</key>
-    <string>/Users/lee/Library/Logs/memory-embedding-maintenance.log</string>
+    <string>[YOUR_HOME]/Library/Logs/memory-embedding-maintenance.log</string>
 </dict>
 </plist>

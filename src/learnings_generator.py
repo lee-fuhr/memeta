@@ -24,7 +24,7 @@ END_MARKER = "<!-- END AUTO-GENERATED: learnings -->"
 _claude_md_env = os.environ.get("MEMORY_SYSTEM_CLAUDE_MD")
 DEFAULT_CLAUDE_MD_PATH: Optional[Path] = (
     Path(_claude_md_env) if _claude_md_env
-    else Path.home() / "CC" / "LFI" / "CLAUDE.md"
+    else None
 )
 
 

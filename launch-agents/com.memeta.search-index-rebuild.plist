@@ -3,21 +3,21 @@
 <plist version="1.0">
 <dict>
     <key>Label</key>
-    <string>com.lfi.search-index-rebuild</string>
+    <string>com.memeta.search-index-rebuild</string>
     <key>ProgramArguments</key>
     <array>
-        <string>/Users/lee/.local/venvs/memory-system/bin/python3</string>
+        <string>[YOUR_HOME]/.local/venvs/memory-system/bin/python3</string>
         <string>-c</string>
         <string>from memory_system.memory_injector import build_search_index; build_search_index()</string>
     </array>
     <key>WorkingDirectory</key>
-    <string>/Users/lee/CC/Work/_ Infrastructure/memory-system-v1/</string>
+    <string>[YOUR_HOME]/CC/Work/_ Infrastructure/memory-system-v1/</string>
     <key>StartInterval</key>
     <integer>1800</integer>
     <key>StandardOutPath</key>
-    <string>/Users/lee/Library/Logs/search-index-rebuild.log</string>
+    <string>[YOUR_HOME]/Library/Logs/search-index-rebuild.log</string>
     <key>StandardErrorPath</key>
-    <string>/Users/lee/Library/Logs/search-index-rebuild.log</string>
+    <string>[YOUR_HOME]/Library/Logs/search-index-rebuild.log</string>
     <key>KeepAlive</key>
     <false/>
 </dict>

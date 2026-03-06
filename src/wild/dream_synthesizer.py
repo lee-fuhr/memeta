@@ -204,7 +204,7 @@ class DreamSynthesizer:
             # Try to load from memory-ts client
             from memory_system.memory_ts_client import MemoryTSClient
 
-            client = MemoryTSClient(project_id="LFI")
+            client = MemoryTSClient(project_id="default")
             all_memories = client.search()  # Get all
 
             if not all_memories:

@@ -48,7 +48,7 @@ class TestArchivalByImportance:
         """Memory with importance=0.1 gets archived"""
         memory = client.create(
             content="Low value memory",
-            project_id="LFI",
+            project_id="test-project",
             tags=["#learning"],
             importance=0.1
         )
@@ -69,7 +69,7 @@ class TestArchivalByImportance:
         """Memory with importance=0.3 does NOT get archived (above threshold)"""
         memory = client.create(
             content="Medium value memory",
-            project_id="LFI",
+            project_id="test-project",
             tags=["#learning"],
             importance=0.3
         )
@@ -94,13 +94,13 @@ class TestArchivedMemoryAccess:
         """Archived memory excluded from list() default"""
         mem1 = client.create(
             content="Active memory",
-            project_id="LFI",
+            project_id="test-project",
             tags=["#learning"],
             importance=0.8
         )
         mem2 = client.create(
             content="Low memory to archive",
-            project_id="LFI",
+            project_id="test-project",
             tags=["#learning"],
             importance=0.1
         )
@@ -118,13 +118,13 @@ class TestArchivedMemoryAccess:
         """Archived memory included in list(include_archived=True)"""
         mem1 = client.create(
             content="Active memory",
-            project_id="LFI",
+            project_id="test-project",
             tags=["#learning"],
             importance=0.8
         )
         mem2 = client.create(
             content="Memory to archive",
-            project_id="LFI",
+            project_id="test-project",
             tags=["#learning"],
             importance=0.1
         )
@@ -141,7 +141,7 @@ class TestArchivedMemoryAccess:
         """get(archived_id) still works after archival"""
         memory = client.create(
             content="Memory that will be archived",
-            project_id="LFI",
+            project_id="test-project",
             tags=["#learning"],
             importance=0.1
         )
@@ -163,7 +163,7 @@ class TestArchiveManifest:
         """Manifest file created after archival"""
         client.create(
             content="Low value",
-            project_id="LFI",
+            project_id="test-project",
             tags=["#learning"],
             importance=0.1
         )
@@ -179,7 +179,7 @@ class TestArchiveManifest:
         """Manifest contains correct content (IDs, reasons)"""
         mem = client.create(
             content="Low value memory",
-            project_id="LFI",
+            project_id="test-project",
             tags=["#learning"],
             importance=0.15
         )
@@ -204,7 +204,7 @@ class TestDecayPredictorIntegration:
         # Create a memory with normal importance (above threshold)
         memory = client.create(
             content="Stale predicted memory",
-            project_id="LFI",
+            project_id="test-project",
             tags=["#learning"],
             importance=0.5
         )
@@ -232,7 +232,7 @@ class TestDecayPredictorIntegration:
         """Memory that is both low importance AND predicted stale is only archived once"""
         memory = client.create(
             content="Low and stale",
-            project_id="LFI",
+            project_id="test-project",
             tags=["#learning"],
             importance=0.1
         )
@@ -259,7 +259,7 @@ class TestArchiveIdempotency:
         """Calling archive() on already-archived memory doesn't error"""
         memory = client.create(
             content="Will be archived twice",
-            project_id="LFI",
+            project_id="test-project",
             tags=["#learning"],
             importance=0.1
         )
@@ -276,7 +276,7 @@ class TestArchiveIdempotency:
         """No memories below threshold = no archived/ dir created"""
         client.create(
             content="High value memory",
-            project_id="LFI",
+            project_id="test-project",
             tags=["#learning"],
             importance=0.9
         )
@@ -291,7 +291,7 @@ class TestArchiveIdempotency:
         """Archived memory file has status=archived and #archived tag"""
         memory = client.create(
             content="To be archived",
-            project_id="LFI",
+            project_id="test-project",
             tags=["#learning"],
             importance=0.1
         )
@@ -306,7 +306,7 @@ class TestArchiveIdempotency:
         """Manifest shows predicted_stale reason for decay-predicted archival"""
         memory = client.create(
             content="Stale content",
-            project_id="LFI",
+            project_id="test-project",
             tags=["#learning"],
             importance=0.5
         )
@@ -338,7 +338,7 @@ class TestMaintenanceRunnerArchival:
         client = MemoryTSClient(memory_dir=temp_memory_dir)
         client.create(
             content="Low importance for runner",
-            project_id="LFI",
+            project_id="test-project",
             tags=["#learning"],
             importance=0.1
         )
@@ -353,7 +353,7 @@ class TestMaintenanceRunnerArchival:
         client = MemoryTSClient(memory_dir=temp_memory_dir)
         memory = client.create(
             content="Predicted stale via runner",
-            project_id="LFI",
+            project_id="test-project",
             tags=["#learning"],
             importance=0.5
         )

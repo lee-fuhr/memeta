@@ -29,7 +29,7 @@ class VoiceMemory:
     memories: List[Dict]
     duration_seconds: Optional[float] = None
     created_at: str = None
-    project_id: str = "LFI"
+    project_id: str = "default"
 
     def __post_init__(self):
         if self.created_at is None:
@@ -128,7 +128,7 @@ class VoiceCapture:
     def extract_memories_from_transcript(
         self,
         transcript: str,
-        project_id: str = "LFI",
+        project_id: str = "default",
         session_id: Optional[str] = None
     ) -> List[Dict]:
         """
@@ -192,7 +192,7 @@ Return a list of distinct insights, one per line."""
     def process_voice_memo(
         self,
         audio_path: Path,
-        project_id: str = "LFI",
+        project_id: str = "default",
         session_id: Optional[str] = None,
         save_to_memory_ts: bool = True
     ) -> VoiceMemory:

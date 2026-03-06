@@ -53,7 +53,7 @@ def init_session_db():
             tool_call_count INTEGER DEFAULT 0,
             memories_extracted INTEGER DEFAULT 0,
             duration_seconds INTEGER,
-            project_id TEXT DEFAULT 'LFI',
+            project_id TEXT DEFAULT 'default',
             session_quality REAL DEFAULT 0.0,
             created_at INTEGER DEFAULT (strftime('%s', 'now'))
         )
@@ -88,7 +88,7 @@ def save_session(
     session_id: str,
     transcript: List[Dict],
     session_name: Optional[str] = None,
-    project_id: str = "LFI",
+    project_id: str = "default",
     memories_extracted: int = 0,
     session_quality: float = 0.0
 ) -> bool:

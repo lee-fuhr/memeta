@@ -9,6 +9,7 @@ Features 38-42: Third-party integrations
 """
 
 import json
+import os
 import sqlite3
 from pathlib import Path
 from typing import List, Dict, Optional
@@ -18,7 +19,7 @@ from memory_system.wild.intelligence_db import IntelligenceDB
 from memory_system.memory_ts_client import MemoryTSClient, Memory
 
 # Feature 42: Meeting intelligence
-TRANSCRIPTS_DB = Path.home() / "CC/LFI/_ Operations/meeting-intelligence/transcripts.db"
+TRANSCRIPTS_DB = Path(os.environ.get("MEMORY_SYSTEM_TRANSCRIPTS_DB", "")) if os.environ.get("MEMORY_SYSTEM_TRANSCRIPTS_DB") else None
 
 
 # ============================================================================

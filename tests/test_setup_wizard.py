@@ -304,7 +304,7 @@ class TestGenerateConfig:
         w = _make_wizard(config)
         config_path = w.generate_config()
         content = config_path.read_text()
-        assert 'id = "LFI"' in content
+        assert 'id = "default"' in content
 
     def test_custom_project_id(self, config, tmp_path, monkeypatch):
         monkeypatch.setenv("HOME", str(tmp_path))

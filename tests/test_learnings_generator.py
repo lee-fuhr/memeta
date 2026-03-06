@@ -65,7 +65,7 @@ def create_memory(
         tags = ["#learning"]
     mem = memory_client.create(
         content=content,
-        project_id="LFI",
+        project_id="test-project",
         tags=tags,
         importance=importance,
         context_type=context_type,
@@ -367,11 +367,11 @@ class TestInitialization:
     """Test constructor and path configuration"""
 
     def test_default_claude_md_path(self, memory_dir):
-        """Default path should be set when no claude_md_path given"""
+        """Default path is None when MEMORY_SYSTEM_CLAUDE_MD env var is not set"""
         gen = LearningsGenerator(memory_dir=memory_dir)
 
-        # Should have some default path (not None)
-        assert gen.claude_md_path is not None
+        # Without env var, default is None (user must configure)
+        assert gen.claude_md_path is None
 
     def test_custom_path_via_argument(self, memory_dir, tmp_path):
         """Custom claude_md_path should override default"""
@@ -413,7 +413,7 @@ class TestEdgeCases:
         # Create a qualifying memory so generate() doesn't short-circuit
         memory_client.create(
             content="Test learning",
-            project_id="LFI",
+            project_id="test-project",
             tags=["#learning"],
             importance=0.9,
             confidence_score=0.9,

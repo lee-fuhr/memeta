@@ -78,7 +78,7 @@ Return ONLY a JSON array:
 [{{"content": "Specific learning", "importance": 0.75, "reasoning": "Why this matters", "category": "preference"}}]"""
 
 
-def parse_llm_response(response: str, project_id: str = "LFI") -> List[SessionMemory]:
+def parse_llm_response(response: str, project_id: str = "default") -> List[SessionMemory]:
     """
     Parse LLM JSON response into SessionMemory objects
 
@@ -141,7 +141,7 @@ def parse_llm_response(response: str, project_id: str = "LFI") -> List[SessionMe
 
 def extract_with_llm(
     conversation: str,
-    project_id: str = "LFI",
+    project_id: str = "default",
     timeout: int = 30
 ) -> List[SessionMemory]:
     """

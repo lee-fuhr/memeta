@@ -92,7 +92,7 @@ semantic_tags: ["#test"]
 trigger_phrases: []
 question_types: []
 session_id: unknown
-project_id: LFI
+project_id: test-project
 status: active
 scope: project
 temporal_class: long_term

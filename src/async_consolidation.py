@@ -219,7 +219,7 @@ def process_consolidation_queue(max_sessions: int = 10, timeout_per_session: int
     from memory_system.session_consolidator import SessionConsolidator
 
     queue = ConsolidationQueue()
-    consolidator = SessionConsolidator(project_id="LFI")
+    consolidator = SessionConsolidator(project_id="default")
 
     processed = 0
 

@@ -45,12 +45,12 @@ def db_path(tmp_path):
 def seed_memories(memory_client):
     """Create a set of memories across several themes"""
     memories_data = [
-        ("Always validate user input at system boundaries", "LFI", 0.8),
+        ("Always validate user input at system boundaries", "test-project", 0.8),
         ("Input validation prevents injection attacks", "ClientA", 0.7),
         ("Sanitize all external data before processing", "ClientB", 0.7),
-        ("Use structured logging with context fields", "LFI", 0.6),
+        ("Use structured logging with context fields", "test-project", 0.6),
         ("Log context helps debugging in production", "ClientA", 0.6),
-        ("CSS grid layouts work better than flexbox for page structure", "LFI", 0.5),
+        ("CSS grid layouts work better than flexbox for page structure", "test-project", 0.5),
         ("Responsive grid layouts need mobile-first breakpoints", "ClientB", 0.5),
     ]
     ids = []
@@ -265,7 +265,7 @@ class TestMemoryClustering:
         """Should handle single memory (creates one cluster)"""
         memory_client.create(
             content="Only memory in the system",
-            project_id="LFI",
+            project_id="test-project",
             tags=["#learning"],
             importance=0.5,
             scope="project",

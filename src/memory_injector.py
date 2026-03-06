@@ -17,7 +17,7 @@ from memory_system.hybrid_search import keyword_search
 # --- Constants ---
 
 DEFAULT_INDEX_PATH = Path.home() / ".local/share/memory/memory-search-index.json"
-DEFAULT_MEMORY_DIR = Path.home() / ".local/share/memory/LFI/memories"
+DEFAULT_MEMORY_DIR = Path.home() / ".local/share/memory/default/memories"
 BM25_FLOOR = 1.0
 NORMALIZED_THRESHOLD = 0.3
 DEFAULT_TOP_K = 3
@@ -326,7 +326,7 @@ def inject_at_session_start(
     Surfaces correction memories in a separate block before regular memories.
 
     Args:
-        project: Project ID to filter memories (e.g., "LFI").
+        project: Project ID to filter memories (e.g., "my-project").
         index_path: Path to JSON index file.
 
     Returns:

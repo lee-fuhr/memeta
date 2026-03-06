@@ -51,7 +51,7 @@ class TestDecayApplication:
         created = (datetime.now() - timedelta(days=7)).isoformat()
         memory = client.create(
             content="Old memory",
-            project_id="LFI",
+            project_id="test-project",
             tags=["#learning"],
             importance=0.8
         )
@@ -78,7 +78,7 @@ class TestDecayApplication:
         client = MemoryTSClient(memory_dir=runner.memory_dir)
         memory = client.create(
             content="Recent memory",
-            project_id="LFI",
+            project_id="test-project",
             tags=["#learning"],
             importance=0.8
         )
@@ -102,7 +102,7 @@ class TestDecayApplication:
         created = (datetime.now() - timedelta(days=365)).isoformat()
         memory = client.create(
             content="Very old memory",
-            project_id="LFI",
+            project_id="test-project",
             tags=["#learning"],
             importance=0.2
         )
@@ -128,7 +128,7 @@ class TestLowImportanceArchival:
         # Create low-importance memory
         memory = client.create(
             content="Low value memory",
-            project_id="LFI",
+            project_id="test-project",
             tags=["#learning"],
             importance=0.15
         )
@@ -151,7 +151,7 @@ class TestLowImportanceArchival:
         # Create medium-importance memory
         memory = client.create(
             content="Medium value memory",
-            project_id="LFI",
+            project_id="test-project",
             tags=["#learning"],
             importance=0.5
         )
@@ -172,7 +172,7 @@ class TestLowImportanceArchival:
         # Create memory at 0.3 importance
         memory = client.create(
             content="Borderline memory",
-            project_id="LFI",
+            project_id="test-project",
             tags=["#learning"],
             importance=0.3
         )
@@ -195,9 +195,9 @@ class TestStatsCollection:
         client = MemoryTSClient(memory_dir=runner.memory_dir)
 
         # Create some test memories
-        client.create(content="Memory 1", project_id="LFI", tags=["#learning"], importance=0.8)
-        client.create(content="Memory 2", project_id="LFI", tags=["#learning"], importance=0.5)
-        client.create(content="Memory 3", project_id="LFI", tags=["#important"], importance=0.9)
+        client.create(content="Memory 1", project_id="test-project", tags=["#learning"], importance=0.8)
+        client.create(content="Memory 2", project_id="test-project", tags=["#learning"], importance=0.5)
+        client.create(content="Memory 3", project_id="test-project", tags=["#important"], importance=0.9)
 
         stats = collect_stats(runner.memory_dir)
 
@@ -213,16 +213,16 @@ class TestStatsCollection:
         client = MemoryTSClient(memory_dir=runner.memory_dir)
 
         # Create memories across projects
-        client.create(content="LFI memory", project_id="LFI", tags=["#learning"])
-        client.create(content="Cogent memory", project_id="Cogent", tags=["#learning"])
+        client.create(content="Test memory A", project_id="test-project", tags=["#learning"])
+        client.create(content="Beta Inc memory", project_id="Beta Inc", tags=["#learning"])
 
         stats = collect_stats(runner.memory_dir)
 
         breakdown = stats["project_breakdown"]
-        assert "LFI" in breakdown
-        assert "Cogent" in breakdown
-        assert breakdown["LFI"] >= 1
-        assert breakdown["Cogent"] >= 1
+        assert "test-project" in breakdown
+        assert "Beta Inc" in breakdown
+        assert breakdown["test-project"] >= 1
+        assert breakdown["Beta Inc"] >= 1
 
     def test_stats_include_tag_distribution(self, runner):
         """Stats include tag distribution"""
@@ -231,8 +231,8 @@ class TestStatsCollection:
         client = MemoryTSClient(memory_dir=runner.memory_dir)
 
         # Create memories with different tags
-        client.create(content="Learning", project_id="LFI", tags=["#learning"])
-        client.create(content="Important", project_id="LFI", tags=["#important"])
+        client.create(content="Learning", project_id="test-project", tags=["#learning"])
+        client.create(content="Important", project_id="test-project", tags=["#important"])
 
         stats = collect_stats(runner.memory_dir)
 
@@ -257,7 +257,7 @@ class TestHealthCheck:
         from memory_system.memory_ts_client import MemoryTSClient
 
         client = MemoryTSClient(memory_dir=runner.memory_dir)
-        client.create(content="Test", project_id="LFI", tags=["#test"])
+        client.create(content="Test", project_id="test-project", tags=["#test"])
 
         health = health_check(runner.memory_dir)
 
@@ -284,7 +284,7 @@ class TestMaintenanceRunner:
 
         # Setup test data
         client = MemoryTSClient(memory_dir=runner.memory_dir)
-        client.create(content="Test memory", project_id="LFI", tags=["#learning"], importance=0.8)
+        client.create(content="Test memory", project_id="test-project", tags=["#learning"], importance=0.8)
 
         # Run maintenance
         result = runner.run()
@@ -316,7 +316,7 @@ class TestMaintenanceRunner:
         client = MemoryTSClient(memory_dir=runner.memory_dir)
         memory = client.create(
             content="Test",
-            project_id="LFI",
+            project_id="test-project",
             tags=["#learning"],
             importance=0.15
         )

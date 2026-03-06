@@ -10,14 +10,14 @@ from memory_system.project_resolver import resolve_project_id
 
 
 class TestKnownMappings:
-    """Test exact matches against PROJECT_MAPPING"""
+    """Test path decoding for common project directory structures"""
 
-    def test_lfi_root(self):
-        """Should resolve LFI root project"""
-        assert resolve_project_id("-Users-lee-CC-LFI") == "LFI"
+    def test_simple_project(self):
+        """Should decode simple project segment from path"""
+        assert resolve_project_id("-Users-lee-CC-MyCompany") == "MyCompany"
 
-    def test_passive_income(self):
-        """Should resolve Passive-Income project"""
+    def test_hyphenated_project(self):
+        """Should preserve hyphens within a project name"""
         assert resolve_project_id("-Users-lee-CC-Passive-Income") == "Passive-Income"
 
     def test_personal(self):
@@ -28,13 +28,13 @@ class TestKnownMappings:
         """Should resolve Therapy project"""
         assert resolve_project_id("-Users-lee-CC-Therapy") == "Therapy"
 
-    def test_lfi_ops(self):
-        """Should resolve LFI Operations to LFI-Ops"""
-        assert resolve_project_id("-Users-lee-CC-LFI---Operations") == "LFI-Ops"
+    def test_project_with_subdir(self):
+        """Should extract top-level project when subdir uses triple-dash separator"""
+        assert resolve_project_id("-Users-lee-CC-MyCompany---Operations") == "MyCompany"
 
-    def test_lfi_ops_memory_system(self):
-        """Should resolve memory-system-v1 subdirectory to LFI-Ops"""
-        assert resolve_project_id("-Users-lee-CC-LFI---Operations-memory-system-v1") == "LFI-Ops"
+    def test_project_with_nested_subdir(self):
+        """Should extract top-level project from deeply nested path"""
+        assert resolve_project_id("-Users-lee-CC-MyCompany---Operations-memory-system-v1") == "MyCompany"
 
 
 class TestFallbackDecoding:
@@ -54,13 +54,13 @@ class TestFallbackDecoding:
 class TestEdgeCases:
     """Test edge cases and failure modes"""
 
-    def test_empty_string_returns_lfi(self):
-        """Empty string should fall back to LFI"""
-        assert resolve_project_id("") == "LFI"
+    def test_empty_string_returns_default(self):
+        """Empty string should fall back to 'default'"""
+        assert resolve_project_id("") == "default"
 
-    def test_unrecognizable_path_returns_lfi(self):
-        """Completely unrecognizable path should fall back to LFI"""
-        assert resolve_project_id("gibberish-no-cc-marker") == "LFI"
+    def test_unrecognizable_path_returns_default(self):
+        """Completely unrecognizable path should fall back to 'default'"""
+        assert resolve_project_id("gibberish-no-cc-marker") == "default"
 
     def test_google_drive_encoded_path(self):
         """Google Drive paths should still decode"""

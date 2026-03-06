@@ -130,7 +130,7 @@ def test_f32_assess_high_quality_memory():
         id="mem_001",
         content="Always verify tests pass before claiming completion.",
         importance=0.8,
-        project_id="LFI",
+        project_id="test-project",
         tags=[]
     )
     
@@ -148,7 +148,7 @@ def test_f32_assess_low_quality_memory():
         id="mem_002",
         content="maybe do stuff",  # Vague, short, no capitals, incomplete
         importance=0.3,
-        project_id="LFI",
+        project_id="test-project",
         tags=[]
     )
     
@@ -163,9 +163,9 @@ def test_f32_find_low_quality():
     scorer = QualityScoring()
     
     memories = [
-        Memory("m1", "High quality memory with specific details.", 0.8, [], "LFI"),
-        Memory("m2", "bad", 0.3, [], "LFI"),  # Low quality
-        Memory("m3", "Another well-formed memory with clear action.", 0.9, [], "LFI"),
+        Memory("m1", "High quality memory with specific details.", 0.8, [], "test-project"),
+        Memory("m2", "bad", 0.3, [], "test-project"),  # Low quality
+        Memory("m3", "Another well-formed memory with clear action.", 0.9, [], "test-project"),
     ]
     
     low_quality = scorer.find_low_quality(memories, threshold=0.8)

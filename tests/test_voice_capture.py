@@ -136,7 +136,7 @@ class TestMemoryExtraction:
 
         memories = voice_capture.extract_memories_from_transcript(
             transcript,
-            project_id="LFI"
+            project_id="test-project"
         )
 
         assert len(memories) == 1
@@ -144,13 +144,13 @@ class TestMemoryExtraction:
 
     def test_extract_from_empty_transcript(self, voice_capture):
         """Empty transcript returns no memories"""
-        memories = voice_capture.extract_memories_from_transcript("", "LFI")
+        memories = voice_capture.extract_memories_from_transcript("", "test-project")
 
         assert len(memories) == 0
 
     def test_extract_from_short_transcript(self, voice_capture):
         """Very short transcript returns no memories"""
-        memories = voice_capture.extract_memories_from_transcript("Test", "LFI")
+        memories = voice_capture.extract_memories_from_transcript("Test", "test-project")
 
         assert len(memories) == 0
 
@@ -181,7 +181,7 @@ class TestProcessingPipeline:
         # Process (without memory-ts save for test)
         result = voice_capture.process_voice_memo(
             temp_audio,
-            project_id="LFI",
+            project_id="test-project",
             save_to_memory_ts=False
         )
 
@@ -223,7 +223,7 @@ class TestVoiceSearch:
             INSERT INTO voice_memories
             (audio_path, transcript, created_at, project_id, importance)
             VALUES (?, ?, ?, ?, ?)
-        """, ("/test.m4a", "This is about testing voice search", "2026-02-12T10:00:00", "LFI", 0.7))
+        """, ("/test.m4a", "This is about testing voice search", "2026-02-12T10:00:00", "test-project", 0.7))
 
         voice_capture.db.conn.commit()
 

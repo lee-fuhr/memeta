@@ -43,7 +43,7 @@ def scheduler(db_path):
 
 
 def create_memory_file(memory_dir: Path, memory_id: str, content: str,
-                       project_id: str = "LFI", importance: float = 0.7):
+                       project_id: str = "test-project", importance: float = 0.7):
     """Helper: create a memory-ts markdown file"""
     file_path = memory_dir / f"{memory_id}.md"
     file_path.write_text(f"""---
@@ -156,7 +156,7 @@ class TestReinforcementSignal:
             matched_memory_id="mem-existing-001",
             similarity_score=0.65,
             grade=ReviewGrade.GOOD,
-            project_id="LFI",
+            project_id="test-project",
             session_id="session-123",
         )
         assert signal.memory_id == "mem-001"
@@ -171,7 +171,7 @@ class TestPatternDetector:
         """Should detect reinforcement when similar memory exists in same project"""
         create_memory_file(memory_dir, "existing-001",
                           "Always validate user input at system boundaries",
-                          project_id="LFI")
+                          project_id="test-project")
 
         detector = PatternDetector(
             memory_dir=memory_dir,
@@ -181,7 +181,7 @@ class TestPatternDetector:
         signals = detector.detect_reinforcements(
             new_memories=[{
                 "content": "User input should be validated at system boundaries",
-                "project_id": "LFI",
+                "project_id": "test-project",
                 "importance": 0.7,
             }],
             session_id="session-001",
@@ -194,7 +194,7 @@ class TestPatternDetector:
         """Should grade EASY when reinforcement is cross-project"""
         create_memory_file(memory_dir, "existing-001",
                           "Always validate user input at system boundaries",
-                          project_id="LFI")
+                          project_id="test-project")
 
         detector = PatternDetector(
             memory_dir=memory_dir,
@@ -217,7 +217,7 @@ class TestPatternDetector:
         """Should not detect reinforcement for dissimilar memories"""
         create_memory_file(memory_dir, "existing-001",
                           "Always validate user input at system boundaries",
-                          project_id="LFI")
+                          project_id="test-project")
 
         detector = PatternDetector(
             memory_dir=memory_dir,
@@ -227,7 +227,7 @@ class TestPatternDetector:
         signals = detector.detect_reinforcements(
             new_memories=[{
                 "content": "CSS grid layouts work better than flexbox for page structure",
-                "project_id": "LFI",
+                "project_id": "test-project",
                 "importance": 0.5,
             }],
             session_id="session-001",
@@ -239,7 +239,7 @@ class TestPatternDetector:
         """Should register matched memory in FSRS if not already tracked"""
         create_memory_file(memory_dir, "existing-001",
                           "Always validate user input at system boundaries",
-                          project_id="LFI")
+                          project_id="test-project")
 
         detector = PatternDetector(
             memory_dir=memory_dir,
@@ -249,7 +249,7 @@ class TestPatternDetector:
         detector.detect_reinforcements(
             new_memories=[{
                 "content": "User input should be validated at system boundaries",
-                "project_id": "LFI",
+                "project_id": "test-project",
                 "importance": 0.7,
             }],
             session_id="session-001",
@@ -263,7 +263,7 @@ class TestPatternDetector:
         """Should record review event in FSRS scheduler"""
         create_memory_file(memory_dir, "existing-001",
                           "Always validate user input at system boundaries",
-                          project_id="LFI")
+                          project_id="test-project")
 
         detector = PatternDetector(
             memory_dir=memory_dir,
@@ -273,7 +273,7 @@ class TestPatternDetector:
         detector.detect_reinforcements(
             new_memories=[{
                 "content": "User input should be validated at system boundaries",
-                "project_id": "LFI",
+                "project_id": "test-project",
                 "importance": 0.7,
             }],
             session_id="session-001",
@@ -286,10 +286,10 @@ class TestPatternDetector:
         """Should detect multiple reinforcements in one batch"""
         create_memory_file(memory_dir, "existing-001",
                           "Always validate user input at system boundaries",
-                          project_id="LFI")
+                          project_id="test-project")
         create_memory_file(memory_dir, "existing-002",
                           "Use structured logging with context fields",
-                          project_id="LFI")
+                          project_id="test-project")
 
         detector = PatternDetector(
             memory_dir=memory_dir,
@@ -318,7 +318,7 @@ class TestPatternDetector:
         """Should not match when similarity is below threshold"""
         create_memory_file(memory_dir, "existing-001",
                           "Always validate user input at system boundaries before processing external data",
-                          project_id="LFI")
+                          project_id="test-project")
 
         detector = PatternDetector(
             memory_dir=memory_dir,
@@ -330,7 +330,7 @@ class TestPatternDetector:
         signals = detector.detect_reinforcements(
             new_memories=[{
                 "content": "Validate your assumptions about database schemas carefully",
-                "project_id": "LFI",
+                "project_id": "test-project",
                 "importance": 0.5,
             }],
             session_id="session-001",
@@ -342,7 +342,7 @@ class TestPatternDetector:
         """Should respect custom similarity threshold"""
         create_memory_file(memory_dir, "existing-001",
                           "Always validate user input at system boundaries",
-                          project_id="LFI")
+                          project_id="test-project")
 
         # Very high threshold - shouldn't match anything but exact
         detector = PatternDetector(
@@ -354,7 +354,7 @@ class TestPatternDetector:
         signals = detector.detect_reinforcements(
             new_memories=[{
                 "content": "User input should be validated at system boundaries",
-                "project_id": "LFI",
+                "project_id": "test-project",
                 "importance": 0.7,
             }],
             session_id="session-001",
@@ -366,10 +366,10 @@ class TestPatternDetector:
         """When a new memory matches multiple existing ones, return best match"""
         create_memory_file(memory_dir, "existing-001",
                           "Always validate user input at boundaries",
-                          project_id="LFI")
+                          project_id="test-project")
         create_memory_file(memory_dir, "existing-002",
                           "Validate user input at system boundaries before processing",
-                          project_id="LFI")
+                          project_id="test-project")
 
         detector = PatternDetector(
             memory_dir=memory_dir,
@@ -379,7 +379,7 @@ class TestPatternDetector:
         signals = detector.detect_reinforcements(
             new_memories=[{
                 "content": "Always validate user input at system boundaries before processing",
-                "project_id": "LFI",
+                "project_id": "test-project",
                 "importance": 0.7,
             }],
             session_id="session-001",
@@ -392,7 +392,7 @@ class TestPatternDetector:
         """Cross-project reinforcement should track the new project"""
         create_memory_file(memory_dir, "existing-001",
                           "Always validate user input at system boundaries",
-                          project_id="LFI")
+                          project_id="test-project")
 
         detector = PatternDetector(
             memory_dir=memory_dir,
@@ -418,7 +418,7 @@ class TestPatternDetector:
         mem_id = "self-match-001"
         create_memory_file(memory_dir, mem_id,
                           "Always validate user input at system boundaries",
-                          project_id="LFI")
+                          project_id="test-project")
 
         detector = PatternDetector(
             memory_dir=memory_dir,
@@ -428,7 +428,7 @@ class TestPatternDetector:
         signals = detector.detect_reinforcements(
             new_memories=[{
                 "content": "Always validate user input at system boundaries",
-                "project_id": "LFI",
+                "project_id": "test-project",
                 "importance": 0.7,
                 "id": mem_id,  # Same ID as existing — should be skipped
             }],
@@ -441,10 +441,10 @@ class TestPatternDetector:
         """Should skip memories that are already promoted"""
         create_memory_file(memory_dir, "existing-001",
                           "Always validate user input at system boundaries",
-                          project_id="LFI")
+                          project_id="test-project")
 
         # Pre-register and promote in FSRS
-        scheduler.register_memory("existing-001", project_id="LFI")
+        scheduler.register_memory("existing-001", project_id="test-project")
         scheduler.mark_promoted("existing-001")
 
         detector = PatternDetector(
@@ -455,7 +455,7 @@ class TestPatternDetector:
         signals = detector.detect_reinforcements(
             new_memories=[{
                 "content": "User input should be validated at system boundaries",
-                "project_id": "LFI",
+                "project_id": "test-project",
                 "importance": 0.7,
             }],
             session_id="session-001",
@@ -471,7 +471,7 @@ class TestDetectFromSession:
         """Should work with SessionMemory-like dicts from consolidator"""
         create_memory_file(memory_dir, "existing-001",
                           "Use environment variables for configuration",
-                          project_id="LFI")
+                          project_id="test-project")
 
         detector = PatternDetector(
             memory_dir=memory_dir,
@@ -514,7 +514,7 @@ class TestDetectFromSession:
         signals = detector.detect_reinforcements(
             new_memories=[{
                 "content": "Some new insight",
-                "project_id": "LFI",
+                "project_id": "test-project",
                 "importance": 0.7,
             }],
             session_id="session-001",
@@ -531,7 +531,7 @@ class TestConsolidationToFSRSPipeline:
         # Pre-seed an existing memory that will match session content
         create_memory_file(memory_dir, "existing-001",
                           "When clients object to pricing, acknowledge concern and reframe around value",
-                          project_id="LFI")
+                          project_id="test-project")
 
         # Create a session file with content that should produce memories
         session_dir = tempfile.mkdtemp()
@@ -551,7 +551,7 @@ class TestConsolidationToFSRSPipeline:
         consolidator = SessionConsolidator(
             session_dir=session_dir,
             memory_dir=consolidation_memory_dir,
-            project_id="LFI",
+            project_id="test-project",
         )
         result = consolidator.consolidate_session(session_file, use_llm=False)
 

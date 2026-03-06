@@ -52,7 +52,7 @@ def sample_memories():
         },
         {
             "id": "mem-003",
-            "content": "Russell Hamilton loves trail running",
+            "content": "Jane Smith loves hiking",
             "importance": 0.85,
             "session_id": "session-003",
             "created": "2026-02-17T09:00:00",

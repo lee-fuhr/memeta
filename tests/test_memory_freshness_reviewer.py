@@ -54,7 +54,7 @@ temporal_relevance: persistent
 knowledge_domain: {domain}
 status: {status}
 scope: project
-project_id: LFI
+project_id: test-project
 session_id: test-session
 semantic_tags: {tags_str}
 schema_version: 2
@@ -191,7 +191,7 @@ class TestStaleMemory:
     def test_summary_format(self):
         m = Memory(
             id="test", content="This is test content for summary",
-            importance=0.3, tags=["test"], project_id="LFI",
+            importance=0.3, tags=["test"], project_id="test-project",
             knowledge_domain="testing",
         )
         sm = StaleMemory(memory=m, days_since_update=95, staleness_score=2.2)

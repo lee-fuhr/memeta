@@ -183,7 +183,7 @@ class InitWizard:
     # Config generation
     # ------------------------------------------------------------------
 
-    def generate_config(self, project_id: str = "LFI") -> Path:
+    def generate_config(self, project_id: str = "default") -> Path:
         """Generate config file at ~/.config/memeta/config.toml."""
         config_dir = Path.home() / ".config" / "memeta"
         config_dir.mkdir(parents=True, exist_ok=True)

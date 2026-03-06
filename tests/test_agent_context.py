@@ -20,15 +20,15 @@ def sample_memories():
             "importance": 0.9,
             "tags": ["development", "workflow", "testing"],
             "context_type": "knowledge",
-            "project_id": "LFI"
+            "project_id": "test-project"
         },
         {
             "id": "mem-002",
-            "content": "Russell Hamilton is a client, partner Carolyn, loves trail running",
+            "content": "Jane Smith is a client, partner Alex, loves hiking",
             "importance": 0.85,
             "tags": ["relationship", "client", "personal"],
             "context_type": "knowledge",
-            "project_id": "LFI"
+            "project_id": "test-project"
         },
         {
             "id": "mem-003",
@@ -36,7 +36,7 @@ def sample_memories():
             "importance": 0.95,
             "tags": ["correction", "writing"],
             "context_type": "correction",
-            "project_id": "LFI"
+            "project_id": "test-project"
         },
         {
             "id": "mem-004",
@@ -44,7 +44,7 @@ def sample_memories():
             "importance": 0.9,
             "tags": ["brand", "messaging", "voice"],
             "context_type": "knowledge",
-            "project_id": "LFI"
+            "project_id": "test-project"
         },
         {
             "id": "mem-005",
@@ -52,7 +52,7 @@ def sample_memories():
             "importance": 0.8,
             "tags": ["development", "python", "infrastructure"],
             "context_type": "knowledge",
-            "project_id": "LFI"
+            "project_id": "test-project"
         },
         {
             "id": "mem-006",
@@ -60,11 +60,11 @@ def sample_memories():
             "importance": 0.92,
             "tags": ["correction", "typescript", "code-quality"],
             "context_type": "correction",
-            "project_id": "LFI"
+            "project_id": "test-project"
         },
         {
             "id": "mem-007",
-            "content": "Connection Lab focuses on B2B relationship building software",
+            "content": "Acme Corp focuses on B2B relationship building software",
             "importance": 0.75,
             "tags": ["client", "business", "product"],
             "context_type": "knowledge",
@@ -289,7 +289,7 @@ class TestProjectFiltering:
             agent_type="dev",
             task_description="Development work",
             memories=sample_memories,
-            project_id="LFI"
+            project_id="test-project"
         )
 
         # Should not include ConnectionLab memory
@@ -301,7 +301,7 @@ class TestProjectFiltering:
 
         context_str, memory_ids = get_context_for_agent(
             agent_type="general",
-            task_description="Connection Lab relationship building",
+            task_description="Acme Corp relationship building",
             memories=sample_memories,
             top_k=10
         )
@@ -324,7 +324,7 @@ class TestEdgeCases:
                 "content": "Memory without tags",
                 "importance": 0.8,
                 "context_type": "knowledge",
-                "project_id": "LFI"
+                "project_id": "test-project"
             }
         ]
 
@@ -347,7 +347,7 @@ class TestEdgeCases:
                 "content": "Memory without context_type",
                 "importance": 0.8,
                 "tags": ["test"],
-                "project_id": "LFI"
+                "project_id": "test-project"
             }
         ]
 
