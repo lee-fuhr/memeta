@@ -5,7 +5,9 @@ Test pre-compaction flush on current session.
 Usage: python test_pre_compaction.py <session_id>
 """
 
+import os
 import sys
+from pathlib import Path
 
 from memory_system.pre_compaction_flush import extract_before_compaction
 from memory_system.memory_ts_client import MemoryTSClient
@@ -21,7 +23,10 @@ def main():
     session_id = sys.argv[1]
 
     # Find session file
-    session_dir = Path.home() / ".claude" / "projects" / "-Users-lee--local-share-memory"
+    session_dir = Path(os.environ.get(
+        "CLAUDE_PROJECTS_DIR",
+        str(Path.home() / ".claude" / "projects")
+    ))
     session_file = session_dir / f"{session_id}.jsonl"
 
     if not session_file.exists():
@@ -51,12 +56,12 @@ def main():
     response = input("Save these facts to memory-ts? [y/N]: ")
 
     if response.lower() == 'y':
-        client = MemoryTSClient(project_id="LFI")
+        client = MemoryTSClient(project_id="default")
 
         for fact in facts:
             client.create(
                 content=fact['content'],
-                project_id="LFI",
+                project_id="default",
                 importance=fact['importance'],
                 tags=fact.get('tags', []),
                 session_id=fact.get('session_id'),

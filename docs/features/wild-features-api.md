@@ -283,7 +283,7 @@ Full memory content here...
 ---
 Tags: #preference #clients #meetings
 Importance: 0.85
-Project: [[Connection Lab]]
+Project: [[ProjectAlpha]]
 Created: 2026-02-12T10:30:00
 ```
 
@@ -343,12 +343,12 @@ with open("roam-export.md", "w") as f:
 ### Output Format
 ```markdown
 ## 2026-02-12
-- Memory content here #memory #LFI
+- Memory content here #memory #default
   - Importance:: 0.85
   - Tags:: #preference, #clients
 
 ## 2026-02-11
-- Another memory #memory #ConnectionLab
+- Another memory #memory #ProjectAlpha
   - Importance:: 0.75
   - Tags:: #technical
 ```
@@ -402,7 +402,7 @@ from src.wild.integrations import (
 # Link existing memory to meeting
 link_id = link_memory_to_meeting(
     memory_id="mem_123",
-    meeting_title="Russell Hamilton sync"
+    meeting_title="Team standup sync"
 )
 
 # Extract insights from meeting transcript
@@ -414,7 +414,7 @@ memories = extract_memories_from_meeting(meeting_id=456)
 ### Integration with Transcripts DB
 ```python
 # The system automatically connects to:
-# ~/CC/Work/LFI/_ Operations/meeting-intelligence/transcripts.db
+# [YOUR_PROJECT]/meeting-intelligence/transcripts.db
 # Which contains 1,900+ indexed meeting transcripts
 
 # Memories are linked with:
@@ -543,8 +543,8 @@ python3 -m src.wild.lifespan_integration --expiring 7
 # ======================
 # 5 memories expire in next 7 days:
 #
-# 1. [3 days] Q1 deadline for Connection Lab proposal
-# 2. [5 days] Russell prefers meetings before 3pm (this week only)
+# 1. [3 days] Q1 deadline for ProjectAlpha proposal
+# 2. [5 days] Client prefers meetings before 3pm (this week only)
 # 3. [7 days] Temporary workaround for API rate limiting
 ```
 
@@ -648,8 +648,8 @@ print(f"""
 ## Support
 
 **Issues:**
-- Check `/Users/lee/CC/Work/_ Infrastructure/memory-system-v1/intelligence.db` exists
-- Verify transcripts.db at `_ Operations/meeting-intelligence/transcripts.db`
+- Check `/path/to/memeta/intelligence.db` exists
+- Verify transcripts.db at your configured meeting-intelligence path
 - Run `pytest tests/wild/` to validate installation
 
 **Performance:**

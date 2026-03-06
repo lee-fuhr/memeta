@@ -9,7 +9,7 @@
 Wild features are already integrated into the codebase. No external dependencies required.
 
 ```bash
-cd /Users/lee/CC/Work/LFI/_\ Operations/memory-system-v1
+cd /path/to/memeta
 
 # Verify installation
 python3 -c "from src.wild import FrustrationDetector; print('✅ Wild features ready')"
@@ -106,7 +106,7 @@ def consolidate_session(session_id):
 """
 Nightly wild features processes
 
-Run at 3am via LaunchAgent: com.lfi.wild-features-nightly
+Run at 3am via LaunchAgent: com.memeta.wild-features-nightly
 """
 
 import sys
@@ -159,7 +159,7 @@ if __name__ == '__main__':
     main()
 ```
 
-**LaunchAgent plist:** `~/Library/LaunchAgents/com.lfi.wild-features-nightly.plist`
+**LaunchAgent plist:** `~/Library/LaunchAgents/com.memeta.wild-features-nightly.plist`
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -167,11 +167,11 @@ if __name__ == '__main__':
 <plist version="1.0">
 <dict>
     <key>Label</key>
-    <string>com.lfi.wild-features-nightly</string>
+    <string>com.memeta.wild-features-nightly</string>
     <key>ProgramArguments</key>
     <array>
         <string>/usr/bin/python3</string>
-        <string>/Users/lee/CC/Work/_ Infrastructure/memory-system-v1/run_nightly_wild_features.py</string>
+        <string>/path/to/memeta/run_nightly_wild_features.py</string>
     </array>
     <key>StartCalendarInterval</key>
     <dict>
@@ -181,16 +181,16 @@ if __name__ == '__main__':
         <integer>0</integer>
     </dict>
     <key>StandardOutPath</key>
-    <string>/Users/lee/Library/Logs/wild-features-nightly.log</string>
+    <string>[YOUR_HOME]/Library/Logs/wild-features-nightly.log</string>
     <key>StandardErrorPath</key>
-    <string>/Users/lee/Library/Logs/wild-features-nightly-error.log</string>
+    <string>[YOUR_HOME]/Library/Logs/wild-features-nightly-error.log</string>
 </dict>
 </plist>
 ```
 
 Install:
 ```bash
-launchctl load ~/Library/LaunchAgents/com.lfi.wild-features-nightly.plist
+launchctl load ~/Library/LaunchAgents/com.memeta.wild-features-nightly.plist
 ```
 
 ---
@@ -246,7 +246,7 @@ While you slept, I found these connections:
 
 **Synchronized Evolution** (Novelty: 72%, Confidence: 85%)
 → 4 themes emerged simultaneously across projects
-   Projects: Connection Lab, Cogent, Russell Hamilton
+   Projects: ProjectAlpha, ProjectBeta, ProjectGamma
 
 **Cross-project Pattern Detection** (Novelty: 68%, Confidence: 90%)
 → Found 7 semantic parallels across 3 projects
@@ -474,10 +474,10 @@ python3 -c "from src.wild import DreamSynthesizer; s = DreamSynthesizer(); s.run
 launchctl list | grep wild
 
 # Load it
-launchctl load ~/Library/LaunchAgents/com.lfi.wild-features-nightly.plist
+launchctl load ~/Library/LaunchAgents/com.memeta.wild-features-nightly.plist
 
 # Force run now (for testing)
-launchctl start com.lfi.wild-features-nightly
+launchctl start com.memeta.wild-features-nightly
 ```
 
 ---
@@ -509,7 +509,7 @@ If wild features cause issues:
 
 1. **Disable nightly processes:**
 ```bash
-launchctl unload ~/Library/LaunchAgents/com.lfi.wild-features-nightly.plist
+launchctl unload ~/Library/LaunchAgents/com.memeta.wild-features-nightly.plist
 ```
 
 2. **Remove from consolidation hook:**
@@ -520,7 +520,7 @@ Database remains intact for future re-enable
 
 4. **Re-enable when ready:**
 ```bash
-launchctl load ~/Library/LaunchAgents/com.lfi.wild-features-nightly.plist
+launchctl load ~/Library/LaunchAgents/com.memeta.wild-features-nightly.plist
 ```
 
 ---

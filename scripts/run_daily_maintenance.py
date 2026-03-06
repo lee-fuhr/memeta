@@ -24,7 +24,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--memory-dir",
         type=str,
-        help="Memory storage directory (default: ~/.local/share/memory/LFI/memories)"
+        help="Memory storage directory (default: ~/.local/share/memory/default/memories)"
     )
     parser.add_argument(
         "--dry-run",

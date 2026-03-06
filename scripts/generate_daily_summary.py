@@ -9,6 +9,7 @@ Summarizes all sessions from past 24 hours.
 import os
 import sqlite3
 from datetime import datetime, timedelta
+from pathlib import Path
 
 from memory_system.session_consolidator import SessionConsolidator
 
@@ -16,13 +17,16 @@ from memory_system.session_consolidator import SessionConsolidator
 def generate_daily_summary():
     """
     Summarizes all sessions from today.
-    Writes to ~/.local/share/memory/LFI/daily/YYYY-MM-DD.md
+    Writes to ~/.local/share/memory/default/daily/YYYY-MM-DD.md
     """
     today = datetime.now().date()
 
     # Find all session files from today in the Claude Code projects directory
-    # Sessions are stored in ~/.claude/projects/-Users-lee--local-share-memory/
-    session_dir = Path.home() / ".claude" / "projects" / "-Users-lee--local-share-memory"
+    # Sessions are stored in ~/.claude/projects/{project-hash}/
+    session_dir = Path(os.environ.get(
+        "CLAUDE_PROJECTS_DIR",
+        str(Path.home() / ".claude" / "projects")
+    ))
 
     if not session_dir.exists():
         print(f"❌ Session directory not found: {session_dir}")
@@ -61,7 +65,7 @@ def generate_daily_summary():
             continue
 
         # Use consolidator to extract memories (but don't save them)
-        consolidator = SessionConsolidator(project_id="LFI")
+        consolidator = SessionConsolidator(project_id="default")
 
         try:
             # Extract memories but skip saving
@@ -108,7 +112,7 @@ Top memories:
         summary = "Summary generation failed."
 
     # Write to daily summary file
-    daily_dir = os.path.expanduser("~/.local/share/memory/LFI/daily")
+    daily_dir = os.path.expanduser("~/.local/share/memory/default/daily")
     os.makedirs(daily_dir, exist_ok=True)
 
     summary_path = os.path.join(daily_dir, f"{today}.md")

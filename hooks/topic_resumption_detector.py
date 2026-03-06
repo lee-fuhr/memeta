@@ -56,8 +56,8 @@ def detect_topic_resumption(user_message: str) -> Optional[Dict]:
         {
             'detected': True,
             'trigger_phrase': "we discussed this before",
-            'context_keywords': ["messaging", "framework", "Connection Lab"],
-            'search_query': "messaging framework Connection Lab"
+            'context_keywords': ["messaging", "framework", "ProjectAlpha"],
+            'search_query': "messaging framework ProjectAlpha"
         }
     """
     # 1. Check for trigger phrases (regex)
@@ -92,7 +92,7 @@ def search_relevant_memories(query: str, limit: int = 5) -> List[Memory]:
     """
     try:
         client = MemoryTSClient()
-        results = client.search(content=query, project_id="LFI")
+        results = client.search(content=query, project_id="default")
 
         # Log accesses for temporal pattern learning
         predictor = TemporalPatternPredictor()

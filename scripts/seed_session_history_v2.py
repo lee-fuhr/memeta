@@ -13,8 +13,11 @@ from datetime import datetime
 from typing import Dict, List, Optional
 
 # Session files location
-SESSION_DIR = Path.home() / ".claude/projects/-Users-lee-CC-LFI"
-DB_PATH = Path.home() / ".local/share/memory/LFI/session-history.db"
+SESSION_DIR = Path(os.environ.get(
+    "CLAUDE_PROJECTS_DIR",
+    str(Path.home() / ".claude" / "projects")
+))
+DB_PATH = Path.home() / ".local/share/memory/default/session-history.db"
 
 
 def init_database():

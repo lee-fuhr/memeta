@@ -2,7 +2,7 @@
 """
 Autonomous Nightly Optimizer - System improves itself while you sleep.
 
-Feature 22 (Lee's vision): Runs at 11:57pm, analyzes today's sessions,
+Feature 22: Runs at 11:57pm, analyzes today's sessions,
 identifies 1-3 optimizations, implements them automatically.
 
 Morning email: "While you slept: Added hook X, promoted correction Y, optimized Z"
@@ -26,9 +26,18 @@ from memory_system.pattern_miner import mine_all_patterns
 from memory_system.llm_extractor import ask_claude
 
 
-PROPOSALS_DIR = Path.home() / "CC/LFI/_ Inbox/proposed-optimizations"
-TOOLS_MD = Path.home() / "CC/LFI/_ Operations/CLAUDE.md"
-ANTI_PATTERNS_MD = Path.home() / "CC/LFI/_ System/anti-patterns.md"
+PROPOSALS_DIR = Path(os.environ.get(
+    "MEMETA_PROPOSALS_DIR",
+    str(Path(__file__).parent.parent / "proposals")
+))
+TOOLS_MD = Path(os.environ.get(
+    "MEMETA_TOOLS_MD",
+    str(Path(__file__).parent.parent / "docs" / "TOOLS.md")
+))
+ANTI_PATTERNS_MD = Path(os.environ.get(
+    "MEMETA_ANTI_PATTERNS_MD",
+    str(Path(__file__).parent.parent / "docs" / "anti-patterns.md")
+))
 
 
 def analyze_todays_sessions() -> Dict:

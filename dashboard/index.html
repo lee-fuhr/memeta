@@ -2132,7 +2132,7 @@ async function loadStats() {
   state.stats = data;
 
   const project = data._project || '—';
-  document.getElementById('project-label').textContent = data._project || data.memories?.total ? 'LFI' : '—';
+  document.getElementById('project-label').textContent = data._project || data.memories?.total ? (data._project || 'default') : '—';
 
   renderStatCards(data);
   renderGrades(data);

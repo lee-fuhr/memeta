@@ -10,10 +10,12 @@ Usage:
   python session_history.py save <session-id>  # Save current/specified session
 """
 
+import os
 import sys
 import json
 import argparse
 from datetime import datetime
+from pathlib import Path
 
 from memory_system.session_history_db import (
     search_sessions,
@@ -135,7 +137,10 @@ def cmd_stats(args):
 def cmd_save(args):
     """Save a session to history DB."""
     # Find session file
-    session_dir = Path.home() / ".claude" / "projects" / "-Users-lee--local-share-memory"
+    session_dir = Path(os.environ.get(
+        "CLAUDE_PROJECTS_DIR",
+        str(Path.home() / ".claude" / "projects")
+    ))
     session_file = session_dir / f"{args.session_id}.jsonl"
 
     if not session_file.exists():
@@ -159,7 +164,7 @@ def cmd_save(args):
     success = save_session(
         session_id=args.session_id,
         transcript=transcript,
-        project_id="LFI"
+        project_id="default"
     )
 
     if success:

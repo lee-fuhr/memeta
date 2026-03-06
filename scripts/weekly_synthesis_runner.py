@@ -3,7 +3,7 @@
 Weekly synthesis runner - executed by LaunchAgent Friday 5pm
 
 Collects promoted memories, generates synthesis draft,
-sends Pushover notification to Lee.
+sends Pushover notification to the user.
 """
 
 from pathlib import Path
@@ -16,7 +16,7 @@ from memory_system.promotion_executor import PromotionExecutor
 
 def main():
     project_root = Path(__file__).parent.parent
-    memory_dir = Path.home() / ".local/share/memory/LFI/memories"
+    memory_dir = Path.home() / ".local/share/memory/default/memories"
     fsrs_db = project_root / "fsrs.db"
     cluster_db = project_root / "clusters.db"
     output_dir = project_root / "synthesis"

@@ -58,7 +58,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     # Read session
-    consolidator = SessionConsolidator(project_id="LFI")
+    consolidator = SessionConsolidator(project_id="default")
     messages = consolidator.read_session(session_file)
     conversation = consolidator.extract_conversation_text(messages)
 
