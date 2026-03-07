@@ -19,6 +19,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - **Skill workflow analyzer** (`src/skill_workflow_analyzer.py`) — mines skill_provenance for co-occurring skill sets; surfaces common pairs, triples, and suggested workflows; detects skills that are always used together. `SkillWorkflowAnalyzer.get_common_pairs()`, `get_common_triples()`, `get_suggested_workflows()`, `get_skills_always_together()`. 26 tests
 - **Correction velocity metric** (`src/correction_velocity.py`) — tracks how quickly corrections move from first detection to CLAUDE.md graduation. Pipeline stages: new (0 confirmations), pending (1–2), graduated (#graduated tag). `CorrectionVelocityTracker.get_snapshot()`, `get_stuck_corrections()`, `graduation_rate()`, `stage_distribution()`. 24 tests
 - **Skill anti-pattern miner** (`src/skill_antipattern_miner.py`) — correlates correction memories (by source_session_id) with skill provenance records; flags skills that frequently co-occur with corrections; risk levels: low/medium/high based on co-occurrence rate. `SkillAntiPatternMiner.analyze()`, `get_flagged_skills()`. 19 tests
+- **Skill health dashboard** (`src/skill_health_dashboard.py`) — unified rollup aggregating all six skill intelligence sources (doc health, effectiveness, evolution, workflow patterns, anti-patterns, correction velocity) into a single `SkillHealthReport`. `SkillHealthDashboard.build()`, `build_skill_health_report()` convenience function. Wired to Flask `/api/skill-health` endpoint. 25 tests
 
 ---
 

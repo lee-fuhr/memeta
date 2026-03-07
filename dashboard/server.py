@@ -1134,6 +1134,41 @@ def api_skill_learnings(skill_name):
 
 
 # ---------------------------------------------------------------------------
+# Skill health dashboard API
+# ---------------------------------------------------------------------------
+
+@app.route("/api/skill-health")
+def api_skill_health():
+    """Unified skill health report — docs, effectiveness, evolution, workflows,
+    anti-patterns, and correction velocity in one payload."""
+    try:
+        from memory_system.skill_health_dashboard import build_skill_health_report
+
+        intel_db = str(Path(__file__).parent.parent / "intelligence.db")
+        memory_base = Path(app.config["MEMORY_BASE"])
+        project = app.config["PROJECT"]
+        memory_dir = memory_base / project / "memories"
+
+        # Skills dir: configurable via query param, falls back to default
+        skills_dir_override = request.args.get("skills_dir")
+        skills_dir = Path(skills_dir_override) if skills_dir_override else None
+
+        min_co = int(request.args.get("min_antipattern_co_occurrences", 2))
+
+        report = build_skill_health_report(
+            db_path=intel_db,
+            memory_dir=memory_dir,
+            skills_dir=skills_dir,
+            min_antipattern_co_occurrences=min_co,
+        )
+        return jsonify(report)
+    except ImportError:
+        return jsonify({"error": "skill_health_dashboard module not available"})
+    except Exception as e:
+        return jsonify({"error": str(e)})
+
+
+# ---------------------------------------------------------------------------
 # Entry point
 # ---------------------------------------------------------------------------
 
