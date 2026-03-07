@@ -6,6 +6,13 @@ Where Memeta has been, where it is, and where it's going.
 
 ## Shipped
 
+### v0.29.0 — Skill intelligence tier 3 (Mar 2026)
+Phase 8 (partial): Learning loop closes + pull-based recommendations.
+- **Learning-to-SKILL.md pipeline** (`src/learning_skill_promoter.py`) — tracks corrections surfaced in briefings; 3+ session appearances triggers promotion proposal to SKILL.md; full apply/dismiss lifecycle; 42 tests
+- **Pull-based skill recommender** (`src/skill_recommender.py`) — on-demand recommendations from task description; keyword + usage history signals; distinct from push hooks; 23 tests
+- **Session briefing wiring** — `SessionBriefing.generate(session_id=...)` feeds the promoter pipeline automatically; 8 new tests
+- **3,000 tests total** — 73 new, 147 features
+
 ### v0.28.0 — Hooks wiring (Mar 2026)
 Phase 7.5: Skill intelligence live loop. Data layer hooks that make the system self-populating — provenance, outcomes, evolution, and alerts accumulate automatically without any manual action per session.
 - **Invocation recorder** (`hooks/skill-invocation-recorder.py`, `src/skill_invocation_recorder.py`) — PreToolUse hook records every Skill call to provenance + hook_state; 24 tests
@@ -218,10 +225,10 @@ The skill intelligence data layer is built. This phase wires it into the live se
 
 Third tier. These require either significant data accumulation or meaningful architectural investment. Build after tier 1 and 2 are proving out.
 
+- ~~**Learning-to-SKILL.md pipeline**~~ — **shipped in v0.29.0** (`src/learning_skill_promoter.py`)
+- ~~**Skill recommendation engine (pull-based)**~~ — **shipped in v0.29.0** (`src/skill_recommender.py`)
 - **Pattern-based skill pre-loading** — pre-load skills based on detected work patterns; if the session topic matches a known pattern (e.g., "onboarding new client" reliably needs 4 specific skills), surface them before the user asks; requires months of skill usage data
-- **Learning-to-SKILL.md pipeline** — auto-promote learnings into skill updates; when the session-start briefing surfaces the same learning three sessions running, propose promoting it into the relevant SKILL.md as a permanent note; closes the loop between experience and capability
 - **Cross-pollination index** — measure knowledge transfer between client projects; detect when a solution found in one client context is later applied in another; quantifies whether the system actually helps Lee reuse knowledge across engagements
-- **Skill recommendation engine (pull-based)** — on-demand skill suggestions based on current task description; user asks "what skills should I load?" and the system replies based on task-type patterns; distinct from the existing auto-recommendation hooks (which push)
 - **FSRS context-relevance weighting** — weight memory recall by current context; FSRS already governs when to resurface memories; this adds a second signal so that a memory with a good FSRS score but low context relevance yields to one with a moderate FSRS score and high relevance
 
 ---
