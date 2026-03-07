@@ -6,6 +6,18 @@ Where Memeta has been, where it is, and where it's going.
 
 ## Shipped
 
+### v0.27.0 — Skill intelligence (Mar 2026)
+Phases 6 and 7 (partial): Full skill intelligence data layer. Eight new modules covering documentation quality, usage history, outcome scoring, change tracking, workflow patterns, anti-pattern detection, and correction pipeline throughput.
+- **Skill doc health** (`src/skill_doc_health.py`) — A–F grading on SKILL.md files: purpose, examples, usage sections; health score + issue list per skill
+- **Session-start briefing** (`src/session_briefing.py`) — synthesizes doc health, effectiveness, evolution, pending corrections, and workflow suggestions into a single session-open summary
+- **Skill evolution tracker** (`src/skill_evolution.py`) — sha256 snapshot history with meaningful vs. cosmetic change classification; unified diffs; `get_last_meaningful_update()` per skill
+- **Skill provenance tracker** (`src/skill_provenance.py`) — records every invocation with session ID + outcome; `get_co_invocations()` for same-session skill pairs
+- **Skill effectiveness tracker** (`src/skill_effectiveness.py`) — composite 0.0–1.0 score (65% success rate + 25% volume + 10% has-evolved); A–F grade; `assess_all()` across full roster
+- **Skill workflow analyzer** (`src/skill_workflow_analyzer.py`) — detects common multi-skill pairs and triples across sessions; `get_skills_always_together()` for tight pairs; frequency scoring
+- **Correction velocity tracker** (`src/correction_velocity.py`) — pipeline snapshot: new / pending / graduated counts, graduation rate, avg days to graduate, stuck correction detection
+- **Skill anti-pattern miner** (`src/skill_antipattern_miner.py`) — correlates skill invocations with corrections in the same session; high/medium/low risk levels; sample correction surfacing
+- **266 new tests** — 2,805 total passing
+
 ### v0.26.0 — Advanced intelligence (Mar 2026)
 Phase 5: Proactive intelligence. The system anticipates what you need instead of waiting to be asked.
 - **Commitment nudger** (`src/commitment_nudger.py`) — "Don't let me forget" triggers surface at session start, ranked by urgency (time overdue > topic match > event)
@@ -166,9 +178,9 @@ Features that require the earlier phases to be working before they synthesize we
 Features from the adversarial brainstorm. These five plus the session-start briefing won every challenge and have clear, bounded implementation paths.
 
 - ~~**Skill documentation health system**~~ — ✓ shipped in v0.27.0 (`src/skill_doc_health.py`)
-- **Skill evolution tracker** — track how skills change over time; version-aware diff storage so the system knows when a skill was last meaningfully updated vs. cosmetically touched; feeds provenance and effectiveness features
-- **Skill provenance tracking** — record where each skill came from (install source, date acquired, who authored it); essential audit trail as the skill roster grows past easy manual recall
-- **Skill effectiveness tracker** — measure outcomes correlated with skill usage; detect skills that are loaded often but correlate with low-quality sessions, and skills that reliably improve outcomes; requires outcome signal from session summaries
+- ~~**Skill evolution tracker**~~ — ✓ shipped in v0.27.0 (`src/skill_evolution.py`)
+- ~~**Skill provenance tracking**~~ — ✓ shipped in v0.27.0 (`src/skill_provenance.py`)
+- ~~**Skill effectiveness tracker**~~ — ✓ shipped in v0.27.0 (`src/skill_effectiveness.py`)
 - ~~**Session-start briefing**~~ — ✓ shipped in v0.27.0 (`src/session_briefing.py`)
 
 ## Phase 7: Skill intelligence (tier 2 — build next)
@@ -176,10 +188,22 @@ Features from the adversarial brainstorm. These five plus the session-start brie
 Second tier from the brainstorm. Higher complexity or dependent on tier 1 data accumulation before they're meaningful.
 
 - **Skill argument pattern extractor** — mine adversarial debate patterns from session transcripts; detect which arguments recur, which collapse quickly, and which generate the most useful plan changes; feeds the skill evolution tracker
-- **Skill workflow analyzer** — detect common multi-skill sequences; if the system notices that `/messaging-framework` is almost always followed by `/lees-voice`, surface that as a suggested workflow shortcut; requires skill provenance data
+- ~~**Skill workflow analyzer**~~ — ✓ shipped in v0.27.0 (`src/skill_workflow_analyzer.py`)
 - **Skill health dashboard** — visual overview of skill system health; staleness heatmap, effectiveness rankings, provenance gaps, anti-pattern hit rates; a single-glance view of whether the skill roster is working; depends on tier 1 data
-- **Skill anti-pattern miner** — detect and flag anti-patterns from session history; when a correction appears after a specific skill was loaded, flag the skill as a potential contributor; requires correction pipeline + skill provenance
-- **Correction velocity metric** — track how quickly the system responds to corrections; measures time from first correction instance to confirmed behavioral change in CLAUDE.md; leading indicator of whether the correction pipeline is actually working
+- ~~**Skill anti-pattern miner**~~ — ✓ shipped in v0.27.0 (`src/skill_antipattern_miner.py`)
+- ~~**Correction velocity metric**~~ — ✓ shipped in v0.27.0 (`src/correction_velocity.py`)
+
+## Phase 7.5: Hooks wiring — skill intelligence integration
+
+The skill intelligence data layer is built. This phase wires it into the live session loop so data actually accumulates without any manual action.
+
+- **Invocation recording hook** — `hooks/skill-invocation-recorder.py` on `PreToolUse` (Skill tool calls); calls `SkillProvenanceTracker.record_invocation(skill_name, session_id, outcome="unknown")`; outcome updated to `success`/`failure` by session-end hook based on session quality signal
+- **Evolution snapshot LaunchAgent** — `launch-agents/com.memeta.skill-evolution-snapshot.plist`; runs nightly at 2am (alongside arch-sweep); calls `SkillEvolutionTracker.snapshot_all()`; accumulates change history without clogging sessions
+- **Session-end outcome resolver** — extend `hooks/session-memory-consolidation-async.py`; after consolidation, look up skills used this session in `hook_state.json`; score outcome from session summary quality; update provenance records with resolved outcome
+- **Anti-pattern alert integration** — wire `SkillAntiPatternMiner` into session-start briefing; if any flagged skills were used recently, surface risk warning before next invocation
+- **Velocity health alert** — extend daily-system-digest; if `graduation_rate < 0.3` or `avg_days_to_graduate > 14`, emit alert so stuck corrections don't silently accumulate
+
+**Dependencies:** Phase 7 data layer (all shipped). **Blocks:** Phase 8 tier 3 features (pattern-based pre-loading needs accumulated provenance data; learning-to-SKILL.md needs evolution history).
 
 ## Phase 8: Skill intelligence (tier 3 — build later)
 

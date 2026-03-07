@@ -2,7 +2,7 @@
 
 **Every memory technique that works. Every approach from the meta. All coexisting additively. And then predicting the next features and building those too.**
 
-![Python](https://img.shields.io/badge/python-3.11%2B-blue) ![Tests](https://img.shields.io/badge/tests-2%2C805%20passing-brightgreen) ![Version](https://img.shields.io/badge/version-0.27.0-blue) ![License](https://img.shields.io/badge/license-MIT-green)
+![Python](https://img.shields.io/badge/python-3.11%2B-blue) ![Tests](https://img.shields.io/badge/tests-2%2C830%20passing-brightgreen) ![Version](https://img.shields.io/badge/version-0.27.0-blue) ![License](https://img.shields.io/badge/license-MIT-green)
 
 ---
 
@@ -41,7 +41,7 @@ Claude Code ships with a native "auto memory" feature. It's a black box: Claude 
 
 ## What's inside
 
-138 features across 6 layers, all additive:
+139 features across 6 layers, all additive:
 
 ### Foundation — the basics done right
 Contradiction detection · provenance tracking · memory versioning · decision store · quality auto-grading · FSRS-6 spaced repetition · importance scoring with auto-tuning · confidence persistence · directed forgetting · encoding depth · entity extraction · emotional tagging
@@ -222,4 +222,4 @@ MIT — see [LICENSE](LICENSE)
 
 ---
 
-*138 features · 2,805 tests · every methodology · all additive*
+*139 features · 2,830 tests · every methodology · all additive*
