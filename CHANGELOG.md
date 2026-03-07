@@ -12,6 +12,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 **Added**
 - **Session-start briefing** (`src/session_briefing.py`) — unified context card combining active corrections (sorted by importance), open commitments (scored by urgency via commitment_nudger), topic-relevant memories (BM25 search, corrections excluded), and skill recommendations (keyword overlap against skill name + when-to-use section). `SessionBriefing.generate(topic, context)` returns a formatted markdown block or empty string when nothing to show. Graceful on missing index, DB, or skills directory — all sources fail silently. 56 tests
+- **Skill documentation health system** (`src/skill_doc_health.py`) — scans skills directory, checks each SKILL.md for required sections (when-to-use, examples, limitations) and staleness (configurable threshold, default 30 days). `SkillHealthReport` dataclass with health score (0.0–1.0), missing sections, issues list. `SkillDocHealth.scan_all()`, `get_stale_skills()`, `get_incomplete_skills()`, `get_missing_skills()`, `summary()`. 48 tests
 
 ---
 
