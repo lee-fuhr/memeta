@@ -2,7 +2,7 @@
 
 Every feature in Memeta, organized by layer. Each one coexists additively — adding feature N+1 makes features 1 through N better.
 
-**Current:** v0.29.0 · 3,000 tests passing · 147 features shipped
+**Current:** v0.29.0 · 3,055 tests passing · 149 features shipped
 
 ---
 
@@ -110,6 +110,8 @@ Every feature in Memeta, organized by layer. Each one coexists additively — ad
 | Skill argument pattern extractor | Mines session transcripts for counterpoints, objections, plan changes, agreements; measures chain length and collapse rate; stores patterns for cross-session frequency analysis | `src/skill_argument_extractor.py` |
 | Learning-to-SKILL.md pipeline | Tracks which corrections appear in session briefings; when the same learning surfaces in 3+ sessions, generates a markdown promotion proposal for the relevant SKILL.md; full apply/dismiss lifecycle | `src/learning_skill_promoter.py` |
 | Pull-based skill recommender | On-demand skill suggestions from task description; keyword overlap with skill name + SKILL.md + past successful invocations with context match; distinct from push-based hooks | `src/skill_recommender.py` |
+| Cross-pollination index | Detects when solutions from one project appear in another; Jaccard similarity over memory content pairs; project similarity matrix; most-transferred knowledge ranking; format_summary() | `src/cross_pollination_index.py` |
+| FSRS context-relevance weighting | Combines FSRS due-urgency (40%) with context Jaccard similarity (60%); WeightedMemory objects with fsrs_score, context_score, combined_score; custom weights; proves relevant beats overdue | `src/fsrs_context_weighting.py` |
 
 ---
 
