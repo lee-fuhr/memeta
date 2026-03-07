@@ -2,7 +2,7 @@
 
 Every feature in Memeta, organized by layer. Each one coexists additively — adding feature N+1 makes features 1 through N better.
 
-**Current:** v0.29.0 · 3,055 tests passing · 149 features shipped
+**Current:** v0.29.0 · 3,081 tests passing · 150 features shipped
 
 ---
 

@@ -22,6 +22,8 @@ BM25_FLOOR = 1.0
 NORMALIZED_THRESHOLD = 0.3
 DEFAULT_TOP_K = 3
 MAX_CONTENT_DISPLAY = 300
+PINNED_THRESHOLD = 0.85
+PINNED_CAP = 10
 
 
 def _parse_frontmatter(text: str) -> tuple[dict, str]:
@@ -138,6 +140,7 @@ def build_search_index(
                 "tags": meta.get("semantic_tags", meta.get("tags", [])),
                 "project_id": meta.get("project_id", ""),
                 "context_type": meta.get("context_type", "knowledge"),
+                "is_pinned": bool(meta.get("is_pinned", False)),
             }
 
             if entry["content"]:
@@ -315,6 +318,48 @@ def _format_prompt(memories: list[dict]) -> str:
     return f"Relevant context: {joined}"
 
 
+def get_pinned_memories(
+    memories: list[dict],
+    threshold: float = PINNED_THRESHOLD,
+    cap: int = PINNED_CAP,
+) -> list[dict]:
+    """
+    Return high-importance or explicitly pinned memories for guaranteed injection.
+
+    Selects memories where importance > threshold OR is_pinned=True.
+    Excludes correction-type memories (they have their own slot).
+    Sorted by importance descending, capped at cap entries.
+
+    Args:
+        memories: List of memory dicts from the search index.
+        threshold: Importance floor (exclusive). Default PINNED_THRESHOLD (0.85).
+        cap: Maximum entries to return. Default PINNED_CAP (10).
+
+    Returns:
+        Sorted list of pinned memory dicts, length <= cap.
+    """
+    pinned = [
+        m for m in memories
+        if m.get("context_type") != "correction"
+        and (m.get("importance", 0.0) > threshold or m.get("is_pinned", False))
+    ]
+    pinned.sort(key=lambda m: m.get("importance", 0.0), reverse=True)
+    return pinned[:cap]
+
+
+def _format_pinned(memories: list[dict]) -> str:
+    """Format pinned memories block for session-start injection."""
+    if not memories:
+        return ""
+    lines = ["=== PINNED MEMORIES ==="]
+    for i, mem in enumerate(memories, 1):
+        importance = mem.get("importance", 0.0)
+        content = _truncate(mem.get("content", ""))
+        lines.append(f"[{i}] (importance: {importance}) {content}")
+    lines.append("=======================")
+    return "\n".join(lines)
+
+
 def inject_at_session_start(
     project: Optional[str] = None,
     index_path: Optional[Path] = None,
@@ -336,14 +381,19 @@ def inject_at_session_start(
     if not all_memories:
         return ""
 
-    # Separate corrections from regular memories
+    # --- Pinned memories slot (always injected, highest priority) ---
+    pinned = get_pinned_memories(all_memories)
+    pinned_ids = {m.get("id") for m in pinned}
+    pinned_block = _format_pinned(pinned)
+
+    # Separate corrections from regular memories (exclude pinned IDs)
     corrections = [
         m for m in all_memories
-        if m.get("context_type") == "correction"
+        if m.get("context_type") == "correction" and m.get("id") not in pinned_ids
     ]
     regular_memories = [
         m for m in all_memories
-        if m.get("context_type") != "correction"
+        if m.get("context_type") != "correction" and m.get("id") not in pinned_ids
     ]
 
     # Filter corrections by project if specified
@@ -398,8 +448,10 @@ def inject_at_session_start(
     results = results[:DEFAULT_TOP_K]
     regular_block = format_injection(results, context="session")
 
-    # Combine: corrections first, then regular memories
+    # Combine: pinned first, then corrections, then regular memories
     parts = []
+    if pinned_block:
+        parts.append(pinned_block)
     if corrections_block:
         parts.append(corrections_block)
     if regular_block:
