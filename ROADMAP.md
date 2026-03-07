@@ -187,9 +187,9 @@ Features from the adversarial brainstorm. These five plus the session-start brie
 
 Second tier from the brainstorm. Higher complexity or dependent on tier 1 data accumulation before they're meaningful.
 
-- **Skill argument pattern extractor** — mine adversarial debate patterns from session transcripts; detect which arguments recur, which collapse quickly, and which generate the most useful plan changes; feeds the skill evolution tracker
+- ~~**Skill argument pattern extractor**~~ — ✓ shipped in v0.27.0 (`src/skill_argument_extractor.py`)
 - ~~**Skill workflow analyzer**~~ — ✓ shipped in v0.27.0 (`src/skill_workflow_analyzer.py`)
-- **Skill health dashboard** — visual overview of skill system health; staleness heatmap, effectiveness rankings, provenance gaps, anti-pattern hit rates; a single-glance view of whether the skill roster is working; depends on tier 1 data
+- ~~**Skill health dashboard**~~ — ✓ shipped in v0.27.0 (`src/skill_health_dashboard.py`)
 - ~~**Skill anti-pattern miner**~~ — ✓ shipped in v0.27.0 (`src/skill_antipattern_miner.py`)
 - ~~**Correction velocity metric**~~ — ✓ shipped in v0.27.0 (`src/correction_velocity.py`)
 
