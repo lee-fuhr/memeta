@@ -8,6 +8,15 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
 
+### Phase 8: Skill intelligence tier 3 — learning loop + pull-based recommendations
+
+**Added**
+- **Learning-to-SKILL.md pipeline** (`src/learning_skill_promoter.py`) — tracks which corrections/learnings appear in session-start briefings across sessions. When the same learning surfaces in 3+ distinct sessions, `auto_promote_pending()` generates a markdown proposal to add it as a permanent note in the relevant SKILL.md. `record_appearance()` called automatically by `SessionBriefing.generate(session_id=...)`. Full lifecycle: record → candidate detection → proposal generation → `mark_applied()` / `mark_dismissed()`. Standalone SQLite tables (`learning_briefing_appearances`, `learning_promotion_proposals`). `LearningAppearance`, `PromotionProposal`, `ProposalStatus` data types. 42 tests
+- **Pull-based skill recommendation engine** (`src/skill_recommender.py`) — on-demand skill suggestions from natural-language task description. Two additive signal sources: (1) keyword overlap with skill name + SKILL.md when-to-use section; (2) usage history boost from past successful invocations in similar contexts. Stop-word filtering prevents spurious matches. `SkillRecommender.recommend(query, top_k)` returns `Recommendation` objects (skill_name, score, reason) sorted by score. `format_recommendations()` renders markdown list. 23 tests
+- **Session briefing learning wiring** — `SessionBriefing.generate()` now accepts `session_id` param; when provided with active corrections, calls `_record_learning_appearances()` to feed the promoter pipeline. Fails silently. 8 new tests (74 total for session_briefing)
+
+---
+
 ### Phase 7.5: Hooks wiring — skill intelligence integration
 
 **Added**

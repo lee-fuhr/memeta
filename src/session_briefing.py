@@ -14,10 +14,12 @@ Usage:
 """
 
 import logging
+from datetime import date
 from pathlib import Path
 from typing import Optional
 
 from memory_system.config import cfg
+from memory_system.learning_skill_promoter import LearningSkillPromoter
 from memory_system.memory_injector import load_search_index, search_memories
 from memory_system.skill_antipattern_miner import SkillAntiPatternMiner
 
@@ -59,6 +61,7 @@ class SessionBriefing:
         max_skills: int = 3,
         max_antipatterns: int = 3,
         min_antipattern_risk: str = "medium",
+        session_id: Optional[str] = None,
     ) -> str:
         """Generate a session-start briefing block.
 
@@ -73,6 +76,7 @@ class SessionBriefing:
             max_skills: Max skill recommendations to include.
             max_antipatterns: Max anti-pattern alerts to include.
             min_antipattern_risk: Minimum risk level to surface ("low", "medium", "high").
+            session_id: Optional session ID for learning appearance tracking.
 
         Returns:
             Formatted markdown briefing string, or empty string if nothing to show.
@@ -83,6 +87,11 @@ class SessionBriefing:
         commitments = self.get_open_commitments(context, max_commitments)
         skills = self.get_skill_recommendations(topic, max_skills)
         antipatterns = self.get_antipattern_alerts(max_antipatterns, min_antipattern_risk)
+
+        # Record briefing appearances for the learning→SKILL.md pipeline
+        if session_id and corrections:
+            self._record_learning_appearances(corrections, skills, session_id)
+
         return self.format_brief(memories, corrections, commitments, skills, antipatterns)
 
     # ── Sources ───────────────────────────────────────────────────────────
@@ -323,6 +332,40 @@ class SessionBriefing:
         for s in skills:
             lines.append(f"- /{s}")
         return "\n".join(lines)
+
+    def _record_learning_appearances(
+        self,
+        corrections: list[dict],
+        skills: list[str],
+        session_id: str,
+    ) -> None:
+        """Record each surfaced correction as a learning appearance.
+
+        Fails silently — never breaks the briefing.
+        """
+        try:
+            promoter = LearningSkillPromoter(db_path=self.db_path)
+            skill_name = skills[0] if skills else "general"
+            today = date.today() if True else None  # always today
+            for correction in corrections:
+                learning_id = correction.get("id") or correction.get("content_hash", "")
+                if not learning_id:
+                    import hashlib
+                    content = correction.get("content", "")
+                    learning_id = hashlib.sha1(content.encode()).hexdigest()[:16]
+                content = correction.get("content", "")
+                promoter.record_appearance(
+                    learning_id=learning_id,
+                    skill_name=skill_name,
+                    session_id=session_id,
+                    briefing_date=today,
+                    learning_content=content,
+                )
+        except Exception:
+            logger.debug(
+                "session_briefing: learning appearance recording failed",
+                exc_info=True,
+            )
 
 
 # ---------------------------------------------------------------------------

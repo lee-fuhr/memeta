@@ -603,3 +603,90 @@ class TestAntipatternAlerts:
              patch.object(briefing, "get_skill_recommendations", return_value=[]):
             briefing.generate(topic="test")
         mock_ap.assert_called_once()
+
+
+# ---------------------------------------------------------------------------
+# Learning appearance recording (Phase 8)
+# ---------------------------------------------------------------------------
+
+class TestLearningAppearanceRecording:
+    def test_generate_with_session_id_calls_record(self, tmp_path):
+        """generate() calls _record_learning_appearances when session_id provided."""
+        briefing = SessionBriefing(db_path=str(tmp_path / "t.db"))
+        corrections = [{"id": "corr-001", "content": "Always check logs.", "importance": 0.9}]
+        with patch.object(briefing, "get_active_corrections", return_value=corrections), \
+             patch.object(briefing, "get_top_memories", return_value=[]), \
+             patch.object(briefing, "get_open_commitments", return_value=[]), \
+             patch.object(briefing, "get_skill_recommendations", return_value=[]), \
+             patch.object(briefing, "get_antipattern_alerts", return_value=[]), \
+             patch.object(briefing, "_record_learning_appearances") as mock_record:
+            briefing.generate(topic="debugging", session_id="sess-abc")
+        mock_record.assert_called_once()
+
+    def test_generate_without_session_id_skips_record(self, tmp_path):
+        briefing = SessionBriefing(db_path=str(tmp_path / "t.db"))
+        with patch.object(briefing, "get_active_corrections", return_value=[{"id": "c1", "content": "Note."}]), \
+             patch.object(briefing, "get_top_memories", return_value=[]), \
+             patch.object(briefing, "get_open_commitments", return_value=[]), \
+             patch.object(briefing, "get_skill_recommendations", return_value=[]), \
+             patch.object(briefing, "get_antipattern_alerts", return_value=[]), \
+             patch.object(briefing, "_record_learning_appearances") as mock_record:
+            briefing.generate(topic="debugging")  # no session_id
+        mock_record.assert_not_called()
+
+    def test_generate_with_empty_corrections_skips_record(self, tmp_path):
+        briefing = SessionBriefing(db_path=str(tmp_path / "t.db"))
+        with patch.object(briefing, "get_active_corrections", return_value=[]), \
+             patch.object(briefing, "get_top_memories", return_value=[]), \
+             patch.object(briefing, "get_open_commitments", return_value=[]), \
+             patch.object(briefing, "get_skill_recommendations", return_value=[]), \
+             patch.object(briefing, "get_antipattern_alerts", return_value=[]), \
+             patch.object(briefing, "_record_learning_appearances") as mock_record:
+            briefing.generate(topic="debugging", session_id="sess-abc")
+        mock_record.assert_not_called()
+
+    def test_record_learning_appearances_calls_promoter(self, tmp_path):
+        """_record_learning_appearances writes appearances via LearningSkillPromoter."""
+        briefing = SessionBriefing(db_path=str(tmp_path / "t.db"))
+        corrections = [{"id": "corr-001", "content": "Check the logs first."}]
+        with patch("memory_system.session_briefing.LearningSkillPromoter") as MockPromoter:
+            mock_p = MockPromoter.return_value
+            briefing._record_learning_appearances(corrections, ["debugging"], "sess-001")
+        mock_p.record_appearance.assert_called_once()
+
+    def test_record_uses_first_skill_as_skill_name(self, tmp_path):
+        briefing = SessionBriefing(db_path=str(tmp_path / "t.db"))
+        corrections = [{"id": "corr-001", "content": "Note."}]
+        with patch("memory_system.session_briefing.LearningSkillPromoter") as MockPromoter:
+            mock_p = MockPromoter.return_value
+            briefing._record_learning_appearances(corrections, ["my-skill", "other"], "sess-001")
+        call_kwargs = mock_p.record_appearance.call_args
+        assert call_kwargs.kwargs.get("skill_name") == "my-skill" or \
+               (len(call_kwargs.args) > 1 and call_kwargs.args[1] == "my-skill")
+
+    def test_record_uses_general_when_no_skills(self, tmp_path):
+        briefing = SessionBriefing(db_path=str(tmp_path / "t.db"))
+        corrections = [{"id": "corr-001", "content": "Note."}]
+        with patch("memory_system.session_briefing.LearningSkillPromoter") as MockPromoter:
+            mock_p = MockPromoter.return_value
+            briefing._record_learning_appearances(corrections, [], "sess-001")
+        call_kwargs = mock_p.record_appearance.call_args
+        # skill_name should be "general" when no skills available
+        assert call_kwargs.kwargs.get("skill_name") == "general" or \
+               (len(call_kwargs.args) > 1 and call_kwargs.args[1] == "general")
+
+    def test_record_uses_content_hash_when_no_id(self, tmp_path):
+        briefing = SessionBriefing(db_path=str(tmp_path / "t.db"))
+        corrections = [{"content": "No id field here."}]  # no 'id'
+        with patch("memory_system.session_briefing.LearningSkillPromoter") as MockPromoter:
+            mock_p = MockPromoter.return_value
+            briefing._record_learning_appearances(corrections, ["debugging"], "sess-001")
+        # Should still be called — falls back to hash
+        mock_p.record_appearance.assert_called_once()
+
+    def test_record_fails_silently_on_exception(self, tmp_path):
+        briefing = SessionBriefing(db_path=str(tmp_path / "t.db"))
+        corrections = [{"id": "corr-001", "content": "Note."}]
+        with patch("memory_system.session_briefing.LearningSkillPromoter", side_effect=RuntimeError("db down")):
+            # Should not raise
+            briefing._record_learning_appearances(corrections, ["debugging"], "sess-001")
