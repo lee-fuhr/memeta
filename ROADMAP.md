@@ -169,7 +169,7 @@ Features from the adversarial brainstorm. These five plus the session-start brie
 - **Skill evolution tracker** — track how skills change over time; version-aware diff storage so the system knows when a skill was last meaningfully updated vs. cosmetically touched; feeds provenance and effectiveness features
 - **Skill provenance tracking** — record where each skill came from (install source, date acquired, who authored it); essential audit trail as the skill roster grows past easy manual recall
 - **Skill effectiveness tracker** — measure outcomes correlated with skill usage; detect skills that are loaded often but correlate with low-quality sessions, and skills that reliably improve outcomes; requires outcome signal from session summaries
-- **Session-start briefing** — auto-generate a context brief at session start; combines top memories, active corrections, open commitments, and skill recommendations into a single injected block; the "where was I and what should I be thinking about" card
+- ~~**Session-start briefing**~~ — ✓ shipped in v0.27.0 (`src/session_briefing.py`)
 
 ## Phase 7: Skill intelligence (tier 2 — build next)
 
