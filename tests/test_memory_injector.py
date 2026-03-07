@@ -19,11 +19,15 @@ from memory_system.memory_injector import (
     inject_at_session_start,
     inject_for_prompt,
     _format_corrections,
+    get_pinned_memories,
+    _format_pinned,
     DEFAULT_INDEX_PATH,
     DEFAULT_MEMORY_DIR,
     BM25_FLOOR,
     NORMALIZED_THRESHOLD,
     DEFAULT_TOP_K,
+    PINNED_THRESHOLD,
+    PINNED_CAP,
 )
 
 
@@ -651,3 +655,298 @@ class TestInjectForPromptUnchanged:
         assert "=== ACTIVE CORRECTIONS ===" not in result
         # Should still have regular prompt format
         assert "Relevant context:" in result
+
+
+# --- TestGetPinnedMemories ---
+
+
+class TestGetPinnedMemories:
+    def test_returns_memories_above_threshold(self):
+        """Memories with importance > threshold are included."""
+        memories = [
+            {"id": "m1", "content": "High", "importance": 0.90, "context_type": "knowledge"},
+            {"id": "m2", "content": "Low", "importance": 0.50, "context_type": "knowledge"},
+        ]
+        result = get_pinned_memories(memories, threshold=0.85)
+        assert len(result) == 1
+        assert result[0]["id"] == "m1"
+
+    def test_threshold_is_exclusive(self):
+        """importance == threshold is NOT included (strictly greater than)."""
+        memories = [
+            {"id": "m1", "content": "Exactly threshold", "importance": 0.85, "context_type": "knowledge"},
+        ]
+        result = get_pinned_memories(memories, threshold=0.85)
+        assert result == []
+
+    def test_is_pinned_flag_overrides_threshold(self):
+        """is_pinned=True includes memory regardless of importance."""
+        memories = [
+            {"id": "m1", "content": "Low but pinned", "importance": 0.3,
+             "is_pinned": True, "context_type": "knowledge"},
+        ]
+        result = get_pinned_memories(memories, threshold=0.85)
+        assert len(result) == 1
+        assert result[0]["id"] == "m1"
+
+    def test_cap_limits_results(self):
+        """cap parameter limits the number of returned pinned memories."""
+        memories = [
+            {"id": f"m{i}", "content": f"Memory {i}", "importance": 0.9,
+             "context_type": "knowledge"}
+            for i in range(20)
+        ]
+        result = get_pinned_memories(memories, threshold=0.85, cap=5)
+        assert len(result) <= 5
+
+    def test_default_cap_is_10(self):
+        """Default cap is PINNED_CAP (10)."""
+        assert PINNED_CAP == 10
+        memories = [
+            {"id": f"m{i}", "content": f"Memory {i}", "importance": 0.9,
+             "context_type": "knowledge"}
+            for i in range(15)
+        ]
+        result = get_pinned_memories(memories, threshold=0.85)
+        assert len(result) <= 10
+
+    def test_default_threshold_is_0_85(self):
+        """Default threshold is PINNED_THRESHOLD (0.85)."""
+        assert PINNED_THRESHOLD == 0.85
+
+    def test_sorted_by_importance_descending(self):
+        """Results sorted highest importance first."""
+        memories = [
+            {"id": "m_low", "content": "Lower", "importance": 0.87, "context_type": "knowledge"},
+            {"id": "m_high", "content": "Highest", "importance": 0.99, "context_type": "knowledge"},
+            {"id": "m_mid", "content": "Middle", "importance": 0.92, "context_type": "knowledge"},
+        ]
+        result = get_pinned_memories(memories, threshold=0.85)
+        importances = [r["importance"] for r in result]
+        assert importances == sorted(importances, reverse=True)
+
+    def test_empty_memories_returns_empty(self):
+        assert get_pinned_memories([], threshold=0.85) == []
+
+    def test_excludes_correction_context_type(self):
+        """Correction memories are excluded from pinned slot."""
+        memories = [
+            {"id": "corr_1", "content": "A correction", "importance": 0.99,
+             "context_type": "correction"},
+            {"id": "mem_1", "content": "Regular high", "importance": 0.95,
+             "context_type": "knowledge"},
+        ]
+        result = get_pinned_memories(memories, threshold=0.85)
+        ids = {r["id"] for r in result}
+        assert "corr_1" not in ids
+        assert "mem_1" in ids
+
+    def test_custom_threshold(self):
+        """Custom threshold works correctly."""
+        memories = [
+            {"id": "m1", "content": "Above 0.7", "importance": 0.75, "context_type": "knowledge"},
+            {"id": "m2", "content": "Below 0.7", "importance": 0.65, "context_type": "knowledge"},
+        ]
+        result = get_pinned_memories(memories, threshold=0.7)
+        assert len(result) == 1
+        assert result[0]["id"] == "m1"
+
+    def test_no_memories_above_threshold_returns_empty(self):
+        """When all importances are below threshold and none pinned, return empty."""
+        memories = [
+            {"id": "m1", "content": "Low", "importance": 0.4, "context_type": "knowledge"},
+            {"id": "m2", "content": "Medium", "importance": 0.7, "context_type": "knowledge"},
+        ]
+        result = get_pinned_memories(memories, threshold=0.85)
+        assert result == []
+
+
+# --- TestFormatPinned ---
+
+
+class TestFormatPinned:
+    def test_has_header_and_footer(self):
+        """Output contains a clear PINNED header."""
+        memories = [{"content": "Always remember this", "importance": 0.95}]
+        result = _format_pinned(memories)
+        assert "PINNED" in result.upper()
+
+    def test_empty_returns_empty_string(self):
+        assert _format_pinned([]) == ""
+
+    def test_numbered_entries(self):
+        memories = [
+            {"content": "First pinned", "importance": 0.99},
+            {"content": "Second pinned", "importance": 0.90},
+        ]
+        result = _format_pinned(memories)
+        assert "[1]" in result
+        assert "[2]" in result
+        assert "First pinned" in result
+        assert "Second pinned" in result
+
+    def test_shows_importance(self):
+        """Each entry should show importance value."""
+        memories = [{"content": "Critical memory", "importance": 0.97}]
+        result = _format_pinned(memories)
+        assert "0.97" in result
+
+    def test_single_entry(self):
+        """Single pinned memory rendered correctly."""
+        memories = [{"content": "Only pinned item", "importance": 0.91}]
+        result = _format_pinned(memories)
+        assert "[1]" in result
+        assert "Only pinned item" in result
+        assert "[2]" not in result
+
+
+# --- TestBuildSearchIndexPinnedField ---
+
+
+class TestBuildSearchIndexPinnedField:
+    def test_is_pinned_true_in_frontmatter(self, tmp_path):
+        """is_pinned: true in frontmatter → True in index entry."""
+        mem_dir = tmp_path / "memories"
+        mem_dir.mkdir()
+        index_out = tmp_path / "index.json"
+        _make_memory_file(mem_dir, "mem_pinned", "Important pinned memory",
+                          importance=0.95, extra_fields="is_pinned: true\n")
+        build_search_index(memory_dir=mem_dir, output_path=index_out)
+        data = json.loads(index_out.read_text())
+        entry = next(m for m in data if m["id"] == "mem_pinned")
+        assert entry.get("is_pinned") is True
+
+    def test_is_pinned_defaults_false(self, tmp_path):
+        """No is_pinned in frontmatter → False in index entry."""
+        mem_dir = tmp_path / "memories"
+        mem_dir.mkdir()
+        index_out = tmp_path / "index.json"
+        _make_memory_file(mem_dir, "mem_normal", "Normal memory", importance=0.5)
+        build_search_index(memory_dir=mem_dir, output_path=index_out)
+        data = json.loads(index_out.read_text())
+        entry = next(m for m in data if m["id"] == "mem_normal")
+        assert entry.get("is_pinned") is False
+
+    def test_is_pinned_false_explicit(self, tmp_path):
+        """is_pinned: false in frontmatter → False in index entry."""
+        mem_dir = tmp_path / "memories"
+        mem_dir.mkdir()
+        index_out = tmp_path / "index.json"
+        _make_memory_file(mem_dir, "mem_explicit", "Explicit false memory",
+                          importance=0.9, extra_fields="is_pinned: false\n")
+        build_search_index(memory_dir=mem_dir, output_path=index_out)
+        data = json.loads(index_out.read_text())
+        entry = next(m for m in data if m["id"] == "mem_explicit")
+        assert entry.get("is_pinned") is False
+
+
+# --- TestInjectAtSessionStartPinned ---
+
+
+class TestInjectAtSessionStartPinned:
+    def _make_index(self, tmp_path, memories):
+        index_path = tmp_path / "index.json"
+        index_path.write_text(json.dumps(memories, ensure_ascii=False))
+        return index_path
+
+    def test_pinned_block_appears_before_corrections(self, tmp_path):
+        """Pinned block precedes corrections block in output."""
+        memories = [
+            {"id": "pinned_1", "content": "Always important memory",
+             "importance": 0.95, "is_pinned": True, "tags": [],
+             "project_id": "proj", "context_type": "knowledge"},
+            {"id": "corr_1", "content": "A correction to remember",
+             "importance": 0.99, "is_pinned": False, "tags": [],
+             "project_id": "proj", "context_type": "correction"},
+        ]
+        index_path = self._make_index(tmp_path, memories)
+        result = inject_at_session_start(project="proj", index_path=index_path)
+        assert "PINNED" in result.upper()
+        assert "=== ACTIVE CORRECTIONS ===" in result
+        pinned_pos = result.upper().index("PINNED")
+        corr_pos = result.index("=== ACTIVE CORRECTIONS ===")
+        assert pinned_pos < corr_pos
+
+    def test_pinned_block_appears_before_regular_memories(self, tmp_path):
+        """Pinned block precedes regular memories block."""
+        memories = [
+            {"id": "pinned_1", "content": "Always show this unique phrase",
+             "importance": 0.95, "is_pinned": True, "tags": [],
+             "project_id": "proj", "context_type": "knowledge"},
+            {"id": "mem_1", "content": "Regular memory about python debugging",
+             "importance": 0.6, "is_pinned": False, "tags": [],
+             "project_id": "proj", "context_type": "knowledge"},
+        ]
+        index_path = self._make_index(tmp_path, memories)
+        result = inject_at_session_start(project="proj", index_path=index_path)
+        assert "PINNED" in result.upper()
+        pinned_pos = result.upper().index("PINNED")
+        if "=== RELEVANT MEMORIES ===" in result:
+            mem_pos = result.index("=== RELEVANT MEMORIES ===")
+            assert pinned_pos < mem_pos
+
+    def test_no_pinned_means_no_pinned_block(self, tmp_path):
+        """When no memories exceed threshold, no pinned block in output."""
+        memories = [
+            {"id": "mem_1", "content": "Regular low importance memory",
+             "importance": 0.5, "is_pinned": False, "tags": [],
+             "project_id": "proj", "context_type": "knowledge"},
+        ]
+        index_path = self._make_index(tmp_path, memories)
+        result = inject_at_session_start(project="proj", index_path=index_path)
+        assert "=== PINNED MEMORIES ===" not in result
+
+    def test_is_pinned_true_always_included(self, tmp_path):
+        """is_pinned=True memory appears even with low importance."""
+        memories = [
+            {"id": "must_show", "content": "Always inject this pinned item",
+             "importance": 0.3, "is_pinned": True, "tags": [],
+             "project_id": "proj", "context_type": "knowledge"},
+        ]
+        index_path = self._make_index(tmp_path, memories)
+        result = inject_at_session_start(project="proj", index_path=index_path)
+        assert "Always inject this pinned item" in result
+
+    def test_pinned_cap_honored(self, tmp_path):
+        """At most PINNED_CAP (10) pinned memories shown."""
+        memories = [
+            {"id": f"pinned_{i}", "content": f"Pinned memory number {i}",
+             "importance": 0.9, "is_pinned": True, "tags": [],
+             "project_id": "proj", "context_type": "knowledge"}
+            for i in range(15)
+        ]
+        index_path = self._make_index(tmp_path, memories)
+        result = inject_at_session_start(project="proj", index_path=index_path)
+        assert "PINNED" in result.upper()
+        assert "[10]" in result
+        assert "[11]" not in result
+
+    def test_pinned_not_duplicated_in_regular_block(self, tmp_path):
+        """A memory in the pinned slot should not also appear in regular memories."""
+        memories = [
+            {"id": "high_mem", "content": "This unique content should appear once",
+             "importance": 0.95, "is_pinned": False, "tags": [],
+             "project_id": "proj", "context_type": "knowledge"},
+        ]
+        index_path = self._make_index(tmp_path, memories)
+        result = inject_at_session_start(project="proj", index_path=index_path)
+        # Count occurrences of the unique phrase
+        count = result.count("This unique content should appear once")
+        assert count == 1
+
+    def test_inject_for_prompt_no_pinned_block(self, tmp_path):
+        """inject_for_prompt should NOT include pinned block."""
+        memories = [
+            {"id": "pinned_1", "content": "Very important pinned memory",
+             "importance": 0.99, "is_pinned": True, "tags": [],
+             "project_id": "proj", "context_type": "knowledge"},
+        ]
+        index_path = self._make_index(tmp_path, memories)
+        # inject_for_prompt takes a prompt string, not project
+        # It uses keyword_search, so mock it
+        with patch("memory_system.memory_injector.load_search_index") as mock_load, \
+             patch("memory_system.memory_injector.search_memories") as mock_search:
+            mock_load.return_value = memories
+            mock_search.return_value = []
+            result = inject_for_prompt("some prompt", index_path=index_path)
+        assert "=== PINNED MEMORIES ===" not in result

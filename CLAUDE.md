@@ -7,7 +7,7 @@
 
 ## What this is
 
-Intelligent memory system for Claude Code. 149 features, 3,055 tests, Python 3.11+. Extracts knowledge from sessions, grades it, searches it semantically, and synthesizes insights across projects.
+Intelligent memory system for Claude Code. 150 features, 3,081 tests, Python 3.11+. Extracts knowledge from sessions, grades it, searches it semantically, and synthesizes insights across projects.
 
 **Architecture:** Memory files (YAML frontmatter + markdown) at `~/.local/share/memory/{project}/memories/`. Intelligence layer in `intelligence.db` (SQLite). FAISS vector store for semantic search. Flask dashboard at localhost:8766.
 

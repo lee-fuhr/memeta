@@ -8,6 +8,13 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
 
+### Pinned memories injection slot
+
+**Added**
+- **Pinned memories slot** (`src/memory_injector.py`) — guaranteed injection of top-N memories regardless of query relevance. `get_pinned_memories(memories, threshold=0.85, cap=10)` selects any memory where `importance > 0.85` OR `is_pinned=True`; excludes correction-type memories (they have their own slot); sorts by importance descending; capped at 10. `_format_pinned()` renders `=== PINNED MEMORIES ===` block. `inject_at_session_start()` now prepends pinned block before corrections and regular memories; pinned memory IDs are excluded from the regular block to prevent duplication. `build_search_index()` now includes `is_pinned` field from frontmatter (defaults `False`). `/qq-add-memory --intent high` auto-pins via `is_pinned: true` in frontmatter. Sunset path: once reliable, `universal-learnings.md` becomes redundant. 26 tests (66 total for memory_injector)
+
+---
+
 ### Phase 8: Skill intelligence tier 3 — learning loop + pull-based recommendations
 
 **Added**
