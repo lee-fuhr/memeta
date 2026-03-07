@@ -17,6 +17,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - **Skill provenance tracker** (`src/skill_provenance.py`) — records every skill invocation with session ID, outcome, context snippet, and notes. `SkillProvenanceTracker.record_invocation()`, `get_history()`, `get_first_use()`, `get_sessions_for_skill()`, `get_skills_for_session()`, `get_co_invocations()`, `outcome_summary()`, `invocation_count()`. 42 tests
 - **Skill effectiveness tracker** (`src/skill_effectiveness.py`) — synthesizes provenance outcomes and evolution history into a 0.0–1.0 effectiveness score and A–F grade per skill. Scoring: 65% success rate + 25% usage volume (saturates at 10 invocations) + 10% has-evolved bonus. `SkillEffectivenessTracker.assess()`, `assess_all()`, `get_top_skills()`, `get_underperforming_skills()`. 29 tests
 - **Skill workflow analyzer** (`src/skill_workflow_analyzer.py`) — mines skill_provenance for co-occurring skill sets; surfaces common pairs, triples, and suggested workflows; detects skills that are always used together. `SkillWorkflowAnalyzer.get_common_pairs()`, `get_common_triples()`, `get_suggested_workflows()`, `get_skills_always_together()`. 26 tests
+- **Correction velocity metric** (`src/correction_velocity.py`) — tracks how quickly corrections move from first detection to CLAUDE.md graduation. Pipeline stages: new (0 confirmations), pending (1–2), graduated (#graduated tag). `CorrectionVelocityTracker.get_snapshot()`, `get_stuck_corrections()`, `graduation_rate()`, `stage_distribution()`. 24 tests
 
 ---
 
