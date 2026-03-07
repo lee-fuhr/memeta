@@ -118,19 +118,73 @@ class SkillSelfImprover:
         self.db.conn.commit()
         return cursor.lastrowid
 
+    def _load_jsonl_messages(self, session_id: str) -> list:
+        """Load all messages from the JSONL session file.
+
+        Reads ~/.claude/projects/-Users-lee-CC/{session_id}.jsonl.
+        Preserves pre-compaction messages that are lost from in-memory session_messages.
+        Filters out tool_result-only messages and compaction summary strings.
+        """
+        jsonl_path = (
+            Path.home() / ".claude" / "projects" / "-Users-lee-CC" / f"{session_id}.jsonl"
+        )
+        if not jsonl_path.exists():
+            return []
+
+        messages = []
+        try:
+            with jsonl_path.open() as f:
+                for line in f:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    try:
+                        msg = json.loads(line)
+                        role = msg.get("role", "")
+                        if role not in ("user", "assistant", "human"):
+                            continue
+                        content = msg.get("content", "")
+                        # Skip tool_result-only messages (no useful signal for outcome detection)
+                        if isinstance(content, list):
+                            has_text_or_skill = any(
+                                isinstance(b, dict) and b.get("type") in ("text", "tool_use")
+                                for b in content
+                            )
+                            if not has_text_or_skill:
+                                continue
+                        # Skip compaction summary strings
+                        if isinstance(content, str) and "compacted" in content.lower():
+                            continue
+                        messages.append(msg)
+                    except (json.JSONDecodeError, KeyError):
+                        continue
+        except OSError:
+            return []
+
+        return messages
+
     def assess_session_outcomes(self, session_id: str, session_messages: list) -> list:
-        """Scan session messages for skill invocations and assess their outcomes."""
+        """Scan session messages for skill invocations and assess their outcomes.
+
+        Reads from the JSONL file directly to capture pre-compaction skill invocations.
+        Falls back to session_messages if the JSONL file is unavailable.
+        """
+        # JSONL takes precedence — preserves full history including pre-compaction messages
+        jsonl_messages = self._load_jsonl_messages(session_id)
+        all_messages = jsonl_messages if jsonl_messages else session_messages
+        assessment_method = "jsonl_scan" if jsonl_messages else "session_scan"
+
         assessments = []
 
-        for i, msg in enumerate(session_messages):
+        for i, msg in enumerate(all_messages):
             # Find Skill tool_use blocks
             skill_invocations = self._extract_skill_invocations(msg)
             if not skill_invocations:
                 continue
 
             for skill_name, args in skill_invocations:
-                outcome = self._assess_outcome(session_messages, i)
-                context = self._extract_context(session_messages, i)
+                outcome = self._assess_outcome(all_messages, i)
+                context = self._extract_context(all_messages, i)
 
                 row_id = self.record_outcome(
                     skill_name=skill_name,
@@ -138,7 +192,7 @@ class SkillSelfImprover:
                     outcome=outcome,
                     context_snippet=context,
                     args_used=args,
-                    outcome_signals={"assessment_method": "session_scan"},
+                    outcome_signals={"assessment_method": assessment_method},
                 )
 
                 assessments.append({
