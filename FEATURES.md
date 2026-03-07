@@ -2,7 +2,7 @@
 
 Every feature in Memeta, organized by layer. Each one coexists additively — adding feature N+1 makes features 1 through N better.
 
-**Current:** v0.27.0 · 2,582 tests passing · 131 features shipped
+**Current:** v0.27.0 · 2,630 tests passing · 132 features shipped
 
 ---
 
@@ -99,6 +99,7 @@ Every feature in Memeta, organized by layer. Each one coexists additively — ad
 | Frustration-to-skill pipeline | Recurring frustration patterns (5+ occurrences, 3+ sessions) auto-propose new skills via SkillProposalEngine extension | `src/wild/skill_proposal_engine.py` |
 | Confidence calibration | Tracks predicted vs actual confidence with binned statistics and implicit usage detection for future calibration curves | `src/confidence_calibration.py` |
 | Session-start briefing | Unified context card at session start: active corrections (by importance) + open commitments (by urgency) + topic-relevant memories (BM25) + skill recommendations (keyword match) | `src/session_briefing.py` |
+| Skill documentation health | Scans skills directory; flags SKILL.md files missing required sections (when-to-use, examples, limitations) or not updated in 30+ days; 0.0–1.0 health score per skill; stale/incomplete/missing queries + summary stats | `src/skill_doc_health.py` |
 
 ---
 

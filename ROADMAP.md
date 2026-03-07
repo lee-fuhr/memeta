@@ -165,7 +165,7 @@ Features that require the earlier phases to be working before they synthesize we
 
 Features from the adversarial brainstorm. These five plus the session-start briefing won every challenge and have clear, bounded implementation paths.
 
-- **Skill documentation health system** — detect stale and incomplete SKILL.md files; flag skills where the doc hasn't been updated in 30+ days or is missing required sections (usage, examples, limitations); prevents skill rot from accumulating silently
+- ~~**Skill documentation health system**~~ — ✓ shipped in v0.27.0 (`src/skill_doc_health.py`)
 - **Skill evolution tracker** — track how skills change over time; version-aware diff storage so the system knows when a skill was last meaningfully updated vs. cosmetically touched; feeds provenance and effectiveness features
 - **Skill provenance tracking** — record where each skill came from (install source, date acquired, who authored it); essential audit trail as the skill roster grows past easy manual recall
 - **Skill effectiveness tracker** — measure outcomes correlated with skill usage; detect skills that are loaded often but correlate with low-quality sessions, and skills that reliably improve outcomes; requires outcome signal from session summaries
