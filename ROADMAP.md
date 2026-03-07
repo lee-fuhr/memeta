@@ -6,6 +6,12 @@ Where Memeta has been, where it is, and where it's going.
 
 ## Shipped
 
+### v0.30.0 — Pinned memories injection slot (Mar 2026)
+Guaranteed injection of critical memories regardless of query relevance. Operationalizes the concept of "always-on" context for PERMANENT rules.
+- **Pinned memories slot** (`src/memory_injector.py`) — `is_pinned=True` or `importance > 0.85` → always injected, capped at 10, prepended before corrections and regular memories
+- **Universal learnings sunset** — 3 PERMANENT operational rules migrated to `is_pinned: true` memory files; `universal-learnings.md` deprecated
+- **3,081 tests total** — 26 new, 150 features
+
 ### v0.29.0 — Skill intelligence tier 3 + FSRS context weighting (Mar 2026)
 Phase 8: Learning loop closes, pull-based recommendations, cross-project knowledge measurement, context-aware FSRS recall.
 - **Learning-to-SKILL.md pipeline** (`src/learning_skill_promoter.py`) — 42 tests
