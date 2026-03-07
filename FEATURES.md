@@ -2,7 +2,7 @@
 
 Every feature in Memeta, organized by layer. Each one coexists additively — adding feature N+1 makes features 1 through N better.
 
-**Current:** v0.27.0 · 2,830 tests passing · 139 features shipped
+**Current:** v0.27.0 · 2,864 tests passing · 140 features shipped
 
 ---
 
@@ -107,6 +107,7 @@ Every feature in Memeta, organized by layer. Each one coexists additively — ad
 | Correction velocity metric | Tracks correction pipeline health: new → pending → graduated stages; graduation rate; stuck correction detection; avg days from detection to CLAUDE.md rule | `src/correction_velocity.py` |
 | Skill anti-pattern miner | Correlates correction memories with skill invocations by session; flags skills that frequently co-occur with corrections; low/medium/high risk levels; sample corrections per flag | `src/skill_antipattern_miner.py` |
 | Skill health dashboard | Unified rollup aggregating all six skill intelligence sources into one payload; summary with at-risk skills, avg doc health, graduation rate; Flask `/api/skill-health` endpoint | `src/skill_health_dashboard.py` |
+| Skill argument pattern extractor | Mines session transcripts for counterpoints, objections, plan changes, agreements; measures chain length and collapse rate; stores patterns for cross-session frequency analysis | `src/skill_argument_extractor.py` |
 
 ---
 

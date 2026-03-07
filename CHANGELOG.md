@@ -20,6 +20,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - **Correction velocity metric** (`src/correction_velocity.py`) — tracks how quickly corrections move from first detection to CLAUDE.md graduation. Pipeline stages: new (0 confirmations), pending (1–2), graduated (#graduated tag). `CorrectionVelocityTracker.get_snapshot()`, `get_stuck_corrections()`, `graduation_rate()`, `stage_distribution()`. 24 tests
 - **Skill anti-pattern miner** (`src/skill_antipattern_miner.py`) — correlates correction memories (by source_session_id) with skill provenance records; flags skills that frequently co-occur with corrections; risk levels: low/medium/high based on co-occurrence rate. `SkillAntiPatternMiner.analyze()`, `get_flagged_skills()`. 19 tests
 - **Skill health dashboard** (`src/skill_health_dashboard.py`) — unified rollup aggregating all six skill intelligence sources (doc health, effectiveness, evolution, workflow patterns, anti-patterns, correction velocity) into a single `SkillHealthReport`. `SkillHealthDashboard.build()`, `build_skill_health_report()` convenience function. Wired to Flask `/api/skill-health` endpoint. 25 tests
+- **Skill argument pattern extractor** (`src/skill_argument_extractor.py`) — mines session transcripts for argument structures using heuristic turn-pair scanning; classifies counterpoints, objections, agreements, plan changes; measures chain length and resolution type; stores patterns in standalone SQLite table; `get_recurring_patterns()`, `get_plan_change_rate()`, `get_collapse_rate()`. 34 tests
 
 ---
 
