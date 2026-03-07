@@ -8,6 +8,17 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
 
+### Phase 7.5: Hooks wiring — skill intelligence integration
+
+**Added**
+- **Skill invocation recorder** (`src/skill_invocation_recorder.py`) — `process_tool_event(payload)` extracts skill name from PreToolUse Skill-tool payloads, calls `SkillProvenanceTracker.record_invocation()` with outcome='unknown', appends to `active_skills` in hook_state.json. Thin hook wrapper at `hooks/skill-invocation-recorder.py` fails silently so Claude Code is never blocked. 24 tests
+- **Skill outcome resolver** (`src/skill_outcome_resolver.py`) — `resolve_session_outcomes(session_id)` reads `active_skills` from hook_state, maps session frustration_level to outcome (low/unknown → success, medium/high → partial), updates provenance rows from outcome='unknown' only (never downgrades already-resolved records). Wired into `hooks/session-memory-consolidation-async.py` post-summary. 18 tests
+- **Evolution snapshot LaunchAgent** (`launch-agents/com.memeta.skill-evolution-snapshot.plist`, `scripts/skill-evolution-snapshot.py`) — nightly 2am LaunchAgent runs `SkillEvolutionTracker.snapshot_all()`, logs change type counts; structured error handling, `--skills-dir` override
+- **Anti-pattern alert integration** (`src/session_briefing.py`) — `SessionBriefing.generate()` now accepts `max_antipatterns` and `min_antipattern_risk` params; `get_antipattern_alerts()` queries `SkillAntiPatternMiner` and returns risk-level-filtered alerts; `_format_antipatterns_section()` renders "Skill risk alerts" in briefing between commitments and memories. 10 new tests (66 total for session_briefing)
+- **Velocity health alert** (`src/intelligence_orchestrator.py`) — `_collect_velocity_health_signals()` added to signal collectors; fires medium-priority warning when `graduation_rate < 0.3` and low-priority when `avg_days_to_graduate > 14`; `CorrectionVelocityTracker` promoted to module-level import. 11 new tests (31 total for orchestrator)
+
+---
+
 ### Skill intelligence tier 1 (Phase 6)
 
 **Added**

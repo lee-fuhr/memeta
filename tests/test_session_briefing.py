@@ -494,3 +494,112 @@ class TestSummarizeTrigger:
     def test_non_trigger_object_stringified(self):
         result = _summarize_trigger("some string commitment")
         assert "some string commitment" in result
+
+
+# ---------------------------------------------------------------------------
+# Anti-pattern alerts integration
+# ---------------------------------------------------------------------------
+
+class TestAntipatternAlerts:
+    """Tests for get_antipattern_alerts() and _format_antipatterns_section()."""
+
+    def setup_method(self, tmp_path_factory):
+        pass
+
+    def _make_report(self, skill_name, risk_level, rate=0.5, count=3):
+        """Build a mock AntiPatternReport-like object."""
+        class FakeReport:
+            pass
+        r = FakeReport()
+        r.skill_name = skill_name
+        r.risk_level = risk_level
+        r.co_occurrence_rate = rate
+        r.co_occurrence_count = count
+        r.sample_corrections = ["correction A"]
+        return r
+
+    def test_get_antipattern_alerts_returns_list(self, tmp_path):
+        briefing = SessionBriefing(db_path=str(tmp_path / "t.db"))
+        with patch("memory_system.session_briefing.SkillAntiPatternMiner") as MockMiner:
+            MockMiner.return_value.analyze.return_value = []
+            result = briefing.get_antipattern_alerts()
+        assert isinstance(result, list)
+
+    def test_returns_empty_when_no_high_risk(self, tmp_path):
+        briefing = SessionBriefing(db_path=str(tmp_path / "t.db"))
+        with patch("memory_system.session_briefing.SkillAntiPatternMiner") as MockMiner:
+            MockMiner.return_value.analyze.return_value = [
+                self._make_report("low-skill", "low", rate=0.1),
+            ]
+            result = briefing.get_antipattern_alerts(min_risk="medium")
+        assert result == []
+
+    def test_returns_medium_and_high_by_default(self, tmp_path):
+        briefing = SessionBriefing(db_path=str(tmp_path / "t.db"))
+        with patch("memory_system.session_briefing.SkillAntiPatternMiner") as MockMiner:
+            MockMiner.return_value.analyze.return_value = [
+                self._make_report("med-skill", "medium"),
+                self._make_report("high-skill", "high"),
+                self._make_report("low-skill", "low"),
+            ]
+            result = briefing.get_antipattern_alerts(min_risk="medium")
+        names = [a["skill_name"] for a in result]
+        assert "med-skill" in names
+        assert "high-skill" in names
+        assert "low-skill" not in names
+
+    def test_respects_top_k_limit(self, tmp_path):
+        briefing = SessionBriefing(db_path=str(tmp_path / "t.db"))
+        reports = [self._make_report(f"skill-{i}", "high") for i in range(5)]
+        with patch("memory_system.session_briefing.SkillAntiPatternMiner") as MockMiner:
+            MockMiner.return_value.analyze.return_value = reports
+            result = briefing.get_antipattern_alerts(top_k=2)
+        assert len(result) <= 2
+
+    def test_alert_dict_has_required_keys(self, tmp_path):
+        briefing = SessionBriefing(db_path=str(tmp_path / "t.db"))
+        with patch("memory_system.session_briefing.SkillAntiPatternMiner") as MockMiner:
+            MockMiner.return_value.analyze.return_value = [
+                self._make_report("risky-skill", "high", rate=0.7),
+            ]
+            result = briefing.get_antipattern_alerts(min_risk="low")
+        assert len(result) == 1
+        alert = result[0]
+        assert "skill_name" in alert
+        assert "risk_level" in alert
+        assert "co_occurrence_rate" in alert
+
+    def test_returns_empty_list_on_exception(self, tmp_path):
+        briefing = SessionBriefing(db_path=str(tmp_path / "t.db"))
+        with patch("memory_system.session_briefing.SkillAntiPatternMiner", side_effect=Exception("boom")):
+            result = briefing.get_antipattern_alerts()
+        assert result == []
+
+    def test_format_antipatterns_section_renders_risk(self, tmp_path):
+        briefing = SessionBriefing(db_path=str(tmp_path / "t.db"))
+        alerts = [{"skill_name": "bad-skill", "risk_level": "high", "co_occurrence_rate": 0.75, "co_occurrence_count": 6}]
+        result = briefing._format_antipatterns_section(alerts)
+        assert "bad-skill" in result
+        assert "high" in result
+        assert "75%" in result
+
+    def test_format_antipatterns_section_empty(self, tmp_path):
+        briefing = SessionBriefing(db_path=str(tmp_path / "t.db"))
+        assert briefing._format_antipatterns_section([]) == ""
+
+    def test_format_brief_includes_antipatterns_section(self, tmp_path):
+        briefing = SessionBriefing(db_path=str(tmp_path / "t.db"))
+        alerts = [{"skill_name": "risky", "risk_level": "high", "co_occurrence_rate": 0.6, "co_occurrence_count": 3}]
+        result = briefing.format_brief([], [], [], [], antipatterns=alerts)
+        assert "Skill risk alerts" in result
+        assert "risky" in result
+
+    def test_generate_calls_get_antipattern_alerts(self, tmp_path):
+        briefing = SessionBriefing(db_path=str(tmp_path / "t.db"))
+        with patch.object(briefing, "get_antipattern_alerts", return_value=[]) as mock_ap, \
+             patch.object(briefing, "get_top_memories", return_value=[]), \
+             patch.object(briefing, "get_active_corrections", return_value=[]), \
+             patch.object(briefing, "get_open_commitments", return_value=[]), \
+             patch.object(briefing, "get_skill_recommendations", return_value=[]):
+            briefing.generate(topic="test")
+        mock_ap.assert_called_once()

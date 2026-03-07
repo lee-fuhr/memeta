@@ -305,6 +305,54 @@ def _collect_skill_health_signals(db_path: Path) -> list[Signal]:
 # Core functions
 # ---------------------------------------------------------------------------
 
+from memory_system.correction_velocity import CorrectionVelocityTracker
+
+
+def _collect_velocity_health_signals(db_path: Path) -> list[Signal]:
+    """Collect velocity health signals from CorrectionVelocityTracker.
+
+    Fires when:
+    - graduation_rate < 0.3  (corrections stalling, not becoming permanent)
+    - avg_days_to_graduate > 14  (corrections taking too long to stick)
+    """
+    try:
+
+        tracker = CorrectionVelocityTracker(db_path=db_path)
+        snap = tracker.get_pipeline_snapshot()
+        signals = []
+
+        if snap.total > 0 and snap.graduation_rate < 0.3:
+            pct = int(snap.graduation_rate * 100)
+            signals.append(Signal(
+                signal_type=SignalType.WARNING,
+                priority="medium",
+                title="Low correction graduation rate",
+                detail=(
+                    f"Only {pct}% of corrections have graduated to permanent memories "
+                    f"({snap.graduated} of {snap.total}). "
+                    "Patterns may not be sticking — consider reviewing active corrections."
+                ),
+                source="correction_velocity",
+            ))
+
+        if snap.avg_days_to_graduate is not None and snap.avg_days_to_graduate > 14:
+            days = round(snap.avg_days_to_graduate, 1)
+            signals.append(Signal(
+                signal_type=SignalType.WARNING,
+                priority="low",
+                title="Slow correction graduation",
+                detail=(
+                    f"Corrections are taking {days} days on average to graduate "
+                    "(threshold: 14 days). Repetition may not be reinforcing retention."
+                ),
+                source="correction_velocity",
+            ))
+
+        return signals
+    except Exception:
+        return []
+
+
 def collect_signals(db_path: Optional[Path] = None) -> list[Signal]:
     """Collect signals from all feature modules.
 
@@ -320,6 +368,7 @@ def collect_signals(db_path: Optional[Path] = None) -> list[Signal]:
         _collect_frustration_signals,
         _collect_skill_lifecycle_signals,
         _collect_skill_health_signals,
+        _collect_velocity_health_signals,
     ]
 
     all_signals = []
