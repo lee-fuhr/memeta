@@ -2,7 +2,7 @@
 
 **Every memory technique that works. Every approach from the meta. All coexisting additively. And then predicting the next features and building those too.**
 
-![Python](https://img.shields.io/badge/python-3.11%2B-blue) ![Tests](https://img.shields.io/badge/tests-2%2C736%20passing-brightgreen) ![Version](https://img.shields.io/badge/version-0.27.0-blue) ![License](https://img.shields.io/badge/license-MIT-green)
+![Python](https://img.shields.io/badge/python-3.11%2B-blue) ![Tests](https://img.shields.io/badge/tests-2%2C762%20passing-brightgreen) ![Version](https://img.shields.io/badge/version-0.27.0-blue) ![License](https://img.shields.io/badge/license-MIT-green)
 
 ---
 
@@ -31,7 +31,7 @@ Claude Code ships with a native "auto memory" feature. It's a black box: Claude 
 | Search | Not available | Semantic + BM25 hybrid, cached |
 | Quality grading | None | A/B/C/D by importance weight |
 | Spaced repetition | None | FSRS-6 — science-backed retention |
-| Pattern detection | None | 135 features including dream synthesis, session-start briefing |
+| Pattern detection | None | 136 features including dream synthesis, session-start briefing |
 | Self-improvement | None | Overnight consolidation, prompt evolution |
 | Methodology count | 1 (proprietary) | All of them (open, additive) |
 | Control | None | Full — you decide what persists |
@@ -41,7 +41,7 @@ Claude Code ships with a native "auto memory" feature. It's a black box: Claude 
 
 ## What's inside
 
-135 features across 6 layers, all additive:
+136 features across 6 layers, all additive:
 
 ### Foundation — the basics done right
 Contradiction detection · provenance tracking · memory versioning · decision store · quality auto-grading · FSRS-6 spaced repetition · importance scoring with auto-tuning · confidence persistence · directed forgetting · encoding depth · entity extraction · emotional tagging
@@ -222,4 +222,4 @@ MIT — see [LICENSE](LICENSE)
 
 ---
 
-*135 features · 2,736 tests · every methodology · all additive*
+*136 features · 2,762 tests · every methodology · all additive*
