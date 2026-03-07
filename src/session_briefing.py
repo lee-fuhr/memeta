@@ -19,6 +19,7 @@ from typing import Optional
 
 from memory_system.config import cfg
 from memory_system.memory_injector import load_search_index, search_memories
+from memory_system.skill_antipattern_miner import SkillAntiPatternMiner
 
 logger = logging.getLogger(__name__)
 
@@ -56,6 +57,8 @@ class SessionBriefing:
         max_corrections: int = 3,
         max_commitments: int = 3,
         max_skills: int = 3,
+        max_antipatterns: int = 3,
+        min_antipattern_risk: str = "medium",
     ) -> str:
         """Generate a session-start briefing block.
 
@@ -68,6 +71,8 @@ class SessionBriefing:
             max_corrections: Max active corrections to include.
             max_commitments: Max open commitments to include.
             max_skills: Max skill recommendations to include.
+            max_antipatterns: Max anti-pattern alerts to include.
+            min_antipattern_risk: Minimum risk level to surface ("low", "medium", "high").
 
         Returns:
             Formatted markdown briefing string, or empty string if nothing to show.
@@ -77,9 +82,47 @@ class SessionBriefing:
         corrections = self.get_active_corrections(max_corrections)
         commitments = self.get_open_commitments(context, max_commitments)
         skills = self.get_skill_recommendations(topic, max_skills)
-        return self.format_brief(memories, corrections, commitments, skills)
+        antipatterns = self.get_antipattern_alerts(max_antipatterns, min_antipattern_risk)
+        return self.format_brief(memories, corrections, commitments, skills, antipatterns)
 
     # ── Sources ───────────────────────────────────────────────────────────
+
+    def get_antipattern_alerts(
+        self,
+        top_k: int = 3,
+        min_risk: str = "medium",
+    ) -> list[dict]:
+        """Return high-risk anti-pattern alerts for session-start awareness.
+
+        Args:
+            top_k:    Maximum number of alerts to return.
+            min_risk: Minimum risk level to include ("low", "medium", "high").
+
+        Returns:
+            List of dicts with keys: skill_name, risk_level, co_occurrence_rate,
+            co_occurrence_count, sample_corrections.
+        """
+        _RISK_ORDER = {"none": 0, "low": 1, "medium": 2, "high": 3}
+        min_level = _RISK_ORDER.get(min_risk, 2)
+
+        try:
+            miner = SkillAntiPatternMiner(db_path=self.db_path)
+            reports = miner.analyze()
+            alerts = [
+                {
+                    "skill_name": r.skill_name,
+                    "risk_level": r.risk_level,
+                    "co_occurrence_rate": r.co_occurrence_rate,
+                    "co_occurrence_count": r.co_occurrence_count,
+                    "sample_corrections": r.sample_corrections,
+                }
+                for r in reports
+                if _RISK_ORDER.get(r.risk_level, 0) >= min_level
+            ]
+            return alerts[:top_k]
+        except Exception:
+            logger.debug("session_briefing: anti-pattern fetch failed", exc_info=True)
+            return []
 
     def get_top_memories(self, topic: str, top_k: int = 3) -> list[dict]:
         """Return top-k topic-relevant memories (corrections excluded).
@@ -186,13 +229,15 @@ class SessionBriefing:
         corrections: list[dict],
         commitments: list[dict],
         skills: list[str],
+        antipatterns: Optional[list[dict]] = None,
     ) -> str:
         """Format all components into a single markdown briefing block.
 
-        Section order: corrections → commitments → memories → skills.
+        Section order: corrections → commitments → anti-pattern alerts → memories → skills.
         Sections are omitted if they have no renderable content.
         Returns empty string if all sections are empty.
         """
+        antipatterns = antipatterns or []
         sections: list[str] = []
 
         # Corrections first — behavioral, highest priority
@@ -205,7 +250,12 @@ class SessionBriefing:
         if comm_lines:
             sections.append(comm_lines)
 
-        # Relevant memories third
+        # Anti-pattern alerts third — skill risk signals
+        ap_lines = self._format_antipatterns_section(antipatterns)
+        if ap_lines:
+            sections.append(ap_lines)
+
+        # Relevant memories fourth
         mem_lines = self._format_memories_section(memories)
         if mem_lines:
             sections.append(mem_lines)
@@ -253,6 +303,18 @@ class SessionBriefing:
             if content:
                 lines.append(f"> {content[:_MAX_CONTENT_LEN]}")
         return "\n".join(lines) if len(lines) > 1 else ""
+
+    def _format_antipatterns_section(self, antipatterns: list[dict]) -> str:
+        if not antipatterns:
+            return ""
+        lines = ["## Skill risk alerts"]
+        for ap in antipatterns:
+            skill = ap.get("skill_name", "")
+            risk = ap.get("risk_level", "")
+            rate = ap.get("co_occurrence_rate", 0.0)
+            pct = int(rate * 100)
+            lines.append(f"- **{skill}** [{risk} risk] — corrections in {pct}% of sessions")
+        return "\n".join(lines)
 
     def _format_skills_section(self, skills: list[str]) -> str:
         if not skills:

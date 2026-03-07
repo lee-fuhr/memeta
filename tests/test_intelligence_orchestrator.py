@@ -19,6 +19,7 @@ from memory_system.intelligence_orchestrator import (
     collect_signals,
     synthesize_briefing,
     format_daily_briefing,
+    _collect_velocity_health_signals,
 )
 
 
@@ -274,3 +275,108 @@ class TestIntelligenceOrchestrator:
         count = conn.execute("SELECT COUNT(*) FROM orchestrator_briefings").fetchone()[0]
         conn.close()
         assert count == 1
+
+
+# ---------------------------------------------------------------------------
+# Velocity health signals
+# ---------------------------------------------------------------------------
+
+class TestVelocityHealthSignals:
+    """Tests for _collect_velocity_health_signals()."""
+
+    def _make_snapshot(self, total=10, graduated=2, graduation_rate=0.2, avg_days=None):
+        """Build a mock PipelineSnapshot."""
+        class FakeSnapshot:
+            pass
+        s = FakeSnapshot()
+        s.total = total
+        s.graduated = graduated
+        s.graduation_rate = graduation_rate
+        s.avg_days_to_graduate = avg_days
+        return s
+
+    def test_returns_list(self, db_path):
+        with patch("memory_system.intelligence_orchestrator.CorrectionVelocityTracker") as MockTracker:
+            MockTracker.return_value.get_pipeline_snapshot.return_value = self._make_snapshot(total=0)
+            result = _collect_velocity_health_signals(db_path)
+        assert isinstance(result, list)
+
+    def test_no_signal_when_total_zero(self, db_path):
+        with patch("memory_system.intelligence_orchestrator.CorrectionVelocityTracker") as MockTracker:
+            MockTracker.return_value.get_pipeline_snapshot.return_value = self._make_snapshot(total=0, graduation_rate=0.0)
+            result = _collect_velocity_health_signals(db_path)
+        assert len(result) == 0
+
+    def test_low_graduation_rate_fires_warning(self, db_path):
+        with patch("memory_system.intelligence_orchestrator.CorrectionVelocityTracker") as MockTracker:
+            MockTracker.return_value.get_pipeline_snapshot.return_value = self._make_snapshot(
+                total=10, graduated=2, graduation_rate=0.2
+            )
+            result = _collect_velocity_health_signals(db_path)
+        titles = [s.title for s in result]
+        assert any("graduation rate" in t.lower() for t in titles)
+
+    def test_no_signal_when_graduation_rate_ok(self, db_path):
+        with patch("memory_system.intelligence_orchestrator.CorrectionVelocityTracker") as MockTracker:
+            MockTracker.return_value.get_pipeline_snapshot.return_value = self._make_snapshot(
+                total=10, graduated=5, graduation_rate=0.5
+            )
+            result = _collect_velocity_health_signals(db_path)
+        rate_warnings = [s for s in result if "graduation rate" in s.title.lower()]
+        assert len(rate_warnings) == 0
+
+    def test_slow_graduation_fires_warning(self, db_path):
+        with patch("memory_system.intelligence_orchestrator.CorrectionVelocityTracker") as MockTracker:
+            MockTracker.return_value.get_pipeline_snapshot.return_value = self._make_snapshot(
+                total=5, graduated=3, graduation_rate=0.6, avg_days=20.0
+            )
+            result = _collect_velocity_health_signals(db_path)
+        titles = [s.title for s in result]
+        assert any("slow" in t.lower() for t in titles)
+
+    def test_no_signal_when_avg_days_ok(self, db_path):
+        with patch("memory_system.intelligence_orchestrator.CorrectionVelocityTracker") as MockTracker:
+            MockTracker.return_value.get_pipeline_snapshot.return_value = self._make_snapshot(
+                total=5, graduated=3, graduation_rate=0.6, avg_days=7.0
+            )
+            result = _collect_velocity_health_signals(db_path)
+        slow_warnings = [s for s in result if "slow" in s.title.lower()]
+        assert len(slow_warnings) == 0
+
+    def test_no_signal_when_avg_days_none(self, db_path):
+        with patch("memory_system.intelligence_orchestrator.CorrectionVelocityTracker") as MockTracker:
+            MockTracker.return_value.get_pipeline_snapshot.return_value = self._make_snapshot(
+                avg_days=None, graduation_rate=0.5
+            )
+            result = _collect_velocity_health_signals(db_path)
+        slow_warnings = [s for s in result if "slow" in s.title.lower()]
+        assert len(slow_warnings) == 0
+
+    def test_both_signals_can_fire_together(self, db_path):
+        with patch("memory_system.intelligence_orchestrator.CorrectionVelocityTracker") as MockTracker:
+            MockTracker.return_value.get_pipeline_snapshot.return_value = self._make_snapshot(
+                total=10, graduated=1, graduation_rate=0.1, avg_days=21.0
+            )
+            result = _collect_velocity_health_signals(db_path)
+        assert len(result) == 2
+
+    def test_signal_source_is_correction_velocity(self, db_path):
+        with patch("memory_system.intelligence_orchestrator.CorrectionVelocityTracker") as MockTracker:
+            MockTracker.return_value.get_pipeline_snapshot.return_value = self._make_snapshot(
+                total=10, graduated=1, graduation_rate=0.1
+            )
+            result = _collect_velocity_health_signals(db_path)
+        assert all(s.source == "correction_velocity" for s in result)
+
+    def test_returns_empty_on_exception(self, db_path):
+        with patch("memory_system.intelligence_orchestrator.CorrectionVelocityTracker", side_effect=Exception("boom")):
+            result = _collect_velocity_health_signals(db_path)
+        assert result == []
+
+    def test_warning_signal_type(self, db_path):
+        with patch("memory_system.intelligence_orchestrator.CorrectionVelocityTracker") as MockTracker:
+            MockTracker.return_value.get_pipeline_snapshot.return_value = self._make_snapshot(
+                total=10, graduated=1, graduation_rate=0.1
+            )
+            result = _collect_velocity_health_signals(db_path)
+        assert all(s.signal_type == SignalType.WARNING for s in result)

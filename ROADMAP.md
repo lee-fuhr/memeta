@@ -6,6 +6,15 @@ Where Memeta has been, where it is, and where it's going.
 
 ## Shipped
 
+### v0.28.0 — Hooks wiring (Mar 2026)
+Phase 7.5: Skill intelligence live loop. Data layer hooks that make the system self-populating — provenance, outcomes, evolution, and alerts accumulate automatically without any manual action per session.
+- **Invocation recorder** (`hooks/skill-invocation-recorder.py`, `src/skill_invocation_recorder.py`) — PreToolUse hook records every Skill call to provenance + hook_state; 24 tests
+- **Outcome resolver** (`src/skill_outcome_resolver.py`) — session-end maps frustration level to success/partial outcome, updates provenance records; 18 tests
+- **Evolution snapshot LaunchAgent** (`launch-agents/com.memeta.skill-evolution-snapshot.plist`) — nightly 2am snapshot of all SKILL.md files via `SkillEvolutionTracker.snapshot_all()`
+- **Anti-pattern alerts** (`src/session_briefing.py`) — "Skill risk alerts" section in session-start briefing for medium/high risk skills; 10 new tests
+- **Velocity health alert** (`src/intelligence_orchestrator.py`) — daily briefing warns when graduation_rate < 0.3 or avg_days_to_graduate > 14; 11 new tests
+- **63 new tests** — 2,927 total passing
+
 ### v0.27.0 — Skill intelligence (Mar 2026)
 Phases 6 and 7 (partial): Full skill intelligence data layer. Eight new modules covering documentation quality, usage history, outcome scoring, change tracking, workflow patterns, anti-pattern detection, and correction pipeline throughput.
 - **Skill doc health** (`src/skill_doc_health.py`) — A–F grading on SKILL.md files: purpose, examples, usage sections; health score + issue list per skill
@@ -16,7 +25,7 @@ Phases 6 and 7 (partial): Full skill intelligence data layer. Eight new modules 
 - **Skill workflow analyzer** (`src/skill_workflow_analyzer.py`) — detects common multi-skill pairs and triples across sessions; `get_skills_always_together()` for tight pairs; frequency scoring
 - **Correction velocity tracker** (`src/correction_velocity.py`) — pipeline snapshot: new / pending / graduated counts, graduation rate, avg days to graduate, stuck correction detection
 - **Skill anti-pattern miner** (`src/skill_antipattern_miner.py`) — correlates skill invocations with corrections in the same session; high/medium/low risk levels; sample correction surfacing
-- **266 new tests** — 2,805 total passing
+- **266 new tests** — 2,864 total passing
 
 ### v0.26.0 — Advanced intelligence (Mar 2026)
 Phase 5: Proactive intelligence. The system anticipates what you need instead of waiting to be asked.
@@ -193,15 +202,15 @@ Second tier from the brainstorm. Higher complexity or dependent on tier 1 data a
 - ~~**Skill anti-pattern miner**~~ — ✓ shipped in v0.27.0 (`src/skill_antipattern_miner.py`)
 - ~~**Correction velocity metric**~~ — ✓ shipped in v0.27.0 (`src/correction_velocity.py`)
 
-## Phase 7.5: Hooks wiring — skill intelligence integration
+## Phase 7.5: Hooks wiring — skill intelligence integration — SHIPPED (v0.28.0)
 
 The skill intelligence data layer is built. This phase wires it into the live session loop so data actually accumulates without any manual action.
 
-- **Invocation recording hook** — `hooks/skill-invocation-recorder.py` on `PreToolUse` (Skill tool calls); calls `SkillProvenanceTracker.record_invocation(skill_name, session_id, outcome="unknown")`; outcome updated to `success`/`failure` by session-end hook based on session quality signal
-- **Evolution snapshot LaunchAgent** — `launch-agents/com.memeta.skill-evolution-snapshot.plist`; runs nightly at 2am (alongside arch-sweep); calls `SkillEvolutionTracker.snapshot_all()`; accumulates change history without clogging sessions
-- **Session-end outcome resolver** — extend `hooks/session-memory-consolidation-async.py`; after consolidation, look up skills used this session in `hook_state.json`; score outcome from session summary quality; update provenance records with resolved outcome
-- **Anti-pattern alert integration** — wire `SkillAntiPatternMiner` into session-start briefing; if any flagged skills were used recently, surface risk warning before next invocation
-- **Velocity health alert** — extend daily-system-digest; if `graduation_rate < 0.3` or `avg_days_to_graduate > 14`, emit alert so stuck corrections don't silently accumulate
+- ~~**Invocation recording hook**~~ — ✓ `hooks/skill-invocation-recorder.py` + `src/skill_invocation_recorder.py`
+- ~~**Evolution snapshot LaunchAgent**~~ — ✓ `launch-agents/com.memeta.skill-evolution-snapshot.plist` + `scripts/skill-evolution-snapshot.py`
+- ~~**Session-end outcome resolver**~~ — ✓ `src/skill_outcome_resolver.py` wired into `hooks/session-memory-consolidation-async.py`
+- ~~**Anti-pattern alert integration**~~ — ✓ `SkillAntiPatternMiner` wired into `SessionBriefing.generate()` as "Skill risk alerts" section
+- ~~**Velocity health alert**~~ — ✓ `_collect_velocity_health_signals()` added to `intelligence_orchestrator.py`; thresholds: graduation_rate < 0.3 or avg_days_to_graduate > 14
 
 **Dependencies:** Phase 7 data layer (all shipped). **Blocks:** Phase 8 tier 3 features (pattern-based pre-loading needs accumulated provenance data; learning-to-SKILL.md needs evolution history).
 

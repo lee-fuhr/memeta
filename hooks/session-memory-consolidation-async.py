@@ -77,6 +77,19 @@ def main():
         except Exception as e:
             print(f"⚠️  Summary generation skipped: {e}", file=sys.stderr)
 
+        # Resolve skill outcomes (best-effort — must run after summary is saved)
+        try:
+            from memory_system.skill_outcome_resolver import resolve_session_outcomes
+
+            outcome_result = resolve_session_outcomes(session_id)
+            if outcome_result["updated"] > 0:
+                print(
+                    f"✅ Skill outcomes resolved: {outcome_result['updated']} skill(s)"
+                    f" → {outcome_result['outcome']}"
+                )
+        except Exception as e:
+            print(f"⚠️  Skill outcome resolution skipped: {e}", file=sys.stderr)
+
         return 0
 
     except Exception as e:
