@@ -161,6 +161,38 @@ Features that require the earlier phases to be working before they synthesize we
 
 ---
 
+## Phase 6: Skill intelligence (tier 1 — build now)
+
+Features from the adversarial brainstorm. These five plus the session-start briefing won every challenge and have clear, bounded implementation paths.
+
+- **Skill documentation health system** — detect stale and incomplete SKILL.md files; flag skills where the doc hasn't been updated in 30+ days or is missing required sections (usage, examples, limitations); prevents skill rot from accumulating silently
+- **Skill evolution tracker** — track how skills change over time; version-aware diff storage so the system knows when a skill was last meaningfully updated vs. cosmetically touched; feeds provenance and effectiveness features
+- **Skill provenance tracking** — record where each skill came from (install source, date acquired, who authored it); essential audit trail as the skill roster grows past easy manual recall
+- **Skill effectiveness tracker** — measure outcomes correlated with skill usage; detect skills that are loaded often but correlate with low-quality sessions, and skills that reliably improve outcomes; requires outcome signal from session summaries
+- **Session-start briefing** — auto-generate a context brief at session start; combines top memories, active corrections, open commitments, and skill recommendations into a single injected block; the "where was I and what should I be thinking about" card
+
+## Phase 7: Skill intelligence (tier 2 — build next)
+
+Second tier from the brainstorm. Higher complexity or dependent on tier 1 data accumulation before they're meaningful.
+
+- **Skill argument pattern extractor** — mine adversarial debate patterns from session transcripts; detect which arguments recur, which collapse quickly, and which generate the most useful plan changes; feeds the skill evolution tracker
+- **Skill workflow analyzer** — detect common multi-skill sequences; if the system notices that `/messaging-framework` is almost always followed by `/lees-voice`, surface that as a suggested workflow shortcut; requires skill provenance data
+- **Skill health dashboard** — visual overview of skill system health; staleness heatmap, effectiveness rankings, provenance gaps, anti-pattern hit rates; a single-glance view of whether the skill roster is working; depends on tier 1 data
+- **Skill anti-pattern miner** — detect and flag anti-patterns from session history; when a correction appears after a specific skill was loaded, flag the skill as a potential contributor; requires correction pipeline + skill provenance
+- **Correction velocity metric** — track how quickly the system responds to corrections; measures time from first correction instance to confirmed behavioral change in CLAUDE.md; leading indicator of whether the correction pipeline is actually working
+
+## Phase 8: Skill intelligence (tier 3 — build later)
+
+Third tier. These require either significant data accumulation or meaningful architectural investment. Build after tier 1 and 2 are proving out.
+
+- **Pattern-based skill pre-loading** — pre-load skills based on detected work patterns; if the session topic matches a known pattern (e.g., "onboarding new client" reliably needs 4 specific skills), surface them before the user asks; requires months of skill usage data
+- **Learning-to-SKILL.md pipeline** — auto-promote learnings into skill updates; when the session-start briefing surfaces the same learning three sessions running, propose promoting it into the relevant SKILL.md as a permanent note; closes the loop between experience and capability
+- **Cross-pollination index** — measure knowledge transfer between client projects; detect when a solution found in one client context is later applied in another; quantifies whether the system actually helps Lee reuse knowledge across engagements
+- **Skill recommendation engine (pull-based)** — on-demand skill suggestions based on current task description; user asks "what skills should I load?" and the system replies based on task-type patterns; distinct from the existing auto-recommendation hooks (which push)
+- **FSRS context-relevance weighting** — weight memory recall by current context; FSRS already governs when to resurface memories; this adds a second signal so that a memory with a good FSRS score but low context relevance yields to one with a moderate FSRS score and high relevance
+
+---
+
 ## Ecosystem changes
 
 These are not features — they are the system-level pruning and restructuring decisions from the system audit debate. The infrastructure the features run on.
@@ -204,6 +236,9 @@ Existing features the debate recommended killing, but which haven't had enough t
 Features and components killed across both debates. Never-built proposals that lost the argument, plus provably broken/redundant infrastructure.
 
 ### Never-built features (rejected proposals)
+
+Earlier graveyard entries (from the infrastructure debate, Feb 2026):
+
 - Temporal context resurrection (philosophy of mind problem, not engineering)
 - Energy-aware attention allocation (no ground truth signal)
 - Project narrative timeline (quarterly-use luxury)
@@ -218,6 +253,24 @@ Features and components killed across both debates. Never-built proposals that l
 - Memory-native code generation (decision archaeology achieves 60% at 10% cost)
 - Webhook/notification integrations (deferred — fix alert quality first)
 - Memory merge and consolidation UI (garbage collection + dedup covers 80%)
+
+Skill intelligence brainstorm kills (from the adversarial brainstorm, Mar 2026):
+
+- **Autonomous skill synthesis** — system auto-writes new SKILL.md files from scratch based on session patterns. Death certificate: hallucinated skills with no human review = prompt injection vector. A skill doc that auto-writes itself can instruct Claude to do anything. Human authorship is not optional.
+- **Adversarial self-testing** — system spawns agent pairs to argue about its own outputs and auto-apply the winner. Death certificate: recursive self-modification with no checkpoint gate. The 49-day research agent anti-pattern, but for skill content. Would need a human approval gate at every cycle to be safe — at which point the "auto" part is gone.
+- **Cross-user marketplace** — share skills and memories with other Claude Code practitioners. Death certificate: one user, no community, and memory data is sensitive client information. Wrong level of abstraction — ai-ops-starter already handles the public sharing use case at the right layer.
+- **Success prediction model** — predict whether a session will succeed based on which skills are loaded and memory state. Death certificate: no ground truth. "Success" is undefined and unobservable. Would produce confident predictions from noise. The premature learning engine anti-pattern exactly.
+- **Memory fertility scoring** — score memories by how often they generate useful downstream memories. Death certificate: circular — measures how often a memory is recalled, not whether the recall was useful. Adds a sixth quality signal to a system that already has five. Complexity without new information.
+- **Question starvation detection** — detect when the system has gone too long without asking Lee a question and prompt him. Death certificate: a nag timer dressed up as intelligence. The questioning protocol already governs when to ask. Adding a separate staleness alarm creates noise, not insight.
+- **Skill dependency graph** — map which skills depend on which other skills and auto-load dependencies. Death certificate: skills are prompts, not code modules. Dependency graphs assume deterministic behavior. A skill that "requires" another skill is a skill that should be merged or the dependency is spurious.
+- **Memory compression pipeline** — automatically compress old memories into shorter representations to save token budget. Death certificate: lossy compression applied to high-importance memories destroys exactly the signal the system is trying to preserve. Already handled by decay + archiving at the right granularity.
+- **Session emotion tagging** — detect emotional valence (frustration, enthusiasm, confusion) and weight memory extraction accordingly. Death certificate: dev-AI sessions don't have consistent emotional signals. The frustration detector already handles the one high-signal case (explicit "you should know this" language). Extending it to ambient emotion adds noise.
+- **Skill recommendation push hooks** — hooks that fire on every tool use to recommend skills in real time. Death certificate: the existing skill-usage-tracker hook is already a no-op stub because this approach creates too much noise. Pull-based recommendation (tier 3 above) is the right model — on demand, not on every action.
+- **Cross-session skill A/B testing** — run two versions of a skill simultaneously across sessions and pick the winner statistically. Death certificate: sample sizes are too small (dozens of sessions, not thousands). Statistical significance is unreachable. Would produce false winners and corrupt the skill corpus.
+- **Memory-to-checklist auto-export** — automatically generate checklists from high-importance memories and inject them into Apple Reminders. Death certificate: the system can't know which memories are actionable vs. reference. Would flood Reminders with noise. The commitment nudger already handles the real use case.
+- **Skill versioning with rollback** — full git-style versioning of every SKILL.md with one-command rollback. Death certificate: skill files are already in git. Adding a second versioning system duplicates infrastructure with no new capability. If a skill update goes wrong, `git revert` exists.
+- **Autonomous CLAUDE.md rewriting** — system rewrites CLAUDE.md sections based on correction patterns without human review. Death certificate: CLAUDE.md governs system behavior. Autonomous rewriting is autonomous behavior modification with no checkpoint. The correction graduator already handles safe promotion with human visibility built in.
+- **Real-time memory graph updates** — update the temporal knowledge graph in real time during sessions. Death certificate: the graph query pattern is O(n²) at scale and requires locking. Real-time updates during sessions would introduce latency and corruption risk. Batch updates after session end is the right model.
 
 ### Broken/redundant infrastructure (provably dead)
 - nightly-optimizer LaunchAgent (dead import, literally can't run)

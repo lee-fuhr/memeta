@@ -8,6 +8,11 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
 
+### Skill intelligence tier 1 (Phase 6)
+
+**Added**
+- **Session-start briefing** (`src/session_briefing.py`) — unified context card combining active corrections (sorted by importance), open commitments (scored by urgency via commitment_nudger), topic-relevant memories (BM25 search, corrections excluded), and skill recommendations (keyword overlap against skill name + when-to-use section). `SessionBriefing.generate(topic, context)` returns a formatted markdown block or empty string when nothing to show. Graceful on missing index, DB, or skills directory — all sources fail silently. 56 tests
+
 ---
 
 ## [0.26.0] - 2026-03-02
@@ -31,13 +36,14 @@ The proactive release. Memeta stops waiting to be asked — it anticipates what 
 - **Frustration-to-skill pipeline** (`src/wild/skill_proposal_engine.py`) — frustration topic aggregation from sentiment_patterns table; threshold filtering (5+ occurrences AND 3+ sessions); dedup against existing proposals; SQLite schema migration for trigger_reason constraint. 13 tests
 - **Decision store** (`src/decision_journal.py`) — full rewrite from 39-line stub to persistent SQLite store; Decision dataclass; CRUD with file-based archaeology (exact + prefix match); session queries; outcome tracking; backward-compatible legacy wrapper functions preserved. 16 tests
 - **Confidence calibration** (`src/confidence_calibration.py`) — CalibrationEvent/CalibrationBin dataclasses; binned statistics (configurable bin size); implicit usage detection via word overlap heuristic (>0.3 after stopword removal). 11 tests
+- **Skill self-improver** (`src/wild/skill_self_improver.py`) — captures invocation outcomes (success/failure/partial) with context; accumulates learnings across outcomes; proposes evidence-based SKILL.md refinements when sufficient data exists; integrates with skill lifecycle. 34 tests
 
 **Adversarial review findings:** All 10 checks passed with zero issues. Import correctness verified (both absolute and relative consistent with codebase convention). No circular imports, no marker collisions, no API drift, no false positives, no PTM coupling violations.
 
 ### Tests
 - **Core suite:** 2,526 passing (+91 new, 0 regressions)
-- **Wild suite:** 13 new frustration-to-skill tests
-- **Total:** 2,539 passing (104 new tests across 6 features)
+- **Wild suite:** 47 new tests (13 frustration-to-skill + 34 skill self-improver)
+- **Total:** 2,573 passing (138 new tests across 7 features)
 
 ---
 

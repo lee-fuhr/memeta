@@ -2,7 +2,7 @@
 
 Every feature in Memeta, organized by layer. Each one coexists additively — adding feature N+1 makes features 1 through N better.
 
-**Current:** v0.26.0 · 2,539 tests passing · 130 features shipped
+**Current:** v0.27.0 · 2,582 tests passing · 131 features shipped
 
 ---
 
@@ -98,6 +98,7 @@ Every feature in Memeta, organized by layer. Each one coexists additively — ad
 | CLAUDE.md synthesizer | Auto-generates CLAUDE.md rules from 5 signal sources (corrections, directives, frustrations, preferences, workflows) with strip-and-regenerate | `src/claudemd_synthesizer.py` |
 | Frustration-to-skill pipeline | Recurring frustration patterns (5+ occurrences, 3+ sessions) auto-propose new skills via SkillProposalEngine extension | `src/wild/skill_proposal_engine.py` |
 | Confidence calibration | Tracks predicted vs actual confidence with binned statistics and implicit usage detection for future calibration curves | `src/confidence_calibration.py` |
+| Session-start briefing | Unified context card at session start: active corrections (by importance) + open commitments (by urgency) + topic-relevant memories (BM25) + skill recommendations (keyword match) | `src/session_briefing.py` |
 
 ---
 
