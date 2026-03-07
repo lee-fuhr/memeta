@@ -2,7 +2,7 @@
 
 Every feature in Memeta, organized by layer. Each one coexists additively — adding feature N+1 makes features 1 through N better.
 
-**Current:** v0.27.0 · 2,665 tests passing · 133 features shipped
+**Current:** v0.27.0 · 2,707 tests passing · 134 features shipped
 
 ---
 
@@ -101,6 +101,7 @@ Every feature in Memeta, organized by layer. Each one coexists additively — ad
 | Session-start briefing | Unified context card at session start: active corrections (by importance) + open commitments (by urgency) + topic-relevant memories (BM25) + skill recommendations (keyword match) | `src/session_briefing.py` |
 | Skill documentation health | Scans skills directory; flags SKILL.md files missing required sections (when-to-use, examples, limitations) or not updated in 30+ days; 0.0–1.0 health score per skill; stale/incomplete/missing queries + summary stats | `src/skill_doc_health.py` |
 | Skill evolution tracker | Snapshots SKILL.md content per skill with unified diffs; classifies changes as initial / meaningful / cosmetic / unchanged / missing; history queries, last meaningful update datetime, has-changed check, skills-by-change-type filter | `src/skill_evolution.py` |
+| Skill provenance tracker | Records every skill invocation with session ID, outcome, context, and notes; supports history, first-use detection, session membership, co-invocation analysis, and outcome summaries | `src/skill_provenance.py` |
 
 ---
 
