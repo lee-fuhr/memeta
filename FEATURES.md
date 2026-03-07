@@ -2,7 +2,7 @@
 
 Every feature in Memeta, organized by layer. Each one coexists additively — adding feature N+1 makes features 1 through N better.
 
-**Current:** v0.27.0 · 2,762 tests passing · 136 features shipped
+**Current:** v0.27.0 · 2,786 tests passing · 137 features shipped
 
 ---
 
@@ -104,6 +104,7 @@ Every feature in Memeta, organized by layer. Each one coexists additively — ad
 | Skill provenance tracker | Records every skill invocation with session ID, outcome, context, and notes; supports history, first-use detection, session membership, co-invocation analysis, and outcome summaries | `src/skill_provenance.py` |
 | Skill effectiveness tracker | Synthesizes provenance outcomes + evolution history into a 0.0–1.0 effectiveness score and A–F grade per skill; top-skill ranking and underperformer detection | `src/skill_effectiveness.py` |
 | Skill workflow analyzer | Mines provenance data for common skill co-occurrence patterns (pairs, triples); detects inseparable skill pairs; surfaces suggested workflow shortcuts | `src/skill_workflow_analyzer.py` |
+| Correction velocity metric | Tracks correction pipeline health: new → pending → graduated stages; graduation rate; stuck correction detection; avg days from detection to CLAUDE.md rule | `src/correction_velocity.py` |
 
 ---
 
