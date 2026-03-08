@@ -9,12 +9,14 @@ Section type mapping:
   6.x  → anti_pattern (importance 0.90)
   7.x+ → skipped (operational reference)
 """
+import logging
 import re
 from pathlib import Path
-from typing import Optional
 
 from memory_system.importers.base import BaseImporter, ImportResult, ImportPreview
 from memory_system.memory_ts_client import Memory
+
+logger = logging.getLogger(__name__)
 
 
 # Section number prefix → section type
@@ -68,6 +70,7 @@ class BibleImporter(BaseImporter):
                 memories.append(mem)
                 imported += 1
             except Exception as exc:
+                logger.warning("Failed to import section %s: %s", section["section_id"], exc)
                 errors.append(f"Section {section['section_id']}: {exc}")
 
         return ImportResult(imported=imported, skipped=skipped, errors=errors, memories=memories)
@@ -111,18 +114,17 @@ class BibleImporter(BaseImporter):
         matches = list(_SUBSECTION_RE.finditer(text))
         sections = []
 
-        for i, match in enumerate(matches):
-            top_num = int(match.group(1))
-            section_id = f"{match.group(1)}.{match.group(2)}"
-            heading = f"{section_id} {match.group(3)}"
-
-            section_type = self._detect_section_type(heading)
+        for match_idx, match in enumerate(matches):
+            section_type = _SECTION_TYPE_MAP.get(int(match.group(1)))
             if section_type is None:
                 continue
 
+            section_id = f"{match.group(1)}.{match.group(2)}"
+            heading = f"{section_id} {match.group(3)}"
+
             # Content = text between this heading and the next ### heading (or EOF)
             start = match.end()
-            end = matches[i + 1].start() if i + 1 < len(matches) else len(text)
+            end = matches[match_idx + 1].start() if match_idx + 1 < len(matches) else len(text)
             content = text[start:end].strip()
 
             if not content:
@@ -137,7 +139,7 @@ class BibleImporter(BaseImporter):
 
         return sections
 
-    def _detect_section_type(self, heading: str) -> Optional[str]:
+    def _detect_section_type(self, heading: str) -> str | None:
         """Return section type string for a heading, or None if not importable.
 
         Heading must start with "N.M " where N maps to a known section type.

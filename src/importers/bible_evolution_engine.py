@@ -22,10 +22,10 @@ import hashlib
 import logging
 import re
 import sqlite3
+from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Optional
 
 logger = logging.getLogger(__name__)
 
@@ -81,6 +81,12 @@ _IDX_EXP_SECTION = (
     "CREATE INDEX IF NOT EXISTS idx_be_section "
     "ON bible_experiences (section_id)"
 )
+# Composite index covers both `get_history` (ORDER BY snapshotted_at DESC)
+# and `snapshot()` latest-prev lookup (ORDER BY snapshotted_at DESC LIMIT 1).
+_IDX_SNAP_SECTION_DATE = (
+    "CREATE INDEX IF NOT EXISTS idx_bss_section_date "
+    "ON bible_section_snapshots (section_id, snapshotted_at DESC)"
+)
 
 _VALID_EXPERIENCE_TYPES = frozenset({"supporting", "conflicting"})
 
@@ -132,7 +138,7 @@ class BibleExperience:
 class BibleEvolutionEngine:
     """Track Build Bible section changes and principle-reinforcement evidence."""
 
-    def __init__(self, db_path: Optional[Path] = None) -> None:
+    def __init__(self, db_path: Path | None = None) -> None:
         if db_path is None:
             from memory_system.config import cfg
             db_path = cfg.intelligence_db_path.parent / "bible_evolution.db"
@@ -156,6 +162,7 @@ class BibleEvolutionEngine:
             conn.execute(_CREATE_EXPERIENCES)
             conn.execute(_IDX_SNAP_SECTION)
             conn.execute(_IDX_SNAP_AT)
+            conn.execute(_IDX_SNAP_SECTION_DATE)
             conn.execute(_IDX_EXP_SECTION)
 
     # ------------------------------------------------------------------
@@ -172,18 +179,19 @@ class BibleEvolutionEngine:
         parsed = self._parse_sections(text)
         now = datetime.now(timezone.utc).isoformat()
         snap_sections: list[BibleSectionSnapshot] = []
+        logger.debug("Snapshotting %d sections from %s", len(parsed), bible_path.name)
 
         with self._connect() as conn:
-            for sec in parsed:
-                sid = sec["section_id"]
-                stype = sec["section_type"]
-                content = sec["content"]
+            for section in parsed:
+                section_id = section["section_id"]
+                section_type = section["section_type"]
+                content = section["content"]
                 content_hash = hashlib.sha256(content.strip().encode()).hexdigest()[:16]
 
                 prev = conn.execute(
                     "SELECT content_hash, content FROM bible_section_snapshots "
                     "WHERE section_id = ? ORDER BY snapshotted_at DESC LIMIT 1",
-                    (sid,),
+                    (section_id,),
                 ).fetchone()
 
                 if prev is None:
@@ -197,8 +205,8 @@ class BibleEvolutionEngine:
                     diff = "\n".join(difflib.unified_diff(
                         prev["content"].splitlines(),
                         content.splitlines(),
-                        fromfile=f"{sid} (prev)",
-                        tofile=f"{sid} (new)",
+                        fromfile=f"{section_id} (prev)",
+                        tofile=f"{section_id} (new)",
                         lineterm="",
                     ))
 
@@ -206,18 +214,26 @@ class BibleEvolutionEngine:
                     "INSERT INTO bible_section_snapshots "
                     "(section_id, section_type, content_hash, content, diff, change_type, snapshotted_at) "
                     "VALUES (?, ?, ?, ?, ?, ?, ?)",
-                    (sid, stype, content_hash, content, diff, change_type, now),
+                    (section_id, section_type, content_hash, content, diff, change_type, now),
                 )
 
                 snap_sections.append(BibleSectionSnapshot(
-                    section_id=sid,
-                    section_type=stype,
+                    section_id=section_id,
+                    section_type=section_type,
                     content_hash=content_hash,
                     change_type=change_type,
                     diff=diff,
                     snapshotted_at=now,
                 ))
 
+        changed = sum(1 for s in snap_sections if s.change_type == "changed")
+        logger.debug(
+            "Snapshot complete: %d sections, %d changed, %d initial, %d unchanged",
+            len(snap_sections),
+            changed,
+            sum(1 for s in snap_sections if s.change_type == "initial"),
+            sum(1 for s in snap_sections if s.change_type == "unchanged"),
+        )
         return BibleSnapshot(snapshotted_at=now, sections=snap_sections)
 
     def get_history(self, section_id: str) -> list[BibleSectionSnapshot]:
@@ -275,6 +291,13 @@ class BibleEvolutionEngine:
                 "VALUES (?, ?, ?, ?, ?)",
                 (section_id, memory_id, experience_type, strength, now),
             )
+        logger.debug(
+            "Recorded %s experience for section %s (memory=%s, strength=%.2f)",
+            experience_type,
+            section_id,
+            memory_id,
+            strength,
+        )
         return BibleExperience(
             section_id=section_id,
             memory_id=memory_id,
@@ -313,16 +336,19 @@ class BibleEvolutionEngine:
         Formula: (sum_supporting - sum_conflicting) / (sum_supporting + sum_conflicting)
         """
         with self._connect() as conn:
-            rows = conn.execute(
-                "SELECT experience_type, strength FROM bible_experiences WHERE section_id = ?",
+            row = conn.execute(
+                "SELECT "
+                "  SUM(CASE WHEN experience_type = 'supporting' THEN strength ELSE 0 END) AS supporting,"
+                "  SUM(CASE WHEN experience_type = 'conflicting' THEN strength ELSE 0 END) AS conflicting "
+                "FROM bible_experiences WHERE section_id = ?",
                 (section_id,),
-            ).fetchall()
+            ).fetchone()
 
-        if not rows:
+        if row is None or (row["supporting"] is None and row["conflicting"] is None):
             return 0.0
 
-        supporting = sum(r["strength"] for r in rows if r["experience_type"] == "supporting")
-        conflicting = sum(r["strength"] for r in rows if r["experience_type"] == "conflicting")
+        supporting = row["supporting"] or 0.0
+        conflicting = row["conflicting"] or 0.0
         total = supporting + conflicting
         if total == 0.0:
             return 0.0
@@ -358,19 +384,33 @@ class BibleEvolutionEngine:
             }
         """
         with self._connect() as conn:
-            rows = conn.execute(
+            sections = conn.execute(
                 "SELECT section_id, section_type, MAX(snapshotted_at) AS last_snapshotted "
                 "FROM bible_section_snapshots GROUP BY section_id"
             ).fetchall()
 
+            # Batch-load all experiences in one query to avoid N+1 connections.
+            exp_rows = conn.execute(
+                "SELECT section_id, experience_type, strength FROM bible_experiences"
+            ).fetchall()
+
+        # Aggregate supporting/conflicting per section in Python.
+        exp_by_section: dict[str, list] = defaultdict(list)
+        for exp in exp_rows:
+            exp_by_section[exp["section_id"]].append(exp)
+
         report: dict[str, dict] = {}
-        for row in rows:
-            sid = row["section_id"]
-            exps = self.get_experiences(sid)
-            report[sid] = {
+        for row in sections:
+            section_id = row["section_id"]
+            exps = exp_by_section[section_id]
+            supporting = sum(e["strength"] for e in exps if e["experience_type"] == "supporting")
+            conflicting = sum(e["strength"] for e in exps if e["experience_type"] == "conflicting")
+            total = supporting + conflicting
+            score = (supporting - conflicting) / total if total > 0.0 else 0.0
+            report[section_id] = {
                 "section_type": row["section_type"],
                 "last_snapshotted": row["last_snapshotted"],
-                "reinforcement_score": self.get_reinforcement_score(sid),
+                "reinforcement_score": score,
                 "experience_count": len(exps),
             }
         return report
@@ -383,14 +423,13 @@ class BibleEvolutionEngine:
         """Extract importable sections from Bible markdown text."""
         matches = list(_SUBSECTION_RE.finditer(text))
         sections = []
-        for i, match in enumerate(matches):
-            top_num = int(match.group(1))
-            if top_num not in _SECTION_TYPE_MAP:
+        for match_idx, match in enumerate(matches):
+            section_type = _SECTION_TYPE_MAP.get(int(match.group(1)))
+            if section_type is None:
                 continue
             section_id = f"{match.group(1)}.{match.group(2)}"
-            section_type = _SECTION_TYPE_MAP[top_num]
             start = match.end()
-            end = matches[i + 1].start() if i + 1 < len(matches) else len(text)
+            end = matches[match_idx + 1].start() if match_idx + 1 < len(matches) else len(text)
             content = text[start:end].strip()
             if content:
                 sections.append({
