@@ -8,6 +8,11 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
 
+### Phase 9: Build Bible integration
+
+**Added**
+- **Build Bible importer** (`src/importers/bible_importer.py`) — section-aware parser for Build Bible markdown. `_parse_bible_sections()` extracts all `### N.M Heading` subsections; `_detect_section_type()` maps top-level number to type: 1.x → `principle` (importance 0.90), 2.x → `pattern` (0.85), 6.x → `anti_pattern` (0.90); sections 7+ skipped (operational reference). Tags: `#source:bible`, `#section:N.M`, `#type:<type>`. Inherits SHA-256 deduplication and dry-run preview from `BaseImporter`. 27 tests
+
 ---
 
 ## [0.30.0] - 2026-03-07
