@@ -12,6 +12,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 **Added**
 - **Build Bible importer** (`src/importers/bible_importer.py`) — section-aware parser for Build Bible markdown. `_parse_bible_sections()` extracts all `### N.M Heading` subsections; `_detect_section_type()` maps top-level number to type: 1.x → `principle` (importance 0.90), 2.x → `pattern` (0.85), 6.x → `anti_pattern` (0.90); sections 7+ skipped (operational reference). Tags: `#source:bible`, `#section:N.M`, `#type:<type>`. Inherits SHA-256 deduplication and dry-run preview from `BaseImporter`. 27 tests
+- **Bible evolution engine** (`src/importers/bible_evolution_engine.py`) — change tracking and principle-reinforcement for Build Bible sections. `snapshot(bible_path)` hashes every importable section, diffs against previous snapshot, classifies as initial/changed/unchanged; `get_history(section_id)` returns timestamped snapshot log newest-first. `record_experience(section_id, memory_id, experience_type, strength)` logs supporting/conflicting evidence from session memories; `get_reinforcement_score()` returns net score in [-1.0, 1.0]; `get_section_health_report()` returns per-section dict with section_type, last_snapshotted, reinforcement_score, experience_count; `get_stale_sections(threshold_days)` surfaces sections not recently snapshotted. Standalone SQLite DB (`bible_evolution.db`). timezone-aware timestamps throughout. 41 tests
 
 ---
 
