@@ -9,7 +9,6 @@ import json
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import List, Optional, Dict
 
 from ..intelligence_db import IntelligenceDB
 from ..memory_ts_client import MemoryTSClient
@@ -38,18 +37,18 @@ except ImportError:
 class Decision:
     """Decision record"""
     decision: str
-    options_considered: List[str]
+    options_considered: list[str]
     chosen_option: str
     rationale: str
-    context: Optional[str] = None
+    context: str | None = None
     project_id: str = "default"
-    session_id: Optional[str] = None
+    session_id: str | None = None
     decided_at: str = None
-    outcome: Optional[str] = None
-    outcome_success: Optional[bool] = None
-    outcome_recorded_at: Optional[str] = None
-    commitment_id: Optional[str] = None  # Link to external commitment tracker
-    tags: List[str] = field(default_factory=lambda: ['#decision'])
+    outcome: str | None = None
+    outcome_success: bool | None = None
+    outcome_recorded_at: str | None = None
+    commitment_id: str | None = None  # Link to external commitment tracker
+    tags: list[str] = field(default_factory=lambda: ['#decision'])
 
     def __post_init__(self):
         if self.decided_at is None:
@@ -67,7 +66,7 @@ class DecisionJournal:
     4. Learn from patterns: what decisions work?
     """
 
-    def __init__(self, db_path: Optional[Path] = None):
+    def __init__(self, db_path: Path | None = None):
         """
         Initialize decision journal
 
@@ -92,12 +91,12 @@ class DecisionJournal:
     def record_decision(
         self,
         decision: str,
-        options_considered: List[str],
+        options_considered: list[str],
         chosen_option: str,
         rationale: str,
-        context: Optional[str] = None,
+        context: str | None = None,
         project_id: str = "default",
-        session_id: Optional[str] = None,
+        session_id: str | None = None,
         save_to_memory_ts: bool = True,
         link_to_commitment: bool = False
     ) -> Decision:
@@ -106,7 +105,7 @@ class DecisionJournal:
 
         Args:
             decision: The decision question/topic
-            options_considered: List of options evaluated
+            options_considered: list of options evaluated
             chosen_option: Which option was chosen
             rationale: Why this option was chosen
             context: Additional context
@@ -202,7 +201,7 @@ Rationale: {rationale}
         outcome: str,
         success: bool,
         update_memory_ts: bool = True
-    ) -> Dict:
+    ) -> dict:
         """
         Track outcome of a previous decision
 
@@ -261,9 +260,9 @@ Success: {"Yes" if success else "No"}
 
     def learn_from_decisions(
         self,
-        project_id: Optional[str] = None,
+        project_id: str | None = None,
         min_decisions: int = 3
-    ) -> Dict:
+    ) -> dict:
         """
         Analyze decision patterns
 
@@ -323,14 +322,14 @@ Success: {"Yes" if success else "No"}
             'approaches_to_avoid': sorted(failure_patterns.items(), key=lambda x: x[1], reverse=True)[:5]
         }
 
-    def get_decision(self, decision_id: int) -> Optional[Dict]:
+    def get_decision(self, decision_id: int) -> dict | None:
         """Get decision by ID"""
         cursor = self.db.conn.cursor()
         cursor.execute("SELECT * FROM decision_journal WHERE id = ?", (decision_id,))
         result = cursor.fetchone()
         return dict(result) if result else None
 
-    def get_recent_decisions(self, days: int = 30, limit: int = 20) -> List[Dict]:
+    def get_recent_decisions(self, days: int = 30, limit: int = 20) -> list[dict]:
         """Get recent decisions"""
         cursor = self.db.conn.cursor()
 
@@ -346,7 +345,7 @@ Success: {"Yes" if success else "No"}
 
         return [dict(row) for row in cursor.fetchall()]
 
-    def get_pending_outcomes(self, project_id: Optional[str] = None) -> List[Dict]:
+    def get_pending_outcomes(self, project_id: str | None = None) -> list[dict]:
         """Get decisions without recorded outcomes"""
         cursor = self.db.conn.cursor()
 

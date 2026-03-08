@@ -25,7 +25,7 @@ import logging
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional, Union
+from typing import Union
 
 logger = logging.getLogger(__name__)
 
@@ -51,7 +51,7 @@ class WeightedMemory:
 class FsrsContextWeighter:
     """Combines FSRS due-score and context-relevance score for memory ranking."""
 
-    def __init__(self, db_path: Optional[Union[str, Path]] = None):
+    def __init__(self, db_path: Union[str, Path] | None = None):
         # db_path kept for API consistency; not currently used by this module
         self._db_path = Path(db_path) if db_path else None
 
@@ -65,12 +65,12 @@ class FsrsContextWeighter:
         query: str,
         states: dict[str, dict],
         weights: tuple[float, float] = _DEFAULT_WEIGHTS,
-        top_k: Optional[int] = None,
+        top_k: int | None = None,
     ) -> list[WeightedMemory]:
         """Rank memories by combined FSRS + context score.
 
         Args:
-            memories: List of memory dicts with keys "id" and "content".
+            memories: list of memory dicts with keys "id" and "content".
             query: Current context / task description.
             states: {memory_id: state_dict} from FSRS scheduler. Missing IDs
                     get a neutral FSRS score.
@@ -128,7 +128,7 @@ class FsrsContextWeighter:
         try:
             due_dt = datetime.fromisoformat(due_date_str)
             # Make both timezone-naive for comparison
-            now = datetime.utcnow()
+            now = datetime.now(timezone.utc).replace(tzinfo=None)
             if due_dt.tzinfo is not None:
                 now = datetime.now(timezone.utc)
             days_overdue = (now - due_dt).total_seconds() / 86_400

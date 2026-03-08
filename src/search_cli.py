@@ -6,7 +6,6 @@ and multiple output formats (table, JSON, full, IDs).
 
 import json
 from pathlib import Path
-from typing import Optional
 
 from memory_system.memory_injector import (
     DEFAULT_INDEX_PATH,
@@ -25,8 +24,8 @@ class SearchCLI:
 
     def __init__(
         self,
-        memory_dir: Optional[Path] = None,
-        index_path: Optional[Path] = None,
+        memory_dir: Path | None = None,
+        index_path: Path | None = None,
     ) -> None:
         self.memory_dir = Path(memory_dir) if memory_dir else DEFAULT_MEMORY_DIR
         self.index_path = Path(index_path) if index_path else DEFAULT_INDEX_PATH
@@ -51,10 +50,10 @@ class SearchCLI:
     def execute_search(
         self,
         query: str,
-        domain: Optional[str] = None,
-        tags: Optional[list[str]] = None,
-        min_importance: Optional[float] = None,
-        context_type: Optional[str] = None,
+        domain: str | None = None,
+        tags: list[str] | None = None,
+        min_importance: float | None = None,
+        context_type: str | None = None,
         limit: int = 10,
         offset: int = 0,
     ) -> list[dict]:
@@ -77,7 +76,7 @@ class SearchCLI:
             offset: Number of leading results to skip (pagination).
 
         Returns:
-            List of memory dicts (may be empty).
+            list of memory dicts (may be empty).
         """
         if not query or not query.strip():
             return []
@@ -108,10 +107,10 @@ class SearchCLI:
     @staticmethod
     def _apply_filters(
         memories: list[dict],
-        domain: Optional[str] = None,
-        tags: Optional[list[str]] = None,
-        min_importance: Optional[float] = None,
-        context_type: Optional[str] = None,
+        domain: str | None = None,
+        tags: list[str] | None = None,
+        min_importance: float | None = None,
+        context_type: str | None = None,
     ) -> list[dict]:
         """Apply domain / tag / importance / context-type filters."""
         result = memories
@@ -146,7 +145,7 @@ class SearchCLI:
         High-importance rows (>= 0.8) are highlighted with ANSI bold/colour.
 
         Args:
-            results: List of memory dicts.
+            results: list of memory dicts.
             query: Original query (used for snippet extraction and match reasons).
 
         Returns:
@@ -196,7 +195,7 @@ class SearchCLI:
         """Format results as a JSON array.
 
         Args:
-            results: List of memory dicts.
+            results: list of memory dicts.
 
         Returns:
             Pretty-printed JSON string.
@@ -210,7 +209,7 @@ class SearchCLI:
         importance, tags, domain, and the complete body text.
 
         Args:
-            results: List of memory dicts.
+            results: list of memory dicts.
 
         Returns:
             Multi-line string with full details per memory.
@@ -241,7 +240,7 @@ class SearchCLI:
         """Format results as one ID per line.
 
         Args:
-            results: List of memory dicts.
+            results: list of memory dicts.
 
         Returns:
             Newline-separated IDs, or empty string for no results.

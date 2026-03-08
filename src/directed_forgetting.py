@@ -72,7 +72,7 @@ class DirectedForgetting:
             text: Raw text to scan.
 
         Returns:
-            List of dicts: [{type: 'forget'|'remember', marker: str, position: int}]
+            list of dicts: [{type: 'forget'|'remember', marker: str, position: int}]
         """
         if not text:
             return []
@@ -107,10 +107,10 @@ class DirectedForgetting:
         the assistant.
 
         Args:
-            messages: List of {role, content} message dicts.
+            messages: list of {role, content} message dicts.
 
         Returns:
-            List of {position, marker_type, pattern_matched, context}
+            list of {position, marker_type, pattern_matched, context}
         """
         results: list[dict] = []
 

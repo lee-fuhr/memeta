@@ -14,7 +14,7 @@ import json
 from dataclasses import dataclass, field, asdict
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import Any
 import time
 
 from .memory_ts_client import MemoryTSClient, MemoryTSError
@@ -28,8 +28,8 @@ class MaintenanceResult:
     duration_ms: float
     decay_count: int
     archived_count: int
-    stats: Dict[str, Any]
-    health: Dict[str, Any]
+    stats: dict[str, Any]
+    health: dict[str, Any]
 
 
 class MaintenanceRunner:
@@ -43,7 +43,7 @@ class MaintenanceRunner:
     - Health checks
     """
 
-    def __init__(self, memory_dir: Optional[Path] = None, decay_predictor=None):
+    def __init__(self, memory_dir: Path | None = None, decay_predictor=None):
         """
         Initialize maintenance runner
 
@@ -55,7 +55,7 @@ class MaintenanceRunner:
         self.client = MemoryTSClient(memory_dir=memory_dir)
         self.decay_predictor = decay_predictor
 
-    def run(self, dry_run: bool = False) -> Dict[str, Any]:
+    def run(self, dry_run: bool = False) -> dict[str, Any]:
         """
         Run complete maintenance pipeline
 
@@ -96,7 +96,7 @@ class MaintenanceRunner:
         return asdict(result)
 
 
-def apply_decay_to_all(memory_dir: Optional[Path] = None) -> int:
+def apply_decay_to_all(memory_dir: Path | None = None) -> int:
     """
     Apply decay to all memories based on days since last access
 
@@ -138,7 +138,7 @@ def apply_decay_to_all(memory_dir: Optional[Path] = None) -> int:
 
 
 def archive_low_importance(
-    memory_dir: Optional[Path] = None,
+    memory_dir: Path | None = None,
     threshold: float = 0.2,
     decay_predictor=None
 ) -> int:
@@ -205,7 +205,7 @@ def archive_low_importance(
 
 def _write_archive_manifest(
     memory_dir: Path,
-    archived_entries: List[Dict[str, Any]]
+    archived_entries: list[dict[str, Any]]
 ) -> None:
     """
     Write archive manifest file listing all archived memories
@@ -214,7 +214,7 @@ def _write_archive_manifest(
 
     Args:
         memory_dir: Memory directory path
-        archived_entries: List of dicts with memory_id, reason, importance
+        archived_entries: list of dicts with memory_id, reason, importance
     """
     mem_dir = Path(memory_dir)
     archived_dir = mem_dir / "archived"
@@ -244,7 +244,7 @@ def _write_archive_manifest(
     manifest_path.write_text("\n".join(lines))
 
 
-def collect_stats(memory_dir: Optional[Path] = None) -> Dict[str, Any]:
+def collect_stats(memory_dir: Path | None = None) -> dict[str, Any]:
     """
     Collect statistics for dashboard
 
@@ -299,7 +299,7 @@ def collect_stats(memory_dir: Optional[Path] = None) -> Dict[str, Any]:
     }
 
 
-def health_check(memory_dir: Optional[Path] = None) -> Dict[str, Any]:
+def health_check(memory_dir: Path | None = None) -> dict[str, Any]:
     """
     Perform health checks on memory-ts
 
@@ -382,9 +382,9 @@ def health_check(memory_dir: Optional[Path] = None) -> Dict[str, Any]:
 
 
 def run_daily_maintenance(
-    memory_dir: Optional[Path] = None,
+    memory_dir: Path | None = None,
     dry_run: bool = False
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Convenience function for running daily maintenance
 

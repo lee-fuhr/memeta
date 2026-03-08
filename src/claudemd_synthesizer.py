@@ -14,7 +14,7 @@ Uses different markers from correction_graduator to avoid conflicts:
 import logging
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Optional, Protocol
+from typing import Protocol
 
 from .correction_graduator import CorrectionGraduator
 from .memory_ts_client import MemoryTSClient
@@ -34,7 +34,7 @@ class Rule:
 
 class RuleSource(Protocol):
     """Protocol for rule extraction sources."""
-    def extract_rules(self) -> List[Rule]: ...
+    def extract_rules(self) -> list[Rule]: ...
 
 
 class CorrectionRuleSource:
@@ -42,8 +42,8 @@ class CorrectionRuleSource:
 
     def __init__(
         self,
-        memory_client: Optional[MemoryTSClient] = None,
-        memory_dir: Optional[Path] = None,
+        memory_client: MemoryTSClient | None = None,
+        memory_dir: Path | None = None,
     ):
         if memory_client is not None:
             self._graduator = CorrectionGraduator(memory_client=memory_client)
@@ -52,7 +52,7 @@ class CorrectionRuleSource:
         else:
             self._graduator = CorrectionGraduator()
 
-    def extract_rules(self) -> List[Rule]:
+    def extract_rules(self) -> list[Rule]:
         candidates = self._graduator.find_graduation_candidates()
         rules = []
         for mem in candidates:
@@ -74,8 +74,8 @@ class DirectiveRuleSource:
 
     def __init__(
         self,
-        memory_client: Optional[MemoryTSClient] = None,
-        memory_dir: Optional[Path] = None,
+        memory_client: MemoryTSClient | None = None,
+        memory_dir: Path | None = None,
     ):
         if memory_client is not None:
             self._client = memory_client
@@ -84,7 +84,7 @@ class DirectiveRuleSource:
         else:
             self._client = MemoryTSClient()
 
-    def extract_rules(self) -> List[Rule]:
+    def extract_rules(self) -> list[Rule]:
         all_memories = self._client.list()
         rules = []
         for mem in all_memories:
@@ -111,8 +111,8 @@ class FrustrationRuleSource:
 
     def __init__(
         self,
-        memory_client: Optional[MemoryTSClient] = None,
-        memory_dir: Optional[Path] = None,
+        memory_client: MemoryTSClient | None = None,
+        memory_dir: Path | None = None,
     ):
         if memory_client is not None:
             self._client = memory_client
@@ -121,7 +121,7 @@ class FrustrationRuleSource:
         else:
             self._client = MemoryTSClient()
 
-    def extract_rules(self) -> List[Rule]:
+    def extract_rules(self) -> list[Rule]:
         all_memories = self._client.list()
         rules = []
         for mem in all_memories:
@@ -147,8 +147,8 @@ class PreferenceRuleSource:
 
     def __init__(
         self,
-        memory_client: Optional[MemoryTSClient] = None,
-        memory_dir: Optional[Path] = None,
+        memory_client: MemoryTSClient | None = None,
+        memory_dir: Path | None = None,
     ):
         if memory_client is not None:
             self._client = memory_client
@@ -157,7 +157,7 @@ class PreferenceRuleSource:
         else:
             self._client = MemoryTSClient()
 
-    def extract_rules(self) -> List[Rule]:
+    def extract_rules(self) -> list[Rule]:
         all_memories = self._client.list()
         rules = []
         for mem in all_memories:
@@ -183,8 +183,8 @@ class WorkflowRuleSource:
 
     def __init__(
         self,
-        memory_client: Optional[MemoryTSClient] = None,
-        memory_dir: Optional[Path] = None,
+        memory_client: MemoryTSClient | None = None,
+        memory_dir: Path | None = None,
     ):
         if memory_client is not None:
             self._client = memory_client
@@ -193,7 +193,7 @@ class WorkflowRuleSource:
         else:
             self._client = MemoryTSClient()
 
-    def extract_rules(self) -> List[Rule]:
+    def extract_rules(self) -> list[Rule]:
         all_memories = self._client.list()
         rules = []
         for mem in all_memories:
@@ -236,7 +236,7 @@ class CLAUDEMDSynthesizer:
 
     def __init__(
         self,
-        sources: List[RuleSource],
+        sources: list[RuleSource],
         claude_md_path: Path,
     ):
         self.sources = sources
@@ -267,9 +267,9 @@ class CLAUDEMDSynthesizer:
             "updated": updated,
         }
 
-    def collect_rules(self) -> List[Rule]:
+    def collect_rules(self) -> list[Rule]:
         """Gather rules from all sources."""
-        all_rules: List[Rule] = []
+        all_rules: list[Rule] = []
         for source in self.sources:
             try:
                 all_rules.extend(source.extract_rules())
@@ -277,7 +277,7 @@ class CLAUDEMDSynthesizer:
                 logger.warning("Rule source %s failed: %s", type(source).__name__, e)
         return all_rules
 
-    def deduplicate(self, rules: List[Rule]) -> List[Rule]:
+    def deduplicate(self, rules: list[Rule]) -> list[Rule]:
         """Remove near-duplicate rules.
 
         Word overlap > 0.7 = duplicate. Keep higher confidence version.
@@ -287,7 +287,7 @@ class CLAUDEMDSynthesizer:
 
         # Sort by confidence descending so we keep higher confidence first
         sorted_rules = sorted(rules, key=lambda r: r.confidence, reverse=True)
-        kept: List[Rule] = []
+        kept: list[Rule] = []
 
         for rule in sorted_rules:
             is_dup = False
@@ -300,7 +300,7 @@ class CLAUDEMDSynthesizer:
 
         return kept
 
-    def format_rules(self, rules: List[Rule]) -> str:
+    def format_rules(self, rules: list[Rule]) -> str:
         """Format rules grouped by category.
 
         Each category gets a ### heading.
@@ -310,11 +310,11 @@ class CLAUDEMDSynthesizer:
             return ""
 
         # Group by category
-        by_category: dict[str, List[Rule]] = {}
+        by_category: dict[str, list[Rule]] = {}
         for rule in rules:
             by_category.setdefault(rule.category, []).append(rule)
 
-        lines: List[str] = []
+        lines: list[str] = []
         for cat in self.CATEGORY_ORDER:
             cat_rules = by_category.get(cat)
             if not cat_rules:

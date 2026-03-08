@@ -14,7 +14,6 @@ Database: uses its own `temporal_edges` table via db_pool.
 import sqlite3
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional
 
 from memory_system.db_pool import get_connection
 
@@ -104,9 +103,9 @@ class TemporalKnowledgeGraph:
         target_id: str,
         relationship_type: str,
         valid_from: str,
-        valid_to: Optional[str] = None,
+        valid_to: str | None = None,
         confidence: float = 1.0,
-    ) -> Dict:
+    ) -> dict:
         """
         Add a temporal edge between two memories.
 
@@ -119,7 +118,7 @@ class TemporalKnowledgeGraph:
             confidence: Confidence score 0.0-1.0. Default 1.0.
 
         Returns:
-            Dict with edge_id key.
+            dict with edge_id key.
         """
         created_at = datetime.now().isoformat()
 
@@ -137,7 +136,7 @@ class TemporalKnowledgeGraph:
 
         return {"edge_id": edge_id}
 
-    def get_edges_at(self, memory_id: str, timestamp: str) -> List[Dict]:
+    def get_edges_at(self, memory_id: str, timestamp: str) -> list[dict]:
         """
         Get all edges involving memory_id that are valid at timestamp.
 
@@ -151,7 +150,7 @@ class TemporalKnowledgeGraph:
             timestamp: ISO date string to check validity against.
 
         Returns:
-            List of edge dicts.
+            list of edge dicts.
         """
         with get_connection(self.db_path) as conn:
             cursor = conn.execute(
@@ -168,7 +167,7 @@ class TemporalKnowledgeGraph:
             )
             return [self._row_to_dict(row) for row in cursor.fetchall()]
 
-    def get_relationship_evolution(self, memory_id: str) -> List[Dict]:
+    def get_relationship_evolution(self, memory_id: str) -> list[dict]:
         """
         Get all edges for a memory, sorted chronologically by valid_from.
 
@@ -178,7 +177,7 @@ class TemporalKnowledgeGraph:
             memory_id: Memory identifier.
 
         Returns:
-            List of edge dicts sorted by valid_from ascending.
+            list of edge dicts sorted by valid_from ascending.
         """
         with get_connection(self.db_path) as conn:
             cursor = conn.execute(
@@ -193,7 +192,7 @@ class TemporalKnowledgeGraph:
             )
             return [self._row_to_dict(row) for row in cursor.fetchall()]
 
-    def get_edges_between(self, start_date: str, end_date: str) -> List[Dict]:
+    def get_edges_between(self, start_date: str, end_date: str) -> list[dict]:
         """
         Get edges created (valid_from) within a date range.
 
@@ -204,7 +203,7 @@ class TemporalKnowledgeGraph:
             end_date: End of range (ISO date string).
 
         Returns:
-            List of edge dicts with valid_from in [start_date, end_date].
+            list of edge dicts with valid_from in [start_date, end_date].
         """
         with get_connection(self.db_path) as conn:
             cursor = conn.execute(
@@ -227,7 +226,7 @@ class TemporalKnowledgeGraph:
         valid_to: str,
     ) -> bool:
         """
-        Set valid_to on an open-ended edge, closing it.
+        set valid_to on an open-ended edge, closing it.
 
         Only affects edges where valid_to IS NULL (open-ended).
         If no matching open-ended edge exists, returns False.
@@ -256,12 +255,12 @@ class TemporalKnowledgeGraph:
             conn.commit()
             return cursor.rowcount > 0
 
-    def get_stats(self) -> Dict:
+    def get_stats(self) -> dict:
         """
         Get graph statistics.
 
         Returns:
-            Dict with total_edges, active_edges (valid_to IS NULL),
+            dict with total_edges, active_edges (valid_to IS NULL),
             expired_edges (valid_to IS NOT NULL), and by_type counts.
         """
         with get_connection(self.db_path) as conn:
@@ -296,7 +295,7 @@ class TemporalKnowledgeGraph:
         }
 
     @staticmethod
-    def _row_to_dict(row) -> Dict:
+    def _row_to_dict(row) -> dict:
         """Convert a raw SQLite row tuple to an edge dict."""
         return {
             "id": row[0],

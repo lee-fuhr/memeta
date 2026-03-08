@@ -29,7 +29,6 @@ import random
 import sqlite3
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Optional
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -46,7 +45,7 @@ DEFAULT_TRIGGER_INTERVAL = 20  # sessions
 # Database initialization
 # ---------------------------------------------------------------------------
 
-def init_feedback_tables(db_path: Optional[Path] = None) -> None:
+def init_feedback_tables(db_path: Path | None = None) -> None:
     """Initialize feedback tables if they don't exist.
 
     Args:
@@ -88,10 +87,10 @@ def init_feedback_tables(db_path: Optional[Path] = None) -> None:
 # ---------------------------------------------------------------------------
 
 def get_quality_check_batch(
-    memory_dir: Optional[Path] = None,
+    memory_dir: Path | None = None,
     batch_size: int = DEFAULT_BATCH_SIZE,
     days_back: int = DEFAULT_DAYS_BACK,
-    db_path: Optional[Path] = None,
+    db_path: Path | None = None,
 ) -> list[dict]:
     """Get a random batch of recent memories for quality review.
 
@@ -106,7 +105,7 @@ def get_quality_check_batch(
         db_path: Path to intelligence.db
 
     Returns:
-        List of memory dicts with id, content, importance, tags, created_at
+        list of memory dicts with id, content, importance, tags, created_at
     """
     memory_dir = Path(memory_dir) if memory_dir else DEFAULT_MEMORY_DIR
     db_path = Path(db_path) if db_path else DEFAULT_DB_PATH
@@ -171,8 +170,8 @@ def get_quality_check_batch(
 def save_feedback(
     memory_id: str,
     feedback: str,
-    session_context: Optional[str] = None,
-    db_path: Optional[Path] = None,
+    session_context: str | None = None,
+    db_path: Path | None = None,
 ) -> bool:
     """Save human feedback for a memory.
 
@@ -207,8 +206,8 @@ def save_feedback(
 
 
 def get_quality_metrics(
-    db_path: Optional[Path] = None,
-    days_back: Optional[int] = None,
+    db_path: Path | None = None,
+    days_back: int | None = None,
 ) -> dict:
     """Calculate quality metrics from feedback.
 
@@ -217,7 +216,7 @@ def get_quality_metrics(
         days_back: Optional time window (only count recent feedback)
 
     Returns:
-        Dict with total_feedback, good_count, bad_count, quality_score
+        dict with total_feedback, good_count, bad_count, quality_score
     """
     db_path = Path(db_path) if db_path else DEFAULT_DB_PATH
     init_feedback_tables(db_path)
@@ -255,7 +254,7 @@ def get_quality_metrics(
 
 def get_feedback_by_context(
     session_context: str,
-    db_path: Optional[Path] = None,
+    db_path: Path | None = None,
 ) -> list[dict]:
     """Get all feedback for a specific session context (e.g., prompt version).
 
@@ -264,7 +263,7 @@ def get_feedback_by_context(
         db_path: Path to intelligence.db
 
     Returns:
-        List of feedback dicts with memory_id, feedback, timestamp, session_context
+        list of feedback dicts with memory_id, feedback, timestamp, session_context
     """
     db_path = Path(db_path) if db_path else DEFAULT_DB_PATH
     init_feedback_tables(db_path)
@@ -295,7 +294,7 @@ def get_feedback_by_context(
 def should_show_feedback_prompt(
     session_count: int,
     interval: int = DEFAULT_TRIGGER_INTERVAL,
-    db_path: Optional[Path] = None,
+    db_path: Path | None = None,
 ) -> bool:
     """Determine if feedback prompt should be shown.
 
@@ -336,7 +335,7 @@ def should_show_feedback_prompt(
     return True
 
 
-def mark_feedback_completed(db_path: Optional[Path] = None) -> None:
+def mark_feedback_completed(db_path: Path | None = None) -> None:
     """Mark that user completed feedback round.
 
     Args:
@@ -354,7 +353,7 @@ def mark_feedback_completed(db_path: Optional[Path] = None) -> None:
         )
 
 
-def increment_session_count(db_path: Optional[Path] = None) -> int:
+def increment_session_count(db_path: Path | None = None) -> int:
     """Increment and return session count.
 
     Args:
@@ -388,7 +387,7 @@ def _parse_frontmatter(text: str) -> tuple[dict, str]:
         text: Full file content
 
     Returns:
-        Tuple of (frontmatter_dict, body_content)
+        tuple of (frontmatter_dict, body_content)
     """
     text = text.strip()
 

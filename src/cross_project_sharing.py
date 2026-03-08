@@ -1,17 +1,16 @@
 """Cross-project memory sharing - Feature 27: Share insights between clients"""
-from typing import List, Dict, Optional
 
-def tag_as_universal(memory: Dict) -> Dict:
+def tag_as_universal(memory: dict) -> dict:
     """Mark memory as applicable across projects."""
     if '#universal' not in memory.get('tags', []):
         memory['tags'] = memory.get('tags', []) + ['#universal']
     return memory
 
-def get_universal_memories(all_memories: List[Dict]) -> List[Dict]:
+def get_universal_memories(all_memories: list[dict]) -> list[dict]:
     """Get memories tagged as universal."""
     return [m for m in all_memories if '#universal' in m.get('tags', [])]
 
-def suggest_cross_project(memory: Dict, other_projects: List[str]) -> List[str]:
+def suggest_cross_project(memory: dict, other_projects: list[str]) -> list[str]:
     """Suggest which projects might benefit from this memory."""
     # Would use LLM to determine relevance
     # For now, return all projects for universal memories
@@ -19,7 +18,7 @@ def suggest_cross_project(memory: Dict, other_projects: List[str]) -> List[str]:
         return other_projects
     return []
 
-def share_to_project(memory: Dict, target_project: str) -> Dict:
+def share_to_project(memory: dict, target_project: str) -> dict:
     """Create copy of memory in target project with source attribution."""
     shared = memory.copy()
     shared['project_id'] = target_project

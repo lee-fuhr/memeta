@@ -10,7 +10,6 @@ import hashlib
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import List, Optional, Dict
 
 from ..intelligence_db import IntelligenceDB
 # Try to import semantic search (Feature 11) - optional dependency
@@ -34,11 +33,11 @@ class CodeMemory:
     language: str
     description: str
     context: str  # What problem it solved
-    file_path: Optional[str] = None
-    session_id: Optional[str] = None
+    file_path: str | None = None
+    session_id: str | None = None
     created_at: str = None
     project_id: str = "default"
-    tags: List[str] = None
+    tags: list[str] = None
 
     def __post_init__(self):
         if self.created_at is None:
@@ -59,7 +58,7 @@ class CodeMemoryLibrary:
     Enables: "How did I solve async rate limiting before?"
     """
 
-    def __init__(self, db_path: Optional[Path] = None):
+    def __init__(self, db_path: Path | None = None):
         """
         Initialize code memory library
 
@@ -85,8 +84,8 @@ class CodeMemoryLibrary:
         language: str,
         description: str,
         context: str,
-        file_path: Optional[str] = None,
-        session_id: Optional[str] = None,
+        file_path: str | None = None,
+        session_id: str | None = None,
         project_id: str = "default",
         save_to_memory_ts: bool = True
     ) -> CodeMemory:
@@ -180,11 +179,11 @@ class CodeMemoryLibrary:
     def search_code(
         self,
         query: str,
-        language: Optional[str] = None,
-        project_id: Optional[str] = None,
+        language: str | None = None,
+        project_id: str | None = None,
         use_semantic: bool = True,
         limit: int = 10
-    ) -> List[Dict]:
+    ) -> list[dict]:
         """
         Search code snippets by description or context
 
@@ -196,7 +195,7 @@ class CodeMemoryLibrary:
             limit: Max results
 
         Returns:
-            List of matching code memories, sorted by relevance
+            list of matching code memories, sorted by relevance
         """
         cursor = self.db.conn.cursor()
 
@@ -255,7 +254,7 @@ class CodeMemoryLibrary:
 
             return [dict(row) for row in cursor.fetchall()]
 
-    def get_by_language(self, language: str, limit: int = 50) -> List[Dict]:
+    def get_by_language(self, language: str, limit: int = 50) -> list[dict]:
         """
         Get all code snippets for a specific language
 
@@ -264,7 +263,7 @@ class CodeMemoryLibrary:
             limit: Max results
 
         Returns:
-            List of code memories
+            list of code memories
         """
         cursor = self.db.conn.cursor()
 
@@ -277,7 +276,7 @@ class CodeMemoryLibrary:
 
         return [dict(row) for row in cursor.fetchall()]
 
-    def get_recent(self, days: int = 30, limit: int = 20) -> List[Dict]:
+    def get_recent(self, days: int = 30, limit: int = 20) -> list[dict]:
         """
         Get recently saved code snippets
 
@@ -286,7 +285,7 @@ class CodeMemoryLibrary:
             limit: Max results
 
         Returns:
-            List of recent code memories
+            list of recent code memories
         """
         cursor = self.db.conn.cursor()
 
@@ -302,7 +301,7 @@ class CodeMemoryLibrary:
 
         return [dict(row) for row in cursor.fetchall()]
 
-    def deduplicate_snippet(self, snippet: str) -> Optional[Dict]:
+    def deduplicate_snippet(self, snippet: str) -> dict | None:
         """
         Check if snippet already exists (by hash)
 

@@ -21,7 +21,6 @@ import sqlite3
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
 
 from memory_system.config import cfg
 
@@ -75,8 +74,8 @@ class SkillEvolutionTracker:
 
     def __init__(
         self,
-        db_path: Optional[str] = None,
-        skills_dir: Optional[Path] = None,
+        db_path: str | None = None,
+        skills_dir: Path | None = None,
     ) -> None:
         self._db_path = str(db_path) if db_path else str(cfg.intelligence_db_path)
         self._skills_dir = Path(skills_dir) if skills_dir else cfg.skills_dir
@@ -172,7 +171,7 @@ class SkillEvolutionTracker:
         ).fetchall()
         return [_row_to_snapshot(r) for r in rows]
 
-    def get_last_meaningful_update(self, skill_name: str) -> Optional[datetime]:
+    def get_last_meaningful_update(self, skill_name: str) -> datetime | None:
         """Return the datetime of the most recent initial/meaningful snapshot, or None."""
         row = self._conn.execute(
             "SELECT snapshotted_at FROM skill_evolution_snapshots"
@@ -218,7 +217,7 @@ class SkillEvolutionTracker:
 
     # ── Internal helpers ──────────────────────────────────────────────────
 
-    def _last_snapshot(self, skill_name: str) -> Optional[sqlite3.Row]:
+    def _last_snapshot(self, skill_name: str) -> sqlite3.Row | None:
         return self._conn.execute(
             "SELECT * FROM skill_evolution_snapshots WHERE skill_name = ?"
             " ORDER BY id DESC LIMIT 1",

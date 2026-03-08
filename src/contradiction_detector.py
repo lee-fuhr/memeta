@@ -11,7 +11,6 @@ Examples of contradictions:
 """
 
 import subprocess
-from typing import List, Dict, Optional
 from dataclasses import dataclass
 
 from .circuit_breaker import get_breaker, CircuitBreakerOpenError
@@ -21,7 +20,7 @@ from .circuit_breaker import get_breaker, CircuitBreakerOpenError
 class ContradictionResult:
     """Result of contradiction check"""
     contradicts: bool
-    contradicted_memory: Optional[Dict] = None
+    contradicted_memory: dict | None = None
     action: str = "save"  # "save" | "replace" | "skip"
 
 
@@ -89,9 +88,9 @@ Answer ONLY with one word: CONTRADICTS or COMPATIBLE"""
 
 def find_similar_memories(
     new_content: str,
-    existing_memories: List[Dict],
+    existing_memories: list[dict],
     top_n: int = 5
-) -> List[Dict]:
+) -> list[dict]:
     """
     Find most similar existing memories using word overlap.
 
@@ -99,11 +98,11 @@ def find_similar_memories(
 
     Args:
         new_content: New memory content
-        existing_memories: List of existing memory dicts
+        existing_memories: list of existing memory dicts
         top_n: Number of top matches to return
 
     Returns:
-        List of most similar memory dicts
+        list of most similar memory dicts
     """
     import re
 
@@ -136,14 +135,14 @@ def find_similar_memories(
 
 def check_contradictions(
     new_memory: str,
-    existing_memories: List[Dict]
+    existing_memories: list[dict]
 ) -> ContradictionResult:
     """
     Check if new memory contradicts any existing memories.
 
     Args:
         new_memory: New memory content
-        existing_memories: List of existing memory dicts with 'content' and 'id' keys
+        existing_memories: list of existing memory dicts with 'content' and 'id' keys
 
     Returns:
         ContradictionResult with action to take

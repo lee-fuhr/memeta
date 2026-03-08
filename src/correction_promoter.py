@@ -15,7 +15,6 @@ User: "No, just search inbox — not all Gmail labels"
 import os
 from pathlib import Path
 from datetime import datetime
-from typing import Optional
 import logging
 
 logger = logging.getLogger(__name__)
@@ -29,7 +28,7 @@ TOOL_KEYWORDS = [
 ]
 
 # Path to the project's CLAUDE.md / TOOLS.md for correction promotion.
-# Set MEMORY_SYSTEM_TOOLS_MD to an absolute path to enable this feature.
+# set MEMORY_SYSTEM_TOOLS_MD to an absolute path to enable this feature.
 # When unset, corrections are logged but not written to any file.
 _tools_md_env = os.environ.get("MEMORY_SYSTEM_TOOLS_MD")
 TOOLS_MD_PATH: Path | None = Path(_tools_md_env) if _tools_md_env else None
@@ -95,7 +94,7 @@ def promote_to_tools_md(
     correction: str,
     tool_name: str,
     session_id: str,
-    date: Optional[str] = None
+    date: str | None = None
 ) -> bool:
     """
     Add correction to TOOLS.md as learned preference.

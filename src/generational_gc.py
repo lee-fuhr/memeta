@@ -28,7 +28,6 @@ Usage:
 import sqlite3
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Optional
 
 # ── Generation boundaries (days) ─────────────────────────────────────────────
 
@@ -58,7 +57,7 @@ class GenerationalGC:
     counts, etc. via a mock_memories table (created externally for testing).
     """
 
-    def __init__(self, db_path: Optional[str | Path] = None):
+    def __init__(self, db_path: str | Path | None = None):
         """
         Initialize the generational GC database.
 
@@ -196,7 +195,7 @@ class GenerationalGC:
             generation: 0, 1, or 2.
 
         Returns:
-            List of memory IDs to archive.
+            list of memory IDs to archive.
 
         Raises:
             ValueError: If generation is not 0, 1, or 2.
@@ -314,7 +313,7 @@ class GenerationalGC:
         Run daily collection: gen-0 only.
 
         Returns:
-            Dict with gen_0 results.
+            dict with gen_0 results.
         """
         collected_0 = self.collect_generation(0)
         return {
@@ -329,7 +328,7 @@ class GenerationalGC:
         Run weekly collection: gen-0 and gen-1.
 
         Returns:
-            Dict with gen_0 and gen_1 results.
+            dict with gen_0 and gen_1 results.
         """
         collected_0 = self.collect_generation(0)
         collected_1 = self.collect_generation(1)
@@ -349,7 +348,7 @@ class GenerationalGC:
         Run monthly collection: all generations.
 
         Returns:
-            Dict with gen_0, gen_1, and gen_2 results.
+            dict with gen_0, gen_1, and gen_2 results.
         """
         collected_0 = self.collect_generation(0)
         collected_1 = self.collect_generation(1)
@@ -376,7 +375,7 @@ class GenerationalGC:
         Return counts and age information per generation.
 
         Returns:
-            Dict with gen_0, gen_1, gen_2 sub-dicts (count, avg_age_days)
+            dict with gen_0, gen_1, gen_2 sub-dicts (count, avg_age_days)
             and a total count.
         """
         cur = self.conn.cursor()
@@ -425,7 +424,7 @@ class GenerationalGC:
             limit: Maximum number of events to return.
 
         Returns:
-            List of event dicts.
+            list of event dicts.
         """
         cur = self.conn.cursor()
         cur.execute(

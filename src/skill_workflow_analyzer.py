@@ -17,7 +17,6 @@ import logging
 import sqlite3
 from collections import Counter, defaultdict
 from dataclasses import dataclass, field
-from typing import Optional
 
 from memory_system.config import cfg
 from memory_system.skill_provenance import SkillProvenanceTracker
@@ -45,7 +44,7 @@ class SkillWorkflowAnalyzer:
     already contains skill provenance records.
     """
 
-    def __init__(self, db_path: Optional[str] = None) -> None:
+    def __init__(self, db_path: str | None = None) -> None:
         self._db_path = str(db_path) if db_path else str(cfg.intelligence_db_path)
         # Ensure the skill_provenance table exists.
         self._provenance = SkillProvenanceTracker(db_path=self._db_path)

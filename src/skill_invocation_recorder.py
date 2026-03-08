@@ -18,7 +18,6 @@ Returns:
 
 import logging
 from pathlib import Path
-from typing import Optional
 
 logger = logging.getLogger(__name__)
 
@@ -26,8 +25,8 @@ logger = logging.getLogger(__name__)
 def process_tool_event(
     payload: dict,
     state_file=None,
-    db_path: Optional[str] = None,
-) -> Optional[str]:
+    db_path: str | None = None,
+) -> str | None:
     """Process a PreToolUse payload and record any Skill invocation.
 
     Args:
@@ -71,7 +70,7 @@ def _record_provenance(
     skill_name: str,
     session_id: str,
     context_snippet: str,
-    db_path: Optional[str],
+    db_path: str | None,
 ) -> None:
     """Write a provenance row with outcome='unknown' (resolved later by session-end hook)."""
     try:

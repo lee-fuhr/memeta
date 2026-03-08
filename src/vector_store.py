@@ -22,9 +22,11 @@ Migration from SQLite:
 """
 
 import json
+import logging
 import sqlite3
 from pathlib import Path
-from typing import Optional
+
+logger = logging.getLogger(__name__)
 
 import numpy as np
 
@@ -56,7 +58,7 @@ class VectorStore:
 
     def __init__(
         self,
-        persist_dir: Optional[str] = None,
+        persist_dir: str | None = None,
         collection_name: str = DEFAULT_COLLECTION,
         dimension: int = DIMENSION,
     ):
@@ -93,7 +95,7 @@ class VectorStore:
         self,
         content_hash: str,
         embedding: np.ndarray,
-        metadata: Optional[dict] = None,
+        metadata: dict | None = None,
     ) -> None:
         """Store an embedding vector with optional metadata."""
         vec = self._normalize(embedding)
@@ -111,7 +113,7 @@ class VectorStore:
 
         self._save()
 
-    def get_embedding(self, content_hash: str) -> Optional[np.ndarray]:
+    def get_embedding(self, content_hash: str) -> np.ndarray | None:
         """Retrieve an embedding by content hash."""
         if content_hash not in self._hash_to_pos:
             return None
@@ -170,7 +172,7 @@ class VectorStore:
 
     def batch_store(
         self,
-        items: list[tuple[str, np.ndarray, Optional[dict]]],
+        items: list[tuple[str, np.ndarray, dict | None]],
         batch_size: int = 1000,
     ) -> None:
         """Store multiple embeddings efficiently."""
@@ -268,8 +270,8 @@ class VectorStore:
                 self._hash_to_pos = {k: int(v) for k, v in data.get("hash_to_pos", {}).items()}
                 self._pos_to_hash = {int(v): k for k, v in self._hash_to_pos.items()}
                 self._metadata = data.get("metadata", {})
-            except Exception:
-                # Corrupted — start fresh
+            except Exception as exc:
+                logger.warning("FAISS index corrupted, starting fresh: %s", exc)
                 self._index = faiss.IndexFlatIP(self.dimension)
                 self._hash_to_pos.clear()
                 self._pos_to_hash.clear()

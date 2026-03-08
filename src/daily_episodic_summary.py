@@ -12,7 +12,6 @@ import json
 import sqlite3
 from datetime import date, datetime, timedelta
 from pathlib import Path
-from typing import Optional
 import logging
 
 from .config import cfg
@@ -44,8 +43,8 @@ class DailyEpisodicSummary:
 
     def __init__(
         self,
-        output_dir: Optional[Path] = None,
-        db_path: Optional[str] = None,
+        output_dir: Path | None = None,
+        db_path: str | None = None,
     ):
         """
         Initialize the daily summary generator.
@@ -63,7 +62,7 @@ class DailyEpisodicSummary:
     # Public API
     # ------------------------------------------------------------------
 
-    def generate(self, target_date: Optional[date] = None) -> Path:
+    def generate(self, target_date: date | None = None) -> Path:
         """
         Generate a daily summary for the given date.
 

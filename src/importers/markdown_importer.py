@@ -1,6 +1,5 @@
 """Import memories from a directory of markdown files."""
 from pathlib import Path
-from typing import Optional
 
 from memory_system.importers.base import BaseImporter, ImportResult, ImportPreview
 from memory_system.memory_ts_client import Memory

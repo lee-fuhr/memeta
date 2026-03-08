@@ -21,7 +21,6 @@ import random
 import re
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Optional
 
 DEFAULT_STATE_FILE: Path = Path.home() / ".claude" / "hook-state.json"
 DEFAULT_INJECTION_INTERVAL: int = 10
@@ -63,7 +62,7 @@ def get_session_id() -> str:
     return session_id if session_id else "unknown"
 
 
-def load_state(state_file: Optional[Path] = None) -> dict:
+def load_state(state_file: Path | None = None) -> dict:
     """Load the full state dict from disk.
 
     Returns an empty dict if the file is missing or contains invalid JSON.
@@ -77,7 +76,7 @@ def load_state(state_file: Optional[Path] = None) -> dict:
         return {}
 
 
-def save_state(state: dict, state_file: Optional[Path] = None) -> None:
+def save_state(state: dict, state_file: Path | None = None) -> None:
     """Atomically write *state* to disk.
 
     Writes to a .tmp sibling first, then uses ``os.replace`` to swap it
@@ -91,8 +90,8 @@ def save_state(state: dict, state_file: Optional[Path] = None) -> None:
 
 
 def get_session_state(
-    session_id: Optional[str] = None,
-    state_file: Optional[Path] = None,
+    session_id: str | None = None,
+    state_file: Path | None = None,
 ) -> dict:
     """Return the state dict for a single session.
 
@@ -116,8 +115,8 @@ def get_session_state(
 
 def update_session_state(
     updates: dict,
-    session_id: Optional[str] = None,
-    state_file: Optional[Path] = None,
+    session_id: str | None = None,
+    state_file: Path | None = None,
 ) -> dict:
     """Merge *updates* into the session's state and persist.
 
@@ -146,8 +145,8 @@ def update_session_state(
 
 
 def increment_exchange(
-    session_id: Optional[str] = None,
-    state_file: Optional[Path] = None,
+    session_id: str | None = None,
+    state_file: Path | None = None,
 ) -> int:
     """Increment the exchange counter for a session.
 
@@ -165,8 +164,8 @@ def increment_exchange(
 
 
 def should_inject(
-    session_id: Optional[str] = None,
-    state_file: Optional[Path] = None,
+    session_id: str | None = None,
+    state_file: Path | None = None,
 ) -> bool:
     """Determine whether it's time to inject memories.
 
@@ -193,8 +192,8 @@ def should_inject(
 
 def record_injection(
     memory_ids: list,
-    session_id: Optional[str] = None,
-    state_file: Optional[Path] = None,
+    session_id: str | None = None,
+    state_file: Path | None = None,
 ) -> None:
     """Record that a memory injection just happened.
 
@@ -215,7 +214,7 @@ def record_injection(
 
 
 def cleanup_stale_sessions(
-    state_file: Optional[Path] = None,
+    state_file: Path | None = None,
     max_age_hours: int = 24,
 ) -> int:
     """Remove sessions older than *max_age_hours*.
@@ -279,8 +278,8 @@ def should_inject_immediately(prompt_text: str) -> bool:
 
 
 def reduce_injection_interval(
-    session_id: Optional[str] = None,
-    state_file: Optional[Path] = None,
+    session_id: str | None = None,
+    state_file: Path | None = None,
 ) -> None:
     """Reduce injection interval from 10 to 5 for rest of session after frustration detected.
 

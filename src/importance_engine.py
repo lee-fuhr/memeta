@@ -10,7 +10,7 @@ Calculates importance scores (0.0-1.0) with:
 
 import re
 from datetime import datetime
-from typing import List, Dict, Any
+from typing import Any
 
 
 # Trigger words that boost importance
@@ -136,7 +136,7 @@ def apply_reinforcement(importance: float) -> float:
     return min(0.95, reinforced)
 
 
-def detect_trigger_words(content: str) -> List[str]:
+def detect_trigger_words(content: str) -> list[str]:
     """
     Detect trigger words in content that indicate high importance
 
@@ -146,7 +146,7 @@ def detect_trigger_words(content: str) -> List[str]:
         content: Memory content text
 
     Returns:
-        List of detected trigger words (preserves original case)
+        list of detected trigger words (preserves original case)
     """
     if not content:
         return []
@@ -166,7 +166,7 @@ def detect_trigger_words(content: str) -> List[str]:
     return detected
 
 
-def get_importance_score(content: str, metadata: Dict[str, Any], temporal_relevance: str = "persistent") -> float:
+def get_importance_score(content: str, metadata: dict[str, Any], temporal_relevance: str = "persistent") -> float:
     """
     Complete importance scoring pipeline
 

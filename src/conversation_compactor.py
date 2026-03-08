@@ -9,7 +9,6 @@ When conversations exceed 50 messages, compact them by:
 This saves token budget while preserving important context.
 """
 
-from typing import List, Dict
 from datetime import datetime
 
 
@@ -28,20 +27,20 @@ def should_compact(message_count: int, threshold: int = 50) -> bool:
 
 
 def compact_conversation(
-    messages: List[Dict],
+    messages: list[dict],
     keep_recent: int = 10
-) -> Dict:
+) -> dict:
     """
     Compact conversation by summarizing old messages.
 
     Args:
-        messages: List of message dicts with 'role' and 'content' keys
+        messages: list of message dicts with 'role' and 'content' keys
         keep_recent: Number of recent messages to keep verbatim (default: 10)
 
     Returns:
-        Dict with:
+        dict with:
         - 'summary': Summary of old messages
-        - 'compacted_messages': List with summary + recent messages
+        - 'compacted_messages': list with summary + recent messages
         - 'messages_compacted': Number of messages summarized
     """
     if len(messages) <= keep_recent:
@@ -99,15 +98,15 @@ Conversation ({len(old_messages)} messages):
     }
 
 
-def get_compaction_stats(messages: List[Dict]) -> Dict:
+def get_compaction_stats(messages: list[dict]) -> dict:
     """
     Get statistics about conversation compaction.
 
     Args:
-        messages: List of message dicts
+        messages: list of message dicts
 
     Returns:
-        Dict with stats:
+        dict with stats:
         - 'total_messages': Total message count
         - 'summary_messages': Number of summary messages
         - 'real_messages': Number of non-summary messages

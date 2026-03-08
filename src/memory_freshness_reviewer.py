@@ -31,7 +31,6 @@ import time
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional
 
 from .memory_ts_client import MemoryTSClient, Memory
 import logging
@@ -81,7 +80,7 @@ class ReviewResult:
 # ---------------------------------------------------------------------------
 
 def scan_stale_memories(
-    memory_dir: Optional[Path] = None,
+    memory_dir: Path | None = None,
     stale_days: int = DEFAULT_STALE_DAYS,
     max_importance: float = DEFAULT_MIN_IMPORTANCE,
     include_all_importance: bool = False,
@@ -95,7 +94,7 @@ def scan_stale_memories(
         include_all_importance: If True, ignore importance filter
 
     Returns:
-        List of StaleMemory sorted by staleness_score (highest first)
+        list of StaleMemory sorted by staleness_score (highest first)
     """
     client = MemoryTSClient(memory_dir=memory_dir or MEMORY_DIR)
     now = datetime.now(tz=timezone.utc)
@@ -128,13 +127,13 @@ def scan_stale_memories(
     return stale
 
 
-def refresh_memory(memory_id: str, memory_dir: Optional[Path] = None) -> Memory:
+def refresh_memory(memory_id: str, memory_dir: Path | None = None) -> Memory:
     """Mark a memory as freshly reviewed — resets updated timestamp."""
     client = MemoryTSClient(memory_dir=memory_dir or MEMORY_DIR)
     return client.update(memory_id, status="active")
 
 
-def archive_memory(memory_id: str, memory_dir: Optional[Path] = None) -> Memory:
+def archive_memory(memory_id: str, memory_dir: Path | None = None) -> Memory:
     """Archive a stale memory."""
     client = MemoryTSClient(memory_dir=memory_dir or MEMORY_DIR)
     memory = client.get(memory_id)
@@ -194,7 +193,7 @@ def send_freshness_notification(summary: str) -> bool:
 def interactive_review(
     stale: list[StaleMemory],
     max_review: int = DEFAULT_MAX_REVIEW,
-    memory_dir: Optional[Path] = None,
+    memory_dir: Path | None = None,
 ) -> ReviewResult:
     """Run an interactive CLI review session.
 
@@ -256,7 +255,7 @@ def interactive_review(
 # Helpers
 # ---------------------------------------------------------------------------
 
-def _days_since(timestamp_str: str, now: datetime) -> Optional[int]:
+def _days_since(timestamp_str: str, now: datetime) -> int | None:
     """Parse a timestamp string and return days since then."""
     if not timestamp_str:
         return None

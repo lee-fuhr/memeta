@@ -2,7 +2,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Callable, Optional
+from typing import Callable
 
 from memory_system.memory_ts_client import Memory
 
@@ -27,15 +27,15 @@ class ImportPreview:
 class BaseImporter(ABC):
     """Abstract base for memory importers."""
 
-    def __init__(self, memory_dir: Optional[Path] = None, project_id: str = "default"):
+    def __init__(self, memory_dir: Path | None = None, project_id: str = "default"):
         from memory_system.memory_ts_client import MemoryTSClient, DEFAULT_MEMORY_DIR
         self.memory_dir = memory_dir or DEFAULT_MEMORY_DIR
         self.project_id = project_id
         self._client = MemoryTSClient(memory_dir=self.memory_dir)
-        self._progress_callback: Optional[Callable] = None
+        self._progress_callback: Callable | None = None
 
     def set_progress_callback(self, callback: Callable[[int, int], None]):
-        """Set progress callback(current, total)."""
+        """set progress callback(current, total)."""
         self._progress_callback = callback
 
     @abstractmethod

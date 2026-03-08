@@ -11,7 +11,6 @@ import subprocess
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import List, Optional, Dict
 
 from ..intelligence_db import IntelligenceDB
 from ..importance_engine import calculate_importance
@@ -27,7 +26,7 @@ class ImageMemory:
     image_path: Path
     ocr_text: str
     vision_insights: str
-    memories: List[Dict]
+    memories: list[dict]
     created_at: str = None
     project_id: str = "default"
 
@@ -47,7 +46,7 @@ class ImageCapture:
     4. Save to memory-ts + intelligence DB
     """
 
-    def __init__(self, db_path: Optional[Path] = None):
+    def __init__(self, db_path: Path | None = None):
         """
         Initialize image capture
 
@@ -172,8 +171,8 @@ class ImageCapture:
         ocr_text: str,
         vision_insights: str,
         project_id: str = "default",
-        session_id: Optional[str] = None
-    ) -> List[Dict]:
+        session_id: str | None = None
+    ) -> list[dict]:
         """
         Extract structured memories from image analysis
 
@@ -184,7 +183,7 @@ class ImageCapture:
             session_id: Optional session ID
 
         Returns:
-            List of memories
+            list of memories
         """
         combined_text = f"{vision_insights}\n\n{ocr_text}".strip()
 
@@ -214,7 +213,7 @@ class ImageCapture:
         self,
         image_path: Path,
         project_id: str = "default",
-        session_id: Optional[str] = None,
+        session_id: str | None = None,
         save_to_memory_ts: bool = True
     ) -> ImageMemory:
         """
@@ -294,9 +293,9 @@ class ImageCapture:
     def search_image_memories(
         self,
         query: str,
-        project_id: Optional[str] = None,
+        project_id: str | None = None,
         min_importance: float = 0.0
-    ) -> List[Dict]:
+    ) -> list[dict]:
         """
         Search image memories by text content
 
@@ -306,7 +305,7 @@ class ImageCapture:
             min_importance: Minimum importance threshold
 
         Returns:
-            List of matching image memories
+            list of matching image memories
         """
         cursor = self.db.conn.cursor()
 

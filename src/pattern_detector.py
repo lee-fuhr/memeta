@@ -13,7 +13,7 @@ Reinforcement grading:
 import re
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+from typing import Any
 
 from .fsrs_scheduler import FSRSScheduler, ReviewGrade
 from .memory_ts_client import MemoryTSClient, Memory
@@ -30,7 +30,7 @@ def normalize_text(text: str) -> set:
         text: Raw text string
 
     Returns:
-        Set of normalized words
+        set of normalized words
     """
     text_clean = re.sub(r'[^\w\s]', ' ', text.lower())
     words = [w for w in text_clean.split() if w]
@@ -85,8 +85,8 @@ class PatternDetector:
 
     def __init__(
         self,
-        memory_dir: Optional[Path] = None,
-        scheduler: Optional[FSRSScheduler] = None,
+        memory_dir: Path | None = None,
+        scheduler: FSRSScheduler | None = None,
         similarity_threshold: float = DEFAULT_SIMILARITY_THRESHOLD,
     ):
         """
@@ -103,9 +103,9 @@ class PatternDetector:
 
     def detect_reinforcements(
         self,
-        new_memories: List[Dict[str, Any]],
+        new_memories: list[dict[str, Any]],
         session_id: str,
-    ) -> List[ReinforcementSignal]:
+    ) -> list[ReinforcementSignal]:
         """
         Detect reinforcements between new session memories and existing memories.
 
@@ -114,11 +114,11 @@ class PatternDetector:
         (cross-project). Registers and records review in FSRS.
 
         Args:
-            new_memories: List of dicts with 'content', 'project_id', 'importance'
+            new_memories: list of dicts with 'content', 'project_id', 'importance'
             session_id: Session that produced these memories
 
         Returns:
-            List of ReinforcementSignal objects
+            list of ReinforcementSignal objects
         """
         if not new_memories:
             return []
@@ -141,7 +141,7 @@ class PatternDetector:
                 continue
 
             # Find best match among existing memories
-            best_match: Optional[Memory] = None
+            best_match: Memory | None = None
             best_score: float = 0.0
 
             for existing in existing_memories:

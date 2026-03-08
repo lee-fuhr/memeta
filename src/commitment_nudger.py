@@ -45,7 +45,7 @@ def score_trigger(trigger: ProspectiveTrigger, context: dict) -> float:
 
     Args:
         trigger: A ProspectiveTrigger object.
-        context: Dict with optional keys: current_date (str YYYY-MM-DD),
+        context: dict with optional keys: current_date (str YYYY-MM-DD),
                  keywords (list[str]), importance_map (dict mapping
                  memory_id to float).
 
@@ -104,7 +104,7 @@ def get_top_commitments(
     (keep highest score), returns top-N.
 
     Returns:
-        List of dicts with keys: trigger, score, reason (str explaining
+        list of dicts with keys: trigger, score, reason (str explaining
         why ranked high).
     """
     ptm = ProspectiveTriggerManager(db_path)

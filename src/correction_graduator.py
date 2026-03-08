@@ -12,7 +12,6 @@ the approach in correction_promoter.py for TOOLS.md.
 import os
 import logging
 from pathlib import Path
-from typing import List, Optional
 
 from .memory_ts_client import Memory, MemoryTSClient
 
@@ -24,7 +23,7 @@ END_MARKER = "<!-- END AUTO-GENERATED: corrections -->"
 
 # Default CLAUDE.md path
 _claude_md_env = os.environ.get("MEMORY_SYSTEM_CLAUDE_MD")
-DEFAULT_CLAUDE_MD_PATH: Optional[Path] = (
+DEFAULT_CLAUDE_MD_PATH: Path | None = (
     Path(_claude_md_env) if _claude_md_env
     else None
 )
@@ -41,9 +40,9 @@ class CorrectionGraduator:
 
     def __init__(
         self,
-        memory_client: Optional[MemoryTSClient] = None,
-        memory_dir: Optional[Path] = None,
-        claude_md_path: Optional[Path] = None,
+        memory_client: MemoryTSClient | None = None,
+        memory_dir: Path | None = None,
+        claude_md_path: Path | None = None,
         graduation_threshold: int = 3,
     ):
         """
@@ -64,7 +63,7 @@ class CorrectionGraduator:
         self.claude_md_path = Path(claude_md_path) if claude_md_path else DEFAULT_CLAUDE_MD_PATH
         self.graduation_threshold = graduation_threshold
 
-    def find_graduation_candidates(self) -> List[Memory]:
+    def find_graduation_candidates(self) -> list[Memory]:
         """
         Find correction memories eligible for graduation.
 
@@ -74,7 +73,7 @@ class CorrectionGraduator:
         - "#graduated" NOT in tags (prevent re-processing)
 
         Returns:
-            List of Memory objects ready for graduation
+            list of Memory objects ready for graduation
         """
         all_memories = self.memory_client.list()
 
@@ -90,7 +89,7 @@ class CorrectionGraduator:
 
         return candidates
 
-    def find_all_graduated(self) -> List[Memory]:
+    def find_all_graduated(self) -> list[Memory]:
         """
         Find all already-graduated correction memories.
 
@@ -98,7 +97,7 @@ class CorrectionGraduator:
         regenerating the CLAUDE.md block (strip-and-regenerate pattern).
 
         Returns:
-            List of Memory objects with #graduated tag
+            list of Memory objects with #graduated tag
         """
         all_memories = self.memory_client.list()
 
@@ -107,7 +106,7 @@ class CorrectionGraduator:
             if mem.context_type == "correction" and "#graduated" in mem.tags
         ]
 
-    def format_rules(self, memories: List[Memory], categorize: bool = False) -> str:
+    def format_rules(self, memories: list[Memory], categorize: bool = False) -> str:
         """
         Format graduated memories as imperative rules.
 
@@ -117,7 +116,7 @@ class CorrectionGraduator:
         - One rule per line, bulleted
 
         Args:
-            memories: List of Memory objects to format
+            memories: list of Memory objects to format
             categorize: Future seam for categorized output (ignored for now)
 
         Returns:
@@ -183,7 +182,7 @@ class CorrectionGraduator:
         self.claude_md_path.write_text(new_content)
         return True
 
-    def mark_graduated(self, memories: List[Memory]) -> int:
+    def mark_graduated(self, memories: list[Memory]) -> int:
         """
         Add #graduated tag to graduated memories.
 

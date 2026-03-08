@@ -22,7 +22,7 @@ import tempfile
 import time
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from memory_system.config import MemorySystemConfig, cfg
 import logging
@@ -35,7 +35,7 @@ def _check_result(
     passed: bool,
     message: str,
     duration_ms: float,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Build a standard check result dict."""
     return {
         "name": name,
@@ -55,15 +55,15 @@ class SelfTest:
     ``run_all()`` aggregates every check into a single report dict.
     """
 
-    def __init__(self, config: Optional[MemorySystemConfig] = None):
+    def __init__(self, config: MemorySystemConfig | None = None):
         self.config = config or cfg
-        self._last_report: Optional[Dict[str, Any]] = None
+        self._last_report: dict[str, Any] | None = None
 
     # ------------------------------------------------------------------
     # Individual checks
     # ------------------------------------------------------------------
 
-    def check_memory_readwrite(self) -> Dict[str, Any]:
+    def check_memory_readwrite(self) -> dict[str, Any]:
         """Write a temp memory file, read it back, verify content, clean up."""
         name = "memory_readwrite"
         t0 = time.monotonic()
@@ -89,7 +89,7 @@ class SelfTest:
         except Exception as exc:
             return _check_result(name, False, f"Unexpected error: {exc}", _elapsed(t0))
 
-    def check_db_accessible(self) -> Dict[str, Any]:
+    def check_db_accessible(self) -> dict[str, Any]:
         """Verify intelligence.db exists and contains expected tables (read-only)."""
         name = "db_accessible"
         t0 = time.monotonic()
@@ -139,7 +139,7 @@ class SelfTest:
         except Exception as exc:
             return _check_result(name, False, f"Unexpected error: {exc}", _elapsed(t0))
 
-    def check_embeddings_fresh(self) -> Dict[str, Any]:
+    def check_embeddings_fresh(self) -> dict[str, Any]:
         """Check that embedding DB exists and has entries from last 7 days."""
         name = "embeddings_fresh"
         t0 = time.monotonic()
@@ -194,7 +194,7 @@ class SelfTest:
         except Exception as exc:
             return _check_result(name, False, f"Unexpected error: {exc}", _elapsed(t0))
 
-    def check_search_functional(self) -> Dict[str, Any]:
+    def check_search_functional(self) -> dict[str, Any]:
         """Run a mock in-memory search to verify search logic works."""
         name = "search_functional"
         t0 = time.monotonic()
@@ -226,7 +226,7 @@ class SelfTest:
         except Exception as exc:
             return _check_result(name, False, f"Unexpected error: {exc}", _elapsed(t0))
 
-    def check_circuit_breaker_state(self) -> Dict[str, Any]:
+    def check_circuit_breaker_state(self) -> dict[str, Any]:
         """Read circuit_breaker_state table and check for OPEN breakers."""
         name = "circuit_breaker_state"
         t0 = time.monotonic()
@@ -283,7 +283,7 @@ class SelfTest:
         except Exception as exc:
             return _check_result(name, False, f"Unexpected error: {exc}", _elapsed(t0))
 
-    def check_orphaned_files(self) -> Dict[str, Any]:
+    def check_orphaned_files(self) -> dict[str, Any]:
         """Count memory files in the memory directory."""
         name = "orphaned_files"
         t0 = time.monotonic()
@@ -315,14 +315,14 @@ class SelfTest:
     # Aggregate
     # ------------------------------------------------------------------
 
-    def run_all(self) -> Dict[str, Any]:
+    def run_all(self) -> dict[str, Any]:
         """
         Run all 6 diagnostic checks.
 
         Returns:
             {
                 "passed": bool,          # True only if ALL checks pass
-                "checks": [...],         # List of individual check results
+                "checks": [...],         # list of individual check results
                 "total_duration_ms": float,
                 "summary": "6/6 checks passed",
                 "timestamp": ISO-8601 string,
@@ -362,7 +362,7 @@ class SelfTest:
             self.run_all()
 
         report = self._last_report
-        lines: List[str] = []
+        lines: list[str] = []
         lines.append("=== Memeta self-test report ===")
         lines.append(f"Timestamp: {report['timestamp']}")
         lines.append(f"Result: {report['summary']}")

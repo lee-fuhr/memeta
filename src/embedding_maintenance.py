@@ -15,7 +15,7 @@ import time
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Any
 
 from .memory_ts_client import MemoryTSClient
 from .embedding_manager import EmbeddingManager
@@ -33,8 +33,8 @@ class EmbeddingMaintenanceRunner:
 
     def __init__(
         self,
-        memory_dir: Optional[Path] = None,
-        db_path: Optional[str] = None,
+        memory_dir: Path | None = None,
+        db_path: str | None = None,
     ):
         """
         Initialize runner.
@@ -46,12 +46,12 @@ class EmbeddingMaintenanceRunner:
         self.client = MemoryTSClient(memory_dir=memory_dir)
         self.manager = EmbeddingManager(db_path=db_path)
 
-    def run(self) -> Dict[str, Any]:
+    def run(self) -> dict[str, Any]:
         """
         Pre-compute embeddings for all memories that don't have one yet.
 
         Returns:
-            Dict with keys: computed, skipped, errors, total, duration_ms
+            dict with keys: computed, skipped, errors, total, duration_ms
         """
         start = time.time()
 
@@ -59,7 +59,7 @@ class EmbeddingMaintenanceRunner:
         skipped = 0
         errors = 0
 
-        # 1. List all active memories
+        # 1. list all active memories
         try:
             memories = self.client.list()
         except Exception as exc:
@@ -166,7 +166,7 @@ class EmbeddingMaintenanceRunner:
 
         return newest_memory_time > newest_embedding_time
 
-    def run_if_stale(self) -> Optional[Dict[str, Any]]:
+    def run_if_stale(self) -> dict[str, Any] | None:
         """
         Only runs pre-computation if freshness check fails.
 

@@ -16,7 +16,6 @@ Usage:
 import sqlite3
 import time
 import uuid
-from typing import List, Dict, Optional
 from pathlib import Path
 
 from .db_pool import get_connection
@@ -26,7 +25,7 @@ from .config import cfg
 class CrossProjectSharer:
     """Persistent cross-project memory sharing with SQLite backend."""
 
-    def __init__(self, db_path: Optional[str] = None):
+    def __init__(self, db_path: str | None = None):
         self.db_path = db_path or str(cfg.intelligence_db_path)
         self._init_schema()
 
@@ -53,7 +52,7 @@ class CrossProjectSharer:
             conn.execute('CREATE INDEX IF NOT EXISTS idx_shared_source ON shared_insights(source_project)')
             conn.commit()
 
-    def share(self, memory: Dict, target_project: str, relevance_score: float = 0.5) -> Dict:
+    def share(self, memory: dict, target_project: str, relevance_score: float = 0.5) -> dict:
         """
         Share a memory insight to another project.
 
@@ -61,7 +60,7 @@ class CrossProjectSharer:
         Deduplicates by (memory_id, target_project) UNIQUE constraint.
 
         Args:
-            memory: Dict with at least 'id', 'content', and 'project_id' keys.
+            memory: dict with at least 'id', 'content', and 'project_id' keys.
             target_project: Project ID to share the insight to.
             relevance_score: 0.0-1.0 relevance score for the insight.
 
@@ -94,7 +93,7 @@ class CrossProjectSharer:
             # UNIQUE constraint on (memory_id, target_project) — already shared
             return {'shared': False, 'id': None, 'reason': 'duplicate'}
 
-    def get_shared(self, project_id: str) -> List[Dict]:
+    def get_shared(self, project_id: str) -> list[dict]:
         """
         Get all insights shared TO this project.
 
@@ -105,7 +104,7 @@ class CrossProjectSharer:
             project_id: The project to retrieve shared insights for.
 
         Returns:
-            List of insight dicts with id, source_project, memory_id,
+            list of insight dicts with id, source_project, memory_id,
             memory_content, relevance_score, created_at, status.
         """
         if not self.is_sharing_enabled(project_id):
@@ -163,12 +162,12 @@ class CrossProjectSharer:
                 return True  # Default: enabled
             return bool(row[0])
 
-    def get_sharing_stats(self) -> Dict:
+    def get_sharing_stats(self) -> dict:
         """
         Return sharing statistics.
 
         Returns:
-            Dict with total_shared, by_source_project, by_target_project,
+            dict with total_shared, by_source_project, by_target_project,
             and avg_relevance.
         """
         with get_connection(self.db_path) as conn:

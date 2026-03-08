@@ -25,7 +25,6 @@ import sqlite3
 import threading
 import time
 from contextlib import contextmanager
-from typing import Optional
 from pathlib import Path
 from queue import Queue, Empty
 

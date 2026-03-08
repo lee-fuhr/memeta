@@ -2,13 +2,30 @@
 Tests for Feature 31: Auto-Summarization
 """
 
+import json
 import pytest
 import tempfile
 from pathlib import Path
 from datetime import datetime, timedelta
+from unittest.mock import patch
 
 from memory_system.automation.summarization import AutoSummarization, TopicSummary
 from memory_system.memory_ts_client import Memory
+
+_MOCK_LLM_RESPONSE = json.dumps({
+    "narrative": "Test narrative about the topic.",
+    "key_insights": ["Insight 1", "Insight 2", "Insight 3"],
+})
+
+
+@pytest.fixture(autouse=True)
+def mock_llm():
+    """Prevent real LLM calls in summarization tests."""
+    with patch(
+        "memory_system.intelligence.summarization._ask_claude",
+        return_value=_MOCK_LLM_RESPONSE,
+    ):
+        yield
 
 
 @pytest.fixture

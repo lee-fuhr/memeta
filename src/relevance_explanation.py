@@ -9,7 +9,6 @@ Example output:
   "87% meaning match. Keywords: dark, mode. High confidence (confirmed 3x)."
 """
 
-from typing import Dict, List, Optional
 
 
 STOPWORDS = {'the', 'a', 'an', 'is', 'are', 'was', 'were', 'be', 'been', 'being',
@@ -20,7 +19,7 @@ STOPWORDS = {'the', 'a', 'an', 'is', 'are', 'was', 'were', 'be', 'been', 'being'
              'not', 'no', 'if', 'then', 'than', 'that', 'this', 'it', 'its'}
 
 
-def get_matching_keywords(query: str, content: str) -> List[str]:
+def get_matching_keywords(query: str, content: str) -> list[str]:
     """
     Find words that appear in both query and content.
 
@@ -32,7 +31,7 @@ def get_matching_keywords(query: str, content: str) -> List[str]:
         content: Memory content string
 
     Returns:
-        List of matching non-stopword keywords
+        list of matching non-stopword keywords
     """
     if not query or not content:
         return []
@@ -53,7 +52,7 @@ def get_matching_keywords(query: str, content: str) -> List[str]:
     return matches
 
 
-def explain_relevance(query: str, memory: Dict, scores: Dict) -> str:
+def explain_relevance(query: str, memory: dict, scores: dict) -> str:
     """
     Generate a human-readable explanation of why this memory matched the query.
 
@@ -72,7 +71,7 @@ def explain_relevance(query: str, memory: Dict, scores: Dict) -> str:
         query: The search query
         memory: Memory dict (may contain 'content', 'semantic_tags',
                 'confidence_score', 'confirmations')
-        scores: Dict with 'semantic_score', 'bm25_score', 'bm25_score_normalized'
+        scores: dict with 'semantic_score', 'bm25_score', 'bm25_score_normalized'
 
     Returns:
         Human-readable explanation string
@@ -146,7 +145,7 @@ def explain_relevance(query: str, memory: Dict, scores: Dict) -> str:
     return '. '.join(parts) + '.'
 
 
-def add_explanations_to_results(query: str, results: List[Dict]) -> List[Dict]:
+def add_explanations_to_results(query: str, results: list[dict]) -> list[dict]:
     """
     Add 'explanation' field to each result dict.
 
@@ -154,7 +153,7 @@ def add_explanations_to_results(query: str, results: List[Dict]) -> List[Dict]:
 
     Args:
         query: The search query
-        results: List of result dicts from hybrid_search
+        results: list of result dicts from hybrid_search
 
     Returns:
         The same list with 'explanation' added to each dict

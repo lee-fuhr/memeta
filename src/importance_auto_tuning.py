@@ -7,7 +7,6 @@ rarely-recalled memories decay faster.
 Theory: If you keep asking about something, it's important. If it never comes up, lower priority.
 """
 
-from typing import Dict
 import time
 
 
@@ -51,7 +50,7 @@ def calculate_adaptive_importance(
 
 
 def should_boost_importance(
-    memory: Dict,
+    memory: dict,
     recall_threshold: int = 3,
     days_threshold: int = 7
 ) -> bool:
@@ -104,7 +103,7 @@ def calculate_decay_factor(
         return base_decay  # Standard decay
 
 
-def update_importance_on_recall(memory: Dict) -> float:
+def update_importance_on_recall(memory: dict) -> float:
     """
     Update memory importance when it's recalled.
 

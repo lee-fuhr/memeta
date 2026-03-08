@@ -8,7 +8,6 @@ Feature 11: Experimental - may be slow on large memory sets.
 """
 
 import numpy as np
-from typing import List, Dict, Optional
 import json
 import os
 from pathlib import Path
@@ -65,21 +64,21 @@ def cosine_similarity(a: np.ndarray, b: np.ndarray) -> float:
 
 def semantic_search(
     query: str,
-    memories: List[Dict],
+    memories: list[dict],
     top_k: int = 10,
     threshold: float = 0.3
-) -> List[Dict]:
+) -> list[dict]:
     """
     Search memories using semantic similarity.
 
     Args:
         query: Search query
-        memories: List of memory dicts with 'content' key
+        memories: list of memory dicts with 'content' key
         top_k: Number of top results to return
         threshold: Minimum similarity score
 
     Returns:
-        List of memories with similarity scores, sorted by relevance
+        list of memories with similarity scores, sorted by relevance
     """
     # Embed query
     query_embedding = embed_text(query)
@@ -126,17 +125,17 @@ def clear_embedding_cache():
     _embeddings_cache = OrderedDict()
 
 
-def precompute_embeddings(memories: List[Dict]) -> Dict[str, np.ndarray]:
+def precompute_embeddings(memories: list[dict]) -> dict[str, np.ndarray]:
     """
     Precompute embeddings for a batch of memories.
 
     Useful for speeding up future searches.
 
     Args:
-        memories: List of memory dicts
+        memories: list of memory dicts
 
     Returns:
-        Dict mapping content (first 100 chars) to embedding
+        dict mapping content (first 100 chars) to embedding
     """
     model = get_model()
 

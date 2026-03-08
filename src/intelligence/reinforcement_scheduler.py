@@ -15,13 +15,15 @@ Integration:
 - Works with pattern_detector for reinforcement recording
 """
 
+import logging
 import sqlite3
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import List, Optional, Dict
 
 from memory_system.db_pool import get_connection
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -30,11 +32,11 @@ class ReviewSchedule:
     id: str
     memory_id: str
     due_at: datetime
-    last_reviewed: Optional[datetime]
+    last_reviewed: datetime | None
     review_count: int
-    difficulty: Optional[float]  # From FSRS
-    stability: Optional[float]   # From FSRS
-    next_interval_days: Optional[int]
+    difficulty: float | None  # From FSRS
+    stability: float | None   # From FSRS
+    next_interval_days: int | None
     created_at: datetime
     updated_at: datetime
 
@@ -46,12 +48,12 @@ class ReviewHistoryEntry:
     memory_id: str
     reviewed_at: datetime
     grade: str  # FAIL, HARD, GOOD, EASY
-    previous_interval_days: Optional[int]
-    new_interval_days: Optional[int]
-    difficulty_before: Optional[float]
-    difficulty_after: Optional[float]
-    stability_before: Optional[float]
-    stability_after: Optional[float]
+    previous_interval_days: int | None
+    new_interval_days: int | None
+    difficulty_before: float | None
+    difficulty_after: float | None
+    stability_before: float | None
+    stability_after: float | None
 
 
 class ReinforcementScheduler:
@@ -180,8 +182,8 @@ class ReinforcementScheduler:
                     # Use FSRS next_review as due_at if available
                     if fsrs_row[2]:
                         due_at = int(fsrs_row[2])
-            except Exception:
-                pass  # FSRS DB might not exist yet
+            except Exception as exc:
+                logger.debug("FSRS state unavailable during schedule_memory: %s", exc)
 
             # Insert schedule
             conn.execute("""
@@ -206,8 +208,8 @@ class ReinforcementScheduler:
     def get_due_reviews(
         self,
         limit: int = 10,
-        project_id: Optional[str] = None
-    ) -> List[Dict]:
+        project_id: str | None = None
+    ) -> list[dict]:
         """
         Get memories due for review.
 
@@ -216,7 +218,7 @@ class ReinforcementScheduler:
             project_id: Filter by project (optional)
 
         Returns:
-            List of dicts with memory_id, due_at, overdue_days, importance
+            list of dicts with memory_id, due_at, overdue_days, importance
         """
         now = int(datetime.now().timestamp())
 
@@ -315,8 +317,8 @@ class ReinforcementScheduler:
                     now = int(datetime.now().timestamp())
                     if next_review:
                         new_interval_days = int((next_review - now) / 86400)
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.debug("FSRS state unavailable during record_review: %s", exc)
 
             # Calculate new due_at
             now = int(datetime.now().timestamp())
@@ -378,7 +380,7 @@ class ReinforcementScheduler:
     def reschedule_memory(
         self,
         memory_id: str,
-        new_due_at: Optional[datetime] = None
+        new_due_at: datetime | None = None
     ):
         """
         Manually reschedule memory.
@@ -416,7 +418,8 @@ class ReinforcementScheduler:
                     else:
                         # Default: 1 day from now
                         new_due_at = datetime.now() + timedelta(days=1)
-                except Exception:
+                except Exception as exc:
+                    logger.debug("FSRS next review lookup failed, defaulting to +1d: %s", exc)
                     new_due_at = datetime.now() + timedelta(days=1)
 
             due_at_ts = int(new_due_at.timestamp())
@@ -432,7 +435,7 @@ class ReinforcementScheduler:
 
     def get_review_stats(
         self,
-        memory_id: Optional[str] = None
+        memory_id: str | None = None
     ) -> dict:
         """
         Get review statistics.

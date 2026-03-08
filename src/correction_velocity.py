@@ -21,7 +21,6 @@ import logging
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Optional
 
 from memory_system.config import cfg
 from memory_system.memory_ts_client import Memory, MemoryTSClient
@@ -41,7 +40,7 @@ class PipelineSnapshot:
     pending: int               # 1 to (threshold - 1) confirmations
     new: int                   # 0 confirmations
     graduation_rate: float     # graduated / total, or 0.0 if total == 0
-    avg_days_to_graduate: Optional[float]  # mean(updated - created) for graduated mems
+    avg_days_to_graduate: float | None  # mean(updated - created) for graduated mems
 
 
 class CorrectionVelocityTracker:
@@ -52,8 +51,8 @@ class CorrectionVelocityTracker:
 
     def __init__(
         self,
-        memory_dir: Optional[Path] = None,
-        memory_client: Optional[MemoryTSClient] = None,
+        memory_dir: Path | None = None,
+        memory_client: MemoryTSClient | None = None,
         graduation_threshold: int = _DEFAULT_GRADUATION_THRESHOLD,
     ) -> None:
         if memory_client is not None:
@@ -160,7 +159,7 @@ class CorrectionVelocityTracker:
 
 # ── Module-level helpers ──────────────────────────────────────────────────────
 
-def _parse_dt(value: str) -> Optional[datetime]:
+def _parse_dt(value: str) -> datetime | None:
     """Parse an ISO datetime string, returning None on failure."""
     if not value:
         return None
@@ -170,7 +169,7 @@ def _parse_dt(value: str) -> Optional[datetime]:
         return None
 
 
-def _avg_days_to_graduate(graduated: list[Memory]) -> Optional[float]:
+def _avg_days_to_graduate(graduated: list[Memory]) -> float | None:
     """Compute mean days from created to updated for graduated corrections."""
     if not graduated:
         return None

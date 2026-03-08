@@ -13,7 +13,6 @@ import json
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import List, Optional
 
 from .fsrs_scheduler import FSRSScheduler
 from .memory_ts_client import MemoryTSClient
@@ -27,7 +26,7 @@ class PromotionResult:
     new_scope: str
     stability: float
     review_count: int
-    projects_validated: List[str]
+    projects_validated: list[str]
     old_importance: float = 0.0
     new_importance: float = 0.0
     promoted_date: str = field(default_factory=lambda: datetime.now().isoformat())
@@ -43,9 +42,9 @@ class PromotionExecutor:
 
     def __init__(
         self,
-        memory_dir: Optional[Path] = None,
-        scheduler: Optional[FSRSScheduler] = None,
-        memory_client: Optional[MemoryTSClient] = None,
+        memory_dir: Path | None = None,
+        scheduler: FSRSScheduler | None = None,
+        memory_client: MemoryTSClient | None = None,
     ):
         """
         Initialize promotion executor.
@@ -58,7 +57,7 @@ class PromotionExecutor:
         self.memory_client = memory_client or MemoryTSClient(memory_dir=memory_dir)
         self.scheduler = scheduler or FSRSScheduler()
 
-    def execute_promotions(self) -> List[PromotionResult]:
+    def execute_promotions(self) -> list[PromotionResult]:
         """
         Find and promote all eligible memories.
 
@@ -66,7 +65,7 @@ class PromotionExecutor:
         scope and tags, marks as promoted in FSRS.
 
         Returns:
-            List of PromotionResult for each promoted memory
+            list of PromotionResult for each promoted memory
         """
         candidates = self.scheduler.get_promotion_candidates()
         results = []
@@ -78,7 +77,7 @@ class PromotionExecutor:
 
         return results
 
-    def promote_single(self, memory_id: str) -> Optional[PromotionResult]:
+    def promote_single(self, memory_id: str) -> PromotionResult | None:
         """
         Promote a specific memory if it meets criteria.
 
@@ -97,7 +96,7 @@ class PromotionExecutor:
 
         return self._promote_memory(memory_id, state)
 
-    def _promote_memory(self, memory_id, fsrs_state) -> Optional[PromotionResult]:
+    def _promote_memory(self, memory_id, fsrs_state) -> PromotionResult | None:
         """
         Execute promotion for a single memory.
 

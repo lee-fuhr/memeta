@@ -19,7 +19,6 @@ import logging
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional
 
 from memory_system.config import cfg
 from memory_system.skill_antipattern_miner import SkillAntiPatternMiner
@@ -65,9 +64,9 @@ class SkillHealthDashboard:
 
     def __init__(
         self,
-        db_path: Optional[str] = None,
-        memory_dir: Optional[Path] = None,
-        skills_dir: Optional[Path] = None,
+        db_path: str | None = None,
+        memory_dir: Path | None = None,
+        skills_dir: Path | None = None,
     ) -> None:
         self._db_path = str(db_path) if db_path else str(cfg.intelligence_db_path)
         self._memory_dir = Path(memory_dir) if memory_dir else cfg.project_memory_dir
@@ -289,9 +288,9 @@ def _health_grade(score: float) -> str:
 # ── Convenience function ──────────────────────────────────────────────────────
 
 def build_skill_health_report(
-    db_path: Optional[str] = None,
-    memory_dir: Optional[Path] = None,
-    skills_dir: Optional[Path] = None,
+    db_path: str | None = None,
+    memory_dir: Path | None = None,
+    skills_dir: Path | None = None,
     min_antipattern_co_occurrences: int = _DEFAULT_MIN_ANTIPATTERN,
 ) -> dict:
     """Return the skill health report as a plain dict (JSON-serializable)."""

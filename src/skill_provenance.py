@@ -19,7 +19,6 @@ import logging
 import sqlite3
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional
 
 from memory_system.config import cfg
 
@@ -63,7 +62,7 @@ class SkillProvenanceTracker:
     co-invocation analysis, and outcome summaries.
     """
 
-    def __init__(self, db_path: Optional[str] = None) -> None:
+    def __init__(self, db_path: str | None = None) -> None:
         self._db_path = str(db_path) if db_path else str(cfg.intelligence_db_path)
         self._conn = sqlite3.connect(self._db_path)
         self._conn.row_factory = sqlite3.Row
@@ -116,7 +115,7 @@ class SkillProvenanceTracker:
         ).fetchall()
         return [_row_to_record(r) for r in rows]
 
-    def get_first_use(self, skill_name: str) -> Optional[datetime]:
+    def get_first_use(self, skill_name: str) -> datetime | None:
         """Return the datetime of the earliest recorded invocation, or None."""
         row = self._conn.execute(
             "SELECT invoked_at FROM skill_provenance WHERE skill_name = ?"

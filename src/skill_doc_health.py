@@ -29,7 +29,6 @@ import logging
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
 
 from memory_system.config import cfg
 
@@ -54,8 +53,8 @@ class SkillHealthReport:
 
     skill_name: str
     has_skill_md: bool
-    last_modified: Optional[datetime]
-    days_since_update: Optional[int]
+    last_modified: datetime | None
+    days_since_update: int | None
     is_stale: bool
     missing_sections: list[str]
     is_complete: bool
@@ -155,7 +154,7 @@ class SkillDocHealth:
             issues=issues,
         )
 
-    def get_stale_skills(self, days: Optional[int] = None) -> list[SkillHealthReport]:
+    def get_stale_skills(self, days: int | None = None) -> list[SkillHealthReport]:
         """Return reports for skills not updated within the threshold.
 
         Args:

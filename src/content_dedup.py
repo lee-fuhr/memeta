@@ -30,7 +30,6 @@ import re
 import sqlite3
 import string
 from datetime import datetime, timezone
-from typing import Optional
 
 import numpy as np
 
@@ -135,7 +134,7 @@ class ContentDedup:
         self,
         memory_id: str,
         content: str,
-        embedding: Optional[list[float]] = None,
+        embedding: list[float] | None = None,
     ) -> None:
         """Register a memory's hashes for future dedup checks.
 
@@ -169,7 +168,7 @@ class ContentDedup:
     def check_duplicate(
         self,
         content: str,
-        embedding: Optional[list[float]] = None,
+        embedding: list[float] | None = None,
     ) -> dict:
         """Check all three hash levels for duplicates.
 

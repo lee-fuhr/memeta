@@ -6,7 +6,7 @@ should yield to a highly relevant memory that's not quite due.
 """
 import sqlite3
 import tempfile
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import pytest
@@ -28,7 +28,7 @@ def _make_weighter(tmp_path):
 
 def _make_state(memory_id, stability=3.0, due_days_offset=0):
     """Build a mock FSRS state dict."""
-    due = (datetime.utcnow() + timedelta(days=due_days_offset)).isoformat()
+    due = (datetime.now(timezone.utc) + timedelta(days=due_days_offset)).isoformat()
     return {
         "memory_id": memory_id,
         "stability": stability,

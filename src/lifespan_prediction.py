@@ -5,7 +5,6 @@ Feature 17: Categorize memories as evergreen vs time-bound.
 Flag for review when approaching expiration.
 """
 
-from typing import Dict, Optional
 import re
 from datetime import datetime, timedelta
 
@@ -69,8 +68,8 @@ def predict_lifespan_category(content: str) -> str:
 def predict_expiration_date(
     content: str,
     created_at: datetime,
-    category: Optional[str] = None
-) -> Optional[datetime]:
+    category: str | None = None
+) -> datetime | None:
     """
     Predict when memory might become stale.
 
@@ -106,7 +105,7 @@ def predict_expiration_date(
 
 
 def should_flag_for_review(
-    memory: Dict,
+    memory: dict,
     days_until_expiration_threshold: int = 7
 ) -> bool:
     """
@@ -131,7 +130,7 @@ def should_flag_for_review(
     return days_until <= days_until_expiration_threshold
 
 
-def extract_explicit_expiration(content: str) -> Optional[datetime]:
+def extract_explicit_expiration(content: str) -> datetime | None:
     """
     Extract explicit expiration date from content.
 
@@ -159,15 +158,15 @@ def extract_explicit_expiration(content: str) -> Optional[datetime]:
     return None
 
 
-def get_lifespan_stats(memories: list) -> Dict:
+def get_lifespan_stats(memories: list) -> dict:
     """
     Get statistics about memory lifespans.
 
     Args:
-        memories: List of memory dicts
+        memories: list of memory dicts
 
     Returns:
-        Dict with counts by category
+        dict with counts by category
     """
     categories = {}
 

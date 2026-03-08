@@ -15,7 +15,6 @@ Usage:
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional
 import logging
 
 from .memory_ts_client import MemoryTSClient, Memory
@@ -29,7 +28,7 @@ class TimeWindow:
     name: str           # 'morning', 'afternoon', 'evening', 'night'
     start_hour: int     # inclusive
     end_hour: int       # exclusive
-    priority_tags: List[str]
+    priority_tags: list[str]
     sort_key: str       # 'importance' or 'created'
     sort_reverse: bool  # True = descending
 
@@ -54,8 +53,8 @@ class EnergyAwareLoader:
 
     def __init__(
         self,
-        memory_dir: Optional[Path] = None,
-        override_hour: Optional[int] = None,
+        memory_dir: Path | None = None,
+        override_hour: int | None = None,
         max_memories: int = 20,
     ):
         """Initialize the energy-aware loader.
@@ -71,8 +70,8 @@ class EnergyAwareLoader:
         self.client = MemoryTSClient(memory_dir=memory_dir)
         self.override_hour = override_hour
         self.max_memories = max_memories
-        self._last_load_result: Optional[List[Dict]] = None
-        self._last_window: Optional[TimeWindow] = None
+        self._last_load_result: list[dict] | None = None
+        self._last_window: TimeWindow | None = None
 
     def _current_hour(self) -> int:
         """Return the hour to use for window selection."""
@@ -89,7 +88,7 @@ class EnergyAwareLoader:
         # Fallback (should not happen with full 0-24 coverage)
         return self.TIME_WINDOWS[3]  # night
 
-    def load_context(self) -> List[Dict]:
+    def load_context(self) -> list[dict]:
         """Load memories appropriate for the current time window.
 
         Logic:
@@ -103,7 +102,7 @@ class EnergyAwareLoader:
            c. Return top max_memories
 
         Returns:
-            List of memory dicts (not Memory objects).
+            list of memory dicts (not Memory objects).
         """
         memories = self.client.list()
         window = self.get_current_window()
@@ -125,7 +124,7 @@ class EnergyAwareLoader:
             return result
 
         # Score each memory
-        scored: List[tuple] = []  # (score, memory)
+        scored: list[tuple] = []  # (score, memory)
         for mem in memories:
             score = float(mem.importance)
             # Check if any of the memory's tags match priority tags
@@ -173,7 +172,7 @@ class EnergyAwareLoader:
         return "\n".join(lines)
 
     @staticmethod
-    def _memory_to_dict(mem: Memory) -> Dict:
+    def _memory_to_dict(mem: Memory) -> dict:
         """Convert a Memory dataclass to a plain dict."""
         return {
             'id': mem.id,

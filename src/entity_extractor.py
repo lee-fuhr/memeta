@@ -13,14 +13,13 @@ import re
 import sqlite3
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional
 
 
 # ---------------------------------------------------------------------------
 # Known entity patterns
 # ---------------------------------------------------------------------------
 
-TOOL_PATTERNS: List[str] = [
+TOOL_PATTERNS: list[str] = [
     "Python", "JavaScript", "React", "Webflow", "Claude", "FAISS",
     "SQLite", "Flask", "Notion", "Todoist", "Gmail", "Slack",
     "TypeScript", "Node", "Next.js", "Vue", "Angular", "Django",
@@ -28,7 +27,7 @@ TOOL_PATTERNS: List[str] = [
     "VS Code", "Cursor", "Vercel", "Supabase", "Stripe",
 ]
 
-PROJECT_PATTERNS: List[str] = [
+PROJECT_PATTERNS: list[str] = [
     # Add your own project names here for entity extraction
     # e.g. "MyProject", "Backend", "Client-X"
 ]
@@ -81,7 +80,7 @@ class EntityExtractor:
     Stores entities in SQLite with a junction table to memory IDs.
     """
 
-    def __init__(self, db_path: Optional[str] = None):
+    def __init__(self, db_path: str | None = None):
         if db_path is None:
             db_path = str(
                 Path.home() / ".local/share/memory" / "entities.db"
@@ -140,7 +139,7 @@ class EntityExtractor:
     # Extraction (pure, no DB side-effects)
     # ------------------------------------------------------------------
 
-    def extract_entities(self, text: str) -> List[Dict]:
+    def extract_entities(self, text: str) -> list[dict]:
         """
         Extract entities from *text*.
 
@@ -150,8 +149,8 @@ class EntityExtractor:
         if not text:
             return []
 
-        results: List[Dict] = []
-        seen_spans: List[tuple] = []  # (start, end) to avoid overlaps
+        results: list[dict] = []
+        seen_spans: list[tuple] = []  # (start, end) to avoid overlaps
 
         def _overlaps(start: int, end: int) -> bool:
             for s, e in seen_spans:
@@ -269,7 +268,7 @@ class EntityExtractor:
     # Queries
     # ------------------------------------------------------------------
 
-    def get_memories_by_entity(self, name: str) -> List[str]:
+    def get_memories_by_entity(self, name: str) -> list[str]:
         """
         Return memory IDs linked to entity *name* (case-insensitive).
 
@@ -330,7 +329,7 @@ class EntityExtractor:
             self.conn.commit()
         return True
 
-    def get_entity(self, name: str) -> Optional[Dict]:
+    def get_entity(self, name: str) -> dict | None:
         """
         Return entity dict or None.
 
@@ -354,7 +353,7 @@ class EntityExtractor:
             "last_seen": row["last_seen"],
         }
 
-    def get_all_entities(self) -> List[Dict]:
+    def get_all_entities(self) -> list[dict]:
         """Return all entities as list of dicts."""
         cur = self.conn.cursor()
         rows = cur.execute("SELECT * FROM entities ORDER BY name").fetchall()
@@ -370,7 +369,7 @@ class EntityExtractor:
             for r in rows
         ]
 
-    def get_stats(self) -> Dict:
+    def get_stats(self) -> dict:
         """
         Return summary statistics.
 

@@ -1,9 +1,8 @@
 """Meta-learning - Features 48-50: System improves itself"""
-from typing import Dict, List
 import random
 
 # Feature 48: Memory system dogfooding
-def run_ab_test(strategy_a: callable, strategy_b: callable, memories: List[Dict]) -> Dict:
+def run_ab_test(strategy_a: callable, strategy_b: callable, memories: list[dict]) -> dict:
     """A/B test memory strategies."""
     sample_a = random.sample(memories, len(memories) // 2)
     sample_b = [m for m in memories if m not in sample_a]
@@ -18,12 +17,12 @@ def run_ab_test(strategy_a: callable, strategy_b: callable, memories: List[Dict]
     }
 
 # Feature 49: Cross-system learning
-def import_best_practices(source_system: str, practices: List[str]) -> List[Dict]:
+def import_best_practices(source_system: str, practices: list[str]) -> list[dict]:
     """Import patterns from other AI assistants."""
     return [{'source': source_system, 'practice': p} for p in practices]
 
 # Feature 50: Dream mode
-def overnight_consolidation(todays_memories: List[Dict]) -> Dict:
+def overnight_consolidation(todays_memories: list[dict]) -> dict:
     """Re-process memories while idle, find deeper patterns."""
     from pattern_miner import mine_all_patterns
     from llm_extractor import ask_claude

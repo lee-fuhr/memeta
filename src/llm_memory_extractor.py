@@ -7,7 +7,7 @@ No API costs - runs within Claude Code session context.
 
 import json
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import Any
 from dataclasses import dataclass
 import logging
 
@@ -73,7 +73,7 @@ Return ONLY the JSON array, no other text."""
     return prompt
 
 
-def extract_learnings_interactive(session_file: Path) -> List[ExtractedLearning]:
+def extract_learnings_interactive(session_file: Path) -> list[ExtractedLearning]:
     """
     Interactive LLM extraction - saves prompt to file for user to review
 
@@ -81,7 +81,7 @@ def extract_learnings_interactive(session_file: Path) -> List[ExtractedLearning]
         session_file: Path to session JSONL
 
     Returns:
-        List of extracted learnings (empty if not yet analyzed)
+        list of extracted learnings (empty if not yet analyzed)
     """
     from .session_consolidator import SessionConsolidator
 
@@ -126,12 +126,12 @@ def extract_learnings_interactive(session_file: Path) -> List[ExtractedLearning]
     return []
 
 
-def save_extracted_learnings(learnings: List[Dict[str, Any]], output_file: Path):
+def save_extracted_learnings(learnings: list[dict[str, Any]], output_file: Path):
     """
     Save extracted learnings to JSON file for review
 
     Args:
-        learnings: List of learning dicts from LLM
+        learnings: list of learning dicts from LLM
         output_file: Path to save JSON
     """
     output_file.parent.mkdir(parents=True, exist_ok=True)

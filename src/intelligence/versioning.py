@@ -8,7 +8,6 @@ Store edit history for each memory, enable rollback, diff view, and
 import time
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Dict, Optional, Tuple
 
 from .database import IntelligenceDB
 
@@ -21,7 +20,7 @@ class MemoryVersion:
     content: str
     importance: float
     changed_by: str
-    change_reason: Optional[str]
+    change_reason: str | None
     timestamp: int
 
 
@@ -36,7 +35,7 @@ class MemoryVersioning:
     - "Why did this change?" queries
     """
 
-    def __init__(self, db: Optional[IntelligenceDB] = None):
+    def __init__(self, db: IntelligenceDB | None = None):
         """
         Initialize versioning system
 
@@ -51,7 +50,7 @@ class MemoryVersioning:
         content: str,
         importance: float,
         changed_by: str = "user",
-        change_reason: Optional[str] = None
+        change_reason: str | None = None
     ) -> MemoryVersion:
         """
         Create a new version entry for a memory
@@ -97,7 +96,7 @@ class MemoryVersioning:
             timestamp=timestamp
         )
 
-    def get_version_history(self, memory_id: str) -> List[MemoryVersion]:
+    def get_version_history(self, memory_id: str) -> list[MemoryVersion]:
         """
         Get all versions of a memory, sorted oldest to newest
 
@@ -105,7 +104,7 @@ class MemoryVersioning:
             memory_id: Memory identifier
 
         Returns:
-            List of MemoryVersion objects
+            list of MemoryVersion objects
         """
         conn = self.db._connect()
         cursor = conn.execute(
@@ -130,7 +129,7 @@ class MemoryVersioning:
         conn.close()
         return versions
 
-    def get_version(self, memory_id: str, version_number: int) -> Optional[MemoryVersion]:
+    def get_version(self, memory_id: str, version_number: int) -> MemoryVersion | None:
         """
         Get a specific version of a memory
 
@@ -164,7 +163,7 @@ class MemoryVersioning:
             timestamp=row[6]
         )
 
-    def get_latest_version(self, memory_id: str) -> Optional[MemoryVersion]:
+    def get_latest_version(self, memory_id: str) -> MemoryVersion | None:
         """
         Get the most recent version of a memory
 
@@ -204,7 +203,7 @@ class MemoryVersioning:
         memory_id: str,
         version_a: int,
         version_b: int
-    ) -> Optional[Dict]:
+    ) -> dict | None:
         """
         Show differences between two versions
 
@@ -214,7 +213,7 @@ class MemoryVersioning:
             version_b: Second version number
 
         Returns:
-            Dict with diff information, or None if versions don't exist
+            dict with diff information, or None if versions don't exist
         """
         va = self.get_version(memory_id, version_a)
         vb = self.get_version(memory_id, version_b)
@@ -247,7 +246,7 @@ class MemoryVersioning:
         self,
         memory_id: str,
         version_number: int
-    ) -> Optional[MemoryVersion]:
+    ) -> MemoryVersion | None:
         """
         Rollback memory to a specific version
 
@@ -292,12 +291,12 @@ class MemoryVersioning:
         conn.close()
         return count
 
-    def get_all_versioned_memories(self) -> List[str]:
+    def get_all_versioned_memories(self) -> list[str]:
         """
         Get list of all memory IDs that have versions
 
         Returns:
-            List of memory IDs
+            list of memory IDs
         """
         conn = self.db._connect()
         cursor = conn.execute(
@@ -307,7 +306,7 @@ class MemoryVersioning:
         conn.close()
         return memory_ids
 
-    def get_recent_changes(self, limit: int = 10) -> List[MemoryVersion]:
+    def get_recent_changes(self, limit: int = 10) -> list[MemoryVersion]:
         """
         Get recently changed memories across all memories
 
@@ -315,7 +314,7 @@ class MemoryVersioning:
             limit: Maximum number of results
 
         Returns:
-            List of MemoryVersion objects, most recent first
+            list of MemoryVersion objects, most recent first
         """
         conn = self.db._connect()
         cursor = conn.execute(

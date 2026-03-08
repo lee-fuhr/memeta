@@ -9,7 +9,6 @@ to memory-ts with "#pre-compaction" tag. Write-ahead log pattern.
 """
 
 import json
-from typing import List, Dict
 from pathlib import Path
 from datetime import datetime
 
@@ -17,7 +16,7 @@ from datetime import datetime
 def extract_durable_facts(
     conversation: str,
     max_facts: int = 5
-) -> List[Dict]:
+) -> list[dict]:
     """
     Extract durable facts that should survive compaction.
 
@@ -29,7 +28,7 @@ def extract_durable_facts(
         max_facts: Maximum number of facts to extract (default: 5)
 
     Returns:
-        List of fact dicts with 'content', 'importance', 'category' keys
+        list of fact dicts with 'content', 'importance', 'category' keys
     """
     from .llm_extractor import ask_claude
 
@@ -91,7 +90,7 @@ def extract_before_compaction(
     session_path: Path,
     session_id: str,
     max_facts: int = 5
-) -> List[Dict]:
+) -> list[dict]:
     """
     Pre-compaction flush: Extract durable facts before compacting conversation.
 
@@ -104,7 +103,7 @@ def extract_before_compaction(
         max_facts: Maximum facts to extract (default: 5)
 
     Returns:
-        List of extracted facts with content, importance, category
+        list of extracted facts with content, importance, category
     """
     # Read session file
     try:

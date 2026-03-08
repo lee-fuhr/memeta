@@ -10,7 +10,6 @@ Fully automatic - called from SessionEnd hook alongside pattern extraction.
 import json
 import re
 import subprocess
-from typing import List, Optional
 
 from .circuit_breaker import get_breaker, CircuitBreakerOpenError
 from .session_consolidator import SessionMemory
@@ -78,7 +77,7 @@ Return ONLY a JSON array:
 [{{"content": "Specific learning", "importance": 0.75, "reasoning": "Why this matters", "category": "preference"}}]"""
 
 
-def parse_llm_response(response: str, project_id: str = "default") -> List[SessionMemory]:
+def parse_llm_response(response: str, project_id: str = "default") -> list[SessionMemory]:
     """
     Parse LLM JSON response into SessionMemory objects
 
@@ -94,7 +93,7 @@ def parse_llm_response(response: str, project_id: str = "default") -> List[Sessi
         project_id: Project identifier for memories
 
     Returns:
-        List of SessionMemory objects
+        list of SessionMemory objects
     """
     if not response or not response.strip():
         return []
@@ -143,7 +142,7 @@ def extract_with_llm(
     conversation: str,
     project_id: str = "default",
     timeout: int = 30
-) -> List[SessionMemory]:
+) -> list[SessionMemory]:
     """
     Extract memories using Claude Code CLI
 
@@ -156,7 +155,7 @@ def extract_with_llm(
         timeout: CLI timeout in seconds
 
     Returns:
-        List of extracted SessionMemory objects (empty on failure)
+        list of extracted SessionMemory objects (empty on failure)
     """
     prompt = generate_extraction_prompt(conversation)
     breaker = get_breaker("llm_extraction", failure_threshold=3, recovery_timeout=60.0)
@@ -274,10 +273,10 @@ def ask_claude(prompt: str, timeout: int = 30, max_retries: int = 3) -> str:
 
 
 def combine_extractions(
-    pattern_memories: List[SessionMemory],
-    llm_memories: List[SessionMemory],
+    pattern_memories: list[SessionMemory],
+    llm_memories: list[SessionMemory],
     similarity_threshold: float = 0.7
-) -> List[SessionMemory]:
+) -> list[SessionMemory]:
     """
     Merge pattern-based and LLM-based extractions, deduplicating
 

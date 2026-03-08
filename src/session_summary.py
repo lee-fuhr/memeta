@@ -14,13 +14,15 @@ Architecture:
 """
 
 import json
+import logging
 import re
 import time
 import uuid
 from dataclasses import dataclass, asdict
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional
+
+logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -71,12 +73,12 @@ class StructuredSessionSummary:
     - session_id: Unique session identifier
     - summary: 2-3 sentence overview of what was done
     - topic: Main topic/project being worked on
-    - decisions: List of decisions made during session
+    - decisions: list of decisions made during session
     - open_questions: Unresolved questions
     - open_threads: In-progress work not yet completed
     - files_touched: Key files that were modified
     - frustration_level: "low" | "medium" | "high" | "unknown"
-    - depends_on: List of related session IDs (linked sessions)
+    - depends_on: list of related session IDs (linked sessions)
     - generated_at: ISO 8601 timestamp
     - generator: "llm" | "heuristic" (tracks what produced this summary)
     """
@@ -328,7 +330,7 @@ def generate_llm_summary(
 def _try_llm_extraction(
     messages: list[dict],
     session_id: str,
-) -> Optional[StructuredSessionSummary]:
+) -> StructuredSessionSummary | None:
     """Attempt LLM extraction. Returns None on failure.
 
     Args:
@@ -357,7 +359,7 @@ Extract the following fields:
 
 1. **summary**: 2-3 sentence overview of what was accomplished
 2. **topic**: Main topic/project (e.g., "memory-system-v1", "client-website")
-3. **decisions**: List of decisions made (as array of strings)
+3. **decisions**: list of decisions made (as array of strings)
 4. **open_questions**: Unresolved questions (as array of strings)
 5. **open_threads**: In-progress work not yet completed (as array of strings)
 6. **files_touched**: Key files mentioned/modified (as array of strings)
@@ -470,7 +472,7 @@ def generate_summary(
         session_id: Optional session identifier. Generated if None.
 
     Returns:
-        Dict with session_id, summary, open_questions, files_touched, generated_at.
+        dict with session_id, summary, open_questions, files_touched, generated_at.
     """
     if session_id is None:
         session_id = uuid.uuid4().hex[:16]
@@ -641,9 +643,8 @@ def format_resumption_card(summary: dict) -> str:
                 r for r in results
                 if r.get("context_type") == "correction"
             ][:3]  # Max 3
-        except Exception:
-            # Silently fail if search fails (hook context, don't crash)
-            pass
+        except Exception as exc:
+            logger.debug("Correction search failed (hook context): %s", exc)
 
     # Add "Watch out for" section if we have corrections
     if corrections:

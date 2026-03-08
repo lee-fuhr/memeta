@@ -5,7 +5,6 @@ Smart deduplication with LLM-powered gray-area decisions.
 Extracted from session_consolidator.py to keep files under 500 lines.
 """
 
-from typing import List
 
 from .extraction_patterns import NORMALIZE_PATTERN
 
@@ -68,18 +67,18 @@ Answer with ONE WORD ONLY."""
 
 
 def deduplicate(
-    new_memories: List,
-    existing_memories: List,
+    new_memories: list,
+    existing_memories: list,
     use_llm_dedup: bool = True
-) -> List:
+) -> list:
     """
     Remove memories that duplicate existing ones
 
     Enhanced with LLM-powered decisions for gray area (50-90% similarity).
 
     Args:
-        new_memories: List of newly extracted SessionMemory objects
-        existing_memories: List of existing Memory objects (must have .content and .id)
+        new_memories: list of newly extracted SessionMemory objects
+        existing_memories: list of existing Memory objects (must have .content and .id)
         use_llm_dedup: If True, use LLM for smarter dedup decisions
 
     Returns:

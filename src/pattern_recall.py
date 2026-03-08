@@ -150,7 +150,7 @@ def search_past_solutions(
         top_k: Max results to return.
 
     Returns:
-        List of memory dicts with BM25 scores.
+        list of memory dicts with BM25 scores.
     """
     memory_dir = Path(memory_dir)
     if not memory_dir.exists():
@@ -185,7 +185,7 @@ def _load_memories_from_dir(memory_dir: Path) -> list[dict]:
         memory_dir: Directory containing .md memory files.
 
     Returns:
-        List of memory dicts with at least 'id' and 'content' keys.
+        list of memory dicts with at least 'id' and 'content' keys.
     """
     memories: list[dict] = []
 
@@ -218,7 +218,7 @@ def format_pattern_recall(memories: list[dict]) -> str:
     Returns empty string if no memories.
 
     Args:
-        memories: List of memory dicts with 'content' key.
+        memories: list of memory dicts with 'content' key.
 
     Returns:
         Formatted string, or empty string.
@@ -255,7 +255,7 @@ def should_inject_for_problem(prompt: str, session_state: dict) -> bool:
 
     Args:
         prompt: Current user prompt.
-        session_state: Dict with at minimum 'exchange_count' (int) and
+        session_state: dict with at minimum 'exchange_count' (int) and
                       optionally 'last_pattern_recall_exchange' (int).
 
     Returns:

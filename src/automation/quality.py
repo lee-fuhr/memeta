@@ -11,7 +11,6 @@ Suggest improvements or archival.
 """
 
 from pathlib import Path
-from typing import List, Tuple
 from dataclasses import dataclass
 import re
 import logging
@@ -26,8 +25,8 @@ class QualityScore:
     """Quality assessment for a memory"""
     memory_id: str
     score: float  # 0.0-1.0 (1.0 = high quality)
-    issues: List[str]
-    suggestions: List[str]
+    issues: list[str]
+    suggestions: list[str]
 
 
 class QualityScoring:
@@ -130,11 +129,11 @@ class QualityScoring:
             suggestions=suggestions
         )
 
-    def batch_assess(self, memories: List[Memory]) -> List[QualityScore]:
+    def batch_assess(self, memories: list[Memory]) -> list[QualityScore]:
         """Assess multiple memories."""
         return [self.assess_memory(m) for m in memories]
 
-    def find_low_quality(self, memories: List[Memory], threshold: float = 0.6) -> List[QualityScore]:
+    def find_low_quality(self, memories: list[Memory], threshold: float = 0.6) -> list[QualityScore]:
         """Find memories below quality threshold."""
         assessments = self.batch_assess(memories)
         return [a for a in assessments if a.score < threshold]

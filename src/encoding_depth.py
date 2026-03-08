@@ -23,7 +23,6 @@ import json
 import re
 import sqlite3
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional
 
 
 class EncodingDepthScorer:
@@ -95,7 +94,7 @@ class EncodingDepthScorer:
         finally:
             conn.close()
 
-    def _count_markers(self, content_lower: str, markers: List[str]) -> tuple:
+    def _count_markers(self, content_lower: str, markers: list[str]) -> tuple:
         """Count occurrences of markers in content and return (count, matched_list).
 
         Uses word-boundary-aware matching to avoid substring false positives
@@ -104,10 +103,10 @@ class EncodingDepthScorer:
 
         Args:
             content_lower: Lowercased content string.
-            markers: List of marker phrases to search for.
+            markers: list of marker phrases to search for.
 
         Returns:
-            Tuple of (count, list_of_matched_markers).
+            tuple of (count, list_of_matched_markers).
         """
         count = 0
         matched = []
@@ -136,14 +135,14 @@ class EncodingDepthScorer:
         """
         return self.analyze_content(content)["depth"]
 
-    def analyze_content(self, content: str) -> Dict:
+    def analyze_content(self, content: str) -> dict:
         """Return detailed analysis of encoding depth.
 
         Args:
             content: Memory content text.
 
         Returns:
-            Dict with keys: depth, char_count, causal_count,
+            dict with keys: depth, char_count, causal_count,
             comparison_count, reference_count, signals.
         """
         stripped = content.strip()
@@ -247,14 +246,14 @@ class EncodingDepthScorer:
 
         return analysis["depth"]
 
-    def get_shallow_memories(self, limit: int = 50) -> List[Dict]:
+    def get_shallow_memories(self, limit: int = 50) -> list[dict]:
         """Return level-1 memories that need enrichment.
 
         Args:
             limit: Maximum number of results to return.
 
         Returns:
-            List of dicts with memory_id, depth_level, scored_at.
+            list of dicts with memory_id, depth_level, scored_at.
         """
         conn = sqlite3.connect(self._db_path)
         try:
@@ -274,11 +273,11 @@ class EncodingDepthScorer:
         finally:
             conn.close()
 
-    def get_depth_distribution(self) -> Dict[int, int]:
+    def get_depth_distribution(self) -> dict[int, int]:
         """Return count of memories at each depth level.
 
         Returns:
-            Dict mapping depth level (1, 2, 3) to count.
+            dict mapping depth level (1, 2, 3) to count.
         """
         conn = sqlite3.connect(self._db_path)
         try:
@@ -299,14 +298,14 @@ class EncodingDepthScorer:
 
     def get_enrichment_candidates(
         self, max_age_days: int = 30
-    ) -> List[Dict]:
+    ) -> list[dict]:
         """Return shallow memories recent enough to be worth enriching.
 
         Args:
             max_age_days: Only include memories scored within this many days.
 
         Returns:
-            List of dicts with memory details.
+            list of dicts with memory details.
         """
         cutoff = (datetime.now() - timedelta(days=max_age_days)).isoformat()
         conn = sqlite3.connect(self._db_path)

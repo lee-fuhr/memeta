@@ -10,7 +10,7 @@ Future enhancement: Use Anthropic API for LLM-powered extraction.
 import json
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import Any
 
 from .config import cfg
 from .memory_ts_client import MemoryTSClient
@@ -35,9 +35,9 @@ class SessionMemory:
     content: str
     importance: float
     project_id: str
-    tags: List[str] = field(default_factory=lambda: ["#learning"])
-    session_id: Optional[str] = None
-    id: Optional[str] = None  # Set after memory-ts create
+    tags: list[str] = field(default_factory=lambda: ["#learning"])
+    session_id: str | None = None
+    id: str | None = None  # set after memory-ts create
 
 
 @dataclass
@@ -55,9 +55,9 @@ class ConsolidationResult:
     memories_saved: int
     memories_deduplicated: int
     session_quality: SessionQualityScore
-    saved_memories: List[SessionMemory] = field(default_factory=list)
-    all_extracted: List[SessionMemory] = field(default_factory=list)
-    extracted_memories: List[SessionMemory] = field(default_factory=list)  # Alias for compatibility
+    saved_memories: list[SessionMemory] = field(default_factory=list)
+    all_extracted: list[SessionMemory] = field(default_factory=list)
+    extracted_memories: list[SessionMemory] = field(default_factory=list)  # Alias for compatibility
     contradictions_resolved: int = 0  # Number of contradictions auto-resolved
 
 
@@ -76,8 +76,8 @@ class SessionConsolidator:
 
     def __init__(
         self,
-        session_dir: Optional[Path] = None,
-        memory_dir: Optional[Path] = None,
+        session_dir: Path | None = None,
+        memory_dir: Path | None = None,
         project_id: str = "default"
     ):
         """
@@ -93,7 +93,7 @@ class SessionConsolidator:
         self.project_id = project_id
         self.memory_client = MemoryTSClient(memory_dir=memory_dir)
 
-    def read_session(self, session_file: Path) -> List[Dict[str, Any]]:
+    def read_session(self, session_file: Path) -> list[dict[str, Any]]:
         """
         Read session JSONL file
 
@@ -101,7 +101,7 @@ class SessionConsolidator:
             session_file: Path to session JSONL
 
         Returns:
-            List of message dicts with 'role' and 'content'
+            list of message dicts with 'role' and 'content'
 
         Raises:
             FileNotFoundError: If session file doesn't exist
@@ -122,7 +122,7 @@ class SessionConsolidator:
 
         return messages
 
-    def extract_conversation_text(self, messages: List[Dict[str, Any]]) -> str:
+    def extract_conversation_text(self, messages: list[dict[str, Any]]) -> str:
         """
         Extract plain text from session messages
 
@@ -131,7 +131,7 @@ class SessionConsolidator:
         Filters out tool_use/tool_result content blocks.
 
         Args:
-            messages: List of message dicts
+            messages: list of message dicts
 
         Returns:
             Combined conversation text
@@ -175,7 +175,7 @@ class SessionConsolidator:
         self,
         conversation: str,
         use_llm: bool = False
-    ) -> List[SessionMemory]:
+    ) -> list[SessionMemory]:
         """
         Extract learnings from conversation
 
@@ -188,7 +188,7 @@ class SessionConsolidator:
             use_llm: If True, use LLM extraction instead of patterns
 
         Returns:
-            List of extracted SessionMemory objects
+            list of extracted SessionMemory objects
         """
         # Skip if conversation is too short/trivial
         if len(conversation) < 50:
@@ -201,7 +201,7 @@ class SessionConsolidator:
         # Otherwise use pattern-based extraction
         return _extract_patterns(conversation, self.project_id, _session_memory_factory)
 
-    def _extract_memories_llm(self, conversation: str) -> List[SessionMemory]:
+    def _extract_memories_llm(self, conversation: str) -> list[SessionMemory]:
         """
         LLM-powered memory extraction (uses Claude intelligence)
 
@@ -216,7 +216,7 @@ class SessionConsolidator:
             conversation: Full conversation text
 
         Returns:
-            List of extracted SessionMemory objects
+            list of extracted SessionMemory objects
         """
         try:
             # Future enhancement: Use Task tool for LLM-powered extraction
@@ -237,16 +237,16 @@ class SessionConsolidator:
 
     def deduplicate(
         self,
-        new_memories: List[SessionMemory],
+        new_memories: list[SessionMemory],
         use_llm_dedup: bool = True
-    ) -> List[SessionMemory]:
+    ) -> list[SessionMemory]:
         """
         Remove memories that duplicate existing ones
 
         Enhanced with LLM-powered decisions for gray area (50-90% similarity).
 
         Args:
-            new_memories: List of newly extracted memories
+            new_memories: list of newly extracted memories
             use_llm_dedup: If True, use LLM for smarter dedup decisions
 
         Returns:
@@ -257,7 +257,7 @@ class SessionConsolidator:
 
     def reinforce_corrections(
         self,
-        new_corrections: List[SessionMemory],
+        new_corrections: list[SessionMemory],
         session_id: str,
     ) -> int:
         """
@@ -265,7 +265,7 @@ class SessionConsolidator:
         correction appears in a new session. Same-session dedup prevents gaming.
 
         Args:
-            new_corrections: List of newly extracted correction memories
+            new_corrections: list of newly extracted correction memories
             session_id: Current session ID (for same-session dedup)
 
         Returns:
@@ -460,7 +460,7 @@ class SessionConsolidator:
         )
 
 
-def extract_memories_from_session(session_file: Path, project_id: str = "default") -> List[SessionMemory]:
+def extract_memories_from_session(session_file: Path, project_id: str = "default") -> list[SessionMemory]:
     """
     Convenience function for extracting memories from session
 
@@ -469,7 +469,7 @@ def extract_memories_from_session(session_file: Path, project_id: str = "default
         project_id: Project identifier
 
     Returns:
-        List of extracted memories
+        list of extracted memories
     """
     consolidator = SessionConsolidator(project_id=project_id)
     messages = consolidator.read_session(session_file)
@@ -478,14 +478,14 @@ def extract_memories_from_session(session_file: Path, project_id: str = "default
 
 
 def deduplicate_memories(
-    new_memories: List[SessionMemory],
-    memory_dir: Optional[Path] = None
-) -> List[SessionMemory]:
+    new_memories: list[SessionMemory],
+    memory_dir: Path | None = None
+) -> list[SessionMemory]:
     """
     Convenience function for deduplication
 
     Args:
-        new_memories: List of new memories
+        new_memories: list of new memories
         memory_dir: Memory storage directory
 
     Returns:
@@ -495,7 +495,7 @@ def deduplicate_memories(
     return consolidator.deduplicate(new_memories)
 
 
-def calculate_session_quality(memories: List[SessionMemory]) -> SessionQualityScore:
+def calculate_session_quality(memories: list[SessionMemory]) -> SessionQualityScore:
     """
     Calculate quality score for a session
 
@@ -504,7 +504,7 @@ def calculate_session_quality(memories: List[SessionMemory]) -> SessionQualitySc
     High value = importance >= 0.7
 
     Args:
-        memories: List of extracted memories
+        memories: list of extracted memories
 
     Returns:
         SessionQualityScore object

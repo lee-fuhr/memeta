@@ -6,7 +6,7 @@ Extracted from session_consolidator.py to keep files under 500 lines.
 """
 
 import re
-from typing import List, Callable
+from typing import Callable
 
 from .importance_engine import calculate_importance
 
@@ -102,7 +102,7 @@ def detect_corrections(conversation: str) -> list[dict]:
         conversation: Full conversation text
 
     Returns:
-        List of dicts with keys: content, importance, pattern_type
+        list of dicts with keys: content, importance, pattern_type
     """
     if not conversation:
         return []
@@ -140,7 +140,7 @@ def extract_memories_patterns(
     conversation: str,
     project_id: str,
     memory_factory: Callable,
-) -> List:
+) -> list:
     """
     Pattern-based memory extraction (fast, deterministic)
 
@@ -157,7 +157,7 @@ def extract_memories_patterns(
             Signature: memory_factory(content, importance, project_id) -> SessionMemory
 
     Returns:
-        List of extracted SessionMemory objects
+        list of extracted SessionMemory objects
     """
     memories = []
 

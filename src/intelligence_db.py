@@ -10,7 +10,6 @@ and reduced SQLITE_BUSY errors.
 
 import sqlite3
 from pathlib import Path
-from typing import Optional
 from datetime import datetime
 
 from memory_system.db_pool import get_pool, close_all_pools
@@ -36,7 +35,7 @@ class IntelligenceDB:
     - close() returns the connection to the pool instead of destroying it
     """
 
-    def __init__(self, db_path: Optional[Path] = None):
+    def __init__(self, db_path: Path | None = None):
         """
         Initialize intelligence database
 

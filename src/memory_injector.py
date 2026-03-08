@@ -10,7 +10,6 @@ Strategy parameter allows future switch from BM25 to hybrid search.
 
 import json
 from pathlib import Path
-from typing import Optional
 
 from memory_system.hybrid_search import keyword_search
 
@@ -37,7 +36,7 @@ def _parse_frontmatter(text: str) -> tuple[dict, str]:
         text: Full file content with --- delimited frontmatter.
 
     Returns:
-        Tuple of (frontmatter_dict, body_content).
+        tuple of (frontmatter_dict, body_content).
 
     Raises:
         ValueError: If frontmatter markers are missing or malformed.
@@ -97,8 +96,8 @@ def _parse_frontmatter(text: str) -> tuple[dict, str]:
 
 
 def build_search_index(
-    memory_dir: Optional[Path] = None,
-    output_path: Optional[Path] = None,
+    memory_dir: Path | None = None,
+    output_path: Path | None = None,
 ) -> int:
     """
     Scan memory YAML files and build a minimal JSON search index.
@@ -168,7 +167,7 @@ def _atomic_write_json(path: Path, data: list) -> None:
         raise
 
 
-def load_search_index(index_path: Optional[Path] = None) -> list[dict]:
+def load_search_index(index_path: Path | None = None) -> list[dict]:
     """
     Load the pre-built JSON search index.
 
@@ -177,7 +176,7 @@ def load_search_index(index_path: Optional[Path] = None) -> list[dict]:
             Defaults to DEFAULT_INDEX_PATH.
 
     Returns:
-        List of memory dicts. Empty list if file is missing or corrupt.
+        list of memory dicts. Empty list if file is missing or corrupt.
     """
     index_path = Path(index_path) if index_path else DEFAULT_INDEX_PATH
 
@@ -195,8 +194,8 @@ def load_search_index(index_path: Optional[Path] = None) -> list[dict]:
 
 def search_memories(
     query: str,
-    memories: Optional[list[dict]] = None,
-    index_path: Optional[Path] = None,
+    memories: list[dict] | None = None,
+    index_path: Path | None = None,
     top_k: int = DEFAULT_TOP_K,
     strategy: str = "bm25",
     min_score: float = BM25_FLOOR,
@@ -218,7 +217,7 @@ def search_memories(
         min_normalized: Normalized BM25 score threshold.
 
     Returns:
-        List of memory dicts that pass both relevance gates, sorted by score.
+        list of memory dicts that pass both relevance gates, sorted by score.
     """
     if not query or not query.strip():
         return []
@@ -255,7 +254,7 @@ def format_injection(memories: list[dict], context: str = "session") -> str:
     Format memories for injection into Claude context.
 
     Args:
-        memories: List of memory dicts with 'content' and 'importance' keys.
+        memories: list of memory dicts with 'content' and 'importance' keys.
         context: "session" for rich format at session start,
                  "prompt" for compact format during session.
 
@@ -282,7 +281,7 @@ def _format_corrections(corrections: list[dict]) -> str:
     """Format correction memories in a separate block for session start.
 
     Args:
-        corrections: List of correction memory dicts with 'content' key.
+        corrections: list of correction memory dicts with 'content' key.
 
     Returns:
         Formatted corrections block, or empty string if no corrections.
@@ -331,7 +330,7 @@ def get_pinned_memories(
     Sorted by importance descending, capped at cap entries.
 
     Args:
-        memories: List of memory dicts from the search index.
+        memories: list of memory dicts from the search index.
         threshold: Importance floor (exclusive). Default PINNED_THRESHOLD (0.85).
         cap: Maximum entries to return. Default PINNED_CAP (10).
 
@@ -361,8 +360,8 @@ def _format_pinned(memories: list[dict]) -> str:
 
 
 def inject_at_session_start(
-    project: Optional[str] = None,
-    index_path: Optional[Path] = None,
+    project: str | None = None,
+    index_path: Path | None = None,
 ) -> str:
     """
     High-level function for SessionStart hook.
@@ -462,8 +461,8 @@ def inject_at_session_start(
 
 def inject_for_prompt(
     prompt: str,
-    exclude_ids: Optional[list] = None,
-    index_path: Optional[Path] = None,
+    exclude_ids: list | None = None,
+    index_path: Path | None = None,
 ) -> str:
     """
     High-level function for UserPromptSubmit hook.
@@ -473,7 +472,7 @@ def inject_for_prompt(
 
     Args:
         prompt: The user's prompt text to search against.
-        exclude_ids: List of memory IDs already injected this session.
+        exclude_ids: list of memory IDs already injected this session.
         index_path: Path to JSON index file.
 
     Returns:

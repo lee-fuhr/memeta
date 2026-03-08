@@ -22,7 +22,6 @@ import logging
 from collections import defaultdict
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional
 
 from memory_system.config import cfg
 from memory_system.memory_ts_client import Memory, MemoryTSClient
@@ -63,9 +62,9 @@ class SkillAntiPatternMiner:
 
     def __init__(
         self,
-        db_path: Optional[str] = None,
-        memory_dir: Optional[Path] = None,
-        memory_client: Optional[MemoryTSClient] = None,
+        db_path: str | None = None,
+        memory_dir: Path | None = None,
+        memory_client: MemoryTSClient | None = None,
     ) -> None:
         self._db_path = str(db_path) if db_path else str(cfg.intelligence_db_path)
         self._provenance = SkillProvenanceTracker(db_path=self._db_path)
@@ -89,7 +88,7 @@ class SkillAntiPatternMiner:
                 and a correction appear before the skill is reported.
 
         Returns:
-            List of AntiPatternReport, sorted by co_occurrence_count descending.
+            list of AntiPatternReport, sorted by co_occurrence_count descending.
         """
         corrections_by_session = self._load_corrections_by_session()
         if not corrections_by_session:

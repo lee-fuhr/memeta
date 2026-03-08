@@ -7,20 +7,19 @@ Feature 18: Analyze memories across sessions to find:
 - Sequential patterns ("When A happens, B usually follows")
 """
 
-from typing import List, Dict
 from collections import defaultdict, Counter
 from datetime import datetime
 
 
-def mine_temporal_patterns(memories: List[Dict]) -> Dict:
+def mine_temporal_patterns(memories: list[dict]) -> dict:
     """
     Find patterns by day of week or time of day.
 
     Args:
-        memories: List of memory dicts with created timestamp
+        memories: list of memory dicts with created timestamp
 
     Returns:
-        Dict with temporal insights
+        dict with temporal insights
     """
     by_weekday = defaultdict(list)
     by_hour = defaultdict(list)
@@ -62,16 +61,16 @@ def mine_temporal_patterns(memories: List[Dict]) -> Dict:
     }
 
 
-def mine_frequency_patterns(memories: List[Dict], min_frequency: int = 3) -> List[Dict]:
+def mine_frequency_patterns(memories: list[dict], min_frequency: int = 3) -> list[dict]:
     """
     Find topics or concepts mentioned frequently.
 
     Args:
-        memories: List of memory dicts
+        memories: list of memory dicts
         min_frequency: Minimum mentions to report
 
     Returns:
-        List of frequent patterns
+        list of frequent patterns
     """
     # Extract all words/phrases
     all_content = ' '.join(m.get('content', '').lower() for m in memories)
@@ -95,15 +94,15 @@ def mine_frequency_patterns(memories: List[Dict], min_frequency: int = 3) -> Lis
     return frequent_patterns
 
 
-def mine_sequential_patterns(memories: List[Dict]) -> List[Dict]:
+def mine_sequential_patterns(memories: list[dict]) -> list[dict]:
     """
     Find patterns where event A often precedes event B.
 
     Args:
-        memories: List of memory dicts (ordered by time)
+        memories: list of memory dicts (ordered by time)
 
     Returns:
-        List of sequential patterns
+        list of sequential patterns
     """
     # Look for sequences in time-ordered memories
     sequences = defaultdict(int)
@@ -135,15 +134,15 @@ def mine_sequential_patterns(memories: List[Dict]) -> List[Dict]:
     return significant_sequences[:10]  # Top 10
 
 
-def mine_all_patterns(memories: List[Dict]) -> Dict:
+def mine_all_patterns(memories: list[dict]) -> dict:
     """
     Run all pattern mining techniques.
 
     Args:
-        memories: List of memory dicts
+        memories: list of memory dicts
 
     Returns:
-        Dict with all pattern types
+        dict with all pattern types
     """
     return {
         'temporal': mine_temporal_patterns(memories),
@@ -153,7 +152,7 @@ def mine_all_patterns(memories: List[Dict]) -> Dict:
     }
 
 
-def format_pattern_insights(patterns: Dict) -> str:
+def format_pattern_insights(patterns: dict) -> str:
     """
     Format patterns into human-readable insights.
 
