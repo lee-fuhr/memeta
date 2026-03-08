@@ -2,7 +2,7 @@
 
 Every feature in Memeta, organized by layer. Each one coexists additively — adding feature N+1 makes features 1 through N better.
 
-**Current:** v0.29.0 · 3,081 tests passing · 150 features shipped
+**Current:** v0.30.0 · 3,108 tests passing · 151 features shipped
 
 ---
 
@@ -194,6 +194,7 @@ Every feature in Memeta, organized by layer. Each one coexists additively — ad
 | Setup wizard | `memeta init` with 7 environment checks, directory creation, dependency validation, non-interactive mode | `src/setup_wizard.py` |
 | Markdown importer | Bulk import from markdown directories with frontmatter parsing, cached dedup, importance guessing | `src/importers/markdown_importer.py` |
 | CLAUDE.md importer | Section-aware CLAUDE.md parsing into searchable memories with heading hierarchy extraction | `src/importers/claude_md_importer.py` |
+| Build Bible importer | Imports principles (1.x, importance 0.90), patterns (2.x, 0.85), anti-patterns (6.x, 0.90) from Build Bible markdown; typed tags `#source:bible`, `#section:N.M`, `#type:<type>`; dry-run preview; SHA-256 dedup | `src/importers/bible_importer.py` |
 | Learnings generator | Auto-generates curated CLAUDE.md sections from top memories with strip-and-regenerate pattern | `src/learnings_generator.py` |
 
 ---
