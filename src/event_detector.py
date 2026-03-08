@@ -7,7 +7,6 @@ Feature 13: Instead of waiting for message count threshold, compact when:
 - Session handoff detected (user says "pause" or "switching to X")
 """
 
-from typing import Optional, Dict
 import re
 
 
@@ -115,15 +114,15 @@ def detect_handoff(message: str) -> bool:
     return False
 
 
-def should_compact_conversation(messages: list) -> Dict[str, bool]:
+def should_compact_conversation(messages: list) -> dict[str, bool]:
     """
     Determine if conversation should be compacted based on events.
 
     Args:
-        messages: List of recent messages (dicts with 'role' and 'content')
+        messages: list of recent messages (dicts with 'role' and 'content')
 
     Returns:
-        Dict with reasons:
+        dict with reasons:
         {
             'should_compact': bool,
             'reason': str,

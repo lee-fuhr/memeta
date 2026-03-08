@@ -10,13 +10,13 @@ event_detector.py (task/topic/handoff events) with:
 
 import re
 from datetime import datetime, timedelta, timezone
-from typing import List, Dict, Optional, Any
+from typing import Any
 
 from .event_detector import detect_handoff
 
 
 def check_inactivity_timeout(
-    messages: List[Dict],
+    messages: list[dict],
     timeout_minutes: int = 60
 ) -> bool:
     """
@@ -26,7 +26,7 @@ def check_inactivity_timeout(
     Returns False if messages is empty or no timestamps found.
 
     Args:
-        messages: List of message dicts, each optionally with 'timestamp' key
+        messages: list of message dicts, each optionally with 'timestamp' key
         timeout_minutes: Minutes of inactivity before triggering (default: 60)
 
     Returns:
@@ -36,7 +36,7 @@ def check_inactivity_timeout(
         return False
 
     # Find the latest timestamp across all messages
-    latest_ts: Optional[datetime] = None
+    latest_ts: datetime | None = None
 
     for msg in messages:
         ts_str = msg.get('timestamp')
@@ -115,10 +115,10 @@ def detect_session_end_signal(message: str) -> bool:
 
 
 def should_compact_enhanced(
-    messages: List[Dict],
+    messages: list[dict],
     message_threshold: int = 50,
     timeout_minutes: int = 60,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Enhanced compaction trigger that checks all three triggers:
 
@@ -129,17 +129,17 @@ def should_compact_enhanced(
     Priority: message_count > session_end_signal > inactivity_timeout
 
     Args:
-        messages: List of message dicts with optional 'timestamp', 'content' keys
+        messages: list of message dicts with optional 'timestamp', 'content' keys
         message_threshold: Compact when exceeding this many messages (default: 50)
         timeout_minutes: Minutes of inactivity before triggering (default: 60)
 
     Returns:
-        Dict with:
+        dict with:
         - 'should_compact': bool
         - 'reason': 'message_count' | 'inactivity_timeout' | 'session_end_signal' | None
         - 'details': str  (human-readable explanation)
     """
-    result: Dict[str, Any] = {
+    result: dict[str, Any] = {
         'should_compact': False,
         'reason': None,
         'details': 'No compaction triggers fired',

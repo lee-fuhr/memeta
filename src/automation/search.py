@@ -18,7 +18,6 @@ import time
 import re
 from pathlib import Path
 from datetime import datetime, timedelta
-from typing import List, Dict, Optional, Tuple
 from dataclasses import dataclass, asdict
 
 from memory_system.db_pool import get_connection
@@ -29,14 +28,14 @@ from memory_system.intelligence.search_optimizer import SearchOptimizer
 @dataclass
 class SearchQuery:
     """Structured search query with multiple filter dimensions"""
-    text_query: Optional[str] = None
-    date_start: Optional[datetime] = None
-    date_end: Optional[datetime] = None
-    min_importance: Optional[float] = None
-    max_importance: Optional[float] = None
-    project_id: Optional[str] = None
-    tags: Optional[List[str]] = None
-    exclude_tags: Optional[List[str]] = None
+    text_query: str | None = None
+    date_start: datetime | None = None
+    date_end: datetime | None = None
+    min_importance: float | None = None
+    max_importance: float | None = None
+    project_id: str | None = None
+    tags: list[str] | None = None
+    exclude_tags: list[str] | None = None
     limit: int = 20
     order_by: str = "importance"  # "importance", "recency", "relevance"
 
@@ -85,7 +84,7 @@ class MemoryAwareSearch:
         history = search.get_search_history(limit=10)
     """
 
-    def __init__(self, db_path: Optional[Path] = None):
+    def __init__(self, db_path: Path | None = None):
         """
         Initialize search system.
 
@@ -120,7 +119,7 @@ class MemoryAwareSearch:
 
             conn.commit()
 
-    def search(self, query: str, limit: int = 20) -> List[SearchResult]:
+    def search(self, query: str, limit: int = 20) -> list[SearchResult]:
         """
         Simple content search.
 
@@ -129,7 +128,7 @@ class MemoryAwareSearch:
             limit: Maximum results
 
         Returns:
-            List of SearchResult objects
+            list of SearchResult objects
         """
         def _search_fn(q: str) -> list:
             return self.client.search(content=q)
@@ -148,17 +147,17 @@ class MemoryAwareSearch:
 
     def search_advanced(
         self,
-        text_query: Optional[str] = None,
-        date_start: Optional[datetime] = None,
-        date_end: Optional[datetime] = None,
-        min_importance: Optional[float] = None,
-        max_importance: Optional[float] = None,
-        project_id: Optional[str] = None,
-        tags: Optional[List[str]] = None,
-        exclude_tags: Optional[List[str]] = None,
+        text_query: str | None = None,
+        date_start: datetime | None = None,
+        date_end: datetime | None = None,
+        min_importance: float | None = None,
+        max_importance: float | None = None,
+        project_id: str | None = None,
+        tags: list[str] | None = None,
+        exclude_tags: list[str] | None = None,
         limit: int = 20,
         order_by: str = "importance"
-    ) -> List[SearchResult]:
+    ) -> list[SearchResult]:
         """
         Advanced multi-dimensional search.
 
@@ -175,7 +174,7 @@ class MemoryAwareSearch:
             order_by: Sort order (importance | recency | relevance)
 
         Returns:
-            List of SearchResult objects
+            list of SearchResult objects
         """
         # Start with base search or all memories — use cache when text query present
         if text_query:
@@ -255,7 +254,7 @@ class MemoryAwareSearch:
 
         return results
 
-    def search_natural(self, query: str, limit: int = 20) -> List[SearchResult]:
+    def search_natural(self, query: str, limit: int = 20) -> list[SearchResult]:
         """
         Natural language query with automatic parsing.
 
@@ -264,7 +263,7 @@ class MemoryAwareSearch:
             limit: Maximum results
 
         Returns:
-            List of SearchResult objects
+            list of SearchResult objects
         """
         parsed = self.parse_natural_query(query)
 
@@ -357,7 +356,7 @@ class MemoryAwareSearch:
 
         return search_query
 
-    def get_search_history(self, limit: int = 20) -> List[Dict]:
+    def get_search_history(self, limit: int = 20) -> list[dict]:
         """
         Get recent search history.
 
@@ -365,7 +364,7 @@ class MemoryAwareSearch:
             limit: Maximum history entries
 
         Returns:
-            List of search history dictionaries
+            list of search history dictionaries
         """
         with get_connection(self.db_path) as conn:
             cursor = conn.execute("""
@@ -386,7 +385,7 @@ class MemoryAwareSearch:
 
             return history
 
-    def _calculate_relevance(self, memory: Memory, query: Optional[str], order_by: str) -> float:
+    def _calculate_relevance(self, memory: Memory, query: str | None, order_by: str) -> float:
         """Calculate relevance score for sorting."""
         if order_by == "importance":
             return memory.importance
@@ -400,7 +399,7 @@ class MemoryAwareSearch:
             return importance_score + recency_score
         return 0.5
 
-    def _log_search(self, query_text: str, query_struct: Dict, results_count: int):
+    def _log_search(self, query_text: str, query_struct: dict, results_count: int):
         """Log search query for analytics."""
         now = int(time.time())
 

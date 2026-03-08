@@ -11,9 +11,9 @@ similarity — no ML dependencies, fast, explainable.
 import logging
 import sqlite3
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional, Union
+from typing import Union
 
 logger = logging.getLogger(__name__)
 
@@ -60,7 +60,7 @@ class ProjectSimilarity:
 class CrossPollinationIndex:
     """Tracks and measures knowledge transfer between projects."""
 
-    def __init__(self, db_path: Optional[Union[str, Path]] = None):
+    def __init__(self, db_path: Union[str, Path] | None = None):
         if db_path is None:
             from memory_system.config import MemorySystemConfig
             db_path = MemorySystemConfig().intelligence_db
@@ -114,8 +114,8 @@ class CrossPollinationIndex:
 
     def get_events(
         self,
-        source_project: Optional[str] = None,
-        target_project: Optional[str] = None,
+        source_project: str | None = None,
+        target_project: str | None = None,
     ) -> list[PollinationEvent]:
         """Return all recorded events, optionally filtered by project."""
         clauses = []
@@ -165,7 +165,7 @@ class CrossPollinationIndex:
             persist: If True, record detected events to the database.
 
         Returns:
-            List of detected PollinationEvent objects.
+            list of detected PollinationEvent objects.
         """
         projects = list(memories_by_project.keys())
         if len(projects) < 2:
@@ -205,7 +205,7 @@ class CrossPollinationIndex:
                                 memory_id=mem_a.get("id", ""),
                                 similarity_score=sim,
                                 context=f"{mem_a.get('id','')} ↔ {mem_b.get('id','')}",
-                                detected_at=datetime.utcnow().isoformat(),
+                                detected_at=datetime.now(timezone.utc).isoformat(),
                             ))
         return events
 

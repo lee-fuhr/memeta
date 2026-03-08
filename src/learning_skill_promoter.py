@@ -12,7 +12,7 @@ from dataclasses import dataclass, field
 from datetime import date
 from enum import Enum
 from pathlib import Path
-from typing import Optional, Union
+from typing import Union
 
 logger = logging.getLogger(__name__)
 
@@ -69,7 +69,7 @@ CREATE TABLE IF NOT EXISTS learning_promotion_proposals (
 class LearningSkillPromoter:
     """Track learning briefing appearances and generate SKILL.md promotion proposals."""
 
-    def __init__(self, db_path: Optional[Union[str, Path]] = None):
+    def __init__(self, db_path: Union[str, Path] | None = None):
         if db_path is None:
             from memory_system.config import MemorySystemConfig
             db_path = MemorySystemConfig().intelligence_db

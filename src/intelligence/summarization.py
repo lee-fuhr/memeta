@@ -18,12 +18,14 @@ Use cases:
 """
 
 import json
+import logging
 import time
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import List, Optional
+
+logger = logging.getLogger(__name__)
 
 from memory_system.db_pool import get_connection
 from memory_system.intelligence_db import IntelligenceDB
@@ -43,9 +45,9 @@ class Summary:
     """A generated summary of memories (cluster / project / period)."""
     id: str
     summary_type: str  # cluster, project, period
-    target_id: Optional[str]  # cluster_id or project_id
-    period_start: Optional[datetime]
-    period_end: Optional[datetime]
+    target_id: str | None  # cluster_id or project_id
+    period_start: datetime | None
+    period_end: datetime | None
     summary: str  # The actual summary text
     memory_count: int
     created_at: datetime
@@ -54,14 +56,14 @@ class Summary:
 @dataclass
 class TopicSummary:
     """A narrative summary of memories on a specific topic (F31)."""
-    summary_id: Optional[int]
+    summary_id: int | None
     topic: str
     narrative: str
-    timeline: List[dict]  # [{"date": ..., "event": ...}]
-    key_insights: List[str]
+    timeline: list[dict]  # [{"date": ..., "event": ...}]
+    key_insights: list[str]
     memory_count: int
     created_at: datetime
-    memory_ids: List[str]
+    memory_ids: list[str]
 
 
 # ── Main class ────────────────────────────────────────────────────────────────
@@ -77,7 +79,7 @@ class MemorySummarizer:
     - Topic summaries: Narrative + timeline + key insights on any topic
     """
 
-    def __init__(self, db_path: Optional[Path] = None, memory_client: Optional[MemoryTSClient] = None):
+    def __init__(self, db_path: Path | None = None, memory_client: MemoryTSClient | None = None):
         """
         Initialize summarizer with intelligence.db
 
@@ -112,7 +114,7 @@ class MemorySummarizer:
 
     # ── F26: Cluster / Project / Period summarization ─────────────────────
 
-    def summarize_cluster(self, cluster_id: str) -> Optional[Summary]:
+    def summarize_cluster(self, cluster_id: str) -> Summary | None:
         """
         Generate summary of a memory cluster.
 
@@ -169,7 +171,7 @@ class MemorySummarizer:
         project_id: str,
         days: int = 30,
         min_memories: int = 5
-    ) -> Optional[Summary]:
+    ) -> Summary | None:
         """
         Generate summary of project activity over time period.
 
@@ -214,8 +216,8 @@ class MemorySummarizer:
         self,
         start: datetime,
         end: datetime,
-        project_id: Optional[str] = None
-    ) -> Optional[Summary]:
+        project_id: str | None = None
+    ) -> Summary | None:
         """
         Generate summary of memories captured in time period.
 
@@ -255,7 +257,7 @@ class MemorySummarizer:
             memory_count=len(period_memories)
         )
 
-    def get_summary(self, summary_id) -> Optional[object]:
+    def get_summary(self, summary_id) -> object | None:
         """
         Retrieve a summary by ID.
 
@@ -266,7 +268,7 @@ class MemorySummarizer:
             return self.get_topic_summary(summary_id)
         return self._get_base_summary(summary_id)
 
-    def _get_base_summary(self, summary_id: str) -> Optional[Summary]:
+    def _get_base_summary(self, summary_id: str) -> Summary | None:
         """Retrieve a cluster/project/period summary by UUID string."""
         with get_connection(self.intel_db.db_path) as conn:
             row = conn.execute(
@@ -280,12 +282,12 @@ class MemorySummarizer:
 
     def get_summaries(
         self,
-        topic: Optional[str] = None,
-        limit: Optional[int] = None,
-        summary_type: Optional[str] = None,
-        target_id: Optional[str] = None,
-        after: Optional[datetime] = None
-    ) -> List[object]:
+        topic: str | None = None,
+        limit: int | None = None,
+        summary_type: str | None = None,
+        target_id: str | None = None,
+        after: datetime | None = None
+    ) -> list[object]:
         """
         Get summaries, dispatching by API:
 
@@ -298,10 +300,10 @@ class MemorySummarizer:
 
     def _get_base_summaries(
         self,
-        summary_type: Optional[str] = None,
-        target_id: Optional[str] = None,
-        after: Optional[datetime] = None
-    ) -> List[Summary]:
+        summary_type: str | None = None,
+        target_id: str | None = None,
+        after: datetime | None = None
+    ) -> list[Summary]:
         """
         Get cluster/project/period summaries, optionally filtered.
 
@@ -339,7 +341,7 @@ class MemorySummarizer:
             conn.commit()
             return cursor.rowcount > 0
 
-    def regenerate_summary(self, summary_id) -> Optional[object]:
+    def regenerate_summary(self, summary_id) -> object | None:
         """
         Regenerate a summary by ID.
 
@@ -350,7 +352,7 @@ class MemorySummarizer:
             return self.regenerate_topic_summary(summary_id)
         return self._regenerate_base_summary(summary_id)
 
-    def _regenerate_base_summary(self, summary_id: str) -> Optional[Summary]:
+    def _regenerate_base_summary(self, summary_id: str) -> Summary | None:
         """Regenerate an existing cluster/project/period summary."""
         existing = self._get_base_summary(summary_id)
         if not existing:
@@ -403,7 +405,7 @@ class MemorySummarizer:
     def summarize_topic(
         self,
         topic: str,
-        memories: List[Memory],
+        memories: list[Memory],
         save: bool = True
     ) -> TopicSummary:
         """
@@ -457,7 +459,8 @@ Format as JSON:
             data = json.loads(response.strip())
             narrative = data.get("narrative", "Unable to generate summary")
             key_insights = data.get("key_insights", [])
-        except Exception:
+        except Exception as exc:
+            logger.warning("LLM summarize_topic failed for %r: %s", topic, exc)
             narrative = (
                 f"Found {len(memories)} memories about {topic}. "
                 f"Spanning from {sorted_memories[0].created.strftime('%Y-%m-%d')} "
@@ -479,9 +482,9 @@ Format as JSON:
 
     def get_topic_summaries(
         self,
-        topic: Optional[str] = None,
+        topic: str | None = None,
         limit: int = 10
-    ) -> List[TopicSummary]:
+    ) -> list[TopicSummary]:
         """Get topic summaries, optionally filtered by topic."""
         with get_connection(self.intel_db.db_path) as conn:
             if topic:
@@ -502,12 +505,12 @@ Format as JSON:
 
         return [self._row_to_topic_summary(row) for row in rows]
 
-    def get_topic_summary(self, summary_id: int) -> Optional[TopicSummary]:
+    def get_topic_summary(self, summary_id: int) -> TopicSummary | None:
         """Get a specific topic summary by ID."""
         results = self.get_topic_summaries()
         return next((s for s in results if s.summary_id == summary_id), None)
 
-    def regenerate_topic_summary(self, summary_id: int) -> Optional[TopicSummary]:
+    def regenerate_topic_summary(self, summary_id: int) -> TopicSummary | None:
         """Regenerate a topic summary using the same original memory IDs."""
         original = self.get_topic_summary(summary_id)
         if not original:
@@ -528,9 +531,9 @@ Format as JSON:
         summary_type: str,
         summary: str,
         memory_count: int,
-        target_id: Optional[str] = None,
-        period_start: Optional[datetime] = None,
-        period_end: Optional[datetime] = None
+        target_id: str | None = None,
+        period_start: datetime | None = None,
+        period_end: datetime | None = None
     ) -> Summary:
         """Create and persist a cluster/project/period summary."""
         summary_id = str(uuid.uuid4())
@@ -609,7 +612,7 @@ Format as JSON:
             created_at=datetime.fromtimestamp(row[7])
         )
 
-    def _generate_cluster_summary(self, cluster_name: str, memories: List[str]) -> str:
+    def _generate_cluster_summary(self, cluster_name: str, memories: list[str]) -> str:
         """Generate cluster summary via LLM."""
         try:
             prompt = f"""Analyze these related memories from cluster "{cluster_name}" and generate a summary that captures:
@@ -622,13 +625,14 @@ Memories:
 
 Generate a 2-3 paragraph summary. Be concise but insightful."""
             return _ask_claude(prompt, model="sonnet", temperature=0.3, timeout=30).strip()
-        except Exception:
+        except Exception as exc:
+            logger.warning("LLM cluster summary failed for %r: %s", cluster_name, exc)
             return f"Cluster '{cluster_name}' contains {len(memories)} related memories. Summary unavailable (timeout)."
 
     def _generate_project_summary(
         self,
         project_id: str,
-        memory_contents: List[str],
+        memory_contents: list[str],
         start_date: datetime,
         end_date: datetime
     ) -> str:
@@ -648,15 +652,16 @@ Generate a summary covering:
 
 Format: 3-4 paragraphs, chronological flow where relevant."""
             return _ask_claude(prompt, model="sonnet", temperature=0.3, timeout=30).strip()
-        except Exception:
+        except Exception as exc:
+            logger.warning("LLM project summary failed for %r: %s", project_id, exc)
             return f"Project '{project_id}' had {len(memory_contents)} memories captured from {date_range}. Summary unavailable (timeout)."
 
     def _generate_period_summary(
         self,
-        memory_contents: List[str],
+        memory_contents: list[str],
         start_date: datetime,
         end_date: datetime,
-        project_id: Optional[str]
+        project_id: str | None
     ) -> str:
         """Generate period summary via LLM."""
         date_range = f"{start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')}"
@@ -674,5 +679,6 @@ Organize the summary by themes/topics. Include:
 
 Format: 3-5 bullet points per theme, conversational tone."""
             return _ask_claude(prompt, model="sonnet", temperature=0.3, timeout=30).strip()
-        except Exception:
+        except Exception as exc:
+            logger.warning("LLM period summary failed for %s: %s", date_range, exc)
             return f"Period {date_range} had {len(memory_contents)} memories captured. Summary unavailable (timeout)."

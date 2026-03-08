@@ -9,7 +9,6 @@ Processes user responses to confirm, archive, update, or rate memories.
 """
 
 from dataclasses import dataclass, field
-from typing import List, Dict, Optional
 from datetime import datetime, timedelta
 from pathlib import Path
 import uuid
@@ -25,7 +24,7 @@ class InterviewQuestion:
     category: str              # 'stale_review' | 'contradiction' | 'decision_rating'
     question_text: str
     context: str               # The memory content or decision text
-    memory_ids: List[str]      # Related memory/decision IDs
+    memory_ids: list[str]      # Related memory/decision IDs
     created_at: str
 
 
@@ -36,7 +35,7 @@ class MemoryInterviewer:
     MIN_IMPORTANCE = 0.5       # Only review memories worth keeping
     MAX_QUESTIONS = 5
 
-    def __init__(self, memory_dir: Optional[Path] = None, db_path: Optional[str] = None):
+    def __init__(self, memory_dir: Path | None = None, db_path: str | None = None):
         """Initialize interviewer with memory storage and intelligence DB.
 
         Args:
@@ -45,16 +44,16 @@ class MemoryInterviewer:
         """
         self.client = MemoryTSClient(memory_dir=memory_dir)
         self.db = IntelligenceDB(db_path=db_path)
-        self._pending_questions: Dict[str, InterviewQuestion] = {}
+        self._pending_questions: dict[str, InterviewQuestion] = {}
 
-    def generate_interview(self) -> List[InterviewQuestion]:
+    def generate_interview(self) -> list[InterviewQuestion]:
         """Generate up to MAX_QUESTIONS interview questions from 3 sources.
 
         Allocation target: 2 stale, 2 contradictions, 1 decision.
         If any category has 0 candidates, redistribute slots to others.
 
         Returns:
-            List of InterviewQuestion (up to MAX_QUESTIONS)
+            list of InterviewQuestion (up to MAX_QUESTIONS)
         """
         all_memories = self.client.list()
         stale = self._get_stale_memories(all_memories)
@@ -66,7 +65,7 @@ class MemoryInterviewer:
             len(stale), len(contradicted), len(unrated)
         )
 
-        questions: List[InterviewQuestion] = []
+        questions: list[InterviewQuestion] = []
 
         # Build stale review questions
         for memory in stale[:slots['stale']]:
@@ -111,7 +110,7 @@ class MemoryInterviewer:
 
         return questions[:self.MAX_QUESTIONS]
 
-    def process_response(self, question_id: str, response: str) -> Dict:
+    def process_response(self, question_id: str, response: str) -> dict:
         """Process a user's response to an interview question.
 
         For stale_review:
@@ -132,7 +131,7 @@ class MemoryInterviewer:
             response: User's text response
 
         Returns:
-            Dict with 'action', 'memory_id', 'details'
+            dict with 'action', 'memory_id', 'details'
         """
         question = self._pending_questions.get(question_id)
         if question is None:
@@ -152,11 +151,11 @@ class MemoryInterviewer:
 
         return {'action': 'error', 'memory_id': memory_id, 'details': 'Unknown category'}
 
-    def save_interview(self, questions: List[InterviewQuestion]) -> Path:
+    def save_interview(self, questions: list[InterviewQuestion]) -> Path:
         """Write interview to {memory_dir}/interviews/YYYY-MM-DD.md
 
         Args:
-            questions: List of interview questions to save
+            questions: list of interview questions to save
 
         Returns:
             Path to the saved interview file
@@ -191,7 +190,7 @@ class MemoryInterviewer:
     # Private helpers
     # ------------------------------------------------------------------
 
-    def _get_stale_memories(self, memories: Optional[List[Memory]] = None) -> List[Memory]:
+    def _get_stale_memories(self, memories: list[Memory] | None = None) -> list[Memory]:
         """Get memories not updated in STALE_DAYS with importance >= MIN_IMPORTANCE.
 
         Args:
@@ -216,7 +215,7 @@ class MemoryInterviewer:
         stale.sort(key=lambda m: self._parse_date(m.updated) or datetime.min)
         return stale
 
-    def _get_contradicted_memories(self, memories: Optional[List[Memory]] = None) -> List[Memory]:
+    def _get_contradicted_memories(self, memories: list[Memory] | None = None) -> list[Memory]:
         """Get memories with confidence_score < 0.5 (contradicted or uncertain).
 
         Args:
@@ -236,7 +235,7 @@ class MemoryInterviewer:
         contradicted.sort(key=lambda m: m.confidence_score)
         return contradicted
 
-    def _get_unrated_decisions(self) -> List[Dict]:
+    def _get_unrated_decisions(self) -> list[dict]:
         """Get decisions from decision_journal where outcome IS NULL."""
         cursor = self.db.conn.execute(
             "SELECT id, decision, options_considered, chosen_option, rationale, "
@@ -247,7 +246,7 @@ class MemoryInterviewer:
         rows = cursor.fetchall()
         return [dict(row) for row in rows]
 
-    def _process_stale_response(self, memory_id: str, response_lower: str, response_raw: str) -> Dict:
+    def _process_stale_response(self, memory_id: str, response_lower: str, response_raw: str) -> dict:
         """Process response to a stale memory review question."""
         if response_lower in ('yes', 'still true', 'y', 'true'):
             # Confirm: update timestamp to mark as reviewed
@@ -285,7 +284,7 @@ class MemoryInterviewer:
             except Exception as e:
                 return {'action': 'error', 'memory_id': memory_id, 'details': str(e)}
 
-    def _process_contradiction_response(self, memory_id: str, response_lower: str, response_raw: str) -> Dict:
+    def _process_contradiction_response(self, memory_id: str, response_lower: str, response_raw: str) -> dict:
         """Process response to a contradiction review question."""
         if response_lower in ('keep', 'confirm', 'yes'):
             try:
@@ -320,7 +319,7 @@ class MemoryInterviewer:
             except Exception as e:
                 return {'action': 'error', 'memory_id': memory_id, 'details': str(e)}
 
-    def _process_decision_response(self, decision_id: str, response_lower: str, response_raw: str) -> Dict:
+    def _process_decision_response(self, decision_id: str, response_lower: str, response_raw: str) -> dict:
         """Process response to a decision rating question."""
         # Determine outcome success from response
         positive_signals = ('good', 'great', 'success', 'positive', 'worked', 'right call', 'yes')
@@ -352,7 +351,7 @@ class MemoryInterviewer:
         except Exception as e:
             return {'action': 'error', 'memory_id': decision_id, 'details': str(e)}
 
-    def _allocate_slots(self, n_stale: int, n_contradicted: int, n_decisions: int) -> Dict[str, int]:
+    def _allocate_slots(self, n_stale: int, n_contradicted: int, n_decisions: int) -> dict[str, int]:
         """Allocate question slots across categories.
 
         Target: 2 stale, 2 contradictions, 1 decision.
@@ -381,7 +380,7 @@ class MemoryInterviewer:
 
         return allocated
 
-    def _parse_date(self, date_str: str) -> Optional[datetime]:
+    def _parse_date(self, date_str: str) -> datetime | None:
         """Parse date from various formats (ISO, epoch ms, epoch s)."""
         if not date_str:
             return None

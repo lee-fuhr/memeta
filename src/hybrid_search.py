@@ -11,13 +11,12 @@ Example:
 - Hybrid combines both with weighted scores
 """
 
-from typing import List, Dict, Optional
 import math
 import numpy as np
 from collections import Counter
 
 
-def compute_idf(documents: List[str]) -> Dict[str, float]:
+def compute_idf(documents: list[str]) -> dict[str, float]:
     """
     Compute IDF (Inverse Document Frequency) for all terms in the corpus.
 
@@ -26,17 +25,17 @@ def compute_idf(documents: List[str]) -> Dict[str, float]:
     of documents containing the term.
 
     Args:
-        documents: List of document text strings
+        documents: list of document text strings
 
     Returns:
-        Dict mapping term to IDF score
+        dict mapping term to IDF score
     """
     n = len(documents)
     if n == 0:
         return {}
 
     # Count how many documents contain each term
-    doc_freq: Dict[str, int] = {}
+    doc_freq: dict[str, int] = {}
     for doc in documents:
         # Use set to count each term once per document
         unique_terms = set(doc.lower().split())
@@ -44,24 +43,24 @@ def compute_idf(documents: List[str]) -> Dict[str, float]:
             doc_freq[term] = doc_freq.get(term, 0) + 1
 
     # Compute IDF for each term
-    idf: Dict[str, float] = {}
+    idf: dict[str, float] = {}
     for term, count in doc_freq.items():
         idf[term] = math.log((n + 1) / (count + 1)) + 1
 
     return idf
 
 
-def normalize_scores(scores: List[float]) -> List[float]:
+def normalize_scores(scores: list[float]) -> list[float]:
     """
     Normalize scores to [0, 1] range by dividing by max score.
 
     If all scores are zero or the list is empty, returns zeros.
 
     Args:
-        scores: List of raw scores
+        scores: list of raw scores
 
     Returns:
-        List of normalized scores in [0, 1]
+        list of normalized scores in [0, 1]
     """
     if not scores:
         return []
@@ -79,7 +78,7 @@ def bm25_score(
     avg_doc_length: float,
     k1: float = 1.5,
     b: float = 0.75,
-    idf: Optional[Dict[str, float]] = None
+    idf: dict[str, float] | None = None
 ) -> float:
     """
     Calculate BM25 score for document given query.
@@ -147,19 +146,19 @@ def _cosine_similarity(a, b) -> float:
 
 def hybrid_search(
     query: str,
-    memories: List[Dict],
+    memories: list[dict],
     top_k: int = 10,
     semantic_weight: float = 0.7,
     bm25_weight: float = 0.3,
     use_semantic: bool = True,
-    embeddings: Optional[Dict[str, list]] = None
-) -> List[Dict]:
+    embeddings: dict[str, list] | None = None
+) -> list[dict]:
     """
     Search using hybrid semantic + BM25 approach.
 
     Args:
         query: Search query
-        memories: List of memory dicts with 'content' key
+        memories: list of memory dicts with 'content' key
         top_k: Number of results to return
         semantic_weight: Weight for semantic score (default: 0.7)
         bm25_weight: Weight for BM25 score (default: 0.3)
@@ -169,7 +168,7 @@ def hybrid_search(
             uses cosine similarity instead of calling semantic_search model.
 
     Returns:
-        List of memories with hybrid scores
+        list of memories with hybrid scores
     """
     if not memories:
         return []
@@ -255,19 +254,19 @@ def hybrid_search(
 
 def keyword_search(
     query: str,
-    memories: List[Dict],
+    memories: list[dict],
     top_k: int = 10
-) -> List[Dict]:
+) -> list[dict]:
     """
     Pure BM25 keyword search (fast, no ML dependencies).
 
     Args:
         query: Search query
-        memories: List of memory dicts
+        memories: list of memory dicts
         top_k: Number of results
 
     Returns:
-        List of memories with BM25 scores
+        list of memories with BM25 scores
     """
     return hybrid_search(
         query=query,

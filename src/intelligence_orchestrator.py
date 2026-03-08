@@ -30,7 +30,6 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
 from pathlib import Path
-from typing import Optional
 import logging
 
 logger = logging.getLogger(__name__)
@@ -119,7 +118,8 @@ def _collect_dream_signals(db_path: Path) -> list[Signal]:
                 source="dream_synthesizer",
             ))
         return signals
-    except Exception:
+    except Exception as exc:
+        logger.debug("dream_synthesizer collector failed: %s", exc)
         return []
 
 
@@ -135,7 +135,8 @@ def _collect_momentum_signals(db_path: Path) -> list[Signal]:
                 "SELECT session_id, momentum_score, state FROM momentum_tracking "
                 "ORDER BY timestamp DESC LIMIT 1"
             ).fetchone()
-        except Exception:
+        except Exception as exc:
+            logger.debug("momentum_tracking table unavailable: %s", exc)
             row = None
         finally:
             conn.close()
@@ -159,7 +160,8 @@ def _collect_momentum_signals(db_path: Path) -> list[Signal]:
                     source="momentum_tracker",
                 )]
         return []
-    except Exception:
+    except Exception as exc:
+        logger.debug("momentum_tracker collector failed: %s", exc)
         return []
 
 
@@ -180,7 +182,8 @@ def _collect_energy_signals(db_path: Path) -> list[Signal]:
                 source="energy_scheduler",
             )]
         return []
-    except Exception:
+    except Exception as exc:
+        logger.debug("energy_scheduler collector failed: %s", exc)
         return []
 
 
@@ -201,7 +204,8 @@ def _collect_regret_signals(db_path: Path) -> list[Signal]:
                 source="regret_detector",
             ))
         return signals
-    except Exception:
+    except Exception as exc:
+        logger.debug("regret_detector collector failed: %s", exc)
         return []
 
 
@@ -221,7 +225,8 @@ def _collect_frustration_signals(db_path: Path) -> list[Signal]:
                 source="frustration_detector",
             )]
         return []
-    except Exception:
+    except Exception as exc:
+        logger.debug("frustration_detector collector failed: %s", exc)
         return []
 
 
@@ -260,7 +265,8 @@ def _collect_skill_lifecycle_signals(db_path: Path) -> list[Signal]:
             ))
 
         return signals
-    except Exception:
+    except Exception as exc:
+        logger.debug("skill_lifecycle collector failed: %s", exc)
         return []
 
 
@@ -297,7 +303,8 @@ def _collect_skill_health_signals(db_path: Path) -> list[Signal]:
             ))
 
         return signals
-    except Exception:
+    except Exception as exc:
+        logger.debug("skill_self_improver collector failed: %s", exc)
         return []
 
 
@@ -349,11 +356,12 @@ def _collect_velocity_health_signals(db_path: Path) -> list[Signal]:
             ))
 
         return signals
-    except Exception:
+    except Exception as exc:
+        logger.debug("correction_velocity collector failed: %s", exc)
         return []
 
 
-def collect_signals(db_path: Optional[Path] = None) -> list[Signal]:
+def collect_signals(db_path: Path | None = None) -> list[Signal]:
     """Collect signals from all feature modules.
 
     Each collector runs independently and fails silently.
@@ -449,7 +457,7 @@ def format_daily_briefing(briefing: DailyBriefing) -> str:
 class IntelligenceOrchestrator:
     """Central orchestrator for intelligence feature signals."""
 
-    def __init__(self, db_path: Optional[Path] = None):
+    def __init__(self, db_path: Path | None = None):
         self.db_path = db_path or INTELLIGENCE_DB
         self._init_db()
 

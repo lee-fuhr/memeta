@@ -15,7 +15,7 @@ import os
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import List, Optional, Dict, Any
+from typing import Any
 import time
 
 
@@ -39,11 +39,11 @@ class Memory:
     id: str
     content: str
     importance: float
-    tags: List[str]
+    tags: list[str]
     project_id: str
     scope: str = "project"  # project or global
-    session_id: Optional[str] = None  # Track which session created this memory
-    source_session_id: Optional[str] = None  # Provenance: the session that produced this memory
+    session_id: str | None = None  # Track which session created this memory
+    source_session_id: str | None = None  # Provenance: the session that produced this memory
     created: str = field(default_factory=lambda: datetime.now().isoformat())
     updated: str = field(default_factory=lambda: datetime.now().isoformat())
     reasoning: str = ""
@@ -54,11 +54,11 @@ class Memory:
     status: str = "active"
     confirmations: int = 0
     contradictions: int = 0
-    retrieval_weight: Optional[float] = None
+    retrieval_weight: float | None = None
     schema_version: int = 2
 
     def __post_init__(self):
-        """Set retrieval_weight to match importance if not specified"""
+        """set retrieval_weight to match importance if not specified"""
         if self.retrieval_weight is None:
             self.retrieval_weight = self.importance
 
@@ -71,7 +71,7 @@ class MemoryTSClient:
     This client provides CRUD operations on those files.
     """
 
-    def __init__(self, memory_dir: Optional[Path] = None):
+    def __init__(self, memory_dir: Path | None = None):
         """
         Initialize client
 
@@ -96,7 +96,7 @@ class MemoryTSClient:
                 self._enable_access_logging = False
         return self._predictor
 
-    def _log_access(self, memory_id: str, access_type: str, context_keywords: Optional[List[str]] = None):
+    def _log_access(self, memory_id: str, access_type: str, context_keywords: list[str] | None = None):
         """Log memory access for temporal pattern learning"""
         if not self._enable_access_logging:
             return
@@ -131,10 +131,10 @@ class MemoryTSClient:
         self,
         content: str,
         project_id: str,
-        tags: List[str],
-        importance: Optional[float] = None,
+        tags: list[str],
+        importance: float | None = None,
         scope: str = "project",
-        source_session_id: Optional[str] = None,
+        source_session_id: str | None = None,
         **kwargs
     ) -> Memory:
         """
@@ -143,7 +143,7 @@ class MemoryTSClient:
         Args:
             content: Memory content (markdown)
             project_id: Project identifier
-            tags: List of tags (e.g. ["#learning", "#important"])
+            tags: list of tags (e.g. ["#learning", "#important"])
             importance: Importance score (0.0-1.0), auto-calculated if None
             scope: "project" or "global"
             source_session_id: Session ID that produced this memory (provenance tracking)
@@ -221,15 +221,15 @@ class MemoryTSClient:
 
         return memory
 
-    def list(self, include_archived: bool = False) -> List[Memory]:
+    def list(self, include_archived: bool = False) -> list[Memory]:
         """
-        List all memories
+        list all memories
 
         Args:
             include_archived: If True, include memories in archived/ subdirectory
 
         Returns:
-            List of Memory objects
+            list of Memory objects
         """
         results = []
 
@@ -384,11 +384,11 @@ schema_version: {memory.schema_version}
 
     def search(
         self,
-        tags: Optional[List[str]] = None,
-        content: Optional[str] = None,
-        scope: Optional[str] = None,
-        project_id: Optional[str] = None
-    ) -> List[Memory]:
+        tags: list[str] | None = None,
+        content: str | None = None,
+        scope: str | None = None,
+        project_id: str | None = None
+    ) -> list[Memory]:
         """
         Search memories by various criteria
 
@@ -399,7 +399,7 @@ schema_version: {memory.schema_version}
             project_id: Filter by project
 
         Returns:
-            List of matching Memory objects
+            list of matching Memory objects
         """
         results = []
 
@@ -435,10 +435,10 @@ schema_version: {memory.schema_version}
     def update(
         self,
         memory_id: str,
-        content: Optional[str] = None,
-        importance: Optional[float] = None,
-        tags: Optional[List[str]] = None,
-        scope: Optional[str] = None,
+        content: str | None = None,
+        importance: float | None = None,
+        tags: list[str] | None = None,
+        scope: str | None = None,
         **kwargs
     ) -> Memory:
         """

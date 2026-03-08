@@ -30,7 +30,6 @@ import uuid
 from collections import defaultdict
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional
 
 MEMORY_DIR = Path.home() / ".local/share/memory/default/memories"
 INTELLIGENCE_DB = Path(__file__).parent.parent / "intelligence.db"
@@ -84,7 +83,7 @@ class CrossClientReport:
 # Core functions
 # ---------------------------------------------------------------------------
 
-def find_cross_project_memories(memory_dir: Optional[Path] = None) -> list[dict]:
+def find_cross_project_memories(memory_dir: Path | None = None) -> list[dict]:
     """Find memories eligible for cross-project sharing.
 
     Eligibility criteria (any of):
@@ -92,7 +91,7 @@ def find_cross_project_memories(memory_dir: Optional[Path] = None) -> list[dict]
       - tagged with #cross_client_ok or #universal
 
     Returns:
-        List of dicts with id, project_id, domain, content, tags, scope
+        list of dicts with id, project_id, domain, content, tags, scope
     """
     mem_dir = memory_dir or MEMORY_DIR
     if not mem_dir.exists():
@@ -133,7 +132,8 @@ def find_cross_project_memories(memory_dir: Optional[Path] = None) -> list[dict]
                 "scope": scope,
                 "importance": float(meta.get("importance_weight", 0.5)),
             })
-        except Exception:
+        except Exception as exc:
+            logger.debug("Skipping memory file %s: %s", fpath.name, exc)
             continue
 
     return results
@@ -143,7 +143,7 @@ def group_by_domain(memories: list[dict]) -> dict[str, list[dict]]:
     """Group memories by knowledge domain.
 
     Returns:
-        Dict mapping domain name to list of memories in that domain.
+        dict mapping domain name to list of memories in that domain.
     """
     groups: dict[str, list[dict]] = defaultdict(list)
     for m in memories:
@@ -154,7 +154,7 @@ def group_by_domain(memories: list[dict]) -> dict[str, list[dict]]:
 def generate_hypotheses(
     memories: list[dict],
     max_hypotheses: int = 10,
-    db_path: Optional[Path] = None,
+    db_path: Path | None = None,
 ) -> list[TransferHypothesis]:
     """Generate transfer hypotheses from cross-project memories.
 
@@ -163,12 +163,12 @@ def generate_hypotheses(
     effectiveness data to boost confidence when available.
 
     Args:
-        memories: List of eligible memories (from find_cross_project_memories)
+        memories: list of eligible memories (from find_cross_project_memories)
         max_hypotheses: Maximum number of hypotheses to generate
         db_path: Path to intelligence.db for prior transfer data
 
     Returns:
-        List of TransferHypothesis sorted by confidence descending
+        list of TransferHypothesis sorted by confidence descending
     """
     if not memories:
         return []
@@ -258,7 +258,7 @@ def format_synthesis_report(report: CrossClientReport) -> str:
 # Helpers
 # ---------------------------------------------------------------------------
 
-def _parse_frontmatter(text: str) -> Optional[dict]:
+def _parse_frontmatter(text: str) -> dict | None:
     """Parse YAML-like frontmatter from a memory .md file."""
     parts = text.split("---", 2)
     if len(parts) < 3:
@@ -283,11 +283,11 @@ def _extract_body(text: str) -> str:
     return text.strip()
 
 
-def _load_prior_effectiveness(db_path: Optional[Path] = None) -> dict[str, float]:
+def _load_prior_effectiveness(db_path: Path | None = None) -> dict[str, float]:
     """Load average effectiveness ratings from prior pattern transfers.
 
     Returns:
-        Dict mapping project name to average effectiveness (0.0-1.0)
+        dict mapping project name to average effectiveness (0.0-1.0)
     """
     db = db_path or INTELLIGENCE_DB
     if not Path(db).exists():
@@ -305,7 +305,8 @@ def _load_prior_effectiveness(db_path: Optional[Path] = None) -> dict[str, float
         ).fetchall()
         conn.close()
         return {row[0]: row[1] for row in rows}
-    except Exception:
+    except Exception as exc:
+        logger.debug("_load_prior_effectiveness DB query failed: %s", exc)
         return {}
 
 
@@ -318,8 +319,8 @@ class CrossClientSynthesizer:
 
     def __init__(
         self,
-        memory_dir: Optional[Path] = None,
-        db_path: Optional[Path] = None,
+        memory_dir: Path | None = None,
+        db_path: Path | None = None,
     ):
         self.memory_dir = memory_dir or MEMORY_DIR
         self.db_path = db_path or INTELLIGENCE_DB
@@ -383,5 +384,5 @@ class CrossClientSynthesizer:
                 )
             conn.commit()
             conn.close()
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug("Failed to persist transfer history: %s", exc)

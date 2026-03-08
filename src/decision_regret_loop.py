@@ -33,7 +33,6 @@ import sqlite3
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional
 
 INTELLIGENCE_DB = Path(__file__).parent.parent / "intelligence.db"
 
@@ -78,8 +77,8 @@ class RegretWarning:
     total_occurrences: int
     regret_count: int
     regret_rate: float
-    worst_outcome: Optional[str]
-    alternative_suggested: Optional[str]
+    worst_outcome: str | None
+    alternative_suggested: str | None
 
     @property
     def is_high_risk(self) -> bool:
@@ -104,8 +103,8 @@ class RegretWarning:
 
 def categorize_decision(
     text: str,
-    categories: Optional[list[DecisionCategory]] = None,
-) -> Optional[DecisionCategory]:
+    categories: list[DecisionCategory] | None = None,
+) -> DecisionCategory | None:
     """Categorize a decision by matching against known categories.
 
     Args:
@@ -124,10 +123,10 @@ def categorize_decision(
 
 def check_for_regret_patterns(
     decision_text: str,
-    db_path: Optional[Path] = None,
+    db_path: Path | None = None,
     min_occurrences: int = 2,
     min_regret_rate: float = 0.5,
-) -> Optional[RegretWarning]:
+) -> RegretWarning | None:
     """Check if a decision matches historical regret patterns.
 
     Uses keyword extraction for fuzzy matching: extracts significant words
@@ -205,11 +204,12 @@ def check_for_regret_patterns(
             worst_outcome=worst,
             alternative_suggested=best_alternative,
         )
-    except Exception:
+    except Exception as exc:
+        logger.debug("check_decision DB query failed: %s", exc)
         return None
 
 
-def format_regret_warning(warning: Optional[RegretWarning]) -> str:
+def format_regret_warning(warning: RegretWarning | None) -> str:
     """Format a RegretWarning as human-readable text.
 
     Args:
@@ -237,14 +237,14 @@ def format_regret_warning(warning: Optional[RegretWarning]) -> str:
     return "\n".join(lines)
 
 
-def get_regret_summary(db_path: Optional[Path] = None) -> dict:
+def get_regret_summary(db_path: Path | None = None) -> dict:
     """Get summary statistics about decision regrets.
 
     Args:
         db_path: Path to intelligence.db
 
     Returns:
-        Dict with total_decisions, total_regrets, regret_rate, top_regretted
+        dict with total_decisions, total_regrets, regret_rate, top_regretted
     """
     db = db_path or INTELLIGENCE_DB
     if not Path(db).exists():
@@ -293,7 +293,8 @@ def get_regret_summary(db_path: Optional[Path] = None) -> dict:
                 for r in top
             ],
         }
-    except Exception:
+    except Exception as exc:
+        logger.debug("get_regret_summary DB query failed: %s", exc)
         return {
             "total_decisions": 0,
             "total_regrets": 0,
@@ -349,10 +350,10 @@ def _extract_keywords(text: str) -> list[str]:
 class DecisionRegretLoop:
     """Main interface for real-time decision regret warnings."""
 
-    def __init__(self, db_path: Optional[Path] = None):
+    def __init__(self, db_path: Path | None = None):
         self.db_path = db_path or INTELLIGENCE_DB
 
-    def check_decision(self, decision_text: str) -> Optional[RegretWarning]:
+    def check_decision(self, decision_text: str) -> RegretWarning | None:
         """Check a decision against historical regret patterns.
 
         Args:

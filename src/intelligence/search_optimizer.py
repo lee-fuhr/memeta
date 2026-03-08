@@ -18,13 +18,15 @@ Integration:
 - Works with Memory dataclass from memory_ts_client
 """
 
-import sqlite3
 import hashlib
 import json
+import logging
+import sqlite3
 from dataclasses import dataclass, asdict
 from datetime import datetime, timedelta
+
+logger = logging.getLogger(__name__)
 from pathlib import Path
-from typing import List, Optional, Dict
 
 from memory_system.config import cfg
 from memory_system.db_pool import get_connection
@@ -104,8 +106,8 @@ class SearchOptimizer:
         query: str,
         search_fn,  # Function that does actual search
         use_cache: bool = True,
-        project_id: Optional[str] = None
-    ) -> List:
+        project_id: str | None = None
+    ) -> list:
         """
         Cache-aware search wrapper.
 
@@ -116,7 +118,7 @@ class SearchOptimizer:
             project_id: Optional project filter (included in cache key)
 
         Returns:
-            List of Memory objects
+            list of Memory objects
         """
         if not use_cache or not query.strip():
             return search_fn(query)
@@ -191,9 +193,9 @@ class SearchOptimizer:
 
     def rank_results(
         self,
-        results: List,
-        query: Optional[str] = None
-    ) -> List:
+        results: list,
+        query: str | None = None
+    ) -> list:
         """
         Improved ranking algorithm.
 
@@ -201,7 +203,7 @@ class SearchOptimizer:
         score = semantic * 0.5 + keyword * 0.2 + recency * 0.2 + importance * 0.1
 
         Args:
-            results: List of Memory objects with scores
+            results: list of Memory objects with scores
             query: Original query (for keyword matching)
 
         Returns:
@@ -223,7 +225,8 @@ class SearchOptimizer:
                 created = datetime.fromisoformat(memory.created)
                 days_old = (now - created).days
                 recency_score = max(0.0, 1.0 - (days_old / 365.0))
-            except Exception:
+            except Exception as exc:
+                logger.debug("Invalid created date for memory %s: %s", getattr(memory, 'id', '?'), exc)
                 recency_score = 0.5  # Default for invalid dates
 
             # Importance score
@@ -332,7 +335,7 @@ class SearchOptimizer:
                 'top_queries': top_queries
             }
 
-    def invalidate_cache(self, query: Optional[str] = None, project_id: Optional[str] = None):
+    def invalidate_cache(self, query: str | None = None, project_id: str | None = None):
         """
         Invalidate cache entries.
 

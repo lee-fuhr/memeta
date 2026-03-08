@@ -22,7 +22,6 @@ import json
 import sqlite3
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Optional
 
 
 class RetrievalForgettingDetector:
@@ -96,7 +95,7 @@ class RetrievalForgettingDetector:
         1 = perfect inequality (one memory gets all retrievals).
 
         Args:
-            values: List of retrieval counts per memory.
+            values: list of retrieval counts per memory.
 
         Returns:
             Gini coefficient as a float in [0, 1].
@@ -124,7 +123,7 @@ class RetrievalForgettingDetector:
     def log_retrieval(
         self,
         memory_id: str,
-        cluster_id: Optional[str] = None,
+        cluster_id: str | None = None,
         query: str = "",
     ) -> None:
         """
@@ -181,7 +180,7 @@ class RetrievalForgettingDetector:
             memory_ids: All memory IDs that belong to this cluster.
 
         Returns:
-            Dict with keys: gini, dominant_ids, neglected_ids, is_imbalanced.
+            dict with keys: gini, dominant_ids, neglected_ids, is_imbalanced.
         """
         if not memory_ids:
             return {
@@ -275,7 +274,7 @@ class RetrievalForgettingDetector:
             memory_ids: All memory IDs that belong to this cluster.
 
         Returns:
-            List of neglected memory IDs.
+            list of neglected memory IDs.
         """
         if not memory_ids:
             return []
@@ -284,19 +283,19 @@ class RetrievalForgettingDetector:
 
     def find_blind_spots(
         self,
-        cluster_memories: Optional[dict[str, list[str]]] = None,
+        cluster_memories: dict[str, list[str]] | None = None,
     ) -> list[dict]:
         """
         Find all clusters with retrieval imbalance above threshold.
 
         Args:
-            cluster_memories: Dict mapping cluster_id to list of all
+            cluster_memories: dict mapping cluster_id to list of all
                 memory IDs in that cluster.  If not provided, discovers
                 clusters from retrieval_log (but won't know about
                 never-retrieved memories).
 
         Returns:
-            List of dicts: [{cluster_id, gini, dominant, neglected}].
+            list of dicts: [{cluster_id, gini, dominant, neglected}].
         """
         if cluster_memories is None:
             # Discover clusters from retrieval log
@@ -355,7 +354,7 @@ class RetrievalForgettingDetector:
         Return overall retrieval stats.
 
         Returns:
-            Dict with keys: total_retrievals, unique_memories_retrieved,
+            dict with keys: total_retrievals, unique_memories_retrieved,
             clusters_analyzed, blind_spots_found.
         """
         cur = self.conn.cursor()

@@ -25,7 +25,6 @@ import json
 import os
 import time
 from pathlib import Path
-from typing import Dict, List, Optional
 from datetime import datetime
 
 from memory_system.config import cfg
@@ -86,8 +85,8 @@ def init_session_db():
 
 def save_session(
     session_id: str,
-    transcript: List[Dict],
-    session_name: Optional[str] = None,
+    transcript: list[dict],
+    session_name: str | None = None,
     project_id: str = "default",
     memories_extracted: int = 0,
     session_quality: float = 0.0
@@ -189,8 +188,8 @@ def save_session(
 def search_sessions(
     query: str,
     limit: int = 20,
-    project_id: Optional[str] = None
-) -> List[Dict]:
+    project_id: str | None = None
+) -> list[dict]:
     """
     Full-text search across all session transcripts.
 
@@ -200,7 +199,7 @@ def search_sessions(
         project_id: Optional project filter
 
     Returns:
-        List of matching sessions with metadata
+        list of matching sessions with metadata
     """
     init_session_db()
 
@@ -231,7 +230,7 @@ def search_sessions(
     return results
 
 
-def get_session_by_id(session_id: str) -> Optional[Dict]:
+def get_session_by_id(session_id: str) -> dict | None:
     """
     Retrieve full session by ID.
 
@@ -259,7 +258,7 @@ def get_session_by_id(session_id: str) -> Optional[Dict]:
     return None
 
 
-def get_recent_sessions(limit: int = 10, project_id: Optional[str] = None) -> List[Dict]:
+def get_recent_sessions(limit: int = 10, project_id: str | None = None) -> list[dict]:
     """
     Get most recent sessions.
 
@@ -268,7 +267,7 @@ def get_recent_sessions(limit: int = 10, project_id: Optional[str] = None) -> Li
         project_id: Optional project filter
 
     Returns:
-        List of session metadata (without full transcripts)
+        list of session metadata (without full transcripts)
     """
     init_session_db()
 
@@ -299,12 +298,12 @@ def get_recent_sessions(limit: int = 10, project_id: Optional[str] = None) -> Li
     return results
 
 
-def get_session_stats() -> Dict:
+def get_session_stats() -> dict:
     """
     Get statistics about session history.
 
     Returns:
-        Dict with total sessions, avg quality, etc.
+        dict with total sessions, avg quality, etc.
     """
     init_session_db()
 

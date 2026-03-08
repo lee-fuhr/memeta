@@ -11,7 +11,7 @@ import sqlite3
 from collections import defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Callable, Dict, List, Optional
+from typing import Callable
 
 
 EVENT_TYPES = [
@@ -33,14 +33,14 @@ class EventStream:
     failing callback never blocks the rest.
     """
 
-    def __init__(self, db_path: Optional[Path] = None):
+    def __init__(self, db_path: Path | None = None):
         if db_path is None:
             db_path = Path(__file__).parent.parent / "intelligence.db"
 
         self.db_path = Path(db_path)
         self.conn = sqlite3.connect(str(self.db_path))
         self.conn.row_factory = sqlite3.Row
-        self._subscribers: Dict[str, List[Callable]] = defaultdict(list)
+        self._subscribers: dict[str, list[Callable]] = defaultdict(list)
         self._init_schema()
 
     # ── Schema ─────────────────────────────────────────────────────────────
@@ -65,7 +65,7 @@ class EventStream:
 
     # ── Pub/Sub ────────────────────────────────────────────────────────────
 
-    def publish(self, event_type: str, payload: Optional[dict] = None) -> int:
+    def publish(self, event_type: str, payload: dict | None = None) -> int:
         """
         Persist an event and notify subscribers synchronously.
 
@@ -140,8 +140,8 @@ class EventStream:
     # ── Query helpers ──────────────────────────────────────────────────────
 
     def get_recent(
-        self, event_type: Optional[str] = None, limit: int = 50
-    ) -> List[Dict]:
+        self, event_type: str | None = None, limit: int = 50
+    ) -> list[dict]:
         """
         Return recent events from the database, newest first.
 
@@ -175,7 +175,7 @@ class EventStream:
             for row in rows
         ]
 
-    def get_stats(self) -> Dict[str, int]:
+    def get_stats(self) -> dict[str, int]:
         """Return event counts keyed by event type."""
         cursor = self.conn.cursor()
         cursor.execute(

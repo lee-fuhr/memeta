@@ -15,7 +15,6 @@ Usage:
 
 import math
 import re
-from typing import Dict, List
 
 
 # ── Filler patterns (removed wholesale) ─────────────────────────────────────
@@ -77,7 +76,7 @@ class MemoryCompressor:
 
     # ── Public API ───────────────────────────────────────────────────────────
 
-    def extract_atomic_facts(self, content: str) -> List[str]:
+    def extract_atomic_facts(self, content: str) -> list[str]:
         """
         Split content into atomic facts (one per sentence).
 
@@ -92,7 +91,7 @@ class MemoryCompressor:
         # Split on sentence boundaries
         raw_sentences = _SENTENCE_SPLIT_RE.split(content.strip())
 
-        facts: List[str] = []
+        facts: list[str] = []
         seen: set = set()
 
         for sentence in raw_sentences:
@@ -109,14 +108,14 @@ class MemoryCompressor:
 
         return facts
 
-    def compress(self, content: str) -> Dict:
+    def compress(self, content: str) -> dict:
         """
         Compress content by removing filler and hedging patterns.
 
         Returns:
             dict with keys:
                 compressed: str — the compressed text
-                facts: List[str] — atomic facts extracted from compressed text
+                facts: list[str] — atomic facts extracted from compressed text
                 compression_ratio: float — len(compressed)/len(original), 0-1
                 original_tokens: int — estimated token count of original
                 compressed_tokens: int — estimated token count of compressed
@@ -181,7 +180,7 @@ class MemoryCompressor:
             "compressed_tokens": compressed_tokens,
         }
 
-    def compress_batch(self, memories: List[Dict]) -> List[Dict]:
+    def compress_batch(self, memories: list[dict]) -> list[dict]:
         """
         Compress a batch of memory dicts.
 
@@ -213,7 +212,7 @@ class MemoryCompressor:
         word_count = len(text.split())
         return math.ceil(word_count * 1.3)
 
-    def get_stats(self) -> Dict:
+    def get_stats(self) -> dict:
         """
         Return cumulative compression statistics.
 

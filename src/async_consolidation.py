@@ -22,7 +22,6 @@ import sqlite3
 import json
 from pathlib import Path
 from datetime import datetime
-from typing import Optional, Dict
 import time
 import logging
 
@@ -96,12 +95,12 @@ class ConsolidationQueue:
             # Already in queue
             return False
 
-    def get_next(self) -> Optional[Dict]:
+    def get_next(self) -> dict | None:
         """
         Get next session to process.
 
         Returns:
-            Dict with session details or None if queue empty
+            dict with session details or None if queue empty
         """
         with get_connection(self.db_path) as conn:
             conn.row_factory = sqlite3.Row
@@ -165,7 +164,7 @@ class ConsolidationQueue:
             """, (error_message, next_retry_iso, session_id))
             conn.commit()
 
-    def get_stats(self) -> Dict:
+    def get_stats(self) -> dict:
         """Get queue statistics"""
         with get_connection(self.db_path) as conn:
             pending = conn.execute("SELECT COUNT(*) FROM consolidation_queue WHERE status = 'pending'").fetchone()[0]

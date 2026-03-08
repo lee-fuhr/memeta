@@ -19,7 +19,7 @@ import logging
 import sqlite3
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional, Union
+from typing import Union
 
 logger = logging.getLogger(__name__)
 
@@ -44,8 +44,8 @@ class SkillRecommender:
 
     def __init__(
         self,
-        db_path: Optional[Union[str, Path]] = None,
-        skills_dir: Optional[Union[str, Path]] = None,
+        db_path: Union[str, Path] | None = None,
+        skills_dir: Union[str, Path] | None = None,
     ):
         if db_path is None:
             from memory_system.config import MemorySystemConfig
@@ -68,7 +68,7 @@ class SkillRecommender:
             top_k: Maximum results to return.
 
         Returns:
-            List of Recommendation objects sorted by score descending.
+            list of Recommendation objects sorted by score descending.
             Empty list if query is blank or no skills directory.
         """
         query = query.strip()
@@ -177,7 +177,8 @@ class SkillRecommender:
                 return {}
             finally:
                 conn.close()
-        except Exception:
+        except Exception as exc:
+            logger.debug("Provenance score computation failed: %s", exc)
             return {}
 
         scores: dict[str, float] = {}

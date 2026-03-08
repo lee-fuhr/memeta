@@ -7,7 +7,7 @@ actually helps Lee reuse knowledge across engagements.
 """
 import sqlite3
 import tempfile
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 import pytest
@@ -39,7 +39,7 @@ def _seed_memory(db_path, memory_id, project_id, content, created_at=None):
             created_at TEXT NOT NULL DEFAULT (datetime('now'))
         )
     """)
-    ts = created_at or datetime.utcnow().isoformat()
+    ts = created_at or datetime.now(timezone.utc).isoformat()
     conn.execute(
         "INSERT OR IGNORE INTO memories (id, project_id, content, created_at) VALUES (?,?,?,?)",
         (memory_id, project_id, content, ts),

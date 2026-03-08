@@ -5,7 +5,6 @@ Bridges confidence_scoring (pure math) with memory_ts_client (file I/O).
 ConfidenceManager increments counts, recalculates scores, and persists to disk.
 """
 
-from typing import Dict
 
 from .memory_ts_client import MemoryTSClient, Memory
 from .confidence_scoring import calculate_confidence, get_confidence_stats
@@ -66,14 +65,14 @@ class ConfidenceManager:
         )
         return self.client.get(memory_id)
 
-    def get_summary(self) -> Dict:
+    def get_summary(self) -> dict:
         """
         Get confidence distribution across all active memories.
 
         Uses get_confidence_stats() from confidence_scoring.py.
 
         Returns:
-            Dict with total, avg_confidence, by_level, low_confidence_count
+            dict with total, avg_confidence, by_level, low_confidence_count
         """
         memories = self.client.list()
         memory_dicts = [

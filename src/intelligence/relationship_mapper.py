@@ -21,7 +21,6 @@ import sqlite3
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import List, Optional, Set, Tuple
 
 from memory_system.db_pool import get_connection
 
@@ -151,9 +150,9 @@ class RelationshipMapper:
     def get_related_memories(
         self,
         memory_id: str,
-        relationship_type: Optional[str] = None,
+        relationship_type: str | None = None,
         direction: str = "both"
-    ) -> List[Tuple[str, MemoryRelationship]]:
+    ) -> list[tuple[str, MemoryRelationship]]:
         """
         Find all memories related to this one.
 
@@ -163,7 +162,7 @@ class RelationshipMapper:
             direction: "from" (outgoing), "to" (incoming), "both"
 
         Returns:
-            List of (related_memory_id, relationship) tuples
+            list of (related_memory_id, relationship) tuples
         """
         # Build query
         conditions = []
@@ -222,7 +221,7 @@ class RelationshipMapper:
         start_id: str,
         end_id: str,
         max_depth: int = 5
-    ) -> Optional[List[str]]:
+    ) -> list[str] | None:
         """
         Find causal chain from start to end memory.
 
@@ -234,7 +233,7 @@ class RelationshipMapper:
             max_depth: Maximum chain length
 
         Returns:
-            List of memory IDs forming chain, or None if no path
+            list of memory IDs forming chain, or None if no path
         """
         # BFS to find shortest path
         from collections import deque
@@ -268,7 +267,7 @@ class RelationshipMapper:
         # No path found
         return None
 
-    def detect_contradictions(self, memory_id: str) -> List[Tuple[str, MemoryRelationship]]:
+    def detect_contradictions(self, memory_id: str) -> list[tuple[str, MemoryRelationship]]:
         """
         Find memories that contradict this one.
 
@@ -276,7 +275,7 @@ class RelationshipMapper:
             memory_id: Memory to check
 
         Returns:
-            List of (contradicting_memory_id, relationship) tuples
+            list of (contradicting_memory_id, relationship) tuples
         """
         return self.get_related_memories(
             memory_id,

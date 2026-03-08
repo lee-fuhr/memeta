@@ -10,7 +10,6 @@ import subprocess
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import List, Optional, Dict
 
 from ..intelligence_db import IntelligenceDB
 from ..llm_extractor import extract_with_llm
@@ -26,8 +25,8 @@ class VoiceMemory:
     """Voice memo converted to memory"""
     audio_path: Path
     transcript: str
-    memories: List[Dict]
-    duration_seconds: Optional[float] = None
+    memories: list[dict]
+    duration_seconds: float | None = None
     created_at: str = None
     project_id: str = "default"
 
@@ -49,8 +48,8 @@ class VoiceCapture:
 
     def __init__(
         self,
-        db_path: Optional[Path] = None,
-        macwhisper_dir: Optional[Path] = None
+        db_path: Path | None = None,
+        macwhisper_dir: Path | None = None
     ):
         """
         Initialize voice capture
@@ -68,7 +67,7 @@ class VoiceCapture:
 
         self.memory_client = MemoryTSClient()
 
-    def transcribe_audio(self, audio_path: Path) -> Dict[str, any]:
+    def transcribe_audio(self, audio_path: Path) -> dict[str, any]:
         """
         Transcribe audio file using MacWhisper
 
@@ -76,7 +75,7 @@ class VoiceCapture:
             audio_path: Path to audio file (m4a, mp3, wav, etc.)
 
         Returns:
-            Dict with transcript and metadata
+            dict with transcript and metadata
 
         Raises:
             FileNotFoundError: If audio file doesn't exist
@@ -129,8 +128,8 @@ class VoiceCapture:
         self,
         transcript: str,
         project_id: str = "default",
-        session_id: Optional[str] = None
-    ) -> List[Dict]:
+        session_id: str | None = None
+    ) -> list[dict]:
         """
         Extract memories from voice transcript using LLM
 
@@ -140,7 +139,7 @@ class VoiceCapture:
             session_id: Optional session ID for provenance
 
         Returns:
-            List of extracted memories with importance scores
+            list of extracted memories with importance scores
         """
         if not transcript or len(transcript.strip()) < 20:
             return []
@@ -193,7 +192,7 @@ Return a list of distinct insights, one per line."""
         self,
         audio_path: Path,
         project_id: str = "default",
-        session_id: Optional[str] = None,
+        session_id: str | None = None,
         save_to_memory_ts: bool = True
     ) -> VoiceMemory:
         """
@@ -274,9 +273,9 @@ Return a list of distinct insights, one per line."""
     def search_voice_memories(
         self,
         query: str,
-        project_id: Optional[str] = None,
+        project_id: str | None = None,
         min_importance: float = 0.0
-    ) -> List[Dict]:
+    ) -> list[dict]:
         """
         Search voice memories by text content
 
@@ -286,7 +285,7 @@ Return a list of distinct insights, one per line."""
             min_importance: Minimum importance threshold
 
         Returns:
-            List of matching voice memories
+            list of matching voice memories
         """
         cursor = self.db.conn.cursor()
 

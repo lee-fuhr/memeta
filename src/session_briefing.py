@@ -16,7 +16,6 @@ Usage:
 import logging
 from datetime import date
 from pathlib import Path
-from typing import Optional
 
 from memory_system.config import cfg
 from memory_system.learning_skill_promoter import LearningSkillPromoter
@@ -54,14 +53,14 @@ class SessionBriefing:
     def generate(
         self,
         topic: str = "",
-        context: Optional[dict] = None,
+        context: dict | None = None,
         max_memories: int = 3,
         max_corrections: int = 3,
         max_commitments: int = 3,
         max_skills: int = 3,
         max_antipatterns: int = 3,
         min_antipattern_risk: str = "medium",
-        session_id: Optional[str] = None,
+        session_id: str | None = None,
     ) -> str:
         """Generate a session-start briefing block.
 
@@ -108,7 +107,7 @@ class SessionBriefing:
             min_risk: Minimum risk level to include ("low", "medium", "high").
 
         Returns:
-            List of dicts with keys: skill_name, risk_level, co_occurrence_rate,
+            list of dicts with keys: skill_name, risk_level, co_occurrence_rate,
             co_occurrence_count, sample_corrections.
         """
         _RISK_ORDER = {"none": 0, "low": 1, "medium": 2, "high": 3}
@@ -238,7 +237,7 @@ class SessionBriefing:
         corrections: list[dict],
         commitments: list[dict],
         skills: list[str],
-        antipatterns: Optional[list[dict]] = None,
+        antipatterns: list[dict] | None = None,
     ) -> str:
         """Format all components into a single markdown briefing block.
 

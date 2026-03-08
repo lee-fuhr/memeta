@@ -7,7 +7,6 @@ Enables cross-feature queries and maintains consistency.
 
 import sqlite3
 from pathlib import Path
-from typing import Optional
 
 
 class IntelligenceDB:
@@ -27,7 +26,7 @@ class IntelligenceDB:
     - F32: Quality scoring (quality_scores, quality_history tables)
     """
 
-    def __init__(self, db_path: Optional[Path] = None):
+    def __init__(self, db_path: Path | None = None):
         """
         Initialize intelligence database
 

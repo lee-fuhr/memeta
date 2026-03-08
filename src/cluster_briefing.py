@@ -25,7 +25,6 @@ import sqlite3
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional
 import logging
 
 logger = logging.getLogger(__name__)
@@ -76,8 +75,8 @@ class MorningBriefing:
 # ---------------------------------------------------------------------------
 
 def generate_briefing(
-    db_path: Optional[Path] = None,
-    memory_dir: Optional[Path] = None,
+    db_path: Path | None = None,
+    memory_dir: Path | None = None,
     max_clusters: int = 10,
     top_n_memories: int = 5,
 ) -> MorningBriefing:
@@ -144,7 +143,7 @@ def generate_briefing(
 
 
 def detect_cluster_divergence(
-    db_path: Optional[Path] = None,
+    db_path: Path | None = None,
     split_threshold: int = 15,
 ) -> list[str]:
     """Detect clusters that may have diverged and need re-clustering.
@@ -157,7 +156,7 @@ def detect_cluster_divergence(
         split_threshold: Member count above which to flag
 
     Returns:
-        List of human-readable divergence signals
+        list of human-readable divergence signals
     """
     db = db_path or INTELLIGENCE_DB
     if not Path(db).exists():
@@ -257,8 +256,8 @@ class ClusterBriefing:
 
     def __init__(
         self,
-        db_path: Optional[Path] = None,
-        memory_dir: Optional[Path] = None,
+        db_path: Path | None = None,
+        memory_dir: Path | None = None,
     ):
         self.db_path = db_path or INTELLIGENCE_DB
         self.memory_dir = memory_dir or MEMORY_DIR

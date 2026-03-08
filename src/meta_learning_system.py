@@ -13,7 +13,7 @@ import random
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import List, Optional, Dict, Callable
+from typing import Callable
 
 from .intelligence_db import IntelligenceDB
 from .memory_ts_client import MemoryTSClient
@@ -31,11 +31,11 @@ class ABTestResult:
     strategy_a_name: str
     strategy_b_name: str
     started_at: str
-    ended_at: Optional[str] = None
+    ended_at: str | None = None
     sample_size: int = 0
     strategy_a_performance: float = 0.0
     strategy_b_performance: float = 0.0
-    winner: Optional[str] = None
+    winner: str | None = None
     adopted: bool = False
 
 
@@ -52,7 +52,7 @@ class MemoryABTesting:
     Measure: recall accuracy, user corrections, satisfaction
     """
 
-    def __init__(self, db_path: Optional[Path] = None):
+    def __init__(self, db_path: Path | None = None):
         """Initialize A/B testing system"""
         self.db = IntelligenceDB(db_path)
 
@@ -147,7 +147,7 @@ class MemoryABTesting:
 
         self.db.conn.commit()
 
-    def get_active_tests(self) -> List[Dict]:
+    def get_active_tests(self) -> list[dict]:
         """Get currently running tests"""
         cursor = self.db.conn.cursor()
 
@@ -159,7 +159,7 @@ class MemoryABTesting:
 
         return [dict(row) for row in cursor.fetchall()]
 
-    def get_test_results(self, test_id: int) -> Optional[Dict]:
+    def get_test_results(self, test_id: int) -> dict | None:
         """Get results for a specific test"""
         cursor = self.db.conn.cursor()
 
@@ -181,7 +181,7 @@ class CrossSystemLearning:
     Privacy-aware: only import patterns, not data.
     """
 
-    def __init__(self, db_path: Optional[Path] = None):
+    def __init__(self, db_path: Path | None = None):
         """Initialize cross-system learning"""
         self.db = IntelligenceDB(db_path)
         self.memory_client = MemoryTSClient()
@@ -259,7 +259,7 @@ class CrossSystemLearning:
 
         self.db.conn.commit()
 
-    def get_effective_patterns(self, min_score: float = 0.7) -> List[Dict]:
+    def get_effective_patterns(self, min_score: float = 0.7) -> list[dict]:
         """Get patterns that work well"""
         cursor = self.db.conn.cursor()
 
@@ -284,7 +284,7 @@ class DreamMode:
     - Morning insights report
     """
 
-    def __init__(self, db_path: Optional[Path] = None):
+    def __init__(self, db_path: Path | None = None):
         """Initialize dream mode"""
         self.db = IntelligenceDB(db_path)
         self.memory_client = MemoryTSClient()
@@ -294,7 +294,7 @@ class DreamMode:
         self,
         lookback_days: int = 1,
         save_insights: bool = True
-    ) -> Dict:
+    ) -> dict:
         """
         Overnight memory consolidation
 

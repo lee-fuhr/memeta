@@ -28,7 +28,7 @@ Usage:
 import sqlite3
 import threading
 import time
-from typing import Any, Callable, Dict, Optional
+from typing import Any, Callable
 
 
 class CircuitBreakerOpenError(Exception):
@@ -73,7 +73,7 @@ class CircuitBreaker:
     def __init__(
         self,
         name: str,
-        db_path: Optional[str] = None,
+        db_path: str | None = None,
         failure_threshold: int = 5,
         recovery_timeout: float = 600.0,
     ):
@@ -84,8 +84,8 @@ class CircuitBreaker:
 
         self._state = self.CLOSED
         self._failure_count = 0
-        self._last_failure_at: Optional[int] = None
-        self._opened_at: Optional[float] = None  # float for sub-second precision
+        self._last_failure_at: int | None = None
+        self._opened_at: float | None = None  # float for sub-second precision
         self._updated_at: int = _now_ts()
         self._lock = threading.Lock()
 
@@ -179,7 +179,7 @@ class CircuitBreaker:
         """Return current state as a string: 'closed', 'open', or 'half_open'."""
         return self.state
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """Return a dict with state, failures, and timestamps."""
         with self._lock:
             self._check_recovery()
@@ -294,7 +294,7 @@ _registry_lock = threading.Lock()
 
 def get_breaker(
     name: str,
-    db_path: Optional[str] = None,
+    db_path: str | None = None,
     failure_threshold: int = 5,
     recovery_timeout: float = 600.0,
 ) -> CircuitBreaker:

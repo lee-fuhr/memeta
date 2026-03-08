@@ -11,7 +11,7 @@ import json
 import time
 from pathlib import Path
 from datetime import datetime, timedelta
-from typing import List, Dict, Optional, Literal, Tuple
+from typing import Literal
 from dataclasses import dataclass
 
 from memory_system.db_pool import get_connection
@@ -34,11 +34,11 @@ class Alert:
     message: str
     memory_ids: str  # JSON array of related memory IDs
     created_at: datetime
-    dismissed_at: Optional[datetime]
+    dismissed_at: datetime | None
     action_taken: bool
     metadata: str  # JSON additional data
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         """Serialize alert for JSON API response."""
         return {
             "alert_id": self.alert_id,
@@ -62,7 +62,7 @@ class AlertDigest:
     high_count: int
     medium_count: int
     low_count: int
-    alerts: List[Alert]
+    alerts: list[Alert]
 
 
 class SmartAlerts:
@@ -101,7 +101,7 @@ class SmartAlerts:
         digest = alerts.get_daily_digest()
     """
 
-    def __init__(self, db_path: Optional[Path] = None):
+    def __init__(self, db_path: Path | None = None):
         """
         Initialize alerts system.
 
@@ -166,8 +166,8 @@ class SmartAlerts:
         severity: str,
         title: str,
         message: str,
-        memory_ids: Optional[List[str]] = None,
-        metadata: Optional[Dict] = None
+        memory_ids: list[str] | None = None,
+        metadata: dict | None = None
     ) -> Alert:
         """
         Create a new alert.
@@ -199,7 +199,7 @@ class SmartAlerts:
 
             return self.get_alert(alert_id)
 
-    def get_alert(self, alert_id: int) -> Optional[Alert]:
+    def get_alert(self, alert_id: int) -> Alert | None:
         """Get alert by ID."""
         with get_connection(self.db_path) as conn:
             cursor = conn.execute("""
@@ -229,10 +229,10 @@ class SmartAlerts:
 
     def get_unread_alerts(
         self,
-        severity: Optional[str] = None,
-        alert_type: Optional[AlertType] = None,
+        severity: str | None = None,
+        alert_type: AlertType | None = None,
         limit: int = 50
-    ) -> List[Alert]:
+    ) -> list[Alert]:
         """
         Get undismissed alerts.
 
@@ -242,7 +242,7 @@ class SmartAlerts:
             limit: Maximum alerts to return
 
         Returns:
-            List of alerts, most recent first
+            list of alerts, most recent first
         """
         query = """
             SELECT alert_id, alert_type, severity, title, message,
@@ -285,10 +285,10 @@ class SmartAlerts:
 
     def get_all_alerts(
         self,
-        alert_type: Optional[str] = None,
+        alert_type: str | None = None,
         limit: int = 50,
         offset: int = 0,
-    ) -> Tuple[List[Alert], int]:
+    ) -> tuple[list[Alert], int]:
         """
         Get all alerts (both read and unread) with pagination.
 
@@ -298,7 +298,7 @@ class SmartAlerts:
             offset: Skip N records
 
         Returns:
-            Tuple of (alerts_list, total_count)
+            tuple of (alerts_list, total_count)
         """
         count_query = "SELECT COUNT(*) FROM smart_alerts"
         query = """
@@ -348,7 +348,7 @@ class SmartAlerts:
             """, (now,))
             conn.commit()
 
-    def dismiss_alert(self, alert_id: int, notes: Optional[str] = None):
+    def dismiss_alert(self, alert_id: int, notes: str | None = None):
         """
         Dismiss an alert.
 
@@ -372,7 +372,7 @@ class SmartAlerts:
 
             conn.commit()
 
-    def mark_action_taken(self, alert_id: int, notes: Optional[str] = None):
+    def mark_action_taken(self, alert_id: int, notes: str | None = None):
         """
         Mark alert as action taken.
 
@@ -396,7 +396,7 @@ class SmartAlerts:
 
             conn.commit()
 
-    def get_daily_digest(self, date: Optional[datetime] = None) -> AlertDigest:
+    def get_daily_digest(self, date: datetime | None = None) -> AlertDigest:
         """
         Get digest of alerts for a specific day.
 
@@ -467,7 +467,7 @@ class SmartAlerts:
             alerts=alerts
         )
 
-    def get_alert_stats(self, days: int = 7) -> Dict:
+    def get_alert_stats(self, days: int = 7) -> dict:
         """
         Get alert statistics over time period.
 

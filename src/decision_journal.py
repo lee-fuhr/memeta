@@ -8,7 +8,6 @@ import json
 import sqlite3
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
-from typing import Optional
 
 
 @dataclass
@@ -21,8 +20,8 @@ class Decision:
     rationale: str
     files_affected: str  # JSON string of list
     session_id: str
-    outcome: Optional[str] = None
-    success: Optional[bool] = None
+    outcome: str | None = None
+    success: bool | None = None
     created_at: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
 

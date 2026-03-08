@@ -14,7 +14,7 @@ Database: intelligence.db (memory_triggers, trigger_log tables)
 import json
 from pathlib import Path
 from datetime import datetime
-from typing import List, Dict, Optional, Literal, Callable
+from typing import Literal, Callable
 from dataclasses import dataclass
 
 from memory_system.db_pool import get_connection
@@ -35,7 +35,7 @@ class Trigger:
     action_config: str  # JSON config for action
     enabled: bool
     created_at: datetime
-    last_triggered: Optional[datetime]
+    last_triggered: datetime | None
     trigger_count: int
 
 
@@ -47,7 +47,7 @@ class TriggerExecution:
     memory_id: str
     executed_at: datetime
     success: bool
-    error_message: Optional[str]
+    error_message: str | None
 
 
 class MemoryTriggers:
@@ -83,7 +83,7 @@ class MemoryTriggers:
         triggers.check_memory("mem_001", "Client mentioned deadline next Friday")
     """
 
-    def __init__(self, db_path: Optional[Path] = None):
+    def __init__(self, db_path: Path | None = None):
         """
         Initialize triggers system.
 
@@ -96,7 +96,7 @@ class MemoryTriggers:
         self._init_db()
 
         # Action handlers
-        self._action_handlers: Dict[ActionType, Callable] = {
+        self._action_handlers: dict[ActionType, Callable] = {
             "todoist_task": self._action_todoist_task,
             "pushover_notification": self._action_pushover,
             "tag_memory": self._action_tag_memory,
@@ -178,7 +178,7 @@ class MemoryTriggers:
 
             return self.get_trigger(trigger_id)
 
-    def get_trigger(self, trigger_id: int) -> Optional[Trigger]:
+    def get_trigger(self, trigger_id: int) -> Trigger | None:
         """Get trigger by ID."""
         with get_connection(self.db_path) as conn:
             cursor = conn.execute("""
@@ -207,7 +207,7 @@ class MemoryTriggers:
                 trigger_count=row[9]
             )
 
-    def get_all_triggers(self, enabled_only: bool = True) -> List[Trigger]:
+    def get_all_triggers(self, enabled_only: bool = True) -> list[Trigger]:
         """Get all triggers."""
         with get_connection(self.db_path) as conn:
             if enabled_only:
@@ -234,7 +234,7 @@ class MemoryTriggers:
 
             return triggers
 
-    def check_memory(self, memory_id: str, content: str, importance: float = 0.5) -> List[int]:
+    def check_memory(self, memory_id: str, content: str, importance: float = 0.5) -> list[int]:
         """
         Check if memory matches any triggers and execute actions.
 
@@ -244,7 +244,7 @@ class MemoryTriggers:
             importance: Memory importance score
 
         Returns:
-            List of trigger IDs that fired
+            list of trigger IDs that fired
         """
         triggers = self.get_all_triggers(enabled_only=True)
         fired_triggers = []
@@ -282,7 +282,7 @@ class MemoryTriggers:
             conn.execute("DELETE FROM memory_triggers WHERE trigger_id = ?", (trigger_id,))
             conn.commit()
 
-    def get_trigger_log(self, trigger_id: int, limit: int = 100) -> List[TriggerExecution]:
+    def get_trigger_log(self, trigger_id: int, limit: int = 100) -> list[TriggerExecution]:
         """Get execution log for trigger."""
         with get_connection(self.db_path) as conn:
             cursor = conn.execute("""
@@ -334,7 +334,7 @@ class MemoryTriggers:
         except Exception:
             return False
 
-    def _execute_action(self, trigger: Trigger, memory_id: str, content: str) -> tuple[bool, Optional[str]]:
+    def _execute_action(self, trigger: Trigger, memory_id: str, content: str) -> tuple[bool, str | None]:
         """Execute trigger action."""
         try:
             handler = self._action_handlers.get(trigger.action_type)
@@ -350,7 +350,7 @@ class MemoryTriggers:
         except Exception as e:
             return False, str(e)
 
-    def _log_trigger(self, trigger_id: int, memory_id: str, success: bool, error_message: Optional[str]):
+    def _log_trigger(self, trigger_id: int, memory_id: str, success: bool, error_message: str | None):
         """Log trigger execution."""
         now = int(datetime.now().timestamp())
 

@@ -16,7 +16,6 @@ Usage:
 import sqlite3
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Dict, List, Optional
 
 
 VALID_ACCESS_TYPES = ["search", "direct", "briefing", "consolidation", "maintenance"]
@@ -30,7 +29,7 @@ class AccessTracker:
     table.  All timestamps are stored as ISO-8601 UTC strings.
     """
 
-    def __init__(self, db_path: Optional[str | Path] = None):
+    def __init__(self, db_path: str | Path | None = None):
         """
         Initialize the access tracker database.
 
@@ -78,7 +77,7 @@ class AccessTracker:
         self,
         memory_id: str,
         access_type: str,
-        query_context: Optional[str] = None,
+        query_context: str | None = None,
     ) -> int:
         """
         Record a memory access event.
@@ -112,12 +111,12 @@ class AccessTracker:
 
     # ── Read ────────────────────────────────────────────────────────────
 
-    def get_access_frequency(self, memory_id: str) -> Dict:
+    def get_access_frequency(self, memory_id: str) -> dict:
         """
         Return access frequency breakdown for a single memory.
 
         Returns:
-            Dict with keys ``total_accesses``, ``last_accessed`` (ISO string
+            dict with keys ``total_accesses``, ``last_accessed`` (ISO string
             or None), and ``by_type`` (dict mapping each access type to its
             count, defaulting to 0).
         """
@@ -149,7 +148,7 @@ class AccessTracker:
             "by_type": by_type,
         }
 
-    def get_never_accessed(self, days: int = 90) -> List[str]:
+    def get_never_accessed(self, days: int = 90) -> list[str]:
         """
         Return memory_ids that have no access within the last *days* days.
 
@@ -166,7 +165,7 @@ class AccessTracker:
             days: Look-back window in days.
 
         Returns:
-            List of memory_id strings.
+            list of memory_id strings.
         """
         cutoff = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
         cur = self.conn.cursor()
@@ -178,12 +177,12 @@ class AccessTracker:
         )
         return [r["memory_id"] for r in cur.fetchall()]
 
-    def get_most_accessed(self, limit: int = 20) -> List[Dict]:
+    def get_most_accessed(self, limit: int = 20) -> list[dict]:
         """
         Return the most frequently accessed memories, sorted descending.
 
         Returns:
-            List of dicts with ``memory_id``, ``total_accesses``, and
+            list of dicts with ``memory_id``, ``total_accesses``, and
             ``last_accessed``.
         """
         cur = self.conn.cursor()
@@ -198,12 +197,12 @@ class AccessTracker:
         )
         return [dict(r) for r in cur.fetchall()]
 
-    def get_access_history(self, memory_id: str, limit: int = 50) -> List[Dict]:
+    def get_access_history(self, memory_id: str, limit: int = 50) -> list[dict]:
         """
         Return the most recent access events for a memory, newest first.
 
         Returns:
-            List of dicts with ``id``, ``memory_id``, ``accessed_at``,
+            list of dicts with ``id``, ``memory_id``, ``accessed_at``,
             ``access_type``, and ``query_context``.
         """
         cur = self.conn.cursor()
@@ -217,12 +216,12 @@ class AccessTracker:
         )
         return [dict(r) for r in cur.fetchall()]
 
-    def get_stats(self) -> Dict:
+    def get_stats(self) -> dict:
         """
         Return aggregate statistics across all access logs.
 
         Returns:
-            Dict with ``total_accesses``, ``unique_memories_accessed``, and
+            dict with ``total_accesses``, ``unique_memories_accessed``, and
             ``by_type`` (counts per access type).
         """
         cur = self.conn.cursor()

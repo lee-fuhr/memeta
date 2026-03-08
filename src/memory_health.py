@@ -17,10 +17,9 @@ import json
 import sqlite3
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Dict, List, Optional
 
 
-COMPONENT_WEIGHTS: Dict[str, float] = {
+COMPONENT_WEIGHTS: dict[str, float] = {
     "pct_high_confidence": 0.20,
     "pct_recently_confirmed": 0.20,
     "pct_with_provenance": 0.15,
@@ -33,7 +32,7 @@ COMPONENT_WEIGHTS: Dict[str, float] = {
 class MemoryHealthScore:
     """Compute, record, and query memory health scores."""
 
-    def __init__(self, db_path: Optional[str] = None):
+    def __init__(self, db_path: str | None = None):
         if db_path is None:
             db_path = str(
                 Path.home() / ".local/share/memory" / "intelligence.db"
@@ -61,9 +60,9 @@ class MemoryHealthScore:
 
     def compute(
         self,
-        memories: Optional[List[Dict]] = None,
-        stats: Optional[Dict] = None,
-    ) -> Dict:
+        memories: list[dict] | None = None,
+        stats: dict | None = None,
+    ) -> dict:
         """
         Compute a health score from memories and/or pre-aggregated stats.
 
@@ -108,7 +107,7 @@ class MemoryHealthScore:
             "computed_at": now,
         }
 
-    def record(self, score_dict: Dict) -> None:
+    def record(self, score_dict: dict) -> None:
         """Persist a score dict (as returned by compute) to the DB."""
         self.conn.execute(
             "INSERT INTO health_scores (score, grade, components_json, computed_at) "
@@ -122,7 +121,7 @@ class MemoryHealthScore:
         )
         self.conn.commit()
 
-    def get_latest(self) -> Optional[Dict]:
+    def get_latest(self) -> dict | None:
         """Return the most recently recorded score, or None."""
         row = self.conn.execute(
             "SELECT score, grade, components_json, computed_at "
@@ -137,7 +136,7 @@ class MemoryHealthScore:
             "computed_at": row["computed_at"],
         }
 
-    def get_trend(self, days: int = 30) -> List[Dict]:
+    def get_trend(self, days: int = 30) -> list[dict]:
         """Return historical scores from the last *days* days."""
         cutoff = (datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(days=days)).isoformat(
             timespec="seconds"
@@ -157,7 +156,7 @@ class MemoryHealthScore:
             for r in rows
         ]
 
-    def check_alert(self, threshold: int = 50) -> Optional[str]:
+    def check_alert(self, threshold: int = 50) -> str | None:
         """Return an alert message if the latest score is below *threshold*."""
         latest = self.get_latest()
         if latest is None:
@@ -185,20 +184,20 @@ class MemoryHealthScore:
         return "F"
 
     @staticmethod
-    def _weighted_score(components: Dict[str, float]) -> int:
+    def _weighted_score(components: dict[str, float]) -> int:
         total = sum(
             components[k] * COMPONENT_WEIGHTS[k] for k in COMPONENT_WEIGHTS
         )
         return max(0, min(100, round(total)))
 
     @staticmethod
-    def _weakest_component(components: Dict[str, float]) -> str:
+    def _weakest_component(components: dict[str, float]) -> str:
         return min(components, key=lambda k: components[k])
 
     # ── component computation from raw memories ───────────────────────────
 
     @staticmethod
-    def _compute_components(memories: List[Dict]) -> Dict[str, float]:
+    def _compute_components(memories: list[dict]) -> dict[str, float]:
         n = len(memories)
         if n == 0:
             return {k: 0.0 for k in COMPONENT_WEIGHTS}

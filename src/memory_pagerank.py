@@ -44,7 +44,6 @@ import sqlite3
 from collections import defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional
 
 from memory_system.db_pool import get_connection
 
@@ -120,7 +119,7 @@ class MemoryPageRank:
         their rank equally to all nodes (teleportation).
 
         Args:
-            edges: List of (source_id, target_id) tuples representing
+            edges: list of (source_id, target_id) tuples representing
                    directed links in the graph.
 
         Returns:
@@ -292,7 +291,7 @@ class MemoryPageRank:
             limit: Maximum number of results.
 
         Returns:
-            List of dicts with keys: memory_id, pagerank_score,
+            list of dicts with keys: memory_id, pagerank_score,
             in_degree, out_degree, computed_at. Sorted by score descending.
         """
         with get_connection(self.db_path) as conn:
@@ -317,7 +316,7 @@ class MemoryPageRank:
             for row in rows
         ]
 
-    def get_score(self, memory_id: str) -> Optional[float]:
+    def get_score(self, memory_id: str) -> float | None:
         """
         Get PageRank score for a specific memory.
 
@@ -347,7 +346,7 @@ class MemoryPageRank:
             min_in_degree: Minimum incoming edges to qualify as a hub.
 
         Returns:
-            List of dicts sorted by pagerank_score descending, filtered
+            list of dicts sorted by pagerank_score descending, filtered
             to only include memories with in_degree >= min_in_degree.
         """
         with get_connection(self.db_path) as conn:
@@ -377,7 +376,7 @@ class MemoryPageRank:
         Return statistics about the last PageRank computation.
 
         Returns:
-            Dict with keys: total_nodes, total_edges, mean_score,
+            dict with keys: total_nodes, total_edges, mean_score,
             max_score, iterations_to_converge.
         """
         n = self._last_total_nodes

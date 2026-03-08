@@ -14,7 +14,6 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional
 
 from .fsrs_scheduler import FSRSScheduler
 from .memory_ts_client import MemoryTSClient
@@ -25,9 +24,9 @@ from .memory_clustering import MemoryClustering
 class SynthesisReport:
     """Result of weekly synthesis"""
     promoted_count: int
-    cluster_summaries: Dict[str, List[str]]  # cluster_name -> memory_ids
+    cluster_summaries: dict[str, list[str]]  # cluster_name -> memory_ids
     draft_text: str
-    output_path: Optional[str] = None
+    output_path: str | None = None
     generated_at: str = field(default_factory=lambda: datetime.now().isoformat())
 
 
@@ -41,12 +40,12 @@ class WeeklySynthesis:
 
     def __init__(
         self,
-        memory_dir: Optional[Path] = None,
-        fsrs_db_path: Optional[Path] = None,
-        cluster_db_path: Optional[Path] = None,
-        output_dir: Optional[Path] = None,
-        scheduler: Optional[FSRSScheduler] = None,
-        memory_client: Optional[MemoryTSClient] = None,
+        memory_dir: Path | None = None,
+        fsrs_db_path: Path | None = None,
+        cluster_db_path: Path | None = None,
+        output_dir: Path | None = None,
+        scheduler: FSRSScheduler | None = None,
+        memory_client: MemoryTSClient | None = None,
     ):
         """
         Initialize weekly synthesis.
@@ -97,7 +96,7 @@ class WeeklySynthesis:
         clusters = self.clustering.build_clusters()
 
         # Map memory IDs to clusters
-        cluster_summaries: Dict[str, List[str]] = defaultdict(list)
+        cluster_summaries: dict[str, list[str]] = defaultdict(list)
         clustered_ids = set()
 
         for cluster in clusters:
@@ -129,13 +128,13 @@ class WeeklySynthesis:
     def _generate_draft(
         self,
         promoted_memories: list,
-        cluster_summaries: Dict[str, List[str]],
+        cluster_summaries: dict[str, list[str]],
     ) -> str:
         """
         Generate markdown draft for universal-learnings.md update.
 
         Args:
-            promoted_memories: List of promoted Memory objects
+            promoted_memories: list of promoted Memory objects
             cluster_summaries: Cluster name -> memory ID mapping
 
         Returns:

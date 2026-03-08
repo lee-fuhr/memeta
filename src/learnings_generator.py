@@ -10,7 +10,6 @@ import hashlib
 import logging
 import os
 from pathlib import Path
-from typing import Optional
 
 from memory_system.memory_ts_client import Memory, MemoryTSClient
 
@@ -22,7 +21,7 @@ END_MARKER = "<!-- END AUTO-GENERATED: learnings -->"
 
 # Default CLAUDE.md path
 _claude_md_env = os.environ.get("MEMORY_SYSTEM_CLAUDE_MD")
-DEFAULT_CLAUDE_MD_PATH: Optional[Path] = (
+DEFAULT_CLAUDE_MD_PATH: Path | None = (
     Path(_claude_md_env) if _claude_md_env
     else None
 )
@@ -35,9 +34,9 @@ class LearningsGenerator:
 
     def __init__(
         self,
-        memory_client: Optional[MemoryTSClient] = None,
-        memory_dir: Optional[Path] = None,
-        claude_md_path: Optional[Path] = None,
+        memory_client: MemoryTSClient | None = None,
+        memory_dir: Path | None = None,
+        claude_md_path: Path | None = None,
         min_importance: float = 0.7,
         min_confidence: float = 0.7,
     ):

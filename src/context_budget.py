@@ -10,11 +10,11 @@ No LLM calls. No external dependencies beyond the standard library.
 
 import math
 from datetime import datetime
-from typing import Any, Dict, List
+from typing import Any
 
 
 # Composite score weights — must sum to 1.0
-SCORE_WEIGHTS: Dict[str, float] = {
+SCORE_WEIGHTS: dict[str, float] = {
     "importance": 0.4,
     "recency": 0.3,
     "access_frequency": 0.2,
@@ -67,7 +67,7 @@ class ContextBudgetOptimizer:
     # Memory scoring
     # ------------------------------------------------------------------
 
-    def score_memory(self, memory: Dict[str, Any]) -> float:
+    def score_memory(self, memory: dict[str, Any]) -> float:
         """Return a composite score in [0, 1] for *memory*.
 
         Fields consulted (all optional, default 0.5 when missing):
@@ -97,8 +97,8 @@ class ContextBudgetOptimizer:
     # ------------------------------------------------------------------
 
     def optimize(
-        self, memories: List[Dict[str, Any]], budget_tokens: int
-    ) -> Dict[str, Any]:
+        self, memories: list[dict[str, Any]], budget_tokens: int
+    ) -> dict[str, Any]:
         """Greedy-pack *memories* into *budget_tokens*.
 
         Returns a dict with:
@@ -140,7 +140,7 @@ class ContextBudgetOptimizer:
             }
 
         # Score and estimate tokens for every memory
-        scored: List[Dict[str, Any]] = []
+        scored: list[dict[str, Any]] = []
         for mem in memories:
             entry = dict(mem)
             entry["score"] = self.score_memory(mem)
@@ -150,8 +150,8 @@ class ContextBudgetOptimizer:
         # Sort descending by score
         scored.sort(key=lambda m: m["score"], reverse=True)
 
-        selected: List[Dict[str, Any]] = []
-        excluded: List[Dict[str, Any]] = []
+        selected: list[dict[str, Any]] = []
+        excluded: list[dict[str, Any]] = []
         total_tokens = 0
 
         for entry in scored:
@@ -187,7 +187,7 @@ class ContextBudgetOptimizer:
     # Stats
     # ------------------------------------------------------------------
 
-    def get_stats(self) -> Dict[str, int]:
+    def get_stats(self) -> dict[str, int]:
         """Return cumulative optimisation statistics."""
         return dict(self._stats)
 
@@ -196,7 +196,7 @@ class ContextBudgetOptimizer:
     # ------------------------------------------------------------------
 
     @staticmethod
-    def _extract_importance(memory: Dict[str, Any]) -> float:
+    def _extract_importance(memory: dict[str, Any]) -> float:
         val = memory.get("importance", memory.get("importance_score"))
         if val is None:
             return 0.5
@@ -206,7 +206,7 @@ class ContextBudgetOptimizer:
             return 0.5
 
     @staticmethod
-    def _extract_recency(memory: Dict[str, Any]) -> float:
+    def _extract_recency(memory: dict[str, Any]) -> float:
         """Linear decay: 1.0 today, 0.0 at 90 days ago."""
         dt = _parse_datetime(
             memory.get("updated", memory.get("created"))
@@ -223,7 +223,7 @@ class ContextBudgetOptimizer:
         return recency
 
     @staticmethod
-    def _extract_access_frequency(memory: Dict[str, Any]) -> float:
+    def _extract_access_frequency(memory: dict[str, Any]) -> float:
         val = memory.get("access_count")
         if val is None:
             return 0.5
@@ -234,7 +234,7 @@ class ContextBudgetOptimizer:
         return min(count / 10.0, 1.0)
 
     @staticmethod
-    def _extract_confidence(memory: Dict[str, Any]) -> float:
+    def _extract_confidence(memory: dict[str, Any]) -> float:
         val = memory.get("confidence", memory.get("confidence_score"))
         if val is None:
             return 0.5

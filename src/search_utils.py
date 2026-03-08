@@ -19,11 +19,11 @@ def match_reasons(
     Args:
         query: Search query string.
         memory_content: Full body text of the memory.
-        memory_tags: List of tag strings attached to the memory.
+        memory_tags: list of tag strings attached to the memory.
         memory_domain: Knowledge domain string (e.g. "engineering").
 
     Returns:
-        List of reason strings, e.g. ["body match", "tag match: #python"].
+        list of reason strings, e.g. ["body match", "tag match: #python"].
         Empty list when nothing matches.
     """
     reasons: list[str] = []

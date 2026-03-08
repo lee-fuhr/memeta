@@ -14,7 +14,7 @@ Database: intelligence.db (memory_relationships table)
 
 from pathlib import Path
 from datetime import datetime
-from typing import List, Optional, Literal
+from typing import Literal
 from dataclasses import dataclass
 
 from memory_system.db_pool import get_connection
@@ -72,7 +72,7 @@ class MemoryRelationships:
         graph = relationships.get_memory_graph("mem_001", max_depth=2)
     """
 
-    def __init__(self, db_path: Optional[Path] = None):
+    def __init__(self, db_path: Path | None = None):
         """
         Initialize relationships system.
 
@@ -158,7 +158,7 @@ class MemoryRelationships:
 
             return self.get_relationship(rel_id)
 
-    def get_relationship(self, relationship_id: int) -> Optional[MemoryRelationship]:
+    def get_relationship(self, relationship_id: int) -> MemoryRelationship | None:
         """
         Get relationship by ID.
 
@@ -194,9 +194,9 @@ class MemoryRelationships:
     def get_relationships(
         self,
         memory_id: str,
-        relationship_type: Optional[RelationshipType] = None,
+        relationship_type: RelationshipType | None = None,
         direction: Literal["outgoing", "incoming", "both"] = "outgoing"
-    ) -> List[MemoryRelationship]:
+    ) -> list[MemoryRelationship]:
         """
         Get all relationships for a memory.
 
@@ -206,7 +206,7 @@ class MemoryRelationships:
             direction: "outgoing" (from this memory), "incoming" (to this memory), or "both"
 
         Returns:
-            List of relationships ordered by weight descending
+            list of relationships ordered by weight descending
         """
         with get_connection(self.db_path) as conn:
             if direction == "outgoing":
@@ -260,7 +260,7 @@ class MemoryRelationships:
         self,
         memory_id: str,
         relationship_type: RelationshipType = "led_to"
-    ) -> List[str]:
+    ) -> list[str]:
         """
         Get memories that led to this one (causal chain backwards).
 
@@ -269,7 +269,7 @@ class MemoryRelationships:
             relationship_type: Type of relationship (default: "led_to")
 
         Returns:
-            List of memory IDs that came before this one
+            list of memory IDs that came before this one
         """
         relationships = self.get_relationships(
             memory_id,
@@ -283,7 +283,7 @@ class MemoryRelationships:
         self,
         memory_id: str,
         relationship_type: RelationshipType = "led_to"
-    ) -> List[str]:
+    ) -> list[str]:
         """
         Get memories that came after this one (causal chain forwards).
 
@@ -292,7 +292,7 @@ class MemoryRelationships:
             relationship_type: Type of relationship (default: "led_to")
 
         Returns:
-            List of memory IDs that came after this one
+            list of memory IDs that came after this one
         """
         relationships = self.get_relationships(
             memory_id,
@@ -302,7 +302,7 @@ class MemoryRelationships:
 
         return [rel.to_memory_id for rel in relationships]
 
-    def get_contradictions(self, memory_id: str) -> List[str]:
+    def get_contradictions(self, memory_id: str) -> list[str]:
         """
         Find all memories that contradict this one.
 
@@ -310,7 +310,7 @@ class MemoryRelationships:
             memory_id: Memory identifier
 
         Returns:
-            List of memory IDs that contradict this memory
+            list of memory IDs that contradict this memory
         """
         # Check both directions - A contradicts B means B contradicts A
         outgoing = self.get_relationships(memory_id, "contradicts", "outgoing")
@@ -324,7 +324,7 @@ class MemoryRelationships:
 
         return list(contradictions)
 
-    def get_references(self, memory_id: str) -> List[str]:
+    def get_references(self, memory_id: str) -> list[str]:
         """
         Get all memories referenced by this one.
 
@@ -332,12 +332,12 @@ class MemoryRelationships:
             memory_id: Memory identifier
 
         Returns:
-            List of memory IDs referenced by this memory
+            list of memory IDs referenced by this memory
         """
         relationships = self.get_relationships(memory_id, "references", "outgoing")
         return [rel.to_memory_id for rel in relationships]
 
-    def get_cited_by(self, memory_id: str) -> List[str]:
+    def get_cited_by(self, memory_id: str) -> list[str]:
         """
         Get all memories that reference this one.
 
@@ -345,7 +345,7 @@ class MemoryRelationships:
             memory_id: Memory identifier
 
         Returns:
-            List of memory IDs that cite this memory
+            list of memory IDs that cite this memory
         """
         relationships = self.get_relationships(memory_id, "references", "incoming")
         return [rel.from_memory_id for rel in relationships]
@@ -373,7 +373,7 @@ class MemoryRelationships:
         self,
         memory_id: str,
         max_depth: int = 2,
-        relationship_types: Optional[List[RelationshipType]] = None
+        relationship_types: list[RelationshipType] | None = None
     ) -> dict:
         """
         Get subgraph centered on a memory (breadth-first traversal).

@@ -29,7 +29,6 @@ import sqlite3
 import uuid
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Optional
 
 import numpy as np
 
@@ -43,7 +42,7 @@ class SchemaEvent:
     """A classification event for a new memory against its schema."""
     memory_id: str
     event_type: str  # 'assimilation', 'extension', 'accommodation'
-    cluster_id: Optional[str]
+    cluster_id: str | None
     distance_from_centroid: float
     timestamp: str
 
@@ -105,7 +104,7 @@ class SchemaClassifier:
         """Compute the centroid (mean) of a list of embeddings.
 
         Args:
-            embeddings: List of embedding vectors (must be non-empty).
+            embeddings: list of embedding vectors (must be non-empty).
 
         Returns:
             The mean vector.
@@ -151,8 +150,8 @@ class SchemaClassifier:
         self,
         new_embedding: list[float],
         neighbor_embeddings: list[list[float]],
-        cluster_id: Optional[str] = None,
-        memory_id: Optional[str] = None,
+        cluster_id: str | None = None,
+        memory_id: str | None = None,
         persist: bool = True,
     ) -> SchemaEvent:
         """Classify a new memory against its nearest neighbors.
@@ -169,7 +168,7 @@ class SchemaClassifier:
             cluster_id: Optional cluster identifier.
             memory_id: Optional memory identifier (auto-generated if not provided).
             persist: If True (default), record the event to the database.
-                Set to False for classify-only mode with no side effects.
+                set to False for classify-only mode with no side effects.
 
         Returns:
             A SchemaEvent describing the classification.
@@ -246,7 +245,7 @@ class SchemaClassifier:
             limit: Maximum number of events to return.
 
         Returns:
-            List of SchemaEvent objects, most recent first.
+            list of SchemaEvent objects, most recent first.
         """
         conn = self._get_conn()
         try:
@@ -278,7 +277,7 @@ class SchemaClassifier:
         """Return counts of each event type.
 
         Returns:
-            Dict with keys: assimilation_count, extension_count, accommodation_count.
+            dict with keys: assimilation_count, extension_count, accommodation_count.
         """
         conn = self._get_conn()
         try:
@@ -308,7 +307,7 @@ class SchemaClassifier:
             cluster_id: The cluster to analyze.
 
         Returns:
-            Dict with keys:
+            dict with keys:
             - accommodation_rate: float (0.0 = fully stable, 1.0 = fully unstable)
             - last_accommodation: str or None (ISO timestamp)
             - event_count: int (total events for this cluster)

@@ -15,7 +15,6 @@ Performance:
 
 import sqlite3
 import numpy as np
-from typing import List, Dict, Optional, Tuple
 from pathlib import Path
 import json
 import hashlib
@@ -172,20 +171,20 @@ class EmbeddingManager:
 
     def batch_compute_embeddings(
         self,
-        contents: List[str],
+        contents: list[str],
         show_progress: bool = True
-    ) -> Dict[str, np.ndarray]:
+    ) -> dict[str, np.ndarray]:
         """
         Batch compute embeddings for multiple contents.
 
         Much faster than computing one at a time.
 
         Args:
-            contents: List of texts to embed
+            contents: list of texts to embed
             show_progress: Show progress bar
 
         Returns:
-            Dict mapping content_hash to embedding
+            dict mapping content_hash to embedding
         """
         # Filter out contents that already have embeddings
         content_hashes = [self._hash_content(c) for c in contents]
@@ -277,10 +276,10 @@ class EmbeddingManager:
     def semantic_search(
         self,
         query: str,
-        memories: List[Dict],
+        memories: list[dict],
         top_k: int = 10,
         threshold: float = 0.3
-    ) -> List[Tuple[Dict, float]]:
+    ) -> list[tuple[dict, float]]:
         """
         Fast semantic search using pre-computed embeddings.
 
@@ -289,12 +288,12 @@ class EmbeddingManager:
 
         Args:
             query: Search query
-            memories: List of memory dicts with 'content' key
+            memories: list of memory dicts with 'content' key
             top_k: Number of results
             threshold: Minimum similarity
 
         Returns:
-            List of (memory, similarity_score) tuples
+            list of (memory, similarity_score) tuples
         """
         # Get query embedding
         query_embedding = self.get_embedding(query)
@@ -372,7 +371,7 @@ class EmbeddingManager:
         logger.info(f"🗑️  Cleaned up {deleted} old embeddings (not accessed in {days} days)")
         return deleted
 
-    def get_stats(self) -> Dict:
+    def get_stats(self) -> dict:
         """Get embedding statistics"""
         with sqlite3.connect(self.db_path) as conn:
             total = conn.execute("SELECT COUNT(*) FROM embeddings").fetchone()[0]
@@ -401,7 +400,7 @@ class EmbeddingManager:
 
 
 # Convenience function for backward compatibility
-def semantic_search(query: str, memories: List[Dict], top_k: int = 10) -> List[Dict]:
+def semantic_search(query: str, memories: list[dict], top_k: int = 10) -> list[dict]:
     """
     Semantic search with pre-computed embeddings.
 

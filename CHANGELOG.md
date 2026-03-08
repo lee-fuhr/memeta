@@ -8,6 +8,26 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
 
+### Comprehensive optimization pass
+
+**Performance**
+- **36% test runtime reduction** — mocked real LLM API calls in `tests/automation/test_auto_summarization.py` (3 tests were making live Claude API calls via `_ask_claude`, costing ~19s per run). Autouse `mock_llm` fixture with `unittest.mock.patch` drops suite from 35.80s to ~22.40s.
+
+**Code quality**
+- **Python 3.10+ typing modernization** — 115+ files across `src/` updated: `Optional[X]` → `X | None`, `List[X]` → `list[X]`, `Dict[K,V]` → `dict[K,V]`, `Tuple[...]` → `tuple[...]`, `Set[X]` → `set[X]`. Legacy `from typing import` lines cleaned (deprecated names removed where unused). Native generics throughout.
+- **`datetime.utcnow()` deprecation eliminated** — 30 DeprecationWarnings per run removed. Fixed in: `src/fsrs_context_weighting.py` (naive→naive comparison preserved via `.replace(tzinfo=None)`), `src/cross_pollination_index.py`, `tests/test_fsrs_context_weighting.py`, `tests/test_cross_pollination_index.py`.
+- **Silent exception handlers replaced with structured logging** across 12 files:
+  - LLM fallbacks → `logger.warning(...)`: `src/intelligence/summarization.py` (4 handlers), `src/intelligence/clustering.py` (1 handler)
+  - Optional feature degradation → `logger.debug(...)`: `src/intelligence_orchestrator.py` (8 handlers), `src/cross_client_synthesizer.py` (3 handlers), `src/decision_regret_loop.py` (2 handlers), `src/skill_recommender.py` (1 handler), `src/vector_store.py` (1 warning), `src/session_summary.py` (1 handler)
+  - FSRS integration degradation → `logger.debug(...)`: `src/intelligence/reinforcement_scheduler.py` (3 handlers), `src/intelligence/search_optimizer.py` (1 handler)
+  - Added `import logging` + `logger = logging.getLogger(__name__)` to 4 files that lacked it: `src/vector_store.py`, `src/session_summary.py`, `src/intelligence/reinforcement_scheduler.py`, `src/intelligence/search_optimizer.py`
+- **Deleted temp artifact** — `_typing_modernize.py` transformation script removed from repo root after successful application.
+
+**Technical debt noted (deferred)**
+- God files (>500 lines): `session_summary.py` (702), `intelligence/summarization.py` (684), `memory_ts_client.py` (643), `intelligence_orchestrator.py` (556), `session_consolidator.py` (548), `intelligence/reinforcement_scheduler.py` (534), `memory_injector.py` (500), `intelligence/clustering.py` (500). All are cohesive single-class or module designs without clean split points. Tracked as future work.
+
+---
+
 ### Phase 9: Build Bible integration
 
 **Added**

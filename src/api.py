@@ -24,7 +24,7 @@ import json
 import logging
 import sys
 import time
-from typing import List, Dict, Optional, Any
+from typing import Any
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
@@ -36,7 +36,7 @@ from .config import cfg
 class MemorySystem:
     """Unified API for the memory system. Orchestrates all subsystems."""
 
-    def __init__(self, memory_dir: Optional[Path] = None, project_id: str = "default"):
+    def __init__(self, memory_dir: Path | None = None, project_id: str = "default"):
         self.client = MemoryTSClient(memory_dir=memory_dir)
         self.project_id = project_id
         self._memory_dir = memory_dir
@@ -61,10 +61,10 @@ class MemorySystem:
     def save(
         self,
         content: str,
-        project_id: Optional[str] = None,
-        tags: Optional[List[str]] = None,
-        importance: Optional[float] = None,
-        session_id: Optional[str] = None,
+        project_id: str | None = None,
+        tags: list[str] | None = None,
+        importance: float | None = None,
+        session_id: str | None = None,
         check_contradictions: bool = True,
         **kwargs,
     ) -> Memory:
@@ -78,7 +78,7 @@ class MemorySystem:
         Args:
             content: Memory content (markdown text)
             project_id: Project identifier (defaults to self.project_id)
-            tags: List of tags (e.g. ["#pref", "#learning"])
+            tags: list of tags (e.g. ["#pref", "#learning"])
             importance: Importance score 0.0-1.0 (auto-calculated if None)
             session_id: Session ID for provenance tracking
             check_contradictions: If True, check for contradictions before saving
@@ -127,7 +127,7 @@ class MemorySystem:
         self._invalidate_cache()
         return memory
 
-    def search(self, query: str, top_k: int = 10) -> List[Dict]:
+    def search(self, query: str, top_k: int = 10) -> list[dict]:
         """
         Search memories using hybrid search (70% semantic + 30% BM25).
 
@@ -138,7 +138,7 @@ class MemorySystem:
             top_k: Max results to return
 
         Returns:
-            List of dicts with memory data + scores
+            list of dicts with memory data + scores
         """
         from .hybrid_search import hybrid_search
 
@@ -167,7 +167,7 @@ class MemorySystem:
             use_semantic=False,  # BM25-only by default for speed/portability
         )
 
-    def get_recent(self, n: int = 10) -> List[Memory]:
+    def get_recent(self, n: int = 10) -> list[Memory]:
         """
         Get N most recently created memories, sorted by created date descending.
 
@@ -175,7 +175,7 @@ class MemorySystem:
             n: Number of memories to return
 
         Returns:
-            List of Memory objects, newest first
+            list of Memory objects, newest first
         """
         all_memories = self._list_memories()
         sorted_memories = sorted(
@@ -183,12 +183,12 @@ class MemorySystem:
         )
         return sorted_memories[:n]
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """
         Return system stats.
 
         Returns:
-            Dict with:
+            dict with:
             - total_memories: int
             - avg_importance: float
             - confidence_distribution: dict (from get_confidence_stats)
@@ -219,13 +219,13 @@ class MemorySystem:
         confidence_dist = get_confidence_stats(memory_dicts)
 
         # Tag counts
-        tag_counts: Dict[str, int] = {}
+        tag_counts: dict[str, int] = {}
         for m in all_memories:
             for tag in m.tags:
                 tag_counts[tag] = tag_counts.get(tag, 0) + 1
 
         # Project counts
-        project_counts: Dict[str, int] = {}
+        project_counts: dict[str, int] = {}
         for m in all_memories:
             project_counts[m.project_id] = project_counts.get(m.project_id, 0) + 1
 
@@ -237,7 +237,7 @@ class MemorySystem:
             "project_counts": project_counts,
         }
 
-    def run_maintenance(self, dry_run: bool = False) -> Dict[str, Any]:
+    def run_maintenance(self, dry_run: bool = False) -> dict[str, Any]:
         """
         Run daily maintenance (decay, archival, stats).
 

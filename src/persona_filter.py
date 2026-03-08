@@ -13,14 +13,13 @@ Usage:
     relevant = pf.filter_memories(memories, "business")
 """
 
-from typing import Dict, List, Optional
 
 from memory_system.config import MemorySystemConfig
 
 
 # ── Default persona definitions ──────────────────────────────────────────────
 
-DEFAULT_PERSONAS: Dict[str, List[str]] = {
+DEFAULT_PERSONAS: dict[str, list[str]] = {
     "business": [
         # Add your business project IDs here
     ],
@@ -39,7 +38,7 @@ DEFAULT_PERSONAS: Dict[str, List[str]] = {
 class PersonaFilter:
     """Filter memories by persona context."""
 
-    def __init__(self, config: Optional[MemorySystemConfig] = None):
+    def __init__(self, config: MemorySystemConfig | None = None):
         """
         Initialize with optional config.
 
@@ -49,7 +48,7 @@ class PersonaFilter:
         """
         self._config = config
         # Deep-copy defaults so mutations don't bleed across instances.
-        self._personas: Dict[str, List[str]] = {
+        self._personas: dict[str, list[str]] = {
             name: list(projects) for name, projects in DEFAULT_PERSONAS.items()
         }
 
@@ -79,9 +78,9 @@ class PersonaFilter:
 
     def filter_memories(
         self,
-        memories: List[Dict],
+        memories: list[dict],
         persona: str,
-    ) -> List[Dict]:
+    ) -> list[dict]:
         """
         Return memories that match *persona* or have no persona tag.
 
@@ -93,7 +92,7 @@ class PersonaFilter:
         Matching is case-insensitive.
 
         Args:
-            memories: List of memory dicts (each should have at least
+            memories: list of memory dicts (each should have at least
                       ``'content'``; may have ``'persona'`` and
                       ``'project_id'``).
             persona:  The persona to filter for.
@@ -101,7 +100,7 @@ class PersonaFilter:
         Returns:
             Filtered list (order preserved, no mutation of originals).
         """
-        result: List[Dict] = []
+        result: list[dict] = []
         target = persona.lower()
         for mem in memories:
             mem_persona = mem.get("persona")
@@ -114,7 +113,7 @@ class PersonaFilter:
                 result.append(mem)
         return result
 
-    def tag_memory(self, memory: Dict, persona: str) -> Dict:
+    def tag_memory(self, memory: dict, persona: str) -> dict:
         """
         Return a *new* dict with the ``'persona'`` field set.
 
@@ -131,7 +130,7 @@ class PersonaFilter:
         tagged["persona"] = persona
         return tagged
 
-    def get_relevant_projects(self, persona: str) -> List[str]:
+    def get_relevant_projects(self, persona: str) -> list[str]:
         """
         Return the list of projects associated with *persona*.
 
@@ -142,17 +141,17 @@ class PersonaFilter:
                 return list(projects)
         return []
 
-    def add_persona(self, name: str, projects: List[str]) -> None:
+    def add_persona(self, name: str, projects: list[str]) -> None:
         """
         Add or update a persona with its project list.
 
         Args:
             name:     Persona name (stored lowercase-normalised).
-            projects: List of project identifiers.
+            projects: list of project identifiers.
         """
         self._personas[name] = list(projects)
 
-    def get_all_personas(self) -> Dict[str, List[str]]:
+    def get_all_personas(self) -> dict[str, list[str]]:
         """
         Return a copy of the full persona registry.
 

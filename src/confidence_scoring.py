@@ -10,7 +10,6 @@ Examples:
 - User explicitly corrects: confidence = 0.0 (archived)
 """
 
-from typing import Dict, Optional
 
 
 def calculate_confidence(
@@ -52,7 +51,7 @@ def calculate_confidence(
     return base
 
 
-def update_confidence_on_confirmation(memory: Dict) -> float:
+def update_confidence_on_confirmation(memory: dict) -> float:
     """
     Update confidence when memory is confirmed.
 
@@ -69,7 +68,7 @@ def update_confidence_on_confirmation(memory: Dict) -> float:
     return calculate_confidence(confirmations, contradictions, source_count)
 
 
-def update_confidence_on_contradiction(memory: Dict) -> float:
+def update_confidence_on_contradiction(memory: dict) -> float:
     """
     Update confidence when memory is contradicted.
 
@@ -86,7 +85,7 @@ def update_confidence_on_contradiction(memory: Dict) -> float:
     return calculate_confidence(confirmations, contradictions, source_count)
 
 
-def should_archive_low_confidence(memory: Dict, threshold: float = 0.2) -> bool:
+def should_archive_low_confidence(memory: dict, threshold: float = 0.2) -> bool:
     """
     Check if memory confidence is too low to keep.
 
@@ -126,15 +125,15 @@ def classify_confidence_level(confidence: float) -> str:
         return "very_low"
 
 
-def get_confidence_stats(memories: list) -> Dict:
+def get_confidence_stats(memories: list) -> dict:
     """
     Get statistics about memory confidence across a corpus.
 
     Args:
-        memories: List of memory dicts
+        memories: list of memory dicts
 
     Returns:
-        Dict with confidence distribution stats
+        dict with confidence distribution stats
     """
     if not memories:
         return {

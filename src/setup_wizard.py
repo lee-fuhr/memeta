@@ -10,7 +10,6 @@ import sys
 import tempfile
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional
 
 from memory_system.config import MemorySystemConfig, cfg
 
@@ -33,7 +32,7 @@ class InitResult:
     checks: list[EnvironmentCheck] = field(default_factory=list)
     directories_created: list[str] = field(default_factory=list)
     hooks_installed: list[str] = field(default_factory=list)
-    config_path: Optional[str] = None
+    config_path: str | None = None
     errors: list[str] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
 
@@ -46,7 +45,7 @@ class InitWizard:
 
     def __init__(
         self,
-        config: Optional[MemorySystemConfig] = None,
+        config: MemorySystemConfig | None = None,
         auto_confirm: bool = False,
     ):
         self.config = config or cfg

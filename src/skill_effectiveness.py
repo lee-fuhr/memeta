@@ -24,7 +24,6 @@ import logging
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Optional
 
 from memory_system.config import cfg
 from memory_system.skill_evolution import SkillEvolutionTracker
@@ -65,8 +64,8 @@ class SkillEffectivenessTracker:
 
     def __init__(
         self,
-        db_path: Optional[str] = None,
-        skills_dir: Optional[Path] = None,
+        db_path: str | None = None,
+        skills_dir: Path | None = None,
     ) -> None:
         self._db_path = str(db_path) if db_path else str(cfg.intelligence_db_path)
         self._skills_dir = Path(skills_dir) if skills_dir else cfg.skills_dir

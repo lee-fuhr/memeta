@@ -5,7 +5,6 @@ Provides agent-type-aware memory context with tag filtering and
 correction surfacing for delegated agent tasks.
 """
 
-from typing import List, Dict, Tuple, Optional
 from . import hybrid_search as hybrid_search_module
 
 
@@ -26,10 +25,10 @@ AGENT_TAG_MAP = {
 def get_context_for_agent(
     agent_type: str,
     task_description: str,
-    memories: Optional[List[Dict]] = None,
+    memories: list[dict] | None = None,
     top_k: int = 5,
-    project_id: Optional[str] = None
-) -> Tuple[str, List[str]]:
+    project_id: str | None = None
+) -> tuple[str, list[str]]:
     """
     Get memory context for a delegated agent task.
 
@@ -45,7 +44,7 @@ def get_context_for_agent(
         project_id: Optional project filter (e.g., "my-project")
 
     Returns:
-        Tuple of (formatted_context_string, list_of_memory_ids)
+        tuple of (formatted_context_string, list_of_memory_ids)
 
     Example:
         >>> context, ids = get_context_for_agent(
@@ -157,12 +156,12 @@ def get_context_for_agent(
     return context_str, memory_ids
 
 
-def _format_agent_context(memories: List[Dict], agent_type: str) -> str:
+def _format_agent_context(memories: list[dict], agent_type: str) -> str:
     """
     Format memories into agent context string.
 
     Args:
-        memories: List of memory dicts
+        memories: list of memory dicts
         agent_type: Type of agent receiving the context
 
     Returns:

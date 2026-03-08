@@ -19,7 +19,6 @@ import re
 import sqlite3
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
-from typing import Optional
 
 
 # ---------------------------------------------------------------------------
@@ -36,7 +35,7 @@ class ProspectiveTrigger:
     condition: dict         # e.g. {"project": "X"}, {"keywords": [...]}, {"after_date": "..."}
     status: str             # 'pending', 'fired', 'expired', 'dismissed'
     created_at: str
-    fired_at: Optional[str] = None
+    fired_at: str | None = None
 
 
 # ---------------------------------------------------------------------------
@@ -160,7 +159,7 @@ class ProspectiveTriggerManager:
         words = re.findall(r"[a-zA-Z][a-zA-Z0-9_-]*", text.lower())
         return [w for w in words if w not in _STOPWORDS and len(w) > 1]
 
-    def _parse_relative_date(self, text: str) -> Optional[str]:
+    def _parse_relative_date(self, text: str) -> str | None:
         """
         Try to parse a relative or named date from text.
         Returns ISO date string or None.
@@ -273,7 +272,7 @@ class ProspectiveTriggerManager:
             memory_id: The memory ID to associate triggers with.
 
         Returns:
-            List of created ProspectiveTrigger objects.
+            list of created ProspectiveTrigger objects.
         """
         created: list[ProspectiveTrigger] = []
         now = datetime.now(timezone.utc).isoformat()
@@ -319,13 +318,13 @@ class ProspectiveTriggerManager:
         Check pending triggers against current session context.
 
         Args:
-            context: Dict with optional keys:
+            context: dict with optional keys:
                 - project: Current project name
-                - keywords: List of keywords from current session
+                - keywords: list of keywords from current session
                 - current_date: Today's date as YYYY-MM-DD string
 
         Returns:
-            List of matching triggers that should fire.
+            list of matching triggers that should fire.
         """
         conn = sqlite3.connect(self._db_path)
         try:
@@ -418,7 +417,7 @@ class ProspectiveTriggerManager:
             limit: Maximum number of triggers to return.
 
         Returns:
-            List of pending ProspectiveTrigger objects.
+            list of pending ProspectiveTrigger objects.
         """
         conn = sqlite3.connect(self._db_path)
         try:

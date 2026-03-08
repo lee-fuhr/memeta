@@ -13,7 +13,6 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 from enum import IntEnum
 from pathlib import Path
-from typing import List, Optional
 
 from memory_system.config import cfg
 from memory_system.db_pool import get_connection
@@ -34,12 +33,12 @@ class MemoryReviewState:
     memory_id: str
     stability: float        # How well-established (0.0-10.0)
     difficulty: float       # How hard to remember (0.0-1.0)
-    due_date: Optional[str]
+    due_date: str | None
     review_count: int
-    last_review: Optional[str]
+    last_review: str | None
     projects_validated: str  # JSON array of project IDs
     promoted: bool
-    promoted_date: Optional[str]
+    promoted_date: str | None
 
 
 # FSRS-6 parameters (simplified)
@@ -73,7 +72,7 @@ class FSRSScheduler:
     simplified FSRS formula, determines promotion readiness.
     """
 
-    def __init__(self, db_path: Optional[Path] = None):
+    def __init__(self, db_path: Path | None = None):
         """
         Initialize scheduler
 
@@ -162,7 +161,7 @@ class FSRSScheduler:
         conn.commit()
         conn.close()
 
-    def get_state(self, memory_id: str) -> Optional[MemoryReviewState]:
+    def get_state(self, memory_id: str) -> MemoryReviewState | None:
         """
         Get current review state for a memory
 
@@ -203,7 +202,7 @@ class FSRSScheduler:
         memory_id: str,
         grade: ReviewGrade,
         project_id: str = "default",
-        session_id: Optional[str] = None
+        session_id: str | None = None
     ):
         """
         Record a review event and update memory state
@@ -305,7 +304,7 @@ class FSRSScheduler:
 
         return False
 
-    def get_promotion_candidates(self) -> List[MemoryReviewState]:
+    def get_promotion_candidates(self) -> list[MemoryReviewState]:
         """
         Get all memories ready for promotion via either path.
 
@@ -313,7 +312,7 @@ class FSRSScheduler:
         Path B: stability >= 4.0, reviews >= 5
 
         Returns:
-            List of MemoryReviewState objects that meet promotion criteria
+            list of MemoryReviewState objects that meet promotion criteria
         """
         conn = self._connect()
         # Broad SQL filter — catches both paths, then refine in Python
@@ -381,7 +380,7 @@ class FSRSScheduler:
         Get set of all promoted memory IDs (for batch filtering).
 
         Returns:
-            Set of memory_id strings that are promoted
+            set of memory_id strings that are promoted
         """
         conn = self._connect()
         cursor = conn.execute(
@@ -391,12 +390,12 @@ class FSRSScheduler:
         conn.close()
         return promoted
 
-    def get_due_reviews(self) -> List[MemoryReviewState]:
+    def get_due_reviews(self) -> list[MemoryReviewState]:
         """
         Get memories whose review is due (due_date <= now)
 
         Returns:
-            List of memories due for review
+            list of memories due for review
         """
         conn = self._connect()
         now = datetime.now().isoformat()

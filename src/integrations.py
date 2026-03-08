@@ -1,10 +1,9 @@
 """Third-party integrations - Features 38-42"""
 import json
 from pathlib import Path
-from typing import List, Dict
 
 # Feature 38: Obsidian sync
-def export_to_obsidian(memories: List[Dict], vault_path: Path) -> int:
+def export_to_obsidian(memories: list[dict], vault_path: Path) -> int:
     """Export memories as markdown notes to Obsidian vault."""
     count = 0
     for mem in memories:
@@ -17,7 +16,7 @@ def export_to_obsidian(memories: List[Dict], vault_path: Path) -> int:
     return count
 
 # Feature 39: Notion integration  
-def export_to_notion_json(memories: List[Dict]) -> List[Dict]:
+def export_to_notion_json(memories: list[dict]) -> list[dict]:
     """Format memories for Notion database import."""
     return [{
         'Name': {'title': [{'text': {'content': m['content'][:100]}}]},
@@ -27,7 +26,7 @@ def export_to_notion_json(memories: List[Dict]) -> List[Dict]:
     } for m in memories]
 
 # Feature 40: Roam Research sync
-def export_to_roam(memories: List[Dict]) -> str:
+def export_to_roam(memories: list[dict]) -> str:
     """Export as Roam daily notes format."""
     lines = []
     for mem in memories:
@@ -36,7 +35,7 @@ def export_to_roam(memories: List[Dict]) -> str:
     return '\n'.join(lines)
 
 # Feature 41: Email intelligence v2
-def learn_from_email_corrections(corrections: List[Dict]) -> Dict:
+def learn_from_email_corrections(corrections: list[dict]) -> dict:
     """Build email categorization rules from corrections."""
     rules = {}
     for corr in corrections:
@@ -46,7 +45,7 @@ def learn_from_email_corrections(corrections: List[Dict]) -> Dict:
     return rules
 
 # Feature 42: Meeting intelligence integration
-def link_memory_to_meeting(memory: Dict, meeting_id: str) -> Dict:
+def link_memory_to_meeting(memory: dict, meeting_id: str) -> dict:
     """Connect memory to meeting transcript."""
     memory['meeting_id'] = meeting_id
     memory['tags'] = memory.get('tags', []) + ['#from-meeting']

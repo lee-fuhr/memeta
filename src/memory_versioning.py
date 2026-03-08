@@ -7,7 +7,6 @@ Enables rollback, diff view, "why did this change?" queries.
 
 import json
 import time
-from typing import List, Dict, Optional
 from pathlib import Path
 
 
@@ -16,8 +15,8 @@ def create_version(
     content: str,
     importance: float,
     changed_by: str = "user",
-    change_reason: Optional[str] = None
-) -> Dict:
+    change_reason: str | None = None
+) -> dict:
     """
     Create a new version entry for a memory.
 
@@ -42,7 +41,7 @@ def create_version(
     }
 
 
-def get_version_history(memory_id: str, version_dir: Path) -> List[Dict]:
+def get_version_history(memory_id: str, version_dir: Path) -> list[dict]:
     """Get all versions of a memory, sorted oldest to newest."""
     version_file = version_dir / f"{memory_id}.json"
 
@@ -55,7 +54,7 @@ def get_version_history(memory_id: str, version_dir: Path) -> List[Dict]:
     return sorted(versions, key=lambda v: v['version'])
 
 
-def rollback_to_version(memory_id: str, version_number: int, version_dir: Path) -> Optional[Dict]:
+def rollback_to_version(memory_id: str, version_number: int, version_dir: Path) -> dict | None:
     """Rollback memory to specific version."""
     history = get_version_history(memory_id, version_dir)
 
@@ -66,7 +65,7 @@ def rollback_to_version(memory_id: str, version_number: int, version_dir: Path) 
     return None
 
 
-def diff_versions(version_a: Dict, version_b: Dict) -> Dict:
+def diff_versions(version_a: dict, version_b: dict) -> dict:
     """Show differences between two versions."""
     return {
         'content_changed': version_a['content'] != version_b['content'],

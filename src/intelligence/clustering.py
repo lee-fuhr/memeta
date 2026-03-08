@@ -11,7 +11,6 @@ import json
 import sqlite3
 from pathlib import Path
 from datetime import datetime
-from typing import List, Dict, Optional, Tuple
 from dataclasses import dataclass
 import logging
 
@@ -36,7 +35,7 @@ class Cluster:
     """Memory cluster with topic label"""
     cluster_id: int
     topic_label: str
-    keywords: List[str]
+    keywords: list[str]
     created_at: datetime
     last_updated: datetime
     member_count: int
@@ -76,7 +75,7 @@ class MemoryClustering:
         cluster = clustering.get_memory_cluster("mem_001")
     """
 
-    def __init__(self, db_path: Optional[Path] = None):
+    def __init__(self, db_path: Path | None = None):
         """
         Initialize clustering system.
 
@@ -132,7 +131,7 @@ class MemoryClustering:
         min_clusters: int = 3,
         max_clusters: int = 15,
         min_memories: int = 10
-    ) -> List[Cluster]:
+    ) -> list[Cluster]:
         """
         Cluster all memories using K-means with automatic cluster count selection.
 
@@ -142,7 +141,7 @@ class MemoryClustering:
             min_memories: Minimum memories needed for clustering
 
         Returns:
-            List of created clusters with topic labels
+            list of created clusters with topic labels
 
         Algorithm:
             1. Get embeddings for all memories
@@ -216,7 +215,7 @@ class MemoryClustering:
 
         return clusters
 
-    def get_cluster(self, cluster_id: int) -> Optional[Cluster]:
+    def get_cluster(self, cluster_id: int) -> Cluster | None:
         """
         Get cluster by ID.
 
@@ -248,12 +247,12 @@ class MemoryClustering:
                 member_count=row[5]
             )
 
-    def get_all_clusters(self) -> List[Cluster]:
+    def get_all_clusters(self) -> list[Cluster]:
         """
         Get all clusters sorted by member count descending.
 
         Returns:
-            List of all clusters
+            list of all clusters
         """
         with get_connection(self.db_path) as conn:
             cursor = conn.execute("""
@@ -276,7 +275,7 @@ class MemoryClustering:
 
             return clusters
 
-    def get_cluster_members(self, cluster_id: int) -> List[ClusterMembership]:
+    def get_cluster_members(self, cluster_id: int) -> list[ClusterMembership]:
         """
         Get all memories in a cluster, ordered by similarity.
 
@@ -284,7 +283,7 @@ class MemoryClustering:
             cluster_id: Cluster identifier
 
         Returns:
-            List of cluster memberships sorted by similarity descending
+            list of cluster memberships sorted by similarity descending
         """
         with get_connection(self.db_path) as conn:
             cursor = conn.execute("""
@@ -305,7 +304,7 @@ class MemoryClustering:
 
             return members
 
-    def get_memory_cluster(self, memory_id: str) -> Optional[Cluster]:
+    def get_memory_cluster(self, memory_id: str) -> Cluster | None:
         """
         Find which cluster a memory belongs to.
 
@@ -340,12 +339,12 @@ class MemoryClustering:
 
     # === Private helper methods ===
 
-    def _get_all_memories_with_embeddings(self) -> List[Dict]:
+    def _get_all_memories_with_embeddings(self) -> list[dict]:
         """
         Get all memories with their embeddings.
 
         Returns:
-            List of {id, content, embedding} dicts
+            list of {id, content, embedding} dicts
         """
         # Use semantic search to get embeddings
         # This leverages the existing embedding manager
@@ -404,12 +403,12 @@ class MemoryClustering:
         best_idx = np.argmax(silhouette_scores)
         return list(k_range)[best_idx]
 
-    def _generate_topic_label(self, contents: List[str]) -> Tuple[str, List[str]]:
+    def _generate_topic_label(self, contents: list[str]) -> tuple[str, list[str]]:
         """
         Use LLM to generate topic label and keywords for cluster.
 
         Args:
-            contents: List of memory contents in cluster
+            contents: list of memory contents in cluster
 
         Returns:
             (topic_label, keywords) tuple
@@ -434,8 +433,8 @@ Respond in JSON:
             # Extract JSON
             data = json.loads(response.strip())
             return data["topic_label"], data["keywords"]
-        except Exception:
-            # Fallback: simple heuristic
+        except Exception as exc:
+            logger.warning("LLM topic label generation failed, using fallback: %s", exc)
             return "Miscellaneous", ["general"]
 
     def _cosine_similarity(self, vec1: np.ndarray, vec2: np.ndarray) -> float:
@@ -459,7 +458,7 @@ Respond in JSON:
     def _create_cluster(
         self,
         topic_label: str,
-        keywords: List[str],
+        keywords: list[str],
         created_at: int,
         member_count: int
     ) -> Cluster:

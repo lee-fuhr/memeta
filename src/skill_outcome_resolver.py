@@ -18,7 +18,6 @@ preserving any manual or prior resolution.
 import logging
 import sqlite3
 from pathlib import Path
-from typing import Optional
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +30,7 @@ _PARTIAL_LEVELS = frozenset({"medium", "high"})
 
 def resolve_session_outcomes(
     session_id: str,
-    db_path: Optional[str] = None,
+    db_path: str | None = None,
     state_file=None,
 ) -> dict:
     """Update provenance outcomes for all skills used in this session.
@@ -95,7 +94,7 @@ def _update_provenance(
     session_id: str,
     active_skills: list[str],
     outcome: str,
-    db_path: Optional[str],
+    db_path: str | None,
 ) -> int:
     """Update provenance rows for active_skills in this session.
 

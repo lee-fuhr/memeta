@@ -25,7 +25,6 @@ import sqlite3
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Optional
 
 from memory_system.config import cfg
 
@@ -100,7 +99,7 @@ class ArgumentExtractor:
     Each transcript is a list of dicts: {"role": "user"|"assistant", "content": str}.
     """
 
-    def __init__(self, db_path: Optional[str] = None) -> None:
+    def __init__(self, db_path: str | None = None) -> None:
         self._db_path = str(db_path) if db_path else str(cfg.intelligence_db_path)
         self._conn = sqlite3.connect(self._db_path)
         self._conn.row_factory = sqlite3.Row
