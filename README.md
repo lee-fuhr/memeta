@@ -1,67 +1,50 @@
 # Memeta
 
-**Every memory technique that works. Every approach from the meta. All coexisting additively. And then predicting the next features and building those too.**
+Every session, Claude starts over. Memeta gives it memory that actually compounds.
 
 ![Python](https://img.shields.io/badge/python-3.11%2B-blue) ![Tests](https://img.shields.io/badge/tests-3%2C081%20passing-brightgreen) ![Version](https://img.shields.io/badge/version-0.30.0-blue) ![License](https://img.shields.io/badge/license-MIT-green)
 
 ---
 
-## What this is
+## The problem
 
-The Claude Code memory ecosystem is exploding. Reddit posts, Ben Fox's ZeroBot, OpenClaw's hybrid search, FSRS spaced repetition, dream synthesis, frustration detection — every week someone discovers a new technique that genuinely works.
+Claude's built-in memory is a black box. Anthropic decides what to store, stores it somewhere opaque, and surfaces it without explanation. You can't see what's in it, can't search it, can't grade it, and can't understand why some things stick and others don't.
 
-The problem: they're all separate projects. You can use Ben's quality grading OR OpenClaw's search weighting OR FSRS scheduling, but nobody's combined them. Each approach solves a real problem, but you have to pick and choose, and they don't talk to each other.
+The real cost is the compounding. Claude repeats mistakes you've already corrected. Rebuilds solutions you've already solved. Makes different architectural decisions in different sessions with no awareness of what was already decided. Your system accumulates sessions without accumulating intelligence.
 
-**Memeta is the kitchen sink.** Every methodology and approach that has come through the meta, through Reddit, through the community — as long as they can coexist additively, they're in. Not "pick one approach" but "use all of them simultaneously, and let them reinforce each other."
+Meanwhile, the memory community keeps producing new techniques -- FSRS spaced repetition, hybrid search, dream synthesis, frustration detection -- but they're all separate projects that don't talk to each other. You have to pick one approach. Nobody's combined them.
 
-And then: **predict what's next and build it before anyone asks.** The backlog isn't a wish list — it's a forecast.
+## What changes
 
----
+**What you learn stays learned.** FSRS-6 schedules memories for review at the mathematically optimal interval. Important context stays available without flooding every session. Mistakes you've corrected don't come back three sessions later.
 
-## Memeta vs. Claude Code's built-in auto memory
+**Claude finds relevant context automatically.** Hybrid search (70% semantic + 30% BM25) surfaces memories that match what you're working on, without you having to remember to ask. Query "What did we decide about authentication?" and get the specific decision, the reasoning, and related past decisions.
 
-Claude Code ships with a native "auto memory" feature. It's a black box: Claude decides what to remember, stores it somewhere on Anthropic's infrastructure, and surfaces it opaquely. You can't see what's stored, can't search it, can't grade it, and can't understand why certain things are remembered and others aren't.
+**The system improves while you sleep.** Overnight consolidation synthesizes cross-session patterns, surfaces forgotten commitments, and runs dream synthesis -- mapping how solutions from one project might apply to another.
 
-**Memeta is the version you can see, own, and extend.**
-
-| | Claude Code auto memory | Memeta |
-|--|------------------------|--------------|
-| Storage | Anthropic servers (opaque) | Local `.md` files you own |
-| Visibility | None — black box | Full — every memory inspectable |
-| Search | Not available | Semantic + BM25 hybrid, cached |
-| Quality grading | None | A/B/C/D by importance weight |
-| Spaced repetition | None | FSRS-6 — science-backed retention |
-| Pattern detection | None | 150 features including dream synthesis, session-start briefing |
-| Self-improvement | None | Overnight consolidation, prompt evolution |
-| Methodology count | 1 (proprietary) | All of them (open, additive) |
-| Control | None | Full — you decide what persists |
-| Circuit breaker | None | LLM call protection with auto-recovery |
-
----
-
-## What's inside
+## What's in it
 
 149 features across 6 layers, all additive:
 
-### Foundation — the basics done right
+### Foundation -- the basics done right
 Contradiction detection · provenance tracking · memory versioning · decision store · quality auto-grading · FSRS-6 spaced repetition · importance scoring with auto-tuning · confidence persistence · directed forgetting · encoding depth · entity extraction · emotional tagging
 
-### Intelligence — the compounding layer
+### Intelligence -- the compounding layer
 Hybrid search (70% semantic + 30% BM25) · cache-aware search with multi-factor ranking · semantic clustering · relationship mapping · smart alerts · quality scoring · temporal knowledge graph · memory PageRank · schema classifier · retrieval-induced forgetting
 
-### Autonomous — the system that works while you sleep
+### Autonomous -- the system that works while you sleep
 Dream mode synthesis · frustration early warning · momentum tracking · energy-aware scheduling · decision regret warnings · pattern transfer across projects · prompt evolution via genetic algorithm · context pre-loading before meetings · compaction triggers · frustration archaeology · memory interview · persona filter · memory compressor · memory health scoring · commitment nudger · pattern recall · CLAUDE.md synthesizer · frustration-to-skill pipeline · confidence calibration
 
-### Dashboard — see what your memory knows
+### Dashboard -- see what your memory knows
 Overview with heatmap · searchable memory library · session replay · knowledge map · export (JSON/CSV) · freshness indicators · intelligence briefing · cross-client patterns
 
-### Ecosystem — install, import, search, generate
+### Ecosystem -- install, import, search, generate
 `memeta init` setup wizard · `memeta search` terminal search · markdown directory importer · CLAUDE.md importer · learnings generator for CLAUDE.md
 
 ### Infrastructure
 Circuit breaker for LLM calls · FAISS vector store with dual-write · centralized config · async consolidation · GitHub Actions CI · intelligence DB pool · content hash dedup · access tracker · event stream · unified API · self-test diagnostics
 
-**Full feature list with implementation details:** [`FEATURES.md`](FEATURES.md)
+**Full feature list:** [`FEATURES.md`](FEATURES.md)
 
 ---
 
@@ -96,13 +79,13 @@ Consider instead: Write tests first.
 
 ### Query (before vs after)
 
-**Before (traditional memory):**
+**Without Memeta:**
 ```
 User:      "What did we decide about the authentication approach?"
 Assistant: "I don't have specific details. Can you remind me?"
 ```
 
-**After (Memeta):**
+**With Memeta:**
 ```
 User:      "What did we decide about the authentication approach?"
 Assistant: On March 12, you decided to use JWT with refresh tokens.
@@ -112,19 +95,32 @@ Assistant: On March 12, you decided to use JWT with refresh tokens.
 
 ---
 
+## Memeta vs. Claude Code's built-in auto memory
+
+| | Claude Code auto memory | Memeta |
+|--|------------------------|--------------|
+| Storage | Anthropic servers (opaque) | Local `.md` files you own |
+| Visibility | None -- black box | Full -- every memory inspectable |
+| Search | Not available | Semantic + BM25 hybrid, cached |
+| Quality grading | None | A/B/C/D by importance weight |
+| Spaced repetition | None | FSRS-6 -- science-backed retention |
+| Pattern detection | None | 149 features including dream synthesis, session-start briefing |
+| Self-improvement | None | Overnight consolidation, prompt evolution |
+| Methodology count | 1 (proprietary) | All of them (open, additive) |
+| Control | None | Full -- you decide what persists |
+| Circuit breaker | None | LLM call protection with auto-recovery |
+
+---
+
 ## Installation
 
-### Quick setup (recommended)
-
-Paste this into Claude Code:
+**Quick setup:** Paste this into Claude Code:
 
 > "Set up Memeta for me: https://github.com/lee-fuhr/memeta"
 
-Claude will clone the repo, create a venv, install dependencies, configure paths, and set up the session end hook. It'll walk you through any choices.
+Claude will clone the repo, create a venv, install dependencies, configure paths, and set up the session end hook.
 
-### Manual setup
-
-If you prefer to do it yourself:
+**Manual setup:**
 
 ```bash
 git clone https://github.com/lee-fuhr/memeta.git
@@ -135,9 +131,7 @@ pip install -e .
 pytest tests/ --ignore=tests/wild -q
 ```
 
-### Configuration
-
-All paths configurable via environment variables:
+**Configuration** (all paths via env vars):
 
 ```bash
 export MEMORY_SYSTEM_PROJECT_ID="MyProject"
@@ -145,81 +139,18 @@ export MEMORY_SYSTEM_SESSION_DB="~/.local/share/memory/MyProject/session-history
 export MEMORY_SYSTEM_INTELLIGENCE_DB="~/.local/share/memory/intelligence.db"
 ```
 
-### Dashboard
-
-```bash
-python3 dashboard/server.py --port 7860 --project MyProject
-# Opens at http://localhost:7860
-```
-
-### Hook setup
-
-Add to `~/.claude/settings.json` under `hooks.SessionEnd`:
-
-```json
-{
-  "type": "command",
-  "command": "~/.local/venvs/memory-system/bin/python3 /path/to/memeta/hooks/session-memory-consolidation-async.py",
-  "timeout": 180000
-}
-```
+**Dashboard:** `http://localhost:8766` after `python3 dashboard/server.py`
 
 ---
 
-## Architecture
+## Part of the stack
 
-**Single database strategy** — All features share `intelligence.db` with schema namespacing. Enables cross-feature queries like "show A-grade memories that triggered frustration warnings."
-
-**Local semantic search** — sentence-transformers (`all-MiniLM-L6-v2`) for embeddings. No API costs per query. 384-dim vectors. Runs fully offline.
-
-**Hybrid search** — 70% semantic + 30% BM25 keyword. Semantic understanding meets exact-match precision.
-
-**FAISS vector store** — `IndexFlatIP` with L2-normalized inner product for cosine similarity. Dual-write architecture: FAISS for fast indexed search, SQLite fallback for compatibility.
-
-**FSRS-6 spaced repetition** — Tracks memory stability, difficulty, and intervals. Science-backed retention scheduling.
-
-**Circuit breaker** — LLM calls protected with CLOSED/OPEN/HALF_OPEN states. 3-failure threshold, 60s recovery timeout. Separate breakers per call pathway.
+| Repo | Role |
+|------|------|
+| [Build Bible](https://github.com/lee-fuhr/build-bible) | Methodology -- principles and patterns for building with agents |
+| [Atlas](https://github.com/lee-fuhr/atlas) | Framework -- where every component in your system lives and why |
+| [ai-ops-starter](https://github.com/lee-fuhr/ai-ops-starter) | Scaffolding -- folder structure and templates to stand up a system |
 
 ---
 
-## Tech stack
-
-**Core:** Python 3.11+ · SQLite 3.35+ with FTS5 full-text search · pytest
-
-**AI/ML:** sentence-transformers (`all-MiniLM-L6-v2`) for local embeddings · FAISS for indexed vector search · Claude API for extraction and contradiction detection · FSRS-6 spaced repetition
-
-**Automation:** macOS LaunchAgents for scheduled jobs · Circuit breaker for LLM call protection
-
----
-
-## Documentation
-
-| Doc | What it is |
-|-----|-----------|
-| [`FEATURES.md`](FEATURES.md) | Full feature list with implementation details |
-| [`ROADMAP.md`](ROADMAP.md) | Development timeline — shipped, in progress, planned |
-| [`CHANGELOG.md`](CHANGELOG.md) | What changed and when |
-| [`CONTRIBUTING.md`](CONTRIBUTING.md) | How to contribute |
-| [Issues](https://github.com/lee-fuhr/memeta/issues) | Feature backlog — request features here |
-
----
-
-## Credits
-
-This system builds on the work and ideas of several people and projects:
-
-- **[Ben Fox](https://benfox.dev/) / ZeroBot** — Reinforcement learning approach to memory quality, grading system design
-- **[FSRS-6](https://github.com/open-spaced-repetition/fsrs4anki)** — Free Spaced Repetition Scheduler algorithm
-- **[OpenClaw](https://github.com/openclaw/openclaw)** — 70/30 semantic + BM25 hybrid search weighting pattern
-- **[memory-ts](https://github.com/nicholasgasior/memory-ts)** — YAML frontmatter file-based storage format that inspired the memory file structure
-- **r/ClaudeAI, r/ClaudeCode** — The community meta that surfaces new techniques weekly
-
----
-
-## License
-
-MIT — see [LICENSE](LICENSE)
-
----
-
-*150 features · 3,081 tests · every methodology · all additive*
+MIT -- see [LICENSE](LICENSE)
