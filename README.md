@@ -14,6 +14,8 @@ The real cost is the compounding. Claude repeats mistakes you've already correct
 
 Meanwhile, the memory community keeps producing new techniques -- FSRS spaced repetition, hybrid search, dream synthesis, frustration detection -- but they're all separate projects that don't talk to each other. You have to pick one approach. Nobody's combined them.
 
+The meta moves fast. Reddit posts, GitHub repos, community experiments -- every few weeks someone figures out something that genuinely works. But the discovery stays siloed. It doesn't get integrated with everything else that also works.
+
 ## What changes
 
 **What you learn stays learned.** FSRS-6 schedules memories for review at the mathematically optimal interval. Important context stays available without flooding every session. Mistakes you've corrected don't come back three sessions later.
@@ -21,6 +23,8 @@ Meanwhile, the memory community keeps producing new techniques -- FSRS spaced re
 **Claude finds relevant context automatically.** Hybrid search (70% semantic + 30% BM25) surfaces memories that match what you're working on, without you having to remember to ask. Query "What did we decide about authentication?" and get the specific decision, the reasoning, and related past decisions.
 
 **The system improves while you sleep.** Overnight consolidation synthesizes cross-session patterns, surfaces forgotten commitments, and runs dream synthesis -- mapping how solutions from one project might apply to another.
+
+**You get the current state of the art, not a frozen snapshot.** Memeta is the synthesis layer for the Claude Code memory community. When a new technique proves out -- in Reddit posts, GitHub repos, community experiments -- it gets integrated here, additively. You don't have to track the meta. You just update the repo.
 
 ## What's in it
 
@@ -142,6 +146,17 @@ export MEMORY_SYSTEM_INTELLIGENCE_DB="~/.local/share/memory/intelligence.db"
 **Dashboard:** `http://localhost:8766` after `python3 dashboard/server.py`
 
 ---
+
+## Contributing
+
+The Claude Code memory community is active and constantly finding new things that work. If you've discovered a memory technique, pattern, or integration that Memeta doesn't cover -- open an issue or a PR. Specifically:
+
+- A new memory technique from the community that should be integrated
+- A pattern you've found that doesn't fit any existing layer
+- A failure mode in an existing feature
+- A new additive approach that would play well with what's already here
+
+That's how this stays current. The field is moving too fast for any single person to track. Memeta is the aggregation point.
 
 ## Part of the stack
 
