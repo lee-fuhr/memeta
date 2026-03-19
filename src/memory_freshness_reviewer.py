@@ -216,7 +216,7 @@ def interactive_review(
         logger.info(preview)
         if len(m.content) > 300:
             logger.info("…")
-        logger.info()
+        logger.info("")
 
         while True:
             choice = input("  [r]efresh  [a]rchive  [s]kip  [q]uit → ").strip().lower()
@@ -310,7 +310,7 @@ def main():
             logger.info(f"  {s.summary}")
         if len(stale) > 20:
             logger.info(f"  …and {len(stale) - 20} more")
-        logger.info()
+        logger.info("")
 
     if args.notify:
         summary = generate_review_summary(stale)
