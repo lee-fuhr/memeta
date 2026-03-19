@@ -1,6 +1,6 @@
 # Memeta
 
-There are dozens of approaches to giving AI agents memory. This pulls together all the ones that work — extraction, scoring, search, decay, recall — so you're not piecing it together from scattered repos and threads.
+Every session, Claude starts over. Memeta gives it memory that actually compounds.
 
 ![Python](https://img.shields.io/badge/python-3.11%2B-blue) ![Tests](https://img.shields.io/badge/tests-3%2C149%20passing-brightgreen) ![Version](https://img.shields.io/badge/version-0.31.0-blue) ![License](https://img.shields.io/badge/license-MIT-green)
 
@@ -160,12 +160,11 @@ That's how this stays current. The field is moving too fast for any single perso
 
 ## Part of the stack
 
-| Repo | What it does |
-|------|-------------|
-| **[Build Bible](https://github.com/lee-fuhr/build-bible)** | The engineering methodology — principles, patterns, and failure modes from across the field, synthesized into one living reference. |
-| **[Atlas](https://github.com/lee-fuhr/atlas)** | The architectural model — a structural framework for where every component lives, built from the patterns that hold together at scale. |
-| **[Memeta](https://github.com/lee-fuhr/memeta)** | The memory system — every technique that works for giving AI agents persistent memory, unified and coexisting additively. |
-| **[Scaffold](https://github.com/lee-fuhr/scaffold)** | The starter kit — folder structure, hooks, skills, and templates that production systems converge on, ready to clone. |
+| Repo | Role |
+|------|------|
+| [Build Bible](https://github.com/lee-fuhr/build-bible) | Methodology -- principles and patterns for building with agents |
+| [Atlas](https://github.com/lee-fuhr/atlas) | Framework -- where every component in your system lives and why |
+| [ai-ops-starter](https://github.com/lee-fuhr/ai-ops-starter) | Scaffolding -- folder structure and templates to stand up a system |
 
 ---
 

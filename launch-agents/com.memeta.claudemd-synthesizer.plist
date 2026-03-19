@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.memeta.claudemd-synthesizer</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>[YOUR_HOME]/.local/venvs/memory-system/bin/python3</string>
+        <string>[YOUR_HOME]/CC/Work/_ Infrastructure/memory-system-v1/scripts/claudemd-synthesizer-runner.py</string>
+    </array>
+    <key>WorkingDirectory</key>
+    <string>[YOUR_HOME]/CC/Work/_ Infrastructure/memory-system-v1/</string>
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Weekday</key>
+        <integer>0</integer>
+        <key>Hour</key>
+        <integer>4</integer>
+        <key>Minute</key>
+        <integer>0</integer>
+    </dict>
+    <key>StandardOutPath</key>
+    <string>[YOUR_HOME]/Library/Logs/memeta-claudemd-synthesizer.log</string>
+    <key>StandardErrorPath</key>
+    <string>[YOUR_HOME]/Library/Logs/memeta-claudemd-synthesizer.log</string>
+    <key>KeepAlive</key>
+    <false/>
+</dict>
+</plist>
