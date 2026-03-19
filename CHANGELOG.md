@@ -10,6 +10,26 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ---
 
+## [0.31.1] - 2026-03-18
+
+Production wiring — hooks, LaunchAgents, and async consolidation deployed.
+
+### Added
+- **Session briefing hook** (`hooks/session-briefing.py`) — SessionStart hook injecting unified context card (corrections, memories, commitments, skill recommendations). Guard chain pattern, graceful degradation, structured logging to `hook_events.jsonl`.
+- **Pattern recall hook** (`hooks/pattern-recall.py`) — UserPromptSubmit hook detecting problems and surfacing past solutions from memory. 6-layer guard chain, cooldown management, BM25 search.
+- **CLAUDE.md synthesizer runner** (`scripts/claudemd-synthesizer-runner.py`) — Weekly runner for graduating confirmed corrections to CLAUDE.md rules (Bible 2.14).
+- **CLAUDE.md synthesizer LaunchAgent** (`launch-agents/com.memeta.claudemd-synthesizer.plist`) — Sunday 4am schedule.
+- **Structured logging** — Both new hooks write events to `hook_events.jsonl` (Bible 1.12 observability).
+
+### Changed
+- **Async consolidation hook hardened** (`hooks/session-memory-consolidation-async.py`) — Added correction graduation, confidence calibration, structured logging. Fixed Bible 3.3 compliance (all error paths exit 0). Added outer `__main__` exception guard.
+- **Settings convergence** — SessionEnd hook switched from blocking sync (180s timeout) to async (<1s). Background worker handles heavy consolidation.
+
+### Fixed
+- **`memory_freshness_reviewer.py`** — `logger.info()` called without argument caused TypeError, breaking the LaunchAgent (exit code 1). Fixed to `logger.info("")`.
+
+---
+
 ## [0.31.0] - 2026-03-11
 
 ### Comprehensive optimization pass
