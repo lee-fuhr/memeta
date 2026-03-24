@@ -184,16 +184,16 @@ Completed Feb 28, 2026. See v0.24.0 in Shipped section above.
 
 Completed Mar 1, 2026. See v0.25.0 in Shipped section above.
 
-## Phase 5: Advanced intelligence (backlog)
+## Phase 5: Advanced intelligence — SHIPPED (v0.26.0)
 
-Features that require the earlier phases to be working before they synthesize well.
+Completed Mar 2026. See v0.26.0 in Shipped section above.
 
-- **"I've solved this before" — real-time pattern recall** — proactive pattern matching against problem descriptions during work; requires memory injection (Phase 1) to be working
-- **"Don't let me forget" — proactive commitment nudging** — detect intent markers ("I should", "need to", "TODO") and surface them next session; lightweight, high daily value
-- **Frustration-to-skill pipeline** — recurring frustration patterns trigger skill proposals; the system learns to eliminate its own friction; require 5+ occurrences before proposing
-- **Confidence-calibration loop** — track whether confidence predictions are accurate; build calibration curves; slow but durable improvement
-- **Decision archaeology** — retrieve decision journal entries by code file/function; connects decisions to artifacts
-- **CLAUDE.md generator (auto-generated sections from corrections)** — mature version of Phase 4 generator; informed by correction pipeline data and accumulated usage patterns
+- ~~**Pattern recall**~~ — ✓ shipped (`src/pattern_recall.py`)
+- ~~**Commitment nudger**~~ — ✓ shipped (`src/commitment_nudger.py`)
+- ~~**Frustration-to-skill pipeline**~~ — ✓ shipped (`src/wild/skill_proposal_engine.py`)
+- ~~**Confidence calibration**~~ — ✓ shipped (`src/confidence_calibration.py`)
+- ~~**Decision store**~~ — ✓ shipped (`src/decision_journal.py`)
+- ~~**CLAUDE.md synthesizer**~~ — ✓ shipped (`src/claudemd_synthesizer.py`)
 
 ---
 
@@ -351,6 +351,29 @@ Ideas from [CQ (Conversational Quality)](https://github.com/mozilla-ai/cq) by Mo
 5. **Superseded-by chains** — Link old memories to their replacements instead of overwriting. Preserves evolution history, prevents surfacing outdated knowledge.
 
 These are additive — new fields, new tags, new pipeline phases layered onto the existing system. No architectural changes required.
+
+---
+
+## Phase 10: Knowledge feedback loop (next build)
+
+The missing signal: the system surfaces memories but never learns whether they helped. This phase closes the loop.
+
+### 10.1 Confirmation counting
+Track "times surfaced AND confirmed helpful" per memory. The memory injection hook already surfaces memories — add a lightweight signal detection pass after the user's next response to determine if the surfaced memory was referenced, acted on, or ignored. Feed this counter into FSRS as an additional scheduling signal alongside stability and importance.
+
+**Implementation sketch:**
+- Add `confirmation_count: int` and `last_confirmed: datetime` fields to memory YAML frontmatter
+- In the memory injection hook, record which memories were surfaced this exchange
+- In the NEXT exchange's hook invocation, heuristically detect: did the user's response reference the surfaced memory? (keyword overlap, explicit acknowledgment, topic continuation)
+- If confirmed: increment counter, update `last_confirmed`, boost FSRS stability
+- If ignored across 3+ surfacings: reduce importance weight (the memory surfaces but never helps)
+- Dashboard: "most confirmed" and "frequently ignored" memory lists
+
+### 10.2 Lifecycle classification field
+Add `lifecycle_kind` enum to memory YAML: `permanent`, `workaround`, `gap_signal`, `expired`. Workarounds carry a `depends_on` string describing what would make them obsolete. The memory injector annotates workaround memories with "⚠️ workaround — may be obsolete if [dependency] changes."
+
+### 10.3 Action field
+Add optional `action` string to memory YAML: "When this memory surfaces, do THIS." The memory injector includes the action in its injection text, transforming passive recall into active guidance.
 
 ---
 
