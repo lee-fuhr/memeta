@@ -12,12 +12,13 @@ Observability (Bible 1.12): logs generated sections to stderr.
 DEPLOYMENT:
   "SessionStart": [{
     "type": "command",
-    "command": "~/.local/venvs/memory-system/bin/python3 ~/Work/_ Infrastructure/memory-system-v1/hooks/session-briefing.py",
+    "command": "~/.local/venvs/memory-system/bin/python3 /path/to/memeta/hooks/session-briefing.py",
     "timeout": 10000
   }]
 """
 
 import json
+import os
 import sys
 import time
 from datetime import datetime
@@ -28,7 +29,7 @@ _ms_root = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(_ms_root / "src"))
 
 
-_HOOK_LOG = Path.home() / "CC/Work/LFI/_ Operations/hooks/hook_events.jsonl"
+_HOOK_LOG = Path(os.environ.get("MEMETA_HOOK_LOG", str(Path.home() / ".local/share/memeta/hook_events.jsonl")))
 
 
 def _log(msg: str) -> None:

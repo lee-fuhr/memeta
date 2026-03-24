@@ -10,6 +10,20 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ---
 
+## [0.31.2] - 2026-03-24
+
+CQ-inspired design learnings documented as future enhancement candidates.
+
+### Added
+- **CQ design learnings doc** (`docs/cq-design-learnings.md`) — 5 enhancement ideas from Mozilla AI's CQ project: tripartite knowledge structure (action field), session reflection workflow, confirmation counting, knowledge lifecycle classification, superseded-by chains.
+- **ROADMAP.md** — "Future considerations: CQ-inspired enhancements" section referencing the 5 ideas.
+
+### Fixed
+- **Hook log paths scrubbed** — replaced hardcoded personal paths in `hooks/pattern-recall.py`, `hooks/session-briefing.py`, and `hooks/session-memory-consolidation-async.py` with configurable `MEMETA_HOOK_LOG` env var.
+- **Hook deployment examples scrubbed** — replaced personal paths in docstring examples with generic `/path/to/memeta/` placeholder.
+
+---
+
 ## [0.31.1] - 2026-03-18
 
 Production wiring — hooks, LaunchAgents, and async consolidation deployed.

@@ -2,7 +2,7 @@
 
 Every session, Claude starts over. Memeta gives it memory that actually compounds.
 
-![Python](https://img.shields.io/badge/python-3.11%2B-blue) ![Tests](https://img.shields.io/badge/tests-3%2C149%20passing-brightgreen) ![Version](https://img.shields.io/badge/version-0.31.1-blue) ![License](https://img.shields.io/badge/license-MIT-green)
+![Python](https://img.shields.io/badge/python-3.11%2B-blue) ![Tests](https://img.shields.io/badge/tests-3%2C149%20passing-brightgreen) ![Version](https://img.shields.io/badge/version-0.31.2-blue) ![License](https://img.shields.io/badge/license-MIT-green)
 
 ---
 

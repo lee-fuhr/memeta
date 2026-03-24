@@ -340,6 +340,20 @@ Skill intelligence brainstorm kills (from the adversarial brainstorm, Mar 2026):
 
 ---
 
+## Future considerations: CQ-inspired enhancements
+
+Ideas from [CQ (Conversational Quality)](https://github.com/mozilla-ai/cq) by Mozilla AI that could enhance Memeta's knowledge management. Full analysis in `docs/cq-design-learnings.md`.
+
+1. **Tripartite knowledge structure** — Add an `action` field to memories: summary for scanning, content for depth, action for "what to DO with this knowledge." Turns passive recall into active guidance.
+2. **Session reflection workflow** — Extend session-end consolidation with a deliberate retrospective pass mining process improvements, not just factual learnings.
+3. **Confirmation counting** — Track "times surfaced AND confirmed helpful" as an FSRS-adjacent signal. Knowledge that surfaces often but never helps should decay faster.
+4. **Knowledge lifecycle classification** — Classify memories as permanent / workaround / gap-signal / expired. Different lifecycle types get different treatment (workarounds flag for review, gap-signals prompt research).
+5. **Superseded-by chains** — Link old memories to their replacements instead of overwriting. Preserves evolution history, prevents surfacing outdated knowledge.
+
+These are additive — new fields, new tags, new pipeline phases layered onto the existing system. No architectural changes required.
+
+---
+
 ## Design principles
 
 1. **Fix before building** — infrastructure health is a prerequisite for features

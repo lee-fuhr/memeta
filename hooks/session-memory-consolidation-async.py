@@ -31,7 +31,7 @@ from datetime import datetime
 
 from memory_system.async_consolidation import ConsolidationQueue
 
-_HOOK_LOG = Path.home() / "CC/Work/LFI/_ Operations/hooks/hook_events.jsonl"
+_HOOK_LOG = Path(os.environ.get("MEMETA_HOOK_LOG", str(Path.home() / ".local/share/memeta/hook_events.jsonl")))
 
 
 def _log_event(session_id, **kwargs):

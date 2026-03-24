@@ -9,12 +9,13 @@ Performance budget: <500ms (BM25 only, no model loading).
 DEPLOYMENT:
   "UserPromptSubmit": [{
     "type": "command",
-    "command": "~/.local/venvs/memory-system/bin/python3 ~/Work/_ Infrastructure/memory-system-v1/hooks/pattern-recall.py",
+    "command": "~/.local/venvs/memory-system/bin/python3 /path/to/memeta/hooks/pattern-recall.py",
     "timeout": 5000
   }]
 """
 
 import json
+import os
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -29,11 +30,11 @@ _COOLDOWN_EXCHANGES = 5
 # Signal strength threshold — only fire for genuine problems
 _SIGNAL_THRESHOLD = 0.3
 
-# Default memory directory
-_DEFAULT_MEMORY_DIR = Path.home() / ".local/share/memory/LFI/memories"
+# Default memory directory (override MEMETA_PROJECT to change project name)
+_DEFAULT_MEMORY_DIR = Path.home() / ".local/share/memory" / os.environ.get("MEMETA_PROJECT", "default") / "memories"
 
 
-_HOOK_LOG = Path.home() / "CC/Work/LFI/_ Operations/hooks/hook_events.jsonl"
+_HOOK_LOG = Path(os.environ.get("MEMETA_HOOK_LOG", str(Path.home() / ".local/share/memeta/hook_events.jsonl")))
 
 
 def _log(msg: str) -> None:
@@ -124,7 +125,8 @@ def main() -> None:
     # Resolve memory directory — prefer config if available, fall back to default
     try:
         from config import cfg
-        memory_dir = cfg.memory_dir / "LFI" / "memories"
+        project = os.environ.get("MEMETA_PROJECT", "default")
+        memory_dir = cfg.memory_dir / project / "memories"
     except (ImportError, Exception):
         memory_dir = _DEFAULT_MEMORY_DIR
 

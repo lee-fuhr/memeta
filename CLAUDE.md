@@ -1,7 +1,7 @@
 # Memeta — project instructions
 
-**Version:** 0.31.1
-**Last updated:** 2026-03-07
+**Version:** 0.31.2
+**Last updated:** 2026-03-24
 
 ---
 
