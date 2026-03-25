@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.memeta.quality-sweep</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Users/lee/.local/venvs/memory-system/bin/python3</string>
+        <string>/Users/lee/CC/Work/_ Infrastructure/memory-system-v1/scripts/quality_sweep.py</string>
+        <string>--sample</string>
+        <string>30</string>
+    </array>
+    <key>WorkingDirectory</key>
+    <string>/Users/lee/CC/Work/_ Infrastructure/memory-system-v1/</string>
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/Users/lee/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+    </dict>
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Weekday</key>
+        <integer>1</integer>
+        <key>Hour</key>
+        <integer>4</integer>
+        <key>Minute</key>
+        <integer>0</integer>
+    </dict>
+    <key>StandardOutPath</key>
+    <string>/Users/lee/Library/Logs/memeta-quality-sweep.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/lee/Library/Logs/memeta-quality-sweep.log</string>
+    <key>KeepAlive</key>
+    <false/>
+</dict>
+</plist>

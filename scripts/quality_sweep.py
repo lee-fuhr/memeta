@@ -53,7 +53,7 @@ def score_memory(content: str) -> dict | None:
     try:
         result = subprocess.run(
             ["claude", "-p", "--model", "haiku", prompt],
-            capture_output=True, text=True, timeout=30
+            capture_output=True, text=True, timeout=120
         )
         if result.returncode != 0:
             return None
