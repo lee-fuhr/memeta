@@ -6,6 +6,7 @@ Memory-ts uses markdown files with YAML frontmatter stored at:
 
 Each memory is a file: {id}.md with YAML frontmatter + markdown content
 """
+from __future__ import annotations
 
 import ast
 import json
