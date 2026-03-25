@@ -335,20 +335,24 @@ class SessionConsolidator:
         messages = self.read_session(session_file)
         conversation = self.extract_conversation_text(messages)
 
-        # Extract memories (pattern-based)
-        pattern_memories = self.extract_memories(conversation)
-
-        # LLM extraction (if enabled)
+        # Primary: LLM extraction via Haiku (subscription-included, no API cost)
+        # Fallback: regex patterns (only when LLM unavailable)
         if use_llm and len(conversation) > 200:
             try:
                 from .llm_extractor import extract_with_llm, combine_extractions
                 llm_memories = extract_with_llm(conversation, project_id=self.project_id)
-                extracted_memories = combine_extractions(pattern_memories, llm_memories)
+                if llm_memories:
+                    # LLM succeeded — use as primary, merge any unique regex finds
+                    pattern_memories = self.extract_memories(conversation)
+                    extracted_memories = combine_extractions(pattern_memories, llm_memories)
+                else:
+                    # LLM returned nothing — fall back to regex
+                    extracted_memories = self.extract_memories(conversation)
             except Exception:
-                # Fall back to pattern-only on any LLM failure
-                extracted_memories = pattern_memories
+                # LLM unavailable — fall back to regex
+                extracted_memories = self.extract_memories(conversation)
         else:
-            extracted_memories = pattern_memories
+            extracted_memories = self.extract_memories(conversation)
 
         # Resolve session ID and load active skills from hook state
         session_id = session_file.stem

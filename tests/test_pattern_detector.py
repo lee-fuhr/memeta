@@ -299,12 +299,12 @@ class TestPatternDetector:
         signals = detector.detect_reinforcements(
             new_memories=[
                 {
-                    "content": "User input validation at boundaries is critical",
+                    "content": "Always validate user input at system boundaries before processing",
                     "project_id": "ClientA",
                     "importance": 0.7,
                 },
                 {
-                    "content": "Structured logging with context fields helps debugging",
+                    "content": "Use structured logging with context fields for debugging",
                     "project_id": "ClientA",
                     "importance": 0.6,
                 },

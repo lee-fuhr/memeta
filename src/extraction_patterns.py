@@ -17,24 +17,25 @@ LEARNING_PATTERNS = [
     re.compile(r"(?:pattern|trend) (?:I noticed|observed|saw):? ([^.!?]+[.!?])", re.IGNORECASE),
 ]
 CORRECTION_PATTERNS = [
-    re.compile(r"user:.*?(?:actually|correction|no,|wrong|mistake|should be|meant to say) ([^.!?]+[.!?])", re.IGNORECASE | re.DOTALL),
-    re.compile(r"user:.*?(?:better way|instead try|prefer) ([^.!?]+[.!?])", re.IGNORECASE | re.DOTALL),
+    # Explicit corrections — require strong signal words near "user:" (no DOTALL = same line only)
+    re.compile(r"user:.{0,200}?(?:no,\s*(?:that's|it's|you)\s+wrong|correction:|actually,?\s+(?:no|it should|that's wrong|the correct)|mistake|should be|meant to say)\s+([^.!?]+[.!?])", re.IGNORECASE),
+    re.compile(r"user:.{0,200}?(?:better way|instead try|I prefer)\s+([^.!?]+[.!?])", re.IGNORECASE),
     # Behavioral directives (user telling Claude what to always/never do)
-    re.compile(r"user:.*?(?:always|never)\s+(?:do|use|make|create|write|add|put|include|format|name)\s+([^.!?]+[.!?])", re.IGNORECASE | re.DOTALL),
+    re.compile(r"user:.{0,200}?(?:always|never)\s+(?:do|use|make|create|write|add|put|include|format|name)\s+([^.!?]+[.!?])", re.IGNORECASE),
     # Frustration signals (user repeating themselves)
-    re.compile(r"user:.*?(?:I told you|stop doing|don't ever|for the \w+ time|how many times)[,;:]?\s+([^.!?]+[.!?])", re.IGNORECASE | re.DOTALL),
+    re.compile(r"user:.{0,200}?(?:I told you|stop doing|don't ever|for the \w+ time|how many times)[,;:]?\s+([^.!?]+[.!?])", re.IGNORECASE),
 ]
 
 # Categorized patterns for detect_corrections() — maps pattern to pattern_type
 _EXPLICIT_CORRECTION_PATTERNS = [
-    re.compile(r"user:.*?(?:actually|correction|no,|wrong|mistake|should be|meant to say) ([^.!?]+[.!?])", re.IGNORECASE | re.DOTALL),
-    re.compile(r"user:.*?(?:better way|instead try|prefer) ([^.!?]+[.!?])", re.IGNORECASE | re.DOTALL),
+    re.compile(r"user:.{0,200}?(?:no,\s*(?:that's|it's|you)\s+wrong|correction:|actually,?\s+(?:no|it should|that's wrong|the correct)|mistake|should be|meant to say)\s+([^.!?]+[.!?])", re.IGNORECASE),
+    re.compile(r"user:.{0,200}?(?:better way|instead try|I prefer)\s+([^.!?]+[.!?])", re.IGNORECASE),
 ]
 _BEHAVIORAL_DIRECTIVE_PATTERNS = [
-    re.compile(r"user:.*?(?:always|never)\s+(?:do|use|make|create|write|add|put|include|format|name)\s+([^.!?]+[.!?])", re.IGNORECASE | re.DOTALL),
+    re.compile(r"user:.{0,200}?(?:always|never)\s+(?:do|use|make|create|write|add|put|include|format|name)\s+([^.!?]+[.!?])", re.IGNORECASE),
 ]
 _FRUSTRATION_SIGNAL_PATTERNS = [
-    re.compile(r"user:.*?(?:I told you|stop doing|don't ever|for the \w+ time|how many times)[,;:]?\s+([^.!?]+[.!?])", re.IGNORECASE | re.DOTALL),
+    re.compile(r"user:.{0,200}?(?:I told you|stop doing|don't ever|for the \w+ time|how many times)[,;:]?\s+([^.!?]+[.!?])", re.IGNORECASE),
 ]
 PROBLEM_SOLUTION_PATTERN = re.compile(
     r"(?:problem|issue|challenge):.*?([^.!?]+[.!?]).*?(?:solution|fix|approach):.*?([^.!?]+[.!?])",

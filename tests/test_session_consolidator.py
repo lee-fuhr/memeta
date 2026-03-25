@@ -443,10 +443,9 @@ class TestCorrectionMetadata:
         )
 
         session_file = Path(session_dir) / "test-correction-session.jsonl"
-        # "No, you should actually ..." triggers the correction regex pattern:
-        # user:.*?(?:actually|...) ([^.!?]+[.!?])
+        # "actually, no" triggers the tightened correction regex pattern
         messages = [
-            {"role": "user", "content": "No, you should actually validate inputs before processing them in the pipeline workflow system."},
+            {"role": "user", "content": "Actually, no — it should be validating inputs before processing them in the pipeline workflow system."},
             {"role": "assistant", "content": "Understood, I'll validate inputs before processing. When you validate inputs first, it prevents cascading failures downstream in the pipeline workflow system."},
             {"role": "user", "content": "How should we handle errors?"},
             {"role": "assistant", "content": "When handling errors in production, it's better to fail fast and log context rather than swallowing exceptions silently in distributed systems."},

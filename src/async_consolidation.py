@@ -239,14 +239,34 @@ def process_consolidation_queue(max_sessions: int = 10, timeout_per_session: int
             start_time = time.time()
 
             result = consolidator.consolidate_session(
-                session_path=session_path,
+                session_file=Path(session_path),
                 use_llm=True  # Full processing
             )
 
             duration = time.time() - start_time
 
             logger.info(f"✅ Completed: {session_id} ({duration:.1f}s)")
-            logger.info(f"   Extracted: {result.new_count} new, {result.updated_count} updated, {result.duplicate_count} duplicates")
+            logger.info(f"   Extracted: {result.memories_extracted}, saved: {result.memories_saved}, deduped: {result.memories_deduplicated}")
+
+            # FSRS reinforcement: feed saved memories to pattern detector
+            if result.saved_memories:
+                try:
+                    from memory_system.pattern_detector import PatternDetector
+                    from memory_system.fsrs_scheduler import FSRSScheduler
+
+                    detector = PatternDetector(scheduler=FSRSScheduler())
+                    new_memory_dicts = [
+                        {'content': m.content, 'project_id': m.project_id, 'importance': m.importance}
+                        for m in result.saved_memories
+                    ]
+                    signals = detector.detect_reinforcements(
+                        new_memories=new_memory_dicts,
+                        session_id=session_id,
+                    )
+                    if signals:
+                        logger.info(f"   FSRS reinforcements: {len(signals)} detected")
+                except Exception as e:
+                    logger.debug(f"FSRS reinforcement skipped: {e}")
 
             # Assess skill outcomes from this session
             try:

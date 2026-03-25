@@ -132,6 +132,11 @@ def build_search_index(
             if not meta.get("id"):
                 continue
 
+            # Skip archived memories
+            scope = meta.get("scope", "project")
+            if scope == "archived":
+                continue
+
             entry = {
                 "id": meta["id"],
                 "content": body.strip(),
@@ -236,14 +241,20 @@ def search_memories(
         top_k=top_k * 3,  # over-fetch for filtering
     )
 
-    # Apply dual relevance gate
+    # Apply dual relevance gate + importance weighting
     filtered = []
     for result in raw_results:
         bm25 = result.get("bm25_score", 0.0)
         normalized = result.get("bm25_score_normalized", 0.0)
 
         if bm25 >= min_score and normalized >= min_normalized:
+            # Weight by importance so high-quality memories rank higher
+            importance = result.get("importance", 0.5)
+            result["weighted_score"] = bm25 * (0.5 + importance * 0.5)
             filtered.append(result)
+
+    # Sort by weighted score (importance-boosted relevance)
+    filtered.sort(key=lambda r: r.get("weighted_score", 0.0), reverse=True)
 
     # Return top_k after filtering
     return filtered[:top_k]

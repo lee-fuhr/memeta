@@ -19,7 +19,7 @@ from .fsrs_scheduler import FSRSScheduler, ReviewGrade
 from .memory_ts_client import MemoryTSClient, Memory
 
 
-DEFAULT_SIMILARITY_THRESHOLD = 0.35
+DEFAULT_SIMILARITY_THRESHOLD = 0.65
 
 
 def normalize_text(text: str) -> set:

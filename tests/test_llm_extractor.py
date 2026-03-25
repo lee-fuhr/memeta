@@ -198,7 +198,10 @@ class TestExtractWithLLM:
         memories = extract_with_llm("user: hello\nassistant: hi", project_id="test-project")
         mock_run.assert_called_once()
         call_args = mock_run.call_args
-        assert "claude" in call_args[0][0][0]
+        cmd = call_args[0][0]
+        assert cmd[0] == "claude"
+        assert "--model" in cmd
+        assert "haiku" in cmd
 
     @patch("memory_system.llm_extractor.subprocess.run")
     def test_returns_parsed_memories(self, mock_run):

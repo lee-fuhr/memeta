@@ -162,7 +162,7 @@ def extract_with_llm(
 
     def _run_extraction():
         result = subprocess.run(
-            ["claude", "-p", prompt],
+            ["claude", "-p", "--model", "haiku", prompt],
             capture_output=True,
             text=True,
             timeout=timeout
@@ -220,7 +220,7 @@ def ask_claude(prompt: str, timeout: int = 30, max_retries: int = 3) -> str:
 
         try:
             result = subprocess.run(
-                ["claude", "-p", prompt],
+                ["claude", "-p", "--model", "haiku", prompt],
                 capture_output=True,
                 text=True,
                 timeout=current_timeout
