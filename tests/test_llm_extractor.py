@@ -187,57 +187,39 @@ class TestCombineExtractions:
 class TestExtractWithLLM:
     """Test full LLM extraction pipeline (CLI mocked)"""
 
-    @patch("memory_system.llm_extractor.subprocess.run")
-    def test_calls_claude_cli(self, mock_run):
-        """Should invoke claude -p with extraction prompt"""
-        mock_run.return_value = MagicMock(
-            returncode=0,
-            stdout='[{"content": "Test", "importance": 0.7, "reasoning": "x", "category": "technical"}]',
-            stderr=""
-        )
+    @patch("memory_system.llm_extractor.run_llm_prompt")
+    def test_calls_llm_backend(self, mock_llm):
+        """Should invoke LLM backend with extraction prompt"""
+        mock_llm.return_value = '[{"content": "Test", "importance": 0.7, "reasoning": "x", "category": "technical"}]'
         memories = extract_with_llm("user: hello\nassistant: hi", project_id="test-project")
-        mock_run.assert_called_once()
-        call_args = mock_run.call_args
-        cmd = call_args[0][0]
-        assert cmd[0] == "claude"
-        assert "--model" in cmd
-        assert "haiku" in cmd
+        mock_llm.assert_called_once()
 
-    @patch("memory_system.llm_extractor.subprocess.run")
-    def test_returns_parsed_memories(self, mock_run):
+    @patch("memory_system.llm_extractor.run_llm_prompt")
+    def test_returns_parsed_memories(self, mock_llm):
         """Should return parsed SessionMemory objects"""
-        mock_run.return_value = MagicMock(
-            returncode=0,
-            stdout='[{"content": "Always validate input", "importance": 0.75, "reasoning": "x", "category": "technical"}]',
-            stderr=""
-        )
+        mock_llm.return_value = '[{"content": "Always validate input", "importance": 0.75, "reasoning": "x", "category": "technical"}]'
         memories = extract_with_llm("conversation text", project_id="test-project")
         assert len(memories) == 1
         assert memories[0].content == "Always validate input"
         assert "#llm-extracted" in memories[0].tags
 
-    @patch("memory_system.llm_extractor.subprocess.run")
-    def test_handles_cli_failure(self, mock_run):
-        """Should return empty list if CLI fails"""
-        mock_run.return_value = MagicMock(
-            returncode=1,
-            stdout="",
-            stderr="Error: not authenticated"
-        )
+    @patch("memory_system.llm_extractor.run_llm_prompt")
+    def test_handles_llm_failure(self, mock_llm):
+        """Should return empty list if LLM returns empty"""
+        mock_llm.return_value = ""
         memories = extract_with_llm("conversation text", project_id="test-project")
         assert len(memories) == 0
 
-    @patch("memory_system.llm_extractor.subprocess.run")
-    def test_handles_cli_timeout(self, mock_run):
-        """Should return empty list on timeout"""
-        import subprocess
-        mock_run.side_effect = subprocess.TimeoutExpired(cmd="claude", timeout=120)
+    @patch("memory_system.llm_extractor.run_llm_prompt")
+    def test_handles_llm_empty_response(self, mock_llm):
+        """Should return empty list on empty response"""
+        mock_llm.return_value = ""
         memories = extract_with_llm("conversation text", project_id="test-project")
         assert len(memories) == 0
 
-    @patch("memory_system.llm_extractor.subprocess.run")
-    def test_handles_cli_not_found(self, mock_run):
-        """Should return empty list if claude CLI not installed"""
-        mock_run.side_effect = FileNotFoundError("claude not found")
+    @patch("memory_system.llm_extractor.run_llm_prompt")
+    def test_handles_invalid_json(self, mock_llm):
+        """Should return empty list on unparseable response"""
+        mock_llm.return_value = "not json at all"
         memories = extract_with_llm("conversation text", project_id="test-project")
         assert len(memories) == 0

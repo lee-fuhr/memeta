@@ -230,7 +230,6 @@ Return ONLY a JSON array:
         """
         from memory_system.wild.quality_grader import MemoryQualityGrader
         from memory_system.llm_extractor import parse_llm_response
-        import subprocess
 
         session_id = session_data['id']
         conversation = session_data.get('conversation', '')
@@ -246,18 +245,11 @@ Return ONLY a JSON array:
         filled_prompt = prompt.content.format(CONVERSATION=conversation[-15000:])
 
         # Extract memories using this prompt via LLM
-        try:
-            result = subprocess.run(
-                ["claude", "-p", filled_prompt],
-                capture_output=True,
-                text=True,
-                timeout=30
-            )
-            if result.returncode == 0:
-                memories = parse_llm_response(result.stdout, project_id="test")
-            else:
-                memories = []
-        except (subprocess.TimeoutExpired, FileNotFoundError, Exception):
+        from memory_system.llm_backend import run_llm_prompt
+        response = run_llm_prompt(filled_prompt, timeout=30, retries=1)
+        if response:
+            memories = parse_llm_response(response, project_id="test")
+        else:
             memories = []
 
         # Grade each memory

@@ -9,9 +9,9 @@ Fully automatic - called from SessionEnd hook alongside pattern extraction.
 
 import json
 import re
-import subprocess
 
 from .circuit_breaker import get_breaker, CircuitBreakerOpenError
+from .llm_backend import run_llm_prompt, strip_code_fence
 from .session_consolidator import SessionMemory
 import logging
 
@@ -161,115 +161,46 @@ def extract_with_llm(
     breaker = get_breaker("llm_extraction", failure_threshold=3, recovery_timeout=60.0)
 
     def _run_extraction():
-        result = subprocess.run(
-            ["claude", "-p", "--model", "haiku", prompt],
-            capture_output=True,
-            text=True,
-            timeout=timeout
-        )
-        if result.returncode != 0:
-            raise RuntimeError(f"Claude CLI returned {result.returncode}")
-        return parse_llm_response(result.stdout, project_id=project_id)
+        response = run_llm_prompt(prompt, timeout=timeout, retries=2)
+        if not response:
+            raise RuntimeError("LLM returned empty response")
+        return parse_llm_response(response, project_id=project_id)
 
     try:
         return breaker.call(_run_extraction)
     except CircuitBreakerOpenError:
         return []
-    except subprocess.TimeoutExpired:
-        breaker.record_failure()
-        return []
-    except FileNotFoundError:
-        return []
     except Exception:
+        breaker.record_failure()
         return []
 
 
 def ask_claude(prompt: str, timeout: int = 30, max_retries: int = 3) -> str:
     """
-    Simple helper to ask Claude CLI a question and get a text response.
+    Simple helper to ask the LLM a question and get a text response.
 
-    RELIABILITY FIX: Adds retry logic with exponential backoff.
-    - Prevents silent data loss from transient failures
-    - Retry delays: 2s, 4s, 8s
-    - Timeout increases with each retry: initial timeout, then +10s, then +20s
-    - Circuit breaker: Fails fast when LLM is consistently unavailable
-
-    Used for daily summaries, synthesis, ad-hoc LLM queries.
+    Uses centralized LLM backend with circuit breaker protection.
+    Retry logic is handled by run_llm_prompt.
 
     Args:
-        prompt: Question or task for Claude
-        timeout: Initial CLI timeout in seconds (increases with retries)
-        max_retries: Maximum retry attempts (default: 3)
+        prompt: Question or task for the LLM
+        timeout: CLI timeout in seconds
+        max_retries: Maximum retry attempts
 
     Returns:
-        Claude's response text (empty string on all failures)
+        Response text (empty string on all failures)
     """
-    import time
-
     breaker = get_breaker("llm_ask_claude", failure_threshold=3, recovery_timeout=60.0)
 
-    # Fast-fail if circuit breaker is open
     if breaker.is_open:
         return ""
 
-    retry_delays = [2, 4, 8]  # Exponential backoff between retries
-    timeout_increases = [0, 10, 20]  # Increase timeout on each retry
-
-    for attempt in range(max_retries):
-        current_timeout = timeout + timeout_increases[min(attempt, len(timeout_increases) - 1)]
-
-        try:
-            result = subprocess.run(
-                ["claude", "-p", "--model", "haiku", prompt],
-                capture_output=True,
-                text=True,
-                timeout=current_timeout
-            )
-
-            if result.returncode == 0:
-                breaker.record_success()
-                return result.stdout.strip()
-
-            # Non-zero return code
-            if attempt < max_retries - 1:
-                delay = retry_delays[min(attempt, len(retry_delays) - 1)]
-                logger.info(f"LLM call failed (attempt {attempt + 1}/{max_retries}), retrying in {delay}s with {current_timeout + timeout_increases[attempt + 1]}s timeout...")
-                time.sleep(delay)
-                continue
-            else:
-                breaker.record_failure()
-                logger.info(f"LLM call failed after {max_retries} attempts")
-                return ""
-
-        except subprocess.TimeoutExpired:
-            if attempt < max_retries - 1:
-                delay = retry_delays[min(attempt, len(retry_delays) - 1)]
-                next_timeout = timeout + timeout_increases[min(attempt + 1, len(timeout_increases) - 1)]
-                logger.info(f"LLM timeout after {current_timeout}s (attempt {attempt + 1}/{max_retries}), retrying in {delay}s with {next_timeout}s timeout...")
-                time.sleep(delay)
-                continue
-            else:
-                breaker.record_failure()
-                logger.info(f"LLM timeout after {max_retries} attempts (final timeout: {current_timeout}s)")
-                return ""
-
-        except FileNotFoundError:
-            # Claude CLI not found - don't retry, don't trip breaker (install issue)
-            logger.info(f"Claude CLI not found (is it installed?)")
-            return ""
-
-        except Exception as e:
-            if attempt < max_retries - 1:
-                delay = retry_delays[min(attempt, len(retry_delays) - 1)]
-                logger.info(f"LLM error: {e} (attempt {attempt + 1}/{max_retries}), retrying in {delay}s...")
-                time.sleep(delay)
-                continue
-            else:
-                breaker.record_failure()
-                logger.info(f"LLM error after {max_retries} attempts: {e}")
-                return ""
-
-    return ""
+    response = run_llm_prompt(prompt, timeout=timeout, retries=max_retries)
+    if response:
+        breaker.record_success()
+    else:
+        breaker.record_failure()
+    return response
 
 
 def combine_extractions(

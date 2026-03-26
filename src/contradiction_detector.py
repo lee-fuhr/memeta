@@ -10,10 +10,10 @@ Examples of contradictions:
 - "Client wants minimalist design" vs "Client wants bold, colorful design"
 """
 
-import subprocess
 from dataclasses import dataclass
 
 from .circuit_breaker import get_breaker, CircuitBreakerOpenError
+from .llm_backend import run_llm_prompt
 
 
 @dataclass
@@ -26,12 +26,12 @@ class ContradictionResult:
 
 def ask_claude_quick(prompt: str, timeout: int = 10) -> str:
     """
-    Quick LLM query using Claude CLI.
+    Quick LLM query for contradiction checks.
 
     Protected by circuit breaker to fail fast when LLM is unavailable.
 
     Args:
-        prompt: Question for Claude
+        prompt: Question for the LLM
         timeout: Timeout in seconds
 
     Returns:
@@ -39,23 +39,15 @@ def ask_claude_quick(prompt: str, timeout: int = 10) -> str:
     """
     breaker = get_breaker("llm_contradiction", failure_threshold=3, recovery_timeout=60.0)
 
-    def _run_query():
-        result = subprocess.run(
-            ["claude", "-p", prompt],
-            capture_output=True,
-            text=True,
-            timeout=timeout
-        )
-        if result.returncode != 0:
-            raise RuntimeError(f"Claude CLI returned {result.returncode}")
-        return result.stdout.strip()
+    if breaker.is_open:
+        return ""
 
-    try:
-        return breaker.call(_run_query)
-    except CircuitBreakerOpenError:
-        return ""
-    except (subprocess.TimeoutExpired, FileNotFoundError, Exception):
-        return ""
+    response = run_llm_prompt(prompt, timeout=timeout, retries=1)
+    if response:
+        breaker.record_success()
+    else:
+        breaker.record_failure()
+    return response
 
 
 def check_contradiction(
