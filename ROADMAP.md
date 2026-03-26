@@ -6,7 +6,20 @@ Where Memeta has been, where it is, and where it's going.
 
 ## Shipped
 
-### v0.30.0 — Pinned memories injection slot (Mar 2026)
+### v0.32.0 \u2014 Unified LLM backend + confirmation tracker (Mar 2026)
+LLM backend consolidation (single entry point for all model calls), Haiku-primary extraction (~80% cost reduction), confirmation tracker closing the memory feedback loop, FSRS pipeline hardening. Quality sweep LaunchAgent for automated audits.
+- **LLM backend** (`src/llm_backend.py`) \u2014 API mode (fast) + CLI fallback
+- **Confirmation tracker** (`src/confirmation_tracker.py`) \u2014 memory feedback loop
+- **3,168 tests total** \u2014 19 new, 153 features
+
+### v0.31.x \u2014 Build Bible integration + production wiring (Mar 2026)
+Phase 9: Bible importer, evolution engine, comprehensive optimization pass (36% test speedup, Python 3.10+ typing, silent exception cleanup). Production hooks (session briefing, pattern recall), Dockerfile, CQ-inspired roadmap.
+- **Build Bible importer** (`src/importers/bible_importer.py`) \u2014 27 tests
+- **Bible evolution engine** (`src/importers/bible_evolution_engine.py`) \u2014 41 tests
+- **Session briefing hook** + **Pattern recall hook** \u2014 production wiring
+- **3,149 tests total** \u2014 152 features
+
+### v0.30.0 \u2014 Pinned memories injection slot (Mar 2026)
 Guaranteed injection of critical memories regardless of query relevance. Operationalizes the concept of "always-on" context for PERMANENT rules.
 - **Pinned memories slot** (`src/memory_injector.py`) — `is_pinned=True` or `importance > 0.85` → always injected, capped at 10, prepended before corrections and regular memories
 - **Universal learnings sunset** — 3 PERMANENT operational rules migrated to `is_pinned: true` memory files; `universal-learnings.md` deprecated

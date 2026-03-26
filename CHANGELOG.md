@@ -10,6 +10,33 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ---
 
+## [0.32.0] - 2026-03-26
+
+Unified LLM backend, Haiku-primary extraction, confirmation tracker, and FSRS pipeline hardening.
+
+### Added
+- **LLM backend abstraction** (`src/llm_backend.py`) \u2014 Unified interface for all LLM calls. Two modes: API mode (Google GenAI SDK, fast) and CLI fallback (`gemini -p`, slow). Replaces scattered `subprocess.run(["claude", "-p", ...])` calls that broke from subprocess context. All LLM-dependent modules now route through one backend.
+- **Confirmation tracker** (`src/confirmation_tracker.py`) \u2014 Closes the memory feedback loop. Tracks when memories are confirmed or contradicted during sessions. Wired into memory injection hook. Feeds FSRS scheduling with real-world signal.
+- **Quality sweep LaunchAgent** (`launch-agents/com.memeta.quality-sweep.plist`) \u2014 Automated memory quality audits with Haiku-primary extraction for cost efficiency.
+
+### Changed
+- **Haiku-primary extraction** \u2014 Memory extraction now defaults to Haiku (fast, cheap) with Sonnet escalation only for complex content. Reduces per-session extraction cost ~80%.
+- **LLM extractor refactored** (`src/llm_extractor.py`) \u2014 Simplified from 107-line diff. Now delegates all LLM calls to `llm_backend.py`. Cleaner error handling.
+- **Contradiction detector simplified** (`src/contradiction_detector.py`) \u2014 30-line reduction. Routes through unified LLM backend.
+- **Quality sweep upgraded** (`scripts/quality_sweep.py`) \u2014 Uses LLM backend for grading. Better structured output parsing.
+- **Prompt evolver simplified** (`src/wild/prompt_evolver.py`) \u2014 18-line reduction via LLM backend.
+
+### Fixed
+- **FSRS pipeline reliability** \u2014 Fixed edge cases in spaced repetition scheduling that caused missed reviews.
+- **CI compatibility** \u2014 Added `from __future__ import annotations` to `memory_ts_client.py` for Python 3.11 forward compatibility.
+
+### Stats
+- **3,168 tests passing** (up from 3,149)
+- **153 features** (up from 152)
+- **Net code reduction:** -68 lines (136 added, 204 removed) from LLM backend consolidation
+
+---
+
 ## [0.31.2] - 2026-03-24
 
 CQ-inspired design learnings documented as future enhancement candidates.
