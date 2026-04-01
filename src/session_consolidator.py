@@ -8,6 +8,7 @@ Future enhancement: Use Anthropic API for LLM-powered extraction.
 """
 
 import json
+import re
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -20,6 +21,16 @@ from .extraction_patterns import extract_memories_patterns as _extract_patterns
 from .extraction_patterns import NORMALIZE_PATTERN
 from .dedup import deduplicate as _deduplicate_memories
 from .dedup import smart_dedup_decision as _smart_dedup_decision
+
+# Strip <system-reminder> blocks injected by hooks — these contain memory YAML/JSON
+# and cause the LLM extractor to produce garbled "corrections"
+_SYSTEM_REMINDER_RE = re.compile(r'<system-reminder>.*?</system-reminder>', re.DOTALL | re.IGNORECASE)
+
+
+def _strip_system_reminders(text: str) -> str:
+    """Remove injected system-reminder blocks before extraction."""
+    return _SYSTEM_REMINDER_RE.sub('', text).strip()
+
 
 # Imported at module level so monkeypatch can target it for tests
 try:
@@ -157,17 +168,19 @@ class SessionConsolidator:
                 text_parts = []
                 for block in content:
                     if isinstance(block, dict) and block.get('type') == 'text':
-                        text = block.get('text', '')
+                        text = _strip_system_reminders(block.get('text', ''))
                         if text and not _is_garbage_content(text):
                             text_parts.append(text)
                     elif isinstance(block, str):
-                        if not _is_garbage_content(block):
-                            text_parts.append(block)
+                        cleaned = _strip_system_reminders(block)
+                        if cleaned and not _is_garbage_content(cleaned):
+                            text_parts.append(cleaned)
                 if text_parts:
                     parts.append(f"{role}: {' '.join(text_parts)}")
             elif isinstance(content, str):
-                if not _is_garbage_content(content):
-                    parts.append(f"{role}: {content}")
+                cleaned = _strip_system_reminders(content)
+                if cleaned and not _is_garbage_content(cleaned):
+                    parts.append(f"{role}: {cleaned}")
 
         return "\n\n".join(parts)
 

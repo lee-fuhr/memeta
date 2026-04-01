@@ -84,6 +84,69 @@ class TestSessionReading:
         assert "client objections" in conversation_text.lower()
         assert "acknowledge their concern" in conversation_text.lower()
 
+    def test_system_reminders_stripped_from_text_blocks(self, consolidator):
+        """system-reminder blocks injected by hooks are stripped before extraction"""
+        real_content = "We should always delegate to specialist agents before executing work ourselves."
+        messages = [
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": (
+                            f"{real_content}\n"
+                            "<system-reminder>\n"
+                            "---\n"
+                            "name: voice preference\n"
+                            "type: feedback\n"
+                            "---\n"
+                            "Never use em-dashes.\n"
+                            "</system-reminder>"
+                        )
+                    }
+                ]
+            }
+        ]
+        result = consolidator.extract_conversation_text(messages)
+        assert "<system-reminder>" not in result
+        assert "name: voice preference" not in result
+        assert "type: feedback" not in result
+        assert real_content in result
+
+    def test_system_reminders_stripped_from_string_content(self, consolidator):
+        """system-reminder stripping works on plain string content too"""
+        real_content = "Always load the voice skill before drafting communications on Lee's behalf."
+        messages = [
+            {
+                "role": "user",
+                "content": (
+                    f"{real_content}\n"
+                    "<system-reminder>injected YAML frontmatter here with type: feedback fields</system-reminder>"
+                )
+            }
+        ]
+        result = consolidator.extract_conversation_text(messages)
+        assert "injected YAML frontmatter here" not in result
+        assert real_content in result
+
+    def test_multiple_system_reminders_stripped(self, consolidator):
+        """Multiple system-reminder blocks all removed"""
+        real_content = "Delegate to the specialist agent before attempting to execute the work directly."
+        messages = [
+            {
+                "role": "user",
+                "content": (
+                    "<system-reminder>first injected block with memory content</system-reminder> "
+                    f"{real_content} "
+                    "<system-reminder>second block: {\"type\": \"correction\", \"content\": \"garbled\"}</system-reminder>"
+                )
+            }
+        ]
+        result = consolidator.extract_conversation_text(messages)
+        assert "first injected block" not in result
+        assert "second block" not in result
+        assert real_content in result
+
     def test_handle_nonexistent_session(self, consolidator):
         """Handle missing session file gracefully"""
         with pytest.raises(FileNotFoundError):
